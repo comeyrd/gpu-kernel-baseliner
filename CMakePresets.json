@@ -1,0 +1,62 @@
+{
+  "version": 6,
+  "configurePresets": [
+    {
+      "name": "dev",
+      "description": "Base preset for library developers",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "hidden": true
+    },
+    {
+      "name": "debug",
+      "inherits": "dev",
+      "displayName": "Debug",
+      "description": "Full debug build with all symbols, no optimization, all warnings as errors",
+      "cacheVariables": {
+        "BASELINER_BUILD_EXAMPLES": "ON",
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_CXX_FLAGS": "-Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -Wimplicit-fallthrough",
+        "CMAKE_CXX_FLAGS_DEBUG": "-g3 -O0 -fno-omit-frame-pointer -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC",
+        "CMAKE_CUDA_FLAGS": "-Werror all-warnings",
+        "CMAKE_CUDA_FLAGS_DEBUG": "-g -G -O0",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "release",
+      "inherits": "dev",
+      "displayName": "Release",
+      "description": "Maximum optimization release build with all warnings as errors",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_CXX_FLAGS": "-Wall -Wextra -Wpedantic -Werror",
+        "CMAKE_CXX_FLAGS_RELEASE": "-O3 -march=native -DNDEBUG -ffast-math -funroll-loops",
+        "CMAKE_CUDA_FLAGS": "-Werror all-warnings",
+        "CMAKE_CUDA_FLAGS_RELEASE": "-O3 -DNDEBUG --use_fast_math --extra-device-vectorization",
+        "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "debug",
+      "configurePreset": "debug"
+    },
+    {
+      "name": "release",
+      "configurePreset": "release"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "debug",
+      "configurePreset": "debug",
+      "output": { "outputOnFailure": true }
+    },
+    {
+      "name": "release",
+      "configurePreset": "release",
+      "output": { "outputOnFailure": true }
+    }
+  ]
+}
