@@ -1,1 +1,1 @@
-add_subdirectory(device-manipulation)
+add_subdirectory(cuda-manipulation)

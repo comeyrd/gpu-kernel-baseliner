@@ -1,17 +1,20 @@
 cmake_minimum_required(VERSION 3.15)
 project(baseliner VERSION 1.0.0 LANGUAGES CXX)
+set(CMAKE_CXX_CLANG_TIDY clang-tidy)
+include(CheckLanguage)
+check_language(CUDA)
+if(CMAKE_CUDA_COMPILER)
+    enable_language(CUDA)
+    set(BASELINER_HAS_CUDA ON)
+endif()
 
-add_library(baseliner SHARED
-    src/backend/Backend.hpp
-    src/backend/Backend.cpp)
-
-add_library(baseliner::baseliner ALIAS baseliner)
-
-target_include_directories(baseliner PUBLIC 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src)
-
+check_language(HIP)
+if(CMAKE_HIP_COMPILER)
+    enable_language(HIP)
+    set(BASELINER_HAS_HIP ON)
+endif()
+add_subdirectory(src)
 option(BASELINER_BUILD_EXAMPLES "Build baseliner examples" OFF)
-
 if(BASELINER_BUILD_EXAMPLES)
     add_subdirectory(examples)
 endif()
