@@ -5,7 +5,7 @@ namespace Baseliner {
     HipBackend::L2Flusher::L2Flusher() {
       int dev_id{};
       CHECK_HIP(hipGetDevice(&dev_id));
-      CHECK_HIP(hipDeviceGetAttribute(&buffer_size, hipDeviceAttributeL2CacheSize, dev_id));
+      CHECK_HIP(hipDeviceGetAttribute(&m_buffer_size, hipDeviceAttributeL2CacheSize, dev_id));
       if (m_buffer_size > 0) {
         void *buffer = m_l2_buffer;
         CHECK_HIP(hipMalloc(&buffer, static_cast<std::size_t>(m_buffer_size)));
