@@ -15,8 +15,8 @@ namespace Baseliner {
         virtual void flush(stream_t stream) = 0;
 
       protected:
-        int buffer_size{};
-        int *l2_buffer{};
+        int m_buffer_size{};
+        int *m_l2_buffer{};
       };
       class BlockingKernel {
       public:
@@ -42,9 +42,9 @@ namespace Baseliner {
         };
       };
       class GpuTimer : public ITimer<stream_t> {
-      private:
-        event_t start_event;
-        event_t stop_event;
+      protected:
+        event_t m_start_event;
+        event_t m_stop_event;
       };
     };
   } // namespace Backend

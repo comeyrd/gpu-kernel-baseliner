@@ -1,6 +1,4 @@
-target_sources(baseliner PRIVATE
-    Backend.cpp
-)
+#target_sources(baseliner PRIVATE)
 
 if(BASELINER_HAS_CUDA)
     add_subdirectory(cuda)

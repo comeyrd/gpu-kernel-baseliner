@@ -1,11 +1,13 @@
 #ifndef HIP_BACKEND_HPP
 #define HIP_BACKEND_HPP
 #include "backend/Backend.hpp"
+#include "Kernel.hpp"
 #include <hip/hip_runtime.h>
 void check_hip_error(hipError_t error_code, const char *file, int line);
 #define CHECK_HIP(error) check_hip_error(error, __FILE__, __LINE__)
 
 namespace Baseliner {
+  using IHipKernel = IKernel<hipStream_t>;
   namespace Backend {
     class HipBackend : public IDevice<hipEvent_t, hipStream_t> {
     public:
@@ -31,10 +33,6 @@ namespace Baseliner {
         void start(hipStream_t stream) override;
         void stop(hipStream_t stream) override;
         float time_elapsed() override;
-
-      private:
-        hipEvent_t start_event;
-        hipEvent_t stop_event;
       };
     };
 

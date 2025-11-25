@@ -1,10 +1,13 @@
 #ifndef CUDA_BACKEND_HPP
 #define CUDA_BACKEND_HPP
+#include "Kernel.hpp"
 #include "backend/Backend.hpp"
 void check_cuda_error(cudaError_t error_code, const char *file, int line);
 #define CHECK_CUDA(error) check_cuda_error(error, __FILE__, __LINE__)
 
 namespace Baseliner {
+  using ICudaKernel = IKernel<cudaStream_t>;
+
   namespace Backend {
     class CudaBackend : public IDevice<cudaEvent_t, cudaStream_t> {
     public:
@@ -30,10 +33,6 @@ namespace Baseliner {
         void start(cudaStream_t stream) override;
         void stop(cudaStream_t stream) override;
         float time_elapsed() override;
-
-      private:
-        cudaEvent_t start_event;
-        cudaEvent_t stop_event;
       };
     };
 
