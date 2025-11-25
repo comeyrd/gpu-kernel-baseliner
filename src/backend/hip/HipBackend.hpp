@@ -1,39 +1,40 @@
-#ifndef CUDA_BACKEND_HPP
-#define CUDA_BACKEND_HPP
+#ifndef HIP_BACKEND_HPP
+#define HIP_BACKEND_HPP
 #include "backend/Backend.hpp"
-void check_cuda_error(cudaError_t error_code, const char *file, int line);
-#define CHECK_CUDA(error) check_cuda_error(error, __FILE__, __LINE__)
+#include <hip/hip_runtime.h>
+void check_hip_error(hipError_t error_code, const char *file, int line);
+#define CHECK_HIP(error) check_hip_error(error, __FILE__, __LINE__)
 
 namespace Baseliner {
   namespace Backend {
-    class CudaBackend : public IDevice<cudaEvent_t, cudaStream_t> {
+    class HipBackend : public IDevice<hipEvent_t, hipStream_t> {
     public:
-      void synchronize(cudaStream_t stream) override;
+      void synchronize(hipStream_t stream) override;
       void set_device(int device) override;
       void reset_device() override;
       class L2Flusher : public IDevice::L2Flusher {
       public:
         L2Flusher();
         ~L2Flusher();
-        void flush(cudaStream_t stream) override;
+        void flush(hipStream_t stream) override;
       };
       class BlockingKernel : public IDevice::BlockingKernel {
       public:
         BlockingKernel();
-        void block(cudaStream_t stream, double timeout) override;
+        void block(hipStream_t stream, double timeout) override;
         ~BlockingKernel();
       };
       class GpuTimer : public IDevice::GpuTimer {
       public:
         GpuTimer();
         ~GpuTimer();
-        void start(cudaStream_t stream) override;
-        void stop(cudaStream_t stream) override;
+        void start(hipStream_t stream) override;
+        void stop(hipStream_t stream) override;
         float time_elapsed() override;
 
       private:
-        cudaEvent_t start_event;
-        cudaEvent_t stop_event;
+        hipEvent_t start_event;
+        hipEvent_t stop_event;
       };
     };
 
@@ -41,4 +42,4 @@ namespace Baseliner {
 
 } // namespace Baseliner
 
-#endif // CUDA_BACKEND_HPP
+#endif // HIP_BACKEND_HPP

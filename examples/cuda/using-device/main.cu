@@ -64,9 +64,9 @@ void run_kernel() {
   }
   std::cout << std::endl;
   CHECK_CUDA(cudaMemcpy(h_c.data(), d_c, N * sizeof(int), cudaMemcpyDeviceToHost));
-  cudaFree(d_a);
-  cudaFree(d_b);
-  cudaFree(d_c);
+  CHECK_CUDA(cudaFree(d_a));
+  CHECK_CUDA(cudaFree(d_b));
+  CHECK_CUDA(cudaFree(d_c));
 }
 
 int main() {

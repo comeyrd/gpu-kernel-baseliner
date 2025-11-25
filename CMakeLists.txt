@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
 project(baseliner VERSION 1.0.0 LANGUAGES CXX)
-set(CMAKE_CXX_CLANG_TIDY clang-tidy)
 include(CheckLanguage)
 check_language(CUDA)
 if(CMAKE_CUDA_COMPILER)
