@@ -1,9 +1,10 @@
 #ifndef HIP_BACKEND_HPP
 #define HIP_BACKEND_HPP
 #include<chrono>
+#include <hip/hip_runtime.h>
 #include "backend/Backend.hpp"
 #include "Kernel.hpp"
-#include <hip/hip_runtime.h>
+#include "ITimer.hpp"
 void check_hip_error(hipError_t error_code, const char *file, int line);
 #define CHECK_HIP(error) check_hip_error(error, __FILE__, __LINE__)
 
@@ -33,7 +34,7 @@ namespace Baseliner {
         ~GpuTimer();
         void start(hipStream_t stream) override;
         void stop(hipStream_t stream) override;
-        std::chrono::duration<float, std::milli> time_elapsed() override;
+       float_milliseconds time_elapsed() override;
       };
     };
 

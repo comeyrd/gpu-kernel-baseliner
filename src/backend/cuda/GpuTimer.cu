@@ -12,7 +12,7 @@ std::chrono::duration<float, std::milli> CudaBackend::GpuTimer::time_elapsed(){
   float result;
   CHECK_CUDA(cudaEventSynchronize(m_stop_event));
   CHECK_CUDA(cudaEventElapsedTime(&result, m_start_event, m_stop_event));
-  return std::chrono::duration<float, std::milli>(result);
+  return float_milliseconds(result);
 }
 
 CudaBackend::GpuTimer::GpuTimer(){

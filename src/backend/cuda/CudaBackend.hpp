@@ -3,6 +3,7 @@
 #include <chrono>
 #include "Kernel.hpp"
 #include "backend/Backend.hpp"
+#include "ITimer.hpp"
 void check_cuda_error(cudaError_t error_code, const char *file, int line);
 #define CHECK_CUDA(error) check_cuda_error(error, __FILE__, __LINE__)
 
@@ -33,7 +34,7 @@ namespace Baseliner {
         ~GpuTimer();
         void start(cudaStream_t stream) override;
         void stop(cudaStream_t stream) override;
-        std::chrono::duration<float, std::milli> time_elapsed() override;
+        float_milliseconds time_elapsed() override;
       };
     };
 
