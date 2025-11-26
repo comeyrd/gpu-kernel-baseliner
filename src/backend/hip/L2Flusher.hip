@@ -15,7 +15,7 @@ namespace Baseliner {
     HipBackend::L2Flusher::~L2Flusher() {
       if (m_l2_buffer) {
         CHECK_HIP(hipFree(m_l2_buffer));
-      }
+    }
     }
 
     void HipBackend::L2Flusher::flush(std::shared_ptr<hipStream_t> stream) {

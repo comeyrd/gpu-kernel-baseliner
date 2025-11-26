@@ -8,7 +8,7 @@ void CudaBackend::GpuTimer::start(){
 void CudaBackend::GpuTimer::stop(){
   CHECK_CUDA(cudaEventRecord(m_stop_event,*m_stream));
 }
-std::chrono::duration<float, std::milli> CudaBackend::GpuTimer::time_elapsed(){
+float_milliseconds CudaBackend::GpuTimer::time_elapsed(){
   float result;
   CHECK_CUDA(cudaEventSynchronize(m_stop_event));
   CHECK_CUDA(cudaEventElapsedTime(&result, m_start_event, m_stop_event));

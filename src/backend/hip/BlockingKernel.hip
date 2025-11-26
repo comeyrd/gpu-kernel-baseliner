@@ -41,19 +41,19 @@ namespace Baseliner {
   namespace Backend {
     HipBackend::BlockingKernel::BlockingKernel() {
       CHECK_HIP(hipHostRegister(&m_host_flag, sizeof(m_host_flag), hipHostRegisterMapped));
-      CHECK_HIP(hipHostGetDevicePointer((void **)&m_device_flag, &m_host_flag, 0));
+      CHECK_HIP(hipHostGetDevicePointer((void**)&m_device_flag, &m_host_flag, 0));
       CHECK_HIP(hipHostRegister(&m_host_timeout_flag, sizeof(m_host_timeout_flag), hipHostRegisterMapped));
-      CHECK_HIP(hipHostGetDevicePointer((void **)&m_device_timeout_flag, &m_host_timeout_flag, 0));
+      CHECK_HIP(hipHostGetDevicePointer((void**)&m_device_timeout_flag, &m_host_timeout_flag, 0));
     }
     HipBackend::BlockingKernel::~BlockingKernel() {
       CHECK_HIP(hipGetLastError());
       CHECK_HIP(hipHostUnregister(&m_host_flag));
       CHECK_HIP(hipHostUnregister(&m_host_timeout_flag));
     }
-    void HipBackend::BlockingKernel::block(hipStream_t stream, double timeout) {
+    void HipBackend::BlockingKernel::block(std::shared_ptr<hipStream_t> stream, double timeout) {
       m_host_flag = 0;
       m_host_timeout_flag = 0;
-      block_stream<<<1, 1, 0, stream>>>(m_device_flag, m_device_timeout_flag, timeout);
+      block_stream<<<1, 1, 0, *stream>>>(m_device_flag, m_device_timeout_flag, timeout);
     }
   } // namespace Backend
 
