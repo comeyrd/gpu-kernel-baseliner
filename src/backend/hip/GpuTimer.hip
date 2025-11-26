@@ -8,7 +8,7 @@ namespace Baseliner {
     void HipBackend::GpuTimer::stop(hipStream_t stream) {
       CHECK_HIP(hipEventRecord(m_stop_event, stream));
     }
-    float HipBackend::GpuTimer::time_elapsed() {
+    float_milliseconds HipBackend::GpuTimer::time_elapsed() {
       float result;
       CHECK_HIP(hipEventSynchronize(m_stop_event));
       CHECK_HIP(hipEventElapsedTime(&result, m_start_event, m_stop_event));

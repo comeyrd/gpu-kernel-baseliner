@@ -19,7 +19,7 @@ __global__ void computation_kernel(int *a, int *b, int *c, int N) {
 
 
 int main() {
-  std::cout << "Cuda Device Manipuation" << std::endl;
+  std::cout << "Hip Kernel Manipuation" << std::endl;
   int work_size = 1;
   auto input = Computation::Input(work_size);
   input.generate_random();
