@@ -35,7 +35,7 @@ int main() {
   timer.start(stream);
   impl.run(stream);
   timer.stop(stream);
-  std::cout << "Warmup: " << timer.time_elapsed() << std::endl;
+  std::cout << "Warmup: " << timer.time_elapsed().count() << std::endl;
 
 for (int r = 0; r < 10; r++) {
     flusher.flush(stream);
@@ -44,7 +44,7 @@ for (int r = 0; r < 10; r++) {
     impl.run(stream);
     timer.stop(stream);
     blocker.unblock();
-    std::cout << timer.time_elapsed() << " | ";
+    std::cout << timer.time_elapsed().count() << " | ";
   }
   impl.teardown(output);
   std::cout << std::endl;

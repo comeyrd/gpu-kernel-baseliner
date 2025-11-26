@@ -12,7 +12,7 @@ namespace Baseliner {
       float result;
       CHECK_HIP(hipEventSynchronize(m_stop_event));
       CHECK_HIP(hipEventElapsedTime(&result, m_start_event, m_stop_event));
-      return result;
+      return std::chrono::duration<float, std::milli>(result);
     }
 
     HipBackend::GpuTimer::GpuTimer() {

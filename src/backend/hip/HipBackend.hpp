@@ -1,5 +1,6 @@
 #ifndef HIP_BACKEND_HPP
 #define HIP_BACKEND_HPP
+#include<chrono>
 #include "backend/Backend.hpp"
 #include "Kernel.hpp"
 #include <hip/hip_runtime.h>
@@ -32,7 +33,7 @@ namespace Baseliner {
         ~GpuTimer();
         void start(hipStream_t stream) override;
         void stop(hipStream_t stream) override;
-        float time_elapsed() override;
+        std::chrono::duration<float, std::milli> time_elapsed() override;
       };
     };
 

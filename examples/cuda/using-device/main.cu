@@ -51,7 +51,7 @@ void run_kernel() {
   timer.start(stream);
   computation_kernel<<<blocksPerGrid, threadsPerBlock, 0, stream>>>(d_a, d_b, d_c, N);
   timer.stop(stream);
-  std::cout << "Warmup: " << timer.time_elapsed() << std::endl;
+  std::cout << "Warmup: " << timer.time_elapsed().count() << std::endl;
 
   for (int r = 0; r < 10; r++) {
     flusher.flush(stream);
@@ -60,7 +60,7 @@ void run_kernel() {
     computation_kernel<<<blocksPerGrid, threadsPerBlock, 0, stream>>>(d_a, d_b, d_c, N);
     timer.stop(stream);
     blocker.unblock();
-    std::cout << timer.time_elapsed() << " | ";
+    std::cout << timer.time_elapsed().count() << " | ";
   }
   std::cout << std::endl;
   CHECK_CUDA(cudaMemcpy(h_c.data(), d_c, N * sizeof(int), cudaMemcpyDeviceToHost));
