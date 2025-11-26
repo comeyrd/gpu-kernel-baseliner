@@ -13,9 +13,13 @@ namespace Baseliner {
       }
     }
     HipBackend::L2Flusher::~L2Flusher() {
+      if (m_l2_buffer) {
+        CHECK_HIP(hipFree(m_l2_buffer));
+      }
     }
 
-    void HipBackend::L2Flusher::flush(hipStream_t stream) {
+    void HipBackend::L2Flusher::flush(std::shared_ptr<hipStream_t> stream) {
+      CHECK_HIP(hipMemsetAsync(m_l2_buffer, 0, static_cast<std::size_t>(m_buffer_size), *stream));
     }
   } // namespace Backend
 

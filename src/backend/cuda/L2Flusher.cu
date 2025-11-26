@@ -13,9 +13,13 @@ namespace Baseliner {
       }
     }
     CudaBackend::L2Flusher::~L2Flusher() {
+      if (m_l2_buffer) {
+        CHECK_CUDA(cudaFree(m_l2_buffer));
+    }
     }
 
-    void CudaBackend::L2Flusher::flush(cudaStream_t stream) {
+    void CudaBackend::L2Flusher::flush(std::shared_ptr<cudaStream_t> stream) {
+      CHECK_CUDA(cudaMemsetAsync(m_l2_buffer, 0, static_cast<std::size_t>(m_buffer_size), *stream));
     }
   } // namespace Backend
 

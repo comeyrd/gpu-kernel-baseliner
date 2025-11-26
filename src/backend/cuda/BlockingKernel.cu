@@ -50,10 +50,10 @@ namespace Baseliner {
       CHECK_CUDA(cudaHostUnregister(&m_host_flag));
       CHECK_CUDA(cudaHostUnregister(&m_host_timeout_flag));
     }
-    void CudaBackend::BlockingKernel::block(cudaStream_t stream, double timeout) {
+    void CudaBackend::BlockingKernel::block(std::shared_ptr<cudaStream_t> stream, double timeout) {
       m_host_flag = 0;
       m_host_timeout_flag = 0;
-      block_stream<<<1, 1, 0, stream>>>(m_device_flag, m_device_timeout_flag, timeout);
+      block_stream<<<1, 1, 0, *stream>>>(m_device_flag, m_device_timeout_flag, timeout);
     }
   } // namespace Backend
 

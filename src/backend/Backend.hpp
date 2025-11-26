@@ -2,17 +2,21 @@
 #define BACKEND_HPP
 #include "ITimer.hpp"
 #include <iostream>
+#include <memory>
 namespace Baseliner {
   namespace Backend {
-    template <typename event_t, typename stream_t>
+    template <typename E, typename S>
     class IDevice {
     public:
-      virtual void synchronize(stream_t stream) = 0;
+      using event_t = E;
+      using stream_t = S;
+      virtual std::shared_ptr<stream_t> create_stream() = 0;
+      virtual void synchronize(std::shared_ptr<stream_t> stream) = 0;
       virtual void set_device(int device) = 0;
       virtual void reset_device() = 0;
       class L2Flusher {
       public:
-        virtual void flush(stream_t stream) = 0;
+        virtual void flush(std::shared_ptr<stream_t> stream) = 0;
 
       protected:
         int m_buffer_size{};
@@ -20,7 +24,7 @@ namespace Baseliner {
       };
       class BlockingKernel {
       public:
-        virtual void block(stream_t stream, double timeout) = 0;
+        virtual void block(std::shared_ptr<stream_t> stream, double timeout) = 0;
         inline void unblock() {
           volatile int &flag = m_host_flag;
           flag = 1;
@@ -41,8 +45,11 @@ namespace Baseliner {
           std::cout << "Deadlock detected" << std::endl;
         };
       };
-      class GpuTimer : public ITimer<stream_t> {
+      class GpuTimer : public ITimer {
       protected:
+        explicit GpuTimer(std::shared_ptr<stream_t> stream)
+            : m_stream(stream) {};
+        std::shared_ptr<stream_t> m_stream;
         event_t m_start_event;
         event_t m_stop_event;
       };

@@ -7,6 +7,13 @@ void check_hip_error(hipError_t error_code, const char *file, int line) {
     throw std::runtime_error(msg);
   }
 }
+void check_hip_error_no_except(hipError_t error_code, const char *file, int line) {
+  if (error_code != hipSuccess) {
+    std::string msg = std::string("CUDA Error : ") + hipGetErrorString(error_code) + std::string(" in : ") + file +
+                      std::string(" line ") + std::to_string(line);
+    std::cerr << mst << std::endl;
+  }
+}
 
 namespace Baseliner {
   namespace Backend {
@@ -17,10 +24,20 @@ namespace Baseliner {
       CHECK_HIP(hipDeviceReset());
     }
 
-    void HipBackend::synchronize(hipStream_t stream) {
-      CHECK_HIP(hipStreamSynchronize(stream));
+    void HipBackend::synchronize(std::shared<hipStream_t> stream) {
+      CHECK_HIP(hipStreamSynchronize(*stream));
     }
+    std::shared_ptr<hipStream_t> HipBackend::create_stream() {
+      cudaStream_t *stream = new hipStream_t;
+      CHECK_CUDA(hipStreamCreate(stream));
 
+      return std::shared_ptr<hipStream_t>(stream, [](hipStream_t *s) {
+        if (s) {
+          CHECK_HIP_NO_EXCEPT(hipStreamDestroy(*s));
+          delete s;
+        }
+      });
+    }
   } // namespace Backend
 
 } // namespace Baseliner

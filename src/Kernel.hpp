@@ -1,5 +1,7 @@
 #ifndef KERNEL_HPP
 #define KERNEL_HPP
+#include "Options.hpp"
+#include <memory>
 namespace Baseliner {
 
   // Move only semantics base class
@@ -15,39 +17,38 @@ namespace Baseliner {
     virtual ~MoveOnly() = default;
   };
 
-  template <typename stream_t>
-  class IKernel {
+  class IInput : public MoveOnly, public OptionConsumer {
   public:
-    class Input : public MoveOnly {
-    public:
-      virtual void generate_random() = 0;
-      virtual void resize(const int work_size) = 0;
+    virtual void generate_random() = 0;
+    virtual void resize(int work_size) = 0;
 
-    protected:
-      explicit Input(const int work_size) {};
-    };
-    class Output : public MoveOnly {
-    public:
-      virtual void resize(const int work_size) = 0;
-
-    protected:
-      explicit Output(const int work_size) {};
-    };
-
-    template<typename Input_,typename Output_>
-    class GpuImplementation {
-    public:
-      virtual void setup() = 0;
-      virtual void reset() = 0;
-      virtual void run(stream_t &stream) = 0;
-      virtual void teardown(Output_ &output) = 0;
-      GpuImplementation(const Input_ &input) : m_input(input) {};
-
-    protected:
-      const Input_ &m_input;
-    };
+  protected:
+    int m_work_size;
+    IInput(int work_size)
+        : m_work_size(work_size) {};
+  };
+  class IOutput : public MoveOnly {
+  public:
+    virtual void resize(const int work_size) = 0;
+  protected:
+    IOutput(int work_size) {};
   };
 
+  template <typename stream_t, typename I, typename O>
+  class IKernel {
+  public:
+    using Input = I;
+    using Output = O;
+    virtual void setup() = 0;
+    virtual void reset() = 0;
+    virtual void run(std::shared_ptr<stream_t> &stream) = 0;
+    virtual void teardown(Output &output) = 0;
+    IKernel(const Input &input)
+        : m_input(input) {};
+
+  protected:
+    const Input &m_input;
+  };
 } // namespace Baseliner
 
 #endif // KERNEL_HPP
