@@ -15,7 +15,7 @@ namespace Baseliner {
     CudaBackend::L2Flusher::~L2Flusher() {
       if (m_l2_buffer) {
         CHECK_CUDA(cudaFree(m_l2_buffer));
-    }
+      }
     }
 
     void CudaBackend::L2Flusher::flush(std::shared_ptr<cudaStream_t> stream) {

@@ -30,6 +30,7 @@ namespace Baseliner {
   class IOutput : public MoveOnly {
   public:
     virtual void resize(const int work_size) = 0;
+
   protected:
     IOutput(int work_size) {};
   };
@@ -39,6 +40,7 @@ namespace Baseliner {
   public:
     using Input = I;
     using Output = O;
+    virtual void cpu(Output &output) = 0;
     virtual void setup() = 0;
     virtual void reset() = 0;
     virtual void run(std::shared_ptr<stream_t> &stream) = 0;

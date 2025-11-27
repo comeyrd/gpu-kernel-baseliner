@@ -1,7 +1,7 @@
 #ifndef ITIMER_HPP
 #define ITIMER_HPP
-#include <chrono>
 #include "Durations.hpp"
+#include <chrono>
 class ITimer {
 public:
   virtual void start() = 0;

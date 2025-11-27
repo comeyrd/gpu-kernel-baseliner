@@ -6,7 +6,7 @@
 namespace Baseliner {
 
   class Option {
-    public:
+  public:
     std::string m_name;
     std::string m_description;
     std::string m_value;
@@ -17,7 +17,8 @@ namespace Baseliner {
 
   class OptionConsumer {
   public:
-    virtual std::pair<std::string,InterfaceOptions> describe_options() = 0;
+    virtual const std::string get_name() = 0;
+    virtual std::pair<std::string, InterfaceOptions> describe_options() = 0;
     virtual void apply_options(InterfaceOptions &options) = 0;
   };
 

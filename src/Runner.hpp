@@ -1,0 +1,113 @@
+#ifndef RUNNER_HPP
+#define RUNNER_HPP
+#include "ITimer.hpp"
+#include "Kernel.hpp"
+#include "StoppingCriterion.hpp"
+#include "backend/Backend.hpp"
+#include <iostream>
+namespace Baseliner {
+
+  template <typename Kernel, typename Device>
+  // TODO Setup the static checks at compile time.
+  class Runner : public OptionConsumer {
+  public:
+    // Runner Options
+    int m_work_size = 1;
+    bool m_warmup = true;
+    bool m_flush_l2 = true;
+    bool m_block = true;
+    float m_block_duration_ms = 1000.0;
+
+    // OptionConsumer Interface
+    const std::string get_name() override {
+      return "Runner";
+    }
+
+    void apply_options(Baseliner::InterfaceOptions &options) override {
+      for (auto &option : options) {
+        if (option.m_name == "work_size") {
+          m_work_size = std::stoi(option.m_value);
+        }
+      }
+    };
+
+    std::pair<std::string, InterfaceOptions> describe_options() override {
+      InterfaceOptions RunnerOptions;
+      RunnerOptions.push_back({"work_size", "The work size", std::to_string(m_work_size)});
+      return {get_name(), RunnerOptions};
+    };
+    // Runner
+    // TODO delay the instantiation of everything, because options...
+    explicit Runner(IStoppingCriterion &stopping)
+        : m_stopping(stopping),
+          m_in(m_work_size),
+          m_out_cpu(m_work_size),
+          m_out_gpu(m_work_size),
+          m_backend(),
+          m_stream(m_backend.create_stream()),
+          m_flusher(),
+          m_timer(std::make_unique<typename Device::GpuTimer>(m_stream)),
+          m_blocker() {
+      m_in.generate_random();
+      m_kernel = std::make_unique<Kernel>(m_in);
+    };
+    std::vector<float_milliseconds> run() {
+      m_kernel->cpu(m_out_cpu);
+      m_kernel->setup();
+      preAll();
+      while (!m_stopping.satisfied()) {
+        m_kernel->reset();
+        preRun();
+        m_timer->start();
+        m_kernel->run(m_stream);
+        m_timer->stop();
+        postRun();
+        m_stopping.addTime(m_timer->time_elapsed());
+      }
+      postAll();
+      m_kernel->teardown(m_out_gpu);
+      if (!(m_out_gpu == m_out_cpu)) {
+        std::cout << "Cpu and Gpu cooked different results" << std::endl;
+      }
+      return m_stopping.executionTimes();
+    }
+
+  protected:
+    // Kernel Types
+    typename Kernel::Input m_in;
+    typename Kernel::Output m_out_cpu;
+    typename Kernel::Output m_out_gpu;
+
+    // Backend specifics
+    Device m_backend;
+    typename Device::L2Flusher m_flusher;
+    typename Device::BlockingKernel m_blocker;
+    std::shared_ptr<typename Device::stream_t> m_stream;
+
+    // Kernel Holder
+    std::unique_ptr<Kernel> m_kernel;
+
+    // StoppingCriterion and Timer
+    IStoppingCriterion &m_stopping;
+    std::unique_ptr<ITimer> m_timer;
+
+    void preAll() {
+      if (m_warmup)
+        m_kernel->run(m_stream);
+      m_stopping.reset();
+    };
+    void preRun() {
+      if (m_flush_l2)
+        m_flusher.flush(m_stream);
+      if (m_block)
+        m_blocker.block(m_stream, m_block_duration_ms);
+    };
+    void postRun() {
+      if (m_block)
+        m_blocker.unblock();
+    };
+    void postAll() {};
+  };
+} // namespace Baseliner
+
+#endif // RUNNER_HPP
