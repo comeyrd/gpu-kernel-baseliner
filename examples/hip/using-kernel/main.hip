@@ -1,8 +1,8 @@
 #include "hip/hip_runtime.h"
+#include "main.hpp"
 #include <iostream>
 #include <random>
 #include <vector>
-#include "main.hpp"
 
 __global__ void computation_kernel(int *a, int *b, int *c, int N) {
   int idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -18,6 +18,14 @@ __global__ void computation_kernel(int *a, int *b, int *c, int N) {
   __syncthreads();
 }
 
+void ComputationKernel::cpu(ComputationOutput &output) {
+  for (int i = 0; i < m_input.m_N; ++i) {
+    output.m_c_host[i] = m_input.m_a_host[i] + m_input.m_b_host[i];
+  }
+  for (int i = 1; i < m_input.m_N; ++i) {
+    output.m_c_host[i - 1] = m_input.m_a_host[i] + output.m_c_host[i] + (m_input.m_b_host[i] * m_input.m_b_host[i]);
+  }
+}
 
 int main() {
   std::cout << "Hip Kernel Manipuation" << std::endl;
@@ -38,7 +46,7 @@ int main() {
   timer.stop();
   std::cout << "Warmup: " << timer.time_elapsed().count() << std::endl;
 
-for (int r = 0; r < 10; r++) {
+  for (int r = 0; r < 10; r++) {
     flusher.flush(stream);
     blocker.block(stream, 1000.0);
     timer.start();

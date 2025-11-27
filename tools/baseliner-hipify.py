@@ -20,6 +20,7 @@ def baseliner_hipify(input_file):
         line = line.replace('cuda', 'hip')
         line = line.replace('CUDA', 'HIP')
         line = line.replace('Cuda', 'Hip')
+        line = line.replace('.cu', '.hip')
         modified_lines.append(line)
     hipified_baseliner = "\n".join(modified_lines) + "\n"
     try:

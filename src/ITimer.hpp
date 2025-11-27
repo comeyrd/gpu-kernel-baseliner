@@ -4,6 +4,7 @@
 #include <chrono>
 class ITimer {
 public:
+  virtual ~ITimer() = default;
   virtual void start() = 0;
   virtual void stop() = 0;
   virtual float_milliseconds time_elapsed() = 0;
