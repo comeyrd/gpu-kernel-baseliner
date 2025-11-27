@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 #include "backend/hip/HipBackend.hpp"
 #include <iostream>
 #include <random>
@@ -43,22 +44,23 @@ void run_kernel() {
 
   int threadsPerBlock = 256;
   int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock;
+  auto backend = Baseliner::Backend::HipBackend();
+  auto stream = backend.create_stream();
   auto flusher = Baseliner::Backend::HipBackend::L2Flusher();
-  auto timer = Baseliner::Backend::HipBackend::GpuTimer();
+  auto timer = Baseliner::Backend::HipBackend::GpuTimer(stream);
   auto blocker = Baseliner::Backend::HipBackend::BlockingKernel();
-  hipStream_t stream;
-  CHECK_HIP(hipStreamCreate(&stream));
-  timer.start(stream);
-  computation_kernel<<<blocksPerGrid, threadsPerBlock, 0, stream>>>(d_a, d_b, d_c, N);
-  timer.stop(stream);
+  
+  timer.start();
+  computation_kernel<<<blocksPerGrid, threadsPerBlock, 0, *stream>>>(d_a, d_b, d_c, N);
+  timer.stop();
   std::cout << "Warmup: " << timer.time_elapsed().count() << std::endl;
 
   for (int r = 0; r < 10; r++) {
     flusher.flush(stream);
-    blocker.block(stream, 1000.0);
-    timer.start(stream);
-    computation_kernel<<<blocksPerGrid, threadsPerBlock, 0, stream>>>(d_a, d_b, d_c, N);
-    timer.stop(stream);
+    blocker.block(stream,1000.0);
+    timer.start();
+    computation_kernel<<<blocksPerGrid, threadsPerBlock, 0, *stream>>>(d_a, d_b, d_c, N);
+    timer.stop();
     blocker.unblock();
     std::cout << timer.time_elapsed().count() << " | ";
   }

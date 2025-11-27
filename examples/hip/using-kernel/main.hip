@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 #include <iostream>
 #include <random>
 #include <vector>
@@ -21,28 +22,28 @@ __global__ void computation_kernel(int *a, int *b, int *c, int N) {
 int main() {
   std::cout << "Hip Kernel Manipuation" << std::endl;
   int work_size = 1;
-  auto input = Computation::Input(work_size);
+  auto input = ComputationKernel::Input(work_size);
   input.generate_random();
-  auto output = Computation::Output(work_size);
-  auto impl = Computation::GpuImplementation(input);
+  auto output = ComputationKernel::Output(work_size);
+  auto impl = ComputationKernel(input);
+  auto backend = Baseliner::Backend::HipBackend();
+  auto stream = backend.create_stream();
   auto flusher = Baseliner::Backend::HipBackend::L2Flusher();
-  auto timer = Baseliner::Backend::HipBackend::GpuTimer();
+  auto timer = Baseliner::Backend::HipBackend::GpuTimer(stream);
   auto blocker = Baseliner::Backend::HipBackend::BlockingKernel();
 
-  hipStream_t stream;
-  CHECK_HIP(hipStreamCreate(&stream));
   impl.setup();
-  timer.start(stream);
+  timer.start();
   impl.run(stream);
-  timer.stop(stream);
+  timer.stop();
   std::cout << "Warmup: " << timer.time_elapsed().count() << std::endl;
 
 for (int r = 0; r < 10; r++) {
     flusher.flush(stream);
     blocker.block(stream, 1000.0);
-    timer.start(stream);
+    timer.start();
     impl.run(stream);
-    timer.stop(stream);
+    timer.stop();
     blocker.unblock();
     std::cout << timer.time_elapsed().count() << " | ";
   }
@@ -50,6 +51,6 @@ for (int r = 0; r < 10; r++) {
   std::cout << std::endl;
 }
 
-void Computation::GpuImplementation::run(hipStream_t &stream) {
-  computation_kernel<<<m_blocks, m_threads, 0, stream>>>(m_d_a, m_d_b, m_d_c, m_input.m_N);
+void ComputationKernel::run(std::shared_ptr<hipStream_t> &stream) {
+  computation_kernel<<<m_blocks, m_threads, 0, *stream>>>(m_d_a, m_d_b, m_d_c, m_input.m_N);
 }

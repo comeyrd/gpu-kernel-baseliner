@@ -4,14 +4,15 @@
 #include "Kernel.hpp"
 #include "backend/Backend.hpp"
 #include <chrono>
-#include <hip/hip_runtime.h>
+#include "hip/hip_runtime.h"
 void check_hip_error(hipError_t error_code, const char *file, int line);
 void check_hip_error_no_except(hipError_t error_code, const char *file, int line);
 #define CHECK_HIP(error) check_hip_error(error, __FILE__, __LINE__)
 #define CHECK_HIP_NO_EXCEPT(error) check_hip_error_no_except(error, __FILE__, __LINE__)
 
 namespace Baseliner {
-  using IHipKernel = IKernel<hipStream_t>;
+  template <typename Input, typename Output>
+  using IHipKernel = IKernel<hipStream_t, Input, Output>;
   namespace Backend {
     class HipBackend : public IDevice<hipEvent_t, hipStream_t> {
     public:
