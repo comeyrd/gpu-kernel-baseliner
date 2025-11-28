@@ -19,20 +19,34 @@ namespace Baseliner {
 
   class IInput : public MoveOnly, public OptionConsumer {
   public:
+    std::pair<std::string, InterfaceOptions> describe_options() override {
+      InterfaceOptions IInputOptions;
+      IInputOptions.push_back(
+          {"work_size", "The multiplier to apply to the base work size", std::to_string(m_work_size)});
+      return {get_name(), IInputOptions};
+    };
+
+    void apply_options(InterfaceOptions &options) override {
+      for (Option option : options) {
+        if (option.m_name == "work_size") {
+          m_work_size = std::stoi(option.m_value);
+        }
+      }
+    };
     virtual void generate_random() = 0;
-    virtual void resize(int work_size) = 0;
 
   protected:
-    int m_work_size;
-    IInput(int work_size)
-        : m_work_size(work_size) {};
+    virtual void allocate() = 0;
+    int m_work_size = 1;
+    IInput() = default;
   };
+  template <typename Input>
   class IOutput : public MoveOnly {
   public:
-    virtual void resize(const int work_size) = 0;
-
   protected:
-    IOutput(int work_size) {};
+    const Input &m_input;
+    IOutput(const Input &input)
+        : m_input(input) {};
   };
 
   template <typename stream_t, typename I, typename O>
