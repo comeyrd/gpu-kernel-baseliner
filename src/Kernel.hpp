@@ -16,7 +16,7 @@ namespace Baseliner {
     MoveOnly &operator=(MoveOnly &&) noexcept = default;
     virtual ~MoveOnly() = default;
   };
-
+  // TODO Work on the instantiation of InputData : Reusing old data and saving data to file.
   class IInput : public MoveOnly, public OptionConsumer {
   public:
     std::pair<std::string, InterfaceOptions> describe_options() override {

@@ -40,18 +40,19 @@ namespace Baseliner {
     // TODO delay the instantiation of everything, because options...
     explicit Runner(IStoppingCriterion &stopping)
         : m_stopping(stopping),
-          m_in(m_work_size),
-          m_out_cpu(m_work_size),
-          m_out_gpu(m_work_size),
+          m_input(),
           m_backend(),
           m_stream(m_backend.create_stream()),
           m_flusher(),
           m_timer(std::make_unique<typename Device::GpuTimer>(m_stream)),
           m_blocker() {
-      m_in.generate_random();
-      m_kernel = std::make_unique<Kernel>(m_in);
+      m_input.generate_random();
+      m_kernel = std::make_unique<Kernel>(m_input);
     };
     std::vector<float_milliseconds> run() {
+      m_input.generate_random();
+      typename Kernel::Output m_out_cpu(m_input);
+      typename Kernel::Output m_out_gpu(m_input);
       m_kernel->cpu(m_out_cpu);
       m_kernel->setup();
       preAll();
@@ -74,9 +75,7 @@ namespace Baseliner {
 
   protected:
     // Kernel Types
-    typename Kernel::Input m_in;
-    typename Kernel::Output m_out_cpu;
-    typename Kernel::Output m_out_gpu;
+    typename Kernel::Input m_input;
 
     // Backend specifics
     Device m_backend;
@@ -91,22 +90,22 @@ namespace Baseliner {
     IStoppingCriterion &m_stopping;
     std::unique_ptr<ITimer> m_timer;
 
-    void preAll() {
+    virtual void preAll() {
       if (m_warmup)
         m_kernel->run(m_stream);
       m_stopping.reset();
     };
-    void preRun() {
+    virtual void preRun() {
       if (m_flush_l2)
         m_flusher.flush(m_stream);
       if (m_block)
         m_blocker.block(m_stream, m_block_duration_ms);
     };
-    void postRun() {
+    virtual void postRun() {
       if (m_block)
         m_blocker.unblock();
     };
-    void postAll() {};
+    virtual void postAll() {};
   };
 } // namespace Baseliner
 

@@ -28,10 +28,9 @@ void ComputationKernel::cpu(ComputationOutput &output) {
 
 int main() {
   std::cout << "Cuda Kernel Manipuation" << std::endl;
-  int work_size = 1;
-  auto input = ComputationKernel::Input(work_size);
+  auto input = ComputationKernel::Input();
   input.generate_random();
-  auto output = ComputationKernel::Output(work_size);
+  auto output = ComputationKernel::Output(input);
   auto impl = ComputationKernel(input);
   auto backend = Baseliner::Backend::CudaBackend();
   auto stream = backend.create_stream();

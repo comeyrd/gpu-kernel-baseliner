@@ -14,10 +14,11 @@ public:
     return "ComputationInput";
   }
   std::pair<std::string, Baseliner::InterfaceOptions> describe_options() override {
+    auto pair = IInput::describe_options();
     Baseliner::InterfaceOptions ComputationInputOptions;
-    ComputationInputOptions.push_back(
+    pair.second.push_back(
         {"N", "The number of items in the array for the default work size", std::to_string(m_base_N)});
-    return {get_name(), ComputationInputOptions};
+    return pair;
   };
   void apply_options(Baseliner::InterfaceOptions &options) override {
     IInput::apply_options(options);
@@ -45,7 +46,7 @@ public:
     m_N = m_base_N * m_work_size;
     m_a_host = std::vector<int>(m_N);
     m_b_host = std::vector<int>(m_N);
-  }
+  };
   int m_base_N = DEFAULT_N;
   int m_N;
   std::vector<int> m_a_host;
@@ -89,7 +90,7 @@ public:
   void reset() override {};
   void run(std::shared_ptr<cudaStream_t> &stream) override;
   void teardown(Output &output) override {
-    CHECK_CUDA(cudaMemcpy(output.m_c_host.data(), m_d_c, output.m_N * sizeof(int), cudaMemcpyDeviceToHost));
+    CHECK_CUDA(cudaMemcpy(output.m_c_host.data(), m_d_c, m_input.m_N * sizeof(int), cudaMemcpyDeviceToHost));
     CHECK_CUDA(cudaFree(m_d_a));
     CHECK_CUDA(cudaFree(m_d_b));
     CHECK_CUDA(cudaFree(m_d_c));
