@@ -6,7 +6,7 @@
 #include <vector>
 namespace Baseliner {
 
-  class IStoppingCriterion {
+  class IStoppingCriterion : public OptionConsumer {
   public:
     virtual void addTime(std::chrono::duration<float, std::milli> execution_time) {
       m_execution_times_vector.push_back(execution_time);
@@ -15,7 +15,7 @@ namespace Baseliner {
     std::vector<std::chrono::duration<float, std::milli>> executionTimes() {
       return m_execution_times_vector;
     };
-    void reset() {
+    virtual void reset() {
       m_execution_times_vector.clear();
     }
 
@@ -25,6 +25,12 @@ namespace Baseliner {
 
   class FixedRepetitionStoppingCriterion final : public IStoppingCriterion {
   public:
+    const std::string get_name() override {
+      return "FixedRepetitionStoppingCriterion";
+    };
+    void register_options() override {
+      add_option("nb_repetition", "Numbers of repetitions", max_repetitions);
+    };
     void addTime(std::chrono::duration<float, std::milli> execution_time) override {
       IStoppingCriterion::addTime(execution_time);
       m_repetitions_done++;
@@ -33,6 +39,10 @@ namespace Baseliner {
       return (m_repetitions_done >= max_repetitions);
     };
     FixedRepetitionStoppingCriterion() {};
+    void reset() override {
+      IStoppingCriterion::reset();
+      m_repetitions_done = 0;
+    };
 
   private:
     int m_repetitions_done = 0;

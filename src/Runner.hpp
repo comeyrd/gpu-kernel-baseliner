@@ -9,13 +9,12 @@ namespace Baseliner {
 
   template <typename Kernel, typename Device>
   // TODO Setup the static checks at compile time.
-  class Runner : public OptionConsumer {
+  class Runner : public OptionConsumer, public OptionBroadcaster {
   public:
     // Runner Options
-    int m_work_size = 1;
     bool m_warmup = true;
     bool m_flush_l2 = true;
-    bool m_block = true;
+    bool m_block = false;
     float m_block_duration_ms = 1000.0;
 
     // OptionConsumer Interface
@@ -23,18 +22,15 @@ namespace Baseliner {
       return "Runner";
     }
 
-    void apply_options(Baseliner::InterfaceOptions &options) override {
-      for (auto &option : options) {
-        if (option.m_name == "work_size") {
-          m_work_size = std::stoi(option.m_value);
-        }
-      }
-    };
-
-    std::pair<std::string, InterfaceOptions> describe_options() override {
-      InterfaceOptions RunnerOptions;
-      RunnerOptions.push_back({"work_size", "The work size", std::to_string(m_work_size)});
-      return {get_name(), RunnerOptions};
+    void register_options() override {
+      add_option("block", "Using a blocking kernel", m_block);
+      add_option("block_duration", "Duration of the blocking kernel (in ms)", m_block_duration_ms);
+      add_option("flush", "Enables the flushing of the L2 cache", m_flush_l2);
+      add_option("warmup", "Having a warmup run", m_warmup);
+    }
+    // OptionBroadcaster
+    void register_dependencies() override {
+      register_consumer(m_input);
     };
     // Runner
     // TODO delay the instantiation of everything, because options...
@@ -45,10 +41,8 @@ namespace Baseliner {
           m_stream(m_backend.create_stream()),
           m_flusher(),
           m_timer(std::make_unique<typename Device::GpuTimer>(m_stream)),
-          m_blocker() {
-      m_input.generate_random();
-      m_kernel = std::make_unique<Kernel>(m_input);
-    };
+          m_blocker(),
+          m_kernel(std::make_unique<Kernel>(m_input)) {};
     std::vector<float_milliseconds> run() {
       m_input.generate_random();
       typename Kernel::Output m_out_cpu(m_input);

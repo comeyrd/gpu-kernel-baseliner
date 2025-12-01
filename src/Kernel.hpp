@@ -19,20 +19,9 @@ namespace Baseliner {
   // TODO Work on the instantiation of InputData : Reusing old data and saving data to file.
   class IInput : public MoveOnly, public OptionConsumer {
   public:
-    std::pair<std::string, InterfaceOptions> describe_options() override {
-      InterfaceOptions IInputOptions;
-      IInputOptions.push_back(
-          {"work_size", "The multiplier to apply to the base work size", std::to_string(m_work_size)});
-      return {get_name(), IInputOptions};
-    };
-
-    void apply_options(InterfaceOptions &options) override {
-      for (Option option : options) {
-        if (option.m_name == "work_size") {
-          m_work_size = std::stoi(option.m_value);
-        }
-      }
-    };
+    void register_options() override {
+      add_option("work_size", "The multiplier of the base work size to apply to the kernel", m_work_size);
+    }
     virtual void generate_random() = 0;
 
   protected:
