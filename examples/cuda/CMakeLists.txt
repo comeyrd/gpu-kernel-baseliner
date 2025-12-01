@@ -1,3 +1,5 @@
-add_subdirectory(using-device)
-add_subdirectory(using-kernel)
-add_subdirectory(using-runner)
+add_subdirectory(using_device)
+add_subdirectory(ComputationKernel)
+add_subdirectory(using_kernel)
+add_subdirectory(using_runner)
+add_subdirectory(using_options)

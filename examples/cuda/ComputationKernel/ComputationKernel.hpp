@@ -13,20 +13,12 @@ public:
   const std::string get_name() override {
     return "ComputationInput";
   }
-  std::pair<std::string, Baseliner::InterfaceOptions> describe_options() override {
-    auto pair = IInput::describe_options();
-    Baseliner::InterfaceOptions ComputationInputOptions;
-    pair.second.push_back(
-        {"N", "The number of items in the array for the default work size", std::to_string(m_base_N)});
-    return pair;
+  void register_options() override {
+    IInput::register_options();
+    add_option("work_size", "The multiplier of the base work size to apply to the kernel", m_work_size);
+    add_option("base_N", "The size of the arrays", m_base_N);
   };
-  void apply_options(Baseliner::InterfaceOptions &options) override {
-    IInput::apply_options(options);
-    for (auto &option : options) {
-      if (option.m_name == "N") {
-        m_N = std::stoi(option.m_value);
-      }
-    }
+  void on_update() override {
     allocate();
   };
   void generate_random() override {
