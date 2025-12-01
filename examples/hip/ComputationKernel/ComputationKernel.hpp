@@ -13,21 +13,13 @@ public:
   const std::string get_name() override {
     return "ComputationInput";
   }
-  std::pair<std::string, Baseliner::InterfaceOptions> describe_options() override {
-    Baseliner::InterfaceOptions ComputationInputOptions;
-    ComputationInputOptions.push_back(
-        {"N", "The number of items in the array for the default work size", std::to_string(DEFAULT_N)});
-    ComputationInputOptions.push_back({"work_size", "The actual work_size to be used", std::to_string(m_work_size)});
-    return {get_name(), ComputationInputOptions};
+  void register_options() override {
+    IInput::register_options();
+    add_option("work_size", "The multiplier of the base work size to apply to the kernel", m_work_size);
+    add_option("base_N", "The size of the arrays", m_base_N);
   };
-  void apply_options(Baseliner::InterfaceOptions &options) override {
-    for (auto &option : options) {
-      if (option.m_name == "N") {
-        m_N = std::stoi(option.m_value);
-      } else if (option.m_name == "work_size") {
-        m_work_size = std::stoi(option.m_value);
-      }
-    }
+  void on_update() override {
+    allocate();
   };
   void generate_random() override {
     std::random_device rd;
@@ -38,38 +30,31 @@ public:
       m_b_host[i] = dist(gen);
     }
   };
-  void resize(const int work_size) override {
-    m_N = DEFAULT_N * work_size;
-    m_a_host.resize(m_N);
-    m_b_host.resize(m_N);
+  explicit ComputationInput()
+      : Baseliner::IInput() {
+    allocate();
   };
-  explicit ComputationInput(const int work_size)
-      : Baseliner::IInput(work_size) {
-    m_N = DEFAULT_N * m_work_size;
+  void allocate() override {
+    m_N = m_base_N * m_work_size;
     m_a_host = std::vector<int>(m_N);
     m_b_host = std::vector<int>(m_N);
-  };
+  }
+  int m_base_N = DEFAULT_N;
   int m_N;
   std::vector<int> m_a_host;
   std::vector<int> m_b_host;
 };
 
-class ComputationOutput : public Baseliner::IOutput {
+class ComputationOutput : public Baseliner::IOutput<ComputationInput> {
 public:
-  void resize(const int work_size) override {
-    m_N = DEFAULT_N * work_size;
-    m_c_host.resize(m_N);
+  explicit ComputationOutput(const ComputationInput &input)
+      : Baseliner::IOutput<ComputationInput>(input) {
+    m_c_host = std::vector<int>(m_input.m_N);
   };
-  explicit ComputationOutput(const int work_size)
-      : Baseliner::IOutput(work_size) {
-    m_N = DEFAULT_N * work_size;
-    m_c_host = std::vector<int>(m_N);
-  };
-  int m_N;
   std::vector<int> m_c_host;
   bool operator==(const ComputationOutput &other) const {
-    if (m_N == other.m_N) {
-      for (int i = 0; i < m_N; i++) {
+    if (m_input.m_N == other.m_input.m_N) {
+      for (int i = 0; i < m_input.m_N; i++) {
         if (m_c_host[i] != other.m_c_host[i]) {
           return false;
         }
@@ -97,7 +82,7 @@ public:
   void reset() override {};
   void run(std::shared_ptr<hipStream_t> &stream) override;
   void teardown(Output &output) override {
-    CHECK_HIP(hipMemcpy(output.m_c_host.data(), m_d_c, output.m_N * sizeof(int), hipMemcpyDeviceToHost));
+    CHECK_HIP(hipMemcpy(output.m_c_host.data(), m_d_c, m_input.m_N * sizeof(int), hipMemcpyDeviceToHost));
     CHECK_HIP(hipFree(m_d_a));
     CHECK_HIP(hipFree(m_d_b));
     CHECK_HIP(hipFree(m_d_c));

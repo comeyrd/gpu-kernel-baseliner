@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.15)
-project(using-device LANGUAGES HIP)
+project(using_runner LANGUAGES HIP)
 
 include("../../../cmake/utils.cmake")
 string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}" is_top_level)
@@ -9,8 +9,9 @@ if(is_top_level)
 endif()
 
 set(sources main.hip)
+include_directories(${CMAKE_INCLUDE_CURRENT_DIR})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${sources})
-
-add_executable(using-device)
-target_sources(using-device PRIVATE ${sources})
-target_link_libraries(using-device PRIVATE baseliner::baseliner)
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}")
+add_executable(using_runner)
+target_sources(using_runner PRIVATE ${sources})
+target_link_libraries(using_runner PRIVATE baseliner::baseliner computation_kernel)

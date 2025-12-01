@@ -23,12 +23,21 @@ def baseliner_hipify(input_file):
         line = line.replace('.cu', '.hip')
         modified_lines.append(line)
     hipified_baseliner = "\n".join(modified_lines) + "\n"
+
+    output_file = input_file
+    if input_file.endswith('.cu'):
+        output_file = input_file[:-3] + '.hip'
+
     try:
-        with open(input_file, 'w') as f:
+        with open(output_file, 'w') as f:
             f.write(hipified_baseliner)
-        print(f"Success! Content saved back to {input_file}.")
+        
+        if input_file != output_file and os.path.exists(input_file):
+            os.remove(input_file)
+
+        print(f"Success! Content saved to {output_file}.")
     except IOError as e:
-        print(f"Error: Could not write to file {input_file}: {e}")
+        print(f"Error: Could not write to file {output_file}: {e}")
         sys.exit(1)
         
 def main():
