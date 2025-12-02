@@ -1,9 +1,12 @@
 #ifndef OPTIONS_HPP
 #define OPTIONS_HPP
+#include <iostream>
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
 namespace Baseliner {
   inline std::string bool_to_string(bool value) {
     return std::to_string(static_cast<int>(value));
@@ -13,9 +16,7 @@ namespace Baseliner {
     return (i_value != 0);
   };
 
-  // TODO CHANGE OPTION VECTOR TO OPTION MAP ?
   struct Option {
-    std::string m_name;
     std::string m_description;
     std::string m_value;
   };
@@ -65,7 +66,7 @@ namespace Baseliner {
     return *m_val_ptr;
   };
 
-  using InterfaceOptions = std::vector<Option>;
+  using InterfaceOptions = std::unordered_map<std::string, Option>;
   using OptionsMap = std::unordered_map<std::string, InterfaceOptions>;
 
   class OptionConsumer {
@@ -76,17 +77,22 @@ namespace Baseliner {
       ensure_registered();
       InterfaceOptions opts;
       for (const auto &binding : m_options_bindings) {
-        opts.push_back({binding->m_name, binding->m_description, binding->get_value()});
+        opts[binding->m_name] = Option{binding->m_description, binding->get_value()};
       }
       return opts;
     }
 
     void apply_options(const InterfaceOptions &options) {
       ensure_registered();
-      for (const auto &opt : options) {
+      for (const auto &[name, opt] : options) {
         for (auto &binding : m_options_bindings) {
-          if (binding->m_name == opt.m_name) {
-            binding->update_value(opt.m_value);
+          if (binding->m_name == name) {
+            try {
+              binding->update_value(opt.m_value);
+            } catch (std::invalid_argument const &e) {
+              std::cout << "Error while applying option : " << get_name() << "." << name << "=" << opt.m_value
+                        << " Using default value : " << binding->get_value() << std::endl;
+            }
           }
         }
       }

@@ -15,8 +15,8 @@ int main() {
   Baseliner::OptionsMap omap;
   runner_act.gather_options(omap);
   Baseliner::InterfaceOptions &options = omap["ComputationInput"];
-  for (auto &opt : options) {
-    if (opt.m_name == "work_size") {
+  for (auto &[name, opt] : options) {
+    if (name == "work_size") {
       opt.m_value = "8";
     }
   }
