@@ -1,5 +1,7 @@
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/examples)
 add_subdirectory(using_device)
 add_subdirectory(ComputationKernel)
 add_subdirectory(using_kernel)
 add_subdirectory(using_runner)
 add_subdirectory(using_options)
+add_subdirectory(simple_cli)

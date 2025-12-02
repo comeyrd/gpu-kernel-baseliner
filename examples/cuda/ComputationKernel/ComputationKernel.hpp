@@ -15,7 +15,6 @@ public:
   }
   void register_options() override {
     IInput::register_options();
-    add_option("work_size", "The multiplier of the base work size to apply to the kernel", m_work_size);
     add_option("base_N", "The size of the arrays", m_base_N);
   };
   void on_update() override {
