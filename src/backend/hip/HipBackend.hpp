@@ -1,10 +1,10 @@
 #ifndef HIP_BACKEND_HPP
 #define HIP_BACKEND_HPP
-#include "ITimer.hpp"
 #include "Kernel.hpp"
+#include "Timer.hpp"
 #include "backend/Backend.hpp"
-#include <chrono>
 #include "hip/hip_runtime.h"
+#include <chrono>
 void check_hip_error(hipError_t error_code, const char *file, int line);
 void check_hip_error_no_except(hipError_t error_code, const char *file, int line);
 #define CHECK_HIP(error) check_hip_error(error, __FILE__, __LINE__)

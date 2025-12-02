@@ -1,6 +1,6 @@
 #ifndef BACKEND_HPP
 #define BACKEND_HPP
-#include "ITimer.hpp"
+#include "Timer.hpp"
 #include <iostream>
 #include <memory>
 namespace Baseliner {

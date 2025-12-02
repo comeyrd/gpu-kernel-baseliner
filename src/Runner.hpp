@@ -1,8 +1,8 @@
 #ifndef RUNNER_HPP
 #define RUNNER_HPP
-#include "ITimer.hpp"
 #include "Kernel.hpp"
 #include "StoppingCriterion.hpp"
+#include "Timer.hpp"
 #include "backend/Backend.hpp"
 #include <iostream>
 namespace Baseliner {
@@ -43,6 +43,7 @@ namespace Baseliner {
           m_timer(std::make_unique<typename Device::GpuTimer>(m_stream)),
           m_blocker(),
           m_kernel(std::make_unique<Kernel>(m_input)) {};
+
     std::vector<float_milliseconds> run() {
       m_input.generate_random();
       typename Kernel::Output m_out_cpu(m_input);
