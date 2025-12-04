@@ -8,62 +8,64 @@
 #include <vector>
 
 namespace Baseliner {
-  inline std::string bool_to_string(bool value) {
-    return std::to_string(static_cast<int>(value));
-  };
-  inline bool string_to_bool(std::string value) {
-    int i_value = std::stoi(value);
-    return (i_value != 0);
-  };
+  namespace OptionBindings {
+    inline std::string bool_to_string(bool value) {
+      return std::to_string(static_cast<int>(value));
+    };
+    inline bool string_to_bool(std::string value) {
+      int i_value = std::stoi(value);
+      return (i_value != 0);
+    };
+    struct OptionBindingBase {
+      std::string m_name;
+      std::string m_description;
+      OptionBindingBase(std::string name, std::string description)
+          : m_name(name),
+            m_description(description) {};
+      virtual ~OptionBindingBase() = default;
+      virtual void update_value(const std::string &val) = 0;
+      virtual std::string get_value() const = 0;
+    };
+    template <typename T>
+    struct OptionBinding : public OptionBindingBase {
+      T *m_val_ptr;
+      OptionBinding(std::string name, std::string description, T &var)
+          : OptionBindingBase(name, description),
+            m_val_ptr(&var) {};
+      void update_value(const std::string &val) override;
+      std::string get_value() const override {
+        return std::to_string(*m_val_ptr);
+      };
+    };
+    template <>
+    inline void OptionBinding<int>::update_value(const std::string &val) {
+      *m_val_ptr = std::stoi(val);
+    };
+    template <>
+    inline void OptionBinding<float>::update_value(const std::string &val) {
+      *m_val_ptr = std::stof(val);
+    };
+    template <>
+    inline void OptionBinding<bool>::update_value(const std::string &val) {
+      *m_val_ptr = string_to_bool(val);
+    };
+    template <>
+    inline std::string OptionBinding<bool>::get_value() const {
+      return bool_to_string(*m_val_ptr);
+    };
+    template <>
+    inline void OptionBinding<std::string>::update_value(const std::string &val) {
+      *m_val_ptr = val;
+    };
+    template <>
+    inline std::string OptionBinding<std::string>::get_value() const {
+      return *m_val_ptr;
+    };
+  } // namespace OptionBindings
 
   struct Option {
     std::string m_description;
     std::string m_value;
-  };
-  struct OptionBindingBase {
-    std::string m_name;
-    std::string m_description;
-    OptionBindingBase(std::string name, std::string description)
-        : m_name(name),
-          m_description(description) {};
-    virtual ~OptionBindingBase() = default;
-    virtual void update_value(const std::string &val) = 0;
-    virtual std::string get_value() const = 0;
-  };
-  template <typename T>
-  struct OptionBinding : public OptionBindingBase {
-    T *m_val_ptr;
-    OptionBinding(std::string name, std::string description, T &var)
-        : OptionBindingBase(name, description),
-          m_val_ptr(&var) {};
-    void update_value(const std::string &val) override;
-    std::string get_value() const override {
-      return std::to_string(*m_val_ptr);
-    };
-  };
-  template <>
-  inline void OptionBinding<int>::update_value(const std::string &val) {
-    *m_val_ptr = std::stoi(val);
-  };
-  template <>
-  inline void OptionBinding<float>::update_value(const std::string &val) {
-    *m_val_ptr = std::stof(val);
-  };
-  template <>
-  inline void OptionBinding<bool>::update_value(const std::string &val) {
-    *m_val_ptr = string_to_bool(val);
-  };
-  template <>
-  inline std::string OptionBinding<bool>::get_value() const {
-    return bool_to_string(*m_val_ptr);
-  };
-  template <>
-  inline void OptionBinding<std::string>::update_value(const std::string &val) {
-    *m_val_ptr = val;
-  };
-  template <>
-  inline std::string OptionBinding<std::string>::get_value() const {
-    return *m_val_ptr;
   };
 
   using InterfaceOptions = std::unordered_map<std::string, Option>;
@@ -104,11 +106,11 @@ namespace Baseliner {
     template <typename T>
     void add_option(std::string name, std::string description, T &variable) {
       m_options_bindings.push_back(
-          std::make_unique<OptionBinding<T>>(std::move(name), std::move(description), variable));
+          std::make_unique<OptionBindings::OptionBinding<T>>(std::move(name), std::move(description), variable));
     }
 
   private:
-    std::vector<std::unique_ptr<OptionBindingBase>> m_options_bindings;
+    std::vector<std::unique_ptr<OptionBindings::OptionBindingBase>> m_options_bindings;
     bool m_is_registered = false;
     void ensure_registered() {
       if (!m_is_registered) {
