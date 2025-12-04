@@ -21,8 +21,7 @@ public:
     allocate();
   };
   void generate_random() override {
-    std::random_device rd;
-    std::mt19937 gen(rd());
+    std::default_random_engine gen(seed);
     std::uniform_int_distribution<int> dist(1, 100);
     for (int i = 0; i < m_N; i++) {
       m_a_host[i] = dist(gen);

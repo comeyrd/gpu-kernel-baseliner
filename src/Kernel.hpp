@@ -21,12 +21,14 @@ namespace Baseliner {
   public:
     void register_options() override {
       add_option("work_size", "The multiplier of the base work size to apply to the kernel", m_work_size);
+      add_option("seed", "The seed used for the generation of input data", seed);
     }
     virtual void generate_random() = 0;
 
   protected:
     virtual void allocate() = 0;
     int m_work_size = 1;
+    int seed = 202;
     IInput() = default;
   };
   template <typename Input>
