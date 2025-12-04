@@ -10,13 +10,11 @@ constexpr int DEFAULT_N = 5000;
 
 class ComputationInput : public Baseliner::IInput {
 public:
-  const std::string get_name() override {
-    return "ComputationInput";
-  }
   void register_options() override {
     IInput::register_options();
-    add_option("work_size", "The multiplier of the base work size to apply to the kernel", m_work_size);
-    add_option("base_N", "The size of the arrays", m_base_N);
+    add_option("ComputationInput", "work_size", "The multiplier of the base work size to apply to the kernel",
+               m_work_size);
+    add_option("ComputationInput", "base_N", "The size of the arrays", m_base_N);
   };
   void on_update() override {
     allocate();

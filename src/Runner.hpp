@@ -17,23 +17,19 @@ namespace Baseliner {
     bool m_block = false;
     float m_block_duration_ms = 1000.0;
 
-    // OptionConsumer Interface
-    const std::string get_name() override {
-      return "Runner";
-    }
+    // OptionConsumer Interfac
 
     void register_options() override {
-      add_option("block", "Using a blocking kernel", m_block);
-      add_option("block_duration", "Duration of the blocking kernel (in ms)", m_block_duration_ms);
-      add_option("flush", "Enables the flushing of the L2 cache", m_flush_l2);
-      add_option("warmup", "Having a warmup run", m_warmup);
+      add_option("Runner", "block", "Using a blocking kernel", m_block);
+      add_option("Runner", "block_duration", "Duration of the blocking kernel (in ms)", m_block_duration_ms);
+      add_option("Runner", "flush", "Enables the flushing of the L2 cache", m_flush_l2);
+      add_option("Runner", "warmup", "Having a warmup run", m_warmup);
     }
     // OptionBroadcaster
     void register_dependencies() override {
       register_consumer(m_input);
     };
     // Runner
-    // TODO delay the instantiation of everything, because options...
     explicit Runner(IStoppingCriterion &stopping)
         : m_stopping(stopping),
           m_input(),

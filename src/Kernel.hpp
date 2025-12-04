@@ -20,8 +20,8 @@ namespace Baseliner {
   class IInput : public MoveOnly, public OptionConsumer {
   public:
     void register_options() override {
-      add_option("work_size", "The multiplier of the base work size to apply to the kernel", m_work_size);
-      add_option("seed", "The seed used for the generation of input data", seed);
+      add_option("Kernel", "work_size", "The multiplier of the base work size to apply to the kernel", m_work_size);
+      add_option("Kernel", "seed", "The seed used for the generation of input data", seed);
     }
     virtual void generate_random() = 0;
 

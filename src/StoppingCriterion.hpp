@@ -25,11 +25,8 @@ namespace Baseliner {
 
   class FixedRepetitionStoppingCriterion final : public IStoppingCriterion {
   public:
-    const std::string get_name() override {
-      return "FixedRepetitionStoppingCriterion";
-    };
     void register_options() override {
-      add_option("nb_repetition", "Numbers of repetitions", max_repetitions);
+      add_option("FixedRepetition", "nb_repetition", "Numbers of repetitions", max_repetitions);
     };
     void addTime(std::chrono::duration<float, std::milli> execution_time) override {
       IStoppingCriterion::addTime(execution_time);

@@ -17,10 +17,12 @@ namespace Baseliner {
       return (i_value != 0);
     };
     struct OptionBindingBase {
+      std::string m_interface_name;
       std::string m_name;
       std::string m_description;
-      OptionBindingBase(std::string name, std::string description)
-          : m_name(name),
+      OptionBindingBase(std::string interface_name, std::string name, std::string description)
+          : m_interface_name(interface_name),
+            m_name(name),
             m_description(description) {};
       virtual ~OptionBindingBase() = default;
       virtual void update_value(const std::string &val) = 0;
@@ -29,8 +31,8 @@ namespace Baseliner {
     template <typename T>
     struct OptionBinding : public OptionBindingBase {
       T *m_val_ptr;
-      OptionBinding(std::string name, std::string description, T &var)
-          : OptionBindingBase(name, description),
+      OptionBinding(std::string interface_name, std::string name, std::string description, T &var)
+          : OptionBindingBase(interface_name, name, description),
             m_val_ptr(&var) {};
       void update_value(const std::string &val) override;
       std::string get_value() const override {
@@ -71,29 +73,34 @@ namespace Baseliner {
   using InterfaceOptions = std::unordered_map<std::string, Option>;
   using OptionsMap = std::unordered_map<std::string, InterfaceOptions>;
 
+  inline void mergeOptionsMap(OptionsMap &destination, const OptionsMap &source) {
+    destination.insert(source.begin(), source.end());
+  };
+
   class OptionConsumer {
   public:
-    virtual const std::string get_name() = 0;
     virtual void register_options() = 0;
-    const InterfaceOptions describe_options() {
+    const OptionsMap describe_options() {
       ensure_registered();
-      InterfaceOptions opts;
+      OptionsMap opts;
       for (const auto &binding : m_options_bindings) {
-        opts[binding->m_name] = Option{binding->m_description, binding->get_value()};
+        opts[binding->m_interface_name][binding->m_name] = Option{binding->m_description, binding->get_value()};
       }
       return opts;
     }
 
-    void apply_options(const InterfaceOptions &options) {
+    void apply_options(const OptionsMap &options_map) {
       ensure_registered();
-      for (const auto &[name, opt] : options) {
-        for (auto &binding : m_options_bindings) {
-          if (binding->m_name == name) {
-            try {
-              binding->update_value(opt.m_value);
-            } catch (std::invalid_argument const &e) {
-              std::cout << "Error while applying option : " << get_name() << "." << name << "=" << opt.m_value
-                        << " Using default value : " << binding->get_value() << std::endl;
+      for (const auto &[name, options] : options_map) {
+        for (const auto &[name, opt] : options) {
+          for (auto &binding : m_options_bindings) {
+            if (binding->m_name == name) {
+              try {
+                binding->update_value(opt.m_value);
+              } catch (std::invalid_argument const &e) {
+                std::cout << "Error while applying option : " << binding->m_interface_name << "." << name << "="
+                          << opt.m_value << " Using default value : " << binding->get_value() << std::endl;
+              }
             }
           }
         }
@@ -104,9 +111,9 @@ namespace Baseliner {
   protected:
     virtual void on_update() {};
     template <typename T>
-    void add_option(std::string name, std::string description, T &variable) {
-      m_options_bindings.push_back(
-          std::make_unique<OptionBindings::OptionBinding<T>>(std::move(name), std::move(description), variable));
+    void add_option(std::string interface, std::string name, std::string description, T &variable) {
+      m_options_bindings.push_back(std::make_unique<OptionBindings::OptionBinding<T>>(
+          std::move(interface), std::move(name), std::move(description), variable));
     }
 
   private:
@@ -124,15 +131,13 @@ namespace Baseliner {
     void gather_options(OptionsMap &optionsMap) {
       ensure_initialized();
       for (OptionConsumer *consumer : m_consumers) {
-        optionsMap[consumer->get_name()] = consumer->describe_options();
+        mergeOptionsMap(optionsMap, consumer->describe_options());
       }
     };
     void propagate_options(const OptionsMap &optionsMap) {
       ensure_initialized();
       for (OptionConsumer *consumer : m_consumers) {
-        if (auto option = optionsMap.find(consumer->get_name()); option != optionsMap.end()) {
-          consumer->apply_options(option->second);
-        }
+        consumer->apply_options(optionsMap);
       }
     };
     virtual void register_dependencies() {};
