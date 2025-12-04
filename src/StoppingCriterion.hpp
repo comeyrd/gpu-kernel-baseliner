@@ -25,6 +25,7 @@ namespace Baseliner {
 
   class FixedRepetitionStoppingCriterion final : public IStoppingCriterion {
   public:
+    int max_repetitions = 500;
     void register_options() override {
       add_option("FixedRepetition", "nb_repetition", "Numbers of repetitions", max_repetitions);
     };
@@ -43,7 +44,6 @@ namespace Baseliner {
 
   private:
     int m_repetitions_done = 0;
-    int max_repetitions = 500;
   };
 } // namespace Baseliner
 #endif // STOPPING_CRITERION_HPP
