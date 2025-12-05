@@ -7,17 +7,19 @@
 #include <iostream>
 namespace Baseliner {
 
-  template <typename Kernel, typename Device>
-  // TODO Setup the static checks at compile time.
-  class Runner : public OptionConsumer, public OptionBroadcaster {
+  class RunnerBase : public OptionConsumer, public OptionBroadcaster {
   public:
     // Runner Options
     bool m_warmup = true;
     bool m_flush_l2 = true;
     bool m_block = false;
     float m_block_duration_ms = 1000.0;
-
     // OptionConsumer Interfac
+    virtual std::vector<float_milliseconds> run() = 0;
+    explicit RunnerBase(IStoppingCriterion &stopping)
+        : m_stopping(stopping) {};
+
+    virtual ~RunnerBase() = default;
 
     void register_options() override {
       add_option("Runner", "block", "Using a blocking kernel", m_block);
@@ -25,13 +27,22 @@ namespace Baseliner {
       add_option("Runner", "flush", "Enables the flushing of the L2 cache", m_flush_l2);
       add_option("Runner", "warmup", "Having a warmup run", m_warmup);
     }
+
+  protected:
+    IStoppingCriterion &m_stopping;
+  };
+  template <typename Kernel, typename Device>
+  // TODO Setup the static checks at compile time.
+  class Runner : public RunnerBase {
+  public:
     // OptionBroadcaster
     void register_dependencies() override {
       register_consumer(m_input);
+      register_consumer(m_stopping);
     };
     // Runner
     explicit Runner(IStoppingCriterion &stopping)
-        : m_stopping(stopping),
+        : RunnerBase(stopping),
           m_input(),
           m_backend(),
           m_stream(m_backend.create_stream()),
@@ -40,7 +51,7 @@ namespace Baseliner {
           m_blocker(),
           m_kernel(std::make_unique<Kernel>(m_input)) {};
 
-    std::vector<float_milliseconds> run() {
+    std::vector<float_milliseconds> run() override {
       m_input.generate_random();
       typename Kernel::Output m_out_cpu(m_input);
       typename Kernel::Output m_out_gpu(m_input);
@@ -77,8 +88,7 @@ namespace Baseliner {
     // Kernel Holder
     std::unique_ptr<Kernel> m_kernel;
 
-    // StoppingCriterion and Timer
-    IStoppingCriterion &m_stopping;
+    // Timer
     std::unique_ptr<ITimer> m_timer;
 
     virtual void preAll() {

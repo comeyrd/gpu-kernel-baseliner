@@ -14,9 +14,12 @@ namespace Baseliner {
       virtual void synchronize(std::shared_ptr<stream_t> stream) = 0;
       virtual void set_device(int device) = 0;
       virtual void reset_device() = 0;
+      virtual ~IDevice() = default;
+
       class L2Flusher {
       public:
         virtual void flush(std::shared_ptr<stream_t> stream) = 0;
+        virtual ~L2Flusher() = default;
 
       protected:
         int m_buffer_size{};
@@ -34,6 +37,7 @@ namespace Baseliner {
             BlockingKernel::timeout_detected();
           }
         }
+        virtual ~BlockingKernel() = default;
 
       protected:
         int m_host_flag{};

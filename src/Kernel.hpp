@@ -30,6 +30,7 @@ namespace Baseliner {
     int m_work_size = 1;
     int seed = 202;
     IInput() = default;
+    virtual ~IInput() = default;
   };
   template <typename Input>
   class IOutput : public MoveOnly {
@@ -38,6 +39,7 @@ namespace Baseliner {
     const Input &m_input;
     IOutput(const Input &input)
         : m_input(input) {};
+    virtual ~IOutput() = default;
   };
 
   template <typename stream_t, typename I, typename O>
@@ -52,6 +54,7 @@ namespace Baseliner {
     virtual void teardown(Output &output) = 0;
     IKernel(const Input &input)
         : m_input(input) {};
+    virtual ~IKernel() = default;
 
   protected:
     const Input &m_input;

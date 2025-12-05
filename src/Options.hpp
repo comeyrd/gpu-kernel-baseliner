@@ -107,6 +107,7 @@ namespace Baseliner {
       }
       on_update();
     }
+    virtual ~OptionConsumer() = default;
 
   protected:
     virtual void on_update() {};
@@ -141,6 +142,7 @@ namespace Baseliner {
       }
     };
     virtual void register_dependencies() {};
+    virtual ~OptionBroadcaster() = default;
 
   protected:
     void register_consumer(OptionConsumer &consumer) {
