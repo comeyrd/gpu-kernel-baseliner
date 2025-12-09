@@ -10,5 +10,6 @@ namespace Baseliner {
     virtual void stop() = 0;
     virtual float_milliseconds time_elapsed() = 0;
   };
+
 } // namespace Baseliner
 #endif // ITIMER_HPP

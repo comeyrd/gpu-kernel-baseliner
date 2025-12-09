@@ -14,13 +14,13 @@ namespace Baseliner {
     bool m_flush_l2 = true;
     bool m_block = false;
     float m_block_duration_ms = 1000.0;
-    // OptionConsumer Interfac
     virtual std::vector<float_milliseconds> run() = 0;
     explicit RunnerBase(IStoppingCriterion &stopping)
         : m_stopping(stopping) {};
 
     virtual ~RunnerBase() = default;
 
+    // OptionConsumer Interface
     void register_options() override {
       add_option("Runner", "block", "Using a blocking kernel", m_block);
       add_option("Runner", "block_duration", "Duration of the blocking kernel (in ms)", m_block_duration_ms);
@@ -41,15 +41,25 @@ namespace Baseliner {
       register_consumer(m_stopping);
     };
     // Runner
-    explicit Runner(IStoppingCriterion &stopping)
+
+    explicit Runner(IStoppingCriterion &stopping, std::unique_ptr<ITimer> timer)
         : RunnerBase(stopping),
           m_input(),
           m_backend(),
           m_stream(m_backend.create_stream()),
           m_flusher(),
-          m_timer(std::make_unique<typename Device::GpuTimer>(m_stream)),
+          m_timer(std::move(timer)),
           m_blocker(),
-          m_kernel(std::make_unique<Kernel>(m_input)) {};
+          m_kernel(std::make_unique<Kernel>(m_input)) {
+      // Will work if an overload of Device::GpuTimer
+      typename Device::GpuTimer *gpu_timer_ptr = dynamic_cast<typename Device::GpuTimer *>(m_timer.get());
+      if (gpu_timer_ptr) {
+        gpu_timer_ptr->set_stream(m_stream);
+      }
+    };
+
+    explicit Runner(IStoppingCriterion &stopping)
+        : Runner(stopping, std::make_unique<typename Device::GpuTimer>()) {};
 
     std::vector<float_milliseconds> run() override {
       m_input.generate_random();

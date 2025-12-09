@@ -50,9 +50,13 @@ namespace Baseliner {
         };
       };
       class GpuTimer : public ITimer {
+      public:
+        void set_stream(std::shared_ptr<stream_t> stream) {
+          m_stream = stream;
+        };
+
       protected:
-        explicit GpuTimer(std::shared_ptr<stream_t> stream)
-            : m_stream(stream) {};
+        explicit GpuTimer() {};
         std::shared_ptr<stream_t> m_stream;
         event_t m_start_event;
         event_t m_stop_event;

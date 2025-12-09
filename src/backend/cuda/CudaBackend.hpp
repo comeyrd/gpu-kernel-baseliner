@@ -33,8 +33,8 @@ namespace Baseliner {
       };
       class GpuTimer : public IDevice::GpuTimer {
       public:
-        GpuTimer(std::shared_ptr<cudaStream_t> stream)
-            : IDevice::GpuTimer(stream) {
+        GpuTimer()
+            : IDevice::GpuTimer() {
           CHECK_CUDA(cudaEventCreate(&m_start_event));
           CHECK_CUDA(cudaEventCreate(&m_stop_event));
         };

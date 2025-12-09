@@ -34,8 +34,8 @@ namespace Baseliner {
       };
       class GpuTimer : public IDevice::GpuTimer {
       public:
-        GpuTimer(std::shared_ptr<hipStream_t> stream)
-            : IDevice::GpuTimer(stream) {
+        GpuTimer()
+            : IDevice::GpuTimer() {
           CHECK_HIP(hipEventCreate(&m_start_event));
           CHECK_HIP(hipEventCreate(&m_stop_event));
         };
