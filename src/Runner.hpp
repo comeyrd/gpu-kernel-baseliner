@@ -59,7 +59,7 @@ namespace Baseliner {
     };
 
     explicit Runner(IStoppingCriterion &stopping)
-        : Runner(stopping, std::make_unique<typename Device::GpuTimer>()) {};
+        : Runner(stopping, std::make_unique<typename Device::EventTimer>()) {};
 
     std::vector<float_milliseconds> run() override {
       m_input.generate_random();

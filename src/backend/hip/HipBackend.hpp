@@ -32,14 +32,14 @@ namespace Baseliner {
         void block(std::shared_ptr<hipStream_t> stream, double timeout) override;
         ~BlockingKernel();
       };
-      class GpuTimer : public IDevice::GpuTimer {
+      class EventTimer : public IDevice::EventTimer {
       public:
-        GpuTimer()
-            : IDevice::GpuTimer() {
+        EventTimer()
+            : IDevice::EventTimer() {
           CHECK_HIP(hipEventCreate(&m_start_event));
           CHECK_HIP(hipEventCreate(&m_stop_event));
         };
-        ~GpuTimer() {
+        ~EventTimer() {
           CHECK_HIP(hipEventDestroy(m_start_event));
           CHECK_HIP(hipEventDestroy(m_stop_event));
         };

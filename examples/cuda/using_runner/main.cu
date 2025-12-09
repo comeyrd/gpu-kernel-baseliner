@@ -1,7 +1,7 @@
 #include "ComputationKernel.hpp"
 #include "Runner.hpp"
 #include "StoppingCriterion.hpp"
-#include "CpuTimer.hpp"
+#include "backend/CpuTimer.hpp"
 #include <iostream>
 #include <random>
 #include <vector>
@@ -17,7 +17,7 @@ void simple_runner(){
 void custom_timer_cpu(){
   std::cout <<"Runner with CpuTimer" << std::endl;
   auto stop = Baseliner::FixedRepetitionStoppingCriterion();
-  auto cpu_timer = std::make_unique<Baseliner::CpuTimer>();
+  auto cpu_timer = std::make_unique<Baseliner::Backend::CpuTimer<Baseliner::Backend::CudaBackend>>();
   Baseliner::Runner<ComputationKernel, Baseliner::Backend::CudaBackend> runner_act(stop,std::move(cpu_timer));
   std::vector<Baseliner::float_milliseconds> res = runner_act.run();
   std::cout << res << std::endl;

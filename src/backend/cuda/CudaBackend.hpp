@@ -31,14 +31,14 @@ namespace Baseliner {
         void block(std::shared_ptr<cudaStream_t> stream, double timeout) override;
         ~BlockingKernel();
       };
-      class GpuTimer : public IDevice::GpuTimer {
+      class EventTimer : public IDevice::EventTimer {
       public:
-        GpuTimer()
-            : IDevice::GpuTimer() {
+        EventTimer()
+            : IDevice::EventTimer() {
           CHECK_CUDA(cudaEventCreate(&m_start_event));
           CHECK_CUDA(cudaEventCreate(&m_stop_event));
         };
-        ~GpuTimer() {
+        ~EventTimer() {
           CHECK_CUDA(cudaEventDestroy(m_start_event));
           CHECK_CUDA(cudaEventDestroy(m_stop_event));
         };

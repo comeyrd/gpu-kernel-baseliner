@@ -12,7 +12,7 @@ int main() {
   auto backend = Baseliner::Backend::CudaBackend();
   auto stream = backend.create_stream();
   auto flusher = Baseliner::Backend::CudaBackend::L2Flusher();
-  auto timer = Baseliner::Backend::CudaBackend::GpuTimer();
+  auto timer = Baseliner::Backend::CudaBackend::EventTimer();
   timer.set_stream(stream);
   auto blocker = Baseliner::Backend::CudaBackend::BlockingKernel();
   impl.setup();

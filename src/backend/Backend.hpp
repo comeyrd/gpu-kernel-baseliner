@@ -58,6 +58,9 @@ namespace Baseliner {
       protected:
         explicit GpuTimer() {};
         std::shared_ptr<stream_t> m_stream;
+      };
+      class EventTimer : public GpuTimer {
+      protected:
         event_t m_start_event;
         event_t m_stop_event;
       };
