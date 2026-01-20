@@ -53,7 +53,7 @@ public:
 using Score = float;
 
 static Score grade(std::vector<Baseliner::float_milliseconds> result) {
-  Score mean;
+  Score mean = 0.0;
   for (auto res : result) {
     mean += res.count();
   }
@@ -106,9 +106,6 @@ int main(int argc, char **argv) {
   stop.max_repetitions = 10;
   Baseliner::Runner<ComputationKernel, Baseliner::Backend::CudaBackend> runner_act(stop);
   Baseliner::OptionsMap omap;
-  runner_act.gather_options(omap);
-  Baseliner::mergeOptionsMap(omap, runner_act.describe_options());
-
   std::vector<Axe> axes = {{"Kernel", "work_size", {"1", "10", "100", "1000"}}, {"Runner", "block", {"0", "1"}}};
   AxeExploration axe_exp = AxeExploration(axes, omap);
   Benchmark bench;

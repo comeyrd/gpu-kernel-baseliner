@@ -39,6 +39,7 @@ namespace Baseliner {
     void register_dependencies() override {
       register_consumer(m_input);
       register_consumer(m_stopping);
+      register_consumer(*this);
     };
     // Runner
     explicit Runner(IStoppingCriterion &stopping)
