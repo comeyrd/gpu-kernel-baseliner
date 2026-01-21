@@ -1,6 +1,7 @@
 #ifndef JSON_HANDLER_HPP
 #define JSON_HANDLER_HPP
 #include "Options.hpp"
+#include "research_questions/research_questions.hpp"
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 NLOHMANN_JSON_NAMESPACE_BEGIN
@@ -25,7 +26,7 @@ namespace Baseliner {
     // j.at("description").get_to(opt.m_description);// Same as above
     j.get_to(opt.m_value);
   }
-
+  // namespace ResearchQuestions
   template <typename T>
   void save_to_json(std::ostream &os, T &obj) {
     json j;

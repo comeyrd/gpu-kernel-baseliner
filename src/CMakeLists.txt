@@ -8,3 +8,7 @@ target_link_libraries(baseliner PUBLIC nlohmann_json::nlohmann_json)
 target_include_directories(baseliner PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_subdirectory(backend)
+option(BASELINER_BUILD_RESEARCH_QUESTIONS "Build baseliner research questions" OFF)
+if(BASELINER_BUILD_RESEARCH_QUESTIONS)
+  add_subdirectory(research_questions)
+endif()
