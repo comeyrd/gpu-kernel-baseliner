@@ -13,8 +13,9 @@
       "displayName": "Debug",
       "description": "Full debug build with all symbols, no optimization, all warnings as errors",
       "cacheVariables": {
-        "CMAKE_CXX_CLANG_TIDY":"clang-tidy",
+        "CMAKE_CXX_CLANG_TIDY": "clang-tidy",
         "BASELINER_BUILD_EXAMPLES": "ON",
+        "BASELINER_BUILD_RESEARCH_QUESTIONS": "ON",
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_CXX_FLAGS": "-Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -Wimplicit-fallthrough",
         "CMAKE_CXX_FLAGS_DEBUG": "-g3 -O0 -fno-omit-frame-pointer -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC",
@@ -30,7 +31,7 @@
       "displayName": "Release",
       "description": "Maximum optimization release build with all warnings as errors",
       "cacheVariables": {
-        "CMAKE_CXX_CLANG_TIDY":"clang-tidy",
+        "CMAKE_CXX_CLANG_TIDY": "clang-tidy",
         "CMAKE_BUILD_TYPE": "Release",
         "CMAKE_CXX_FLAGS": "-Wall -Wextra -Wpedantic -Werror",
         "CMAKE_CXX_FLAGS_RELEASE": "-O3 -march=native -DNDEBUG -ffast-math -funroll-loops",
