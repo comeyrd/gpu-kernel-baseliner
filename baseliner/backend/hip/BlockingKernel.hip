@@ -15,6 +15,8 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+// Copyright 2026, Come Eyraud.
+
 #include <baseliner/backend/hip/HipBackend.hpp>
 #include <cstdio>
 #include <cstdlib>
