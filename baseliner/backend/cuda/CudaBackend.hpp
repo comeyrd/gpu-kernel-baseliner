@@ -1,8 +1,8 @@
 #ifndef CUDA_BACKEND_HPP
 #define CUDA_BACKEND_HPP
-#include "Kernel.hpp"
-#include "Timer.hpp"
-#include "backend/Backend.hpp"
+#include <baseliner/Kernel.hpp>
+#include <baseliner/Timer.hpp>
+#include <baseliner/backend/Backend.hpp>
 #include <chrono>
 void check_cuda_error(cudaError_t error_code, const char *file, int line);
 void check_cuda_error_no_except(cudaError_t error_code, const char *file, int line);

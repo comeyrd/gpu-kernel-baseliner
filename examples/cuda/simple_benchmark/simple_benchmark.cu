@@ -1,8 +1,8 @@
 #include "ComputationKernel.hpp"
-#include "Durations.hpp"
-#include "Options.hpp"
-#include "Runner.hpp"
-#include "StoppingCriterion.hpp"
+#include <baseliner/Durations.hpp>
+#include <baseliner/Options.hpp>
+#include <baseliner/Runner.hpp>
+#include <baseliner/StoppingCriterion.hpp>
 #include <iostream>
 #include <random>
 #include <string>

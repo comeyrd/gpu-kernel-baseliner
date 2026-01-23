@@ -1,10 +1,10 @@
 #include "ComputationKernel.hpp"
-#include "Durations.hpp"
-#include "Options.hpp"
-#include "Runner.hpp"
-#include "StoppingCriterion.hpp"
-#include "Benchmark.hpp"
-#include "JsonHandler.hpp"
+#include <baseliner/Durations.hpp>
+#include <baseliner/Options.hpp>
+#include <baseliner/Runner.hpp>
+#include <baseliner/StoppingCriterion.hpp>
+#include <baseliner/Benchmark.hpp>
+#include <baseliner/JsonHandler.hpp>
 #include <iostream>
 #include <random>
 #include <string>

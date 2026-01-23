@@ -1,6 +1,6 @@
 #ifndef KERNEL_HPP
 #define KERNEL_HPP
-#include "Options.hpp"
+#include <baseliner/Options.hpp>
 #include <memory>
 namespace Baseliner {
 

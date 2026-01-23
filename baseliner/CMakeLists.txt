@@ -5,8 +5,12 @@ include(FetchContent)
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
 FetchContent_MakeAvailable(json)
 target_link_libraries(baseliner PUBLIC nlohmann_json::nlohmann_json)
-target_include_directories(baseliner PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-
+target_include_directories(baseliner PUBLIC 
+    # A.From source
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
+    # B. When installed
+    $<INSTALL_INTERFACE:include> 
+)
 add_subdirectory(backend)
 option(BASELINER_BUILD_RESEARCH_QUESTIONS "Build baseliner research questions" OFF)
 if(BASELINER_BUILD_RESEARCH_QUESTIONS)
