@@ -58,6 +58,13 @@ public:
     }
     return false;
   }
+  friend std::ostream &operator<<(std::ostream &os, const ComputationOutput &thing) {
+    for (int i = 0; i < thing.m_input.m_N; i++) {
+      os << thing.m_c_host[i] << ", ";
+    }
+    os << std::endl;
+    return os;
+  }
 };
 
 class ComputationKernel : public Baseliner::ICudaKernel<ComputationInput, ComputationOutput> {
