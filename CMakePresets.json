@@ -3,7 +3,7 @@
   "configurePresets": [
     {
       "name": "dev",
-      "description": "Base preset for library developers",
+      "description": "Base preset",
       "binaryDir": "${sourceDir}/build/${presetName}",
       "hidden": true
     },
@@ -26,6 +26,23 @@
       }
     },
     {
+      "name": "relwithdebinfo",
+      "inherits": "dev",
+      "displayName": "RelWithDebInfo",
+      "description": "Optimized build with debug info",
+      "cacheVariables": {
+        "CMAKE_CXX_CLANG_TIDY": "clang-tidy",
+        "BASELINER_BUILD_EXAMPLES": "ON",
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
+        "CMAKE_CXX_FLAGS": "-Wall -Wextra -Wpedantic",
+        "CMAKE_CXX_FLAGS_RELWITHDEBINFO": "-O3 -g -DNDEBUG",
+        "CMAKE_CUDA_FLAGS": "-Werror all-warnings -Wno-deprecated-gpu-targets",
+        "CMAKE_CUDA_FLAGS_RELWITHDEBINFO": "-O3 -g -lineinfo -DNDEBUG",
+        "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "OFF",
+        "CMAKE_CUDA_ARCHITECTURES": "native"
+      }
+    },
+    {
       "name": "release",
       "inherits": "dev",
       "displayName": "Release",
@@ -33,6 +50,7 @@
       "cacheVariables": {
         "CMAKE_CXX_CLANG_TIDY": "clang-tidy",
         "CMAKE_BUILD_TYPE": "Release",
+        "BASELINER_BUILD_EXAMPLES": "ON",
         "CMAKE_CXX_FLAGS": "-Wall -Wextra -Wpedantic -Werror",
         "CMAKE_CXX_FLAGS_RELEASE": "-O3 -march=native -DNDEBUG -ffast-math -funroll-loops",
         "CMAKE_CUDA_FLAGS": "-Werror all-warnings",
@@ -48,6 +66,10 @@
       "configurePreset": "debug"
     },
     {
+      "name": "relwithdebinfo",
+      "configurePreset": "relwithdebinfo"
+    },
+    {
       "name": "release",
       "configurePreset": "release"
     }
@@ -56,6 +78,11 @@
     {
       "name": "debug",
       "configurePreset": "debug",
+      "output": { "outputOnFailure": true }
+    },
+    {
+      "name": "relwithdebinfo",
+      "configurePreset": "relwithdebinfo",
       "output": { "outputOnFailure": true }
     },
     {
