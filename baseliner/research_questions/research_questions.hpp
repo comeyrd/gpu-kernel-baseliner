@@ -1,11 +1,11 @@
 #ifndef BASELINER_RESEARCH_QUESTION_HPP
 #define BASELINER_RESEARCH_QUESTION_HPP
-#include "../Benchmark.hpp"
+#include <baseliner/Axe.hpp>
 #include <vector>
 namespace Baseliner {
 
   namespace ResearchQuestions {
-    class Question {
+    struct Question {
       std::string m_name;
       std::string m_description;
       Axe m_axe;

@@ -1,4 +1,4 @@
-#include "CudaBackend.hpp"
+#include <baseliner/backend/cuda/CudaBackend.hpp>
 namespace Baseliner {
   namespace Backend {
 

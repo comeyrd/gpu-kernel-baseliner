@@ -1,25 +1,12 @@
 #ifndef BENCHMARK_HPP
 #define BENCHMARK_HPP
-#include "Durations.hpp"
-#include "Options.hpp"
-#include "Runner.hpp"
-#include "research_questions/research_questions.hpp"
+#include <baseliner/Durations.hpp>
+#include <baseliner/Options.hpp>
+#include <baseliner/Runner.hpp>
+#include <baseliner/research_questions/research_questions.hpp>
 #include <utility>
 #include <vector>
 namespace Baseliner {
-
-  struct AxeValue {
-    std::string m_value;
-    std::vector<float_milliseconds> m_results;
-    AxeValue(std::string name)
-        : m_value(name) {};
-  };
-
-  struct Axe {
-    std::string m_interface_name;
-    std::string m_option_name;
-    std::vector<AxeValue> m_values;
-  };
 
   class RqBenchmark {
   public:
@@ -31,7 +18,7 @@ namespace Baseliner {
       OptionsMap baseMap;
       m_runner.gather_options(baseMap);
       OptionsMap tempMap;
-      for (Question &q : m_questions) {
+      for (ResearchQuestions::Question &q : m_questions) {
         for (AxeValue &axe_val : q.m_axe.m_values) {
           tempMap = baseMap;
           tempMap[q.m_axe.m_interface_name][q.m_axe.m_option_name].m_value = axe_val.m_value;
@@ -43,9 +30,26 @@ namespace Baseliner {
 
   private:
     RunnerBase &m_runner;
-    std::vector<Question> &m_questions;
+    std::vector<ResearchQuestions::Question> &m_questions;
   };
 
+  std::vector<Baseliner::OptionsMap> generate_permutations(Baseliner::OptionsMap base, const std::vector<Axe> &axes,
+                                                           int current = 0) {
+    const Axe &axe = axes[current];
+    current++;
+    std::vector<Baseliner::OptionsMap> omaps;
+    for (auto value : axe.m_values) {
+      Baseliner::OptionsMap inner_om = base;
+      inner_om[axe.m_interface_name][axe.m_option_name].m_value = value.m_value;
+      if (current < axes.size()) {
+        auto getted_omaps = generate_permutations(inner_om, axes, current);
+        omaps.insert(omaps.end(), getted_omaps.begin(), getted_omaps.end());
+      } else {
+        omaps.push_back(inner_om);
+      }
+    }
+    return omaps;
+  };
   class BareBenchmark {
   public:
     BareBenchmark(RunnerBase &runner, std::vector<Axe> &axes)

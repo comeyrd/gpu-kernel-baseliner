@@ -1,6 +1,6 @@
 #ifndef ITIMER_HPP
 #define ITIMER_HPP
-#include "Durations.hpp"
+#include <baseliner/Durations.hpp>
 #include <chrono>
 namespace Baseliner {
   class ITimer {

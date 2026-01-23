@@ -1,9 +1,9 @@
 #ifndef RUNNER_HPP
 #define RUNNER_HPP
-#include "Kernel.hpp"
-#include "StoppingCriterion.hpp"
-#include "Timer.hpp"
-#include "backend/Backend.hpp"
+#include <baseliner/Kernel.hpp>
+#include <baseliner/StoppingCriterion.hpp>
+#include <baseliner/Timer.hpp>
+#include <baseliner/backend/Backend.hpp>
 #include <iostream>
 namespace Baseliner {
 

@@ -1,7 +1,7 @@
 #ifndef STOPPING_CRITERION_HPP
 #define STOPPING_CRITERION_HPP
-#include "Durations.hpp"
-#include "Options.hpp"
+#include <baseliner/Durations.hpp>
+#include <baseliner/Options.hpp>
 #include <chrono>
 #include <vector>
 namespace Baseliner {
