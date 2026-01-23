@@ -16,6 +16,7 @@ namespace Baseliner {
     class CudaBackend : public IDevice<cudaEvent_t, cudaStream_t> {
     public:
       std::shared_ptr<cudaStream_t> create_stream() override;
+      void get_last_error() override;
       void synchronize(std::shared_ptr<cudaStream_t> stream) override;
       void set_device(int device) override;
       void reset_device() override;

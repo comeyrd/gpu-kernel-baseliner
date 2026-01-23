@@ -12,6 +12,7 @@ namespace Baseliner {
       using stream_t = S;
       virtual std::shared_ptr<stream_t> create_stream() = 0;
       virtual void synchronize(std::shared_ptr<stream_t> stream) = 0;
+      virtual void get_last_error() = 0;
       virtual void set_device(int device) = 0;
       virtual void reset_device() = 0;
       virtual ~IDevice() = default;
