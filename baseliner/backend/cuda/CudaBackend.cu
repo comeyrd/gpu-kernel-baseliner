@@ -25,6 +25,9 @@ namespace Baseliner {
     void CudaBackend::synchronize(std::shared_ptr<cudaStream_t> stream) {
       CHECK_CUDA(cudaStreamSynchronize(*stream));
     }
+    void CudaBackend::get_last_error() {
+      CHECK_CUDA(cudaGetLastError());
+    }
     std::shared_ptr<cudaStream_t> CudaBackend::create_stream() {
       cudaStream_t *stream = new cudaStream_t;
       CHECK_CUDA(cudaStreamCreate(stream));

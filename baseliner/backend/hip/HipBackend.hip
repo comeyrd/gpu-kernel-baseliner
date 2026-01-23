@@ -25,6 +25,9 @@ namespace Baseliner {
     void HipBackend::synchronize(std::shared_ptr<hipStream_t> stream) {
       CHECK_HIP(hipStreamSynchronize(*stream));
     }
+    void HipBackend::get_last_error() {
+      CHECK_HIP(hipGetLastError());
+    }
     std::shared_ptr<hipStream_t> HipBackend::create_stream() {
       hipStream_t *stream = new hipStream_t;
       CHECK_HIP(hipStreamCreate(stream));

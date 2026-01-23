@@ -18,6 +18,7 @@ namespace Baseliner {
     public:
       std::shared_ptr<hipStream_t> create_stream() override;
       void synchronize(std::shared_ptr<hipStream_t> stream) override;
+      void get_last_error() override;
       void set_device(int device) override;
       void reset_device() override;
       class L2Flusher : public IDevice::L2Flusher {
