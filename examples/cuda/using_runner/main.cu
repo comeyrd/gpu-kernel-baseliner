@@ -1,4 +1,4 @@
-#include "ComputationKernel.hpp"
+#include "MatMul.hpp"
 #include <baseliner/Runner.hpp>
 #include <baseliner/StoppingCriterion.hpp>
 #include <iostream>
@@ -8,7 +8,7 @@
 int main() {
   std::cout << "Cuda Runner Manipuation" << std::endl;
   auto stop = Baseliner::FixedRepetitionStoppingCriterion();
-  Baseliner::Runner<ComputationKernel, Baseliner::Backend::CudaBackend> runner_act(stop);
+  Baseliner::Runner<MatrixMulKernel, Baseliner::Backend::CudaBackend> runner_act(stop);
   std::vector<Baseliner::float_milliseconds> res = runner_act.run();
   std::cout << res << std::endl;
 }

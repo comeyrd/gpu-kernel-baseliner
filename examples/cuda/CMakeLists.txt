@@ -1,5 +1,6 @@
 add_subdirectory(using_device)
 add_subdirectory(ComputationKernel)
+add_subdirectory(MatMulCuda)
 add_subdirectory(using_kernel)
 add_subdirectory(using_runner)
 add_subdirectory(using_options)
