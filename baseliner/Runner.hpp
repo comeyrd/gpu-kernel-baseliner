@@ -71,7 +71,8 @@ namespace Baseliner {
       postAll();
       m_kernel->teardown(m_out_gpu);
       if (!(m_out_gpu == m_out_cpu)) {
-        std::cout << "Cpu and Gpu cooked different results" << std::endl;
+        std::cout << "Error, GPU and CPU results are not the same" << std::endl;
+        std::cout << m_out_gpu << std::endl << " | " << m_out_cpu << std::endl;
       }
       return m_stopping.executionTimes();
     }
@@ -104,10 +105,13 @@ namespace Baseliner {
         m_blocker.block(m_stream, m_block_duration_ms);
     };
     virtual void postRun() {
+      m_backend.get_last_error();
       if (m_block)
         m_blocker.unblock();
     };
-    virtual void postAll() {};
+    virtual void postAll() {
+      m_backend.synchronize(m_stream);
+    };
   };
 } // namespace Baseliner
 
