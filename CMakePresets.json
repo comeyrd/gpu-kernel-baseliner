@@ -53,10 +53,10 @@
         "BASELINER_BUILD_EXAMPLES": "ON",
         "CMAKE_CXX_FLAGS": "-Wall -Wextra -Wpedantic -Werror",
         "CMAKE_CXX_FLAGS_RELEASE": "-O3 -march=native -DNDEBUG -ffast-math -funroll-loops",
-        "CMAKE_CUDA_FLAGS": "-Werror all-warnings",
+        "CMAKE_CUDA_FLAGS": "-Werror all-warnings -Wno-deprecated-gpu-targets",
         "CMAKE_CUDA_FLAGS_RELEASE": "-O3 -DNDEBUG --use_fast_math --extra-device-vectorization",
         "CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON",
-        "CMAKE_CUDA_ARCHITECTURES": "75;80;86;89;90"
+        "CMAKE_CUDA_ARCHITECTURES": "70;75;80;86;89;90"
       }
     }
   ],

@@ -7,6 +7,7 @@ string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}" is_top_
 if(is_top_level)
     find_package(baseliner REQUIRED)
 endif()
+set(CMAKE_CUDA_RUNTIME_LIBRARY Shared)
 
 set(sources main.cu)
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${sources})
