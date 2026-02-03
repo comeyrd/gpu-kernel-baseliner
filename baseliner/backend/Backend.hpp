@@ -50,14 +50,7 @@ namespace Baseliner {
           std::cout << "Deadlock detected" << std::endl;
         };
       };
-      class GpuTimer : public ITimer {
-      protected:
-        explicit GpuTimer(std::shared_ptr<stream_t> stream)
-            : m_stream(stream) {};
-        std::shared_ptr<stream_t> m_stream;
-        event_t m_start_event;
-        event_t m_stop_event;
-      };
+      class Timer : public IGpuTimer<stream_t> {};
     };
   } // namespace Backend
 } // namespace Baseliner

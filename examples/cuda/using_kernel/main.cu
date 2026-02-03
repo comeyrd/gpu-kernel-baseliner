@@ -12,22 +12,17 @@ int main() {
   auto backend = Baseliner::Backend::CudaBackend();
   auto stream = backend.create_stream();
   auto flusher = Baseliner::Backend::CudaBackend::L2Flusher();
-  auto timer = Baseliner::Backend::CudaBackend::GpuTimer(stream);
   auto blocker = Baseliner::Backend::CudaBackend::BlockingKernel();
   impl.setup();
-  timer.start();
-  impl.run(stream);
-  timer.stop();
-  std::cout << "Warmup: " << timer.time_elapsed().count() << std::endl;
+  impl.timed_run(stream);
+  std::cout << "Warmup: " << impl.time_elapsed().count() << std::endl;
 
   for (int r = 0; r < 10; r++) {
     flusher.flush(stream);
     blocker.block(stream, 1000.0);
-    timer.start();
-    impl.run(stream);
-    timer.stop();
+    impl.timed_run(stream);
     blocker.unblock();
-    std::cout << timer.time_elapsed().count() << " | ";
+    std::cout << impl.time_elapsed().count() << " | ";
   }
   impl.teardown(output);
   std::cout << std::endl;

@@ -1,6 +1,7 @@
 #ifndef KERNEL_HPP
 #define KERNEL_HPP
 #include <baseliner/Options.hpp>
+#include <baseliner/Timer.hpp>
 #include <memory>
 namespace Baseliner {
 
@@ -43,7 +44,7 @@ namespace Baseliner {
   };
 
   template <typename stream_t, typename I, typename O>
-  class IKernel {
+  class IKernel : public IGpuTimer<stream_t> {
   public:
     using Input = I;
     using Output = O;
@@ -52,6 +53,13 @@ namespace Baseliner {
     virtual void reset() = 0;
     virtual void run(std::shared_ptr<stream_t> &stream) = 0;
     virtual void teardown(Output &output) = 0;
+
+  public:
+    void timed_run(std::shared_ptr<stream_t> &stream) {
+      this->measure_start(stream);
+      run(stream);
+      this->measure_stop(stream);
+    };
     IKernel(const Input &input)
         : m_input(input) {};
     virtual ~IKernel() = default;

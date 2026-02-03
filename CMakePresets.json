@@ -13,13 +13,14 @@
       "displayName": "Debug",
       "description": "Full debug build with all symbols, no optimization, all warnings as errors",
       "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clang++",
         "CMAKE_CXX_CLANG_TIDY": "clang-tidy",
         "BASELINER_BUILD_EXAMPLES": "ON",
         "BASELINER_BUILD_RESEARCH_QUESTIONS": "ON",
         "CMAKE_BUILD_TYPE": "Debug",
         "CMAKE_CXX_FLAGS": "-Wall -Wextra -Wpedantic -Wconversion -Wsign-conversion -Wshadow -Wnon-virtual-dtor -Wold-style-cast -Wcast-align -Wunused -Woverloaded-virtual -Wformat=2 -Wimplicit-fallthrough",
         "CMAKE_CXX_FLAGS_DEBUG": "-g3 -O0 -fno-omit-frame-pointer -D_GLIBCXX_DEBUG -D_GLIBCXX_DEBUG_PEDANTIC",
-        "CMAKE_CUDA_FLAGS": "-Werror all-warnings -Wno-deprecated-gpu-targets",
+        "CMAKE_CUDA_FLAGS": "-Werror all-warnings -Wno-deprecated-gpu-targets -allow-unsupported-compiler",
         "CMAKE_CUDA_FLAGS_DEBUG": "-g -G -O0",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
         "CMAKE_CUDA_ARCHITECTURES": "native"

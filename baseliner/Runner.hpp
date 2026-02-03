@@ -48,7 +48,6 @@ namespace Baseliner {
           m_backend(),
           m_stream(m_backend.create_stream()),
           m_flusher(),
-          m_timer(std::make_unique<typename Device::GpuTimer>(m_stream)),
           m_blocker(),
           m_kernel(std::make_unique<Kernel>(m_input)) {};
 
@@ -62,11 +61,9 @@ namespace Baseliner {
       while (!m_stopping.satisfied()) {
         m_kernel->reset();
         preRun();
-        m_timer->start();
-        m_kernel->run(m_stream);
-        m_timer->stop();
+        m_kernel->timed_run(m_stream);
         postRun();
-        m_stopping.addTime(m_timer->time_elapsed());
+        m_stopping.addTime(m_kernel->time_elapsed());
       }
       postAll();
       m_kernel->teardown(m_out_gpu);
@@ -89,9 +86,6 @@ namespace Baseliner {
 
     // Kernel Holder
     std::unique_ptr<Kernel> m_kernel;
-
-    // Timer
-    std::unique_ptr<ITimer> m_timer;
 
     virtual void preAll() {
       if (m_warmup)

@@ -15,13 +15,12 @@
  *  See the License for the specific language governing permissions and
  *  limitations under the License.
  */
- 
+
 // Copyright 2026, Come Eyraud.
 
 #include <baseliner/backend/cuda/CudaBackend.hpp>
 #include <cstdio>
 #include <cstdlib>
-#include <iostream>
 namespace {
   __global__ void block_stream(const volatile int32_t *flag, volatile int32_t *timeout_flag, double timeout) {
     const auto start_clock = clock64();
