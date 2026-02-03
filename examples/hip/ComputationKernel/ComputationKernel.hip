@@ -1,7 +1,4 @@
-#include "hip/hip_runtime.h"
 #include "ComputationKernel.hpp"
-#include <iostream>
-#include <random>
 #include <vector>
 
 __global__ void computation_kernel(int *a, int *b, int *c, int N) {

@@ -20,7 +20,6 @@
 #include <baseliner/backend/hip/HipBackend.hpp>
 #include <cstdio>
 #include <cstdlib>
-#include <iostream>
 namespace {
   __global__ void block_stream(const volatile int32_t *flag, volatile int32_t *timeout_flag, double timeout) {
     const auto start_clock = clock64();

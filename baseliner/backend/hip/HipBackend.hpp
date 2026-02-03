@@ -4,6 +4,7 @@
 #include <baseliner/Kernel.hpp>
 #include <baseliner/Timer.hpp>
 #include <baseliner/backend/Backend.hpp>
+
 void check_hip_error(hipError_t error_code, const char *file, int line);
 void check_hip_error_no_except(hipError_t error_code, const char *file, int line);
 #define CHECK_HIP(error) check_hip_error(error, __FILE__, __LINE__)
@@ -11,7 +12,36 @@ void check_hip_error_no_except(hipError_t error_code, const char *file, int line
 
 namespace Baseliner {
   template <typename Input, typename Output>
-  using IHipKernel = IKernel<hipStream_t, Input, Output>;
+  class IHipKernel : public IKernel<hipStream_t, Input, Output> {
+  public:
+    IHipKernel(const Input &input)
+        : IKernel<hipStream_t, Input, Output>(input) {
+      CHECK_HIP(hipEventCreate(&m_start_event));
+      CHECK_HIP(hipEventCreate(&m_stop_event));
+    }
+    ~IHipKernel() {
+      CHECK_HIP(hipEventDestroy(m_start_event));
+      CHECK_HIP(hipEventDestroy(m_stop_event));
+    }
+
+    void measure_start(std::shared_ptr<hipStream_t> &stream) override final {
+      CHECK_HIP(hipEventRecord(m_start_event, *stream));
+    };
+    void measure_stop(std::shared_ptr<hipStream_t> &stream) override final {
+      CHECK_HIP(hipEventRecord(m_stop_event, *stream));
+    };
+    float_milliseconds time_elapsed() final {
+      float result;
+      CHECK_HIP(hipEventSynchronize(m_stop_event));
+      CHECK_HIP(hipEventElapsedTime(&result, m_start_event, m_stop_event));
+      return float_milliseconds(result);
+    };
+
+  private:
+    hipEvent_t m_start_event;
+    hipEvent_t m_stop_event;
+  };
+
   namespace Backend {
     class HipBackend : public IDevice<hipEvent_t, hipStream_t> {
     public:
@@ -32,20 +62,33 @@ namespace Baseliner {
         void block(std::shared_ptr<hipStream_t> stream, double timeout) override;
         ~BlockingKernel();
       };
-      class GpuTimer : public IDevice::GpuTimer {
+      class Timer : public IDevice::Timer {
       public:
-        GpuTimer(std::shared_ptr<hipStream_t> stream)
-            : IDevice::GpuTimer(stream) {
+        Timer()
+            : IDevice::Timer() {
           CHECK_HIP(hipEventCreate(&m_start_event));
           CHECK_HIP(hipEventCreate(&m_stop_event));
-        };
-        ~GpuTimer() {
+        }
+        ~Timer() {
           CHECK_HIP(hipEventDestroy(m_start_event));
           CHECK_HIP(hipEventDestroy(m_stop_event));
+        }
+        void measure_start(std::shared_ptr<hipStream_t> &stream) override final {
+          CHECK_HIP(hipEventRecord(m_start_event, *stream));
         };
-        void start() override;
-        void stop() override;
-        float_milliseconds time_elapsed() override;
+        void measure_stop(std::shared_ptr<hipStream_t> &stream) override final {
+          CHECK_HIP(hipEventRecord(m_stop_event, *stream));
+        };
+        float_milliseconds time_elapsed() final {
+          float result;
+          CHECK_HIP(hipEventSynchronize(m_stop_event));
+          CHECK_HIP(hipEventElapsedTime(&result, m_start_event, m_stop_event));
+          return float_milliseconds(result);
+        };
+
+      private:
+        hipEvent_t m_start_event;
+        hipEvent_t m_stop_event;
       };
     };
 

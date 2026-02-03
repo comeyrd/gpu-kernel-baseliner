@@ -47,20 +47,19 @@ void run_kernel() {
   auto backend = Baseliner::Backend::HipBackend();
   auto stream = backend.create_stream();
   auto flusher = Baseliner::Backend::HipBackend::L2Flusher();
-  auto timer = Baseliner::Backend::HipBackend::GpuTimer(stream);
   auto blocker = Baseliner::Backend::HipBackend::BlockingKernel();
-  
-  timer.start();
+  auto timer = Baseliner::Backend::HipBackend::Timer();
+  timer.measure_start(stream);
   computation_kernel<<<blocksPerGrid, threadsPerBlock, 0, *stream>>>(d_a, d_b, d_c, N);
-  timer.stop();
+  timer.measure_stop(stream);
   std::cout << "Warmup: " << timer.time_elapsed().count() << std::endl;
 
   for (int r = 0; r < 10; r++) {
     flusher.flush(stream);
-    blocker.block(stream,1000.0);
-    timer.start();
+    blocker.block(stream, 1000.0);
+    timer.measure_start(stream);
     computation_kernel<<<blocksPerGrid, threadsPerBlock, 0, *stream>>>(d_a, d_b, d_c, N);
-    timer.stop();
+    timer.measure_stop(stream);
     blocker.unblock();
     std::cout << timer.time_elapsed().count() << " | ";
   }
