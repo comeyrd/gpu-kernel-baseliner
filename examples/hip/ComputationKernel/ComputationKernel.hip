@@ -1,5 +1,4 @@
 #include "hip/hip_runtime.h"
-#include "hip/hip_runtime.h"
 #include "ComputationKernel.hpp"
 #include <iostream>
 #include <random>

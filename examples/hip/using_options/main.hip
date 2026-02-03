@@ -1,6 +1,6 @@
 #include "ComputationKernel.hpp"
-#include "Runner.hpp"
-#include "StoppingCriterion.hpp"
+#include <baseliner/Runner.hpp>
+#include <baseliner/StoppingCriterion.hpp>
 #include <iostream>
 #include <random>
 #include <vector>
@@ -10,7 +10,7 @@ int main() {
   auto stop = Baseliner::FixedRepetitionStoppingCriterion();
   Baseliner::Runner<ComputationKernel, Baseliner::Backend::HipBackend> runner_act(stop);
   runner_act.m_block = false;
-  std::vector<float_milliseconds> res = runner_act.run();
+  std::vector<Baseliner::float_milliseconds> res = runner_act.run();
   std::cout << res << std::endl;
   Baseliner::OptionsMap omap;
   runner_act.gather_options(omap);

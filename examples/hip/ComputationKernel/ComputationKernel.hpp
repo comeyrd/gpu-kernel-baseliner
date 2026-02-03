@@ -1,8 +1,8 @@
 #ifndef COMPUTATION_HPP
 #define COMPUTATION_HPP
-#include "Kernel.hpp"
-#include "Options.hpp"
-#include "backend/hip/HipBackend.hpp"
+#include <baseliner/Kernel.hpp>
+#include <baseliner/Options.hpp>
+#include <baseliner/backend/hip/HipBackend.hpp>
 #include <random>
 #include <string>
 #include <vector>
@@ -12,16 +12,13 @@ class ComputationInput : public Baseliner::IInput {
 public:
   void register_options() override {
     IInput::register_options();
-    add_option("ComputationInput", "work_size", "The multiplier of the base work size to apply to the kernel",
-               m_work_size);
     add_option("ComputationInput", "base_N", "The size of the arrays", m_base_N);
   };
   void on_update() override {
     allocate();
   };
   void generate_random() override {
-    std::random_device rd;
-    std::mt19937 gen(rd());
+    std::default_random_engine gen(seed);
     std::uniform_int_distribution<int> dist(1, 100);
     for (int i = 0; i < m_N; i++) {
       m_a_host[i] = dist(gen);
@@ -60,6 +57,13 @@ public:
       return true;
     }
     return false;
+  }
+  friend std::ostream &operator<<(std::ostream &os, const ComputationOutput &thing) {
+    for (int i = 0; i < thing.m_input.m_N; i++) {
+      os << thing.m_c_host[i] << ", ";
+    }
+    os << std::endl;
+    return os;
   }
 };
 

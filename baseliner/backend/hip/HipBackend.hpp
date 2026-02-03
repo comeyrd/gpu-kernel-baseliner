@@ -1,10 +1,9 @@
 #ifndef HIP_BACKEND_HPP
 #define HIP_BACKEND_HPP
 #include "hip/hip_runtime.h"
-#include <baseliner/backend/hip/Kernel.hpp>
-#include <baseliner/backend/hip/Timer.hpp>
-#include <baseliner/backend/hip/backend/Backend.hpp>
-#include <chrono>
+#include <baseliner/Kernel.hpp>
+#include <baseliner/Timer.hpp>
+#include <baseliner/backend/Backend.hpp>
 void check_hip_error(hipError_t error_code, const char *file, int line);
 void check_hip_error_no_except(hipError_t error_code, const char *file, int line);
 #define CHECK_HIP(error) check_hip_error(error, __FILE__, __LINE__)
@@ -17,8 +16,8 @@ namespace Baseliner {
     class HipBackend : public IDevice<hipEvent_t, hipStream_t> {
     public:
       std::shared_ptr<hipStream_t> create_stream() override;
-      void synchronize(std::shared_ptr<hipStream_t> stream) override;
       void get_last_error() override;
+      void synchronize(std::shared_ptr<hipStream_t> stream) override;
       void set_device(int device) override;
       void reset_device() override;
       class L2Flusher : public IDevice::L2Flusher {

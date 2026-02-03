@@ -1,6 +1,7 @@
 #include "ComputationKernel.hpp"
-#include "Runner.hpp"
-#include "StoppingCriterion.hpp"
+#include <baseliner/Options.hpp>
+#include <baseliner/Runner.hpp>
+#include <baseliner/StoppingCriterion.hpp>
 #include <iostream>
 #include <random>
 #include <string>
@@ -42,8 +43,8 @@ int main(int argc, char **argv) {
   Baseliner::Runner<ComputationKernel, Baseliner::Backend::HipBackend> runner_act(stop);
   Baseliner::OptionsMap omap;
   runner_act.gather_options(omap);
-  omap[runner_act.get_name()] = runner_act.describe_options();
-  omap[stop.get_name()] = stop.describe_options();
+  Baseliner::mergeOptionsMap(omap, runner_act.describe_options());
+  Baseliner::mergeOptionsMap(omap, stop.describe_options());
 
   Baseliner::OptionsMap user_options;
   std::vector<std::string> args(argv + 1, argv + argc);
@@ -51,6 +52,7 @@ int main(int argc, char **argv) {
   bool current_bool = false;
   for (auto &i : args) {
     if (i == "-h" || i == "--help") {
+      std::cout << omap << std::endl;
       help(omap);
       exit(0);
     }
@@ -85,8 +87,8 @@ int main(int argc, char **argv) {
   }
   std::cout << user_options;
   runner_act.propagate_options(user_options);
-  stop.apply_options(user_options[stop.get_name()]);
-  runner_act.apply_options(user_options[runner_act.get_name()]);
+  stop.apply_options(user_options);
+  runner_act.apply_options(user_options);
   std::cout << runner_act.run() << std::endl;
   /*
   std::vector<float_milliseconds> res = runner_act.run();

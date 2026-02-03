@@ -1,6 +1,5 @@
 #include "hip/hip_runtime.h"
-#include "hip/hip_runtime.h"
-#include "backend/hip/HipBackend.hpp"
+#include <baseliner/backend/hip/HipBackend.hpp>
 #include <iostream>
 #include <random>
 #include <vector>

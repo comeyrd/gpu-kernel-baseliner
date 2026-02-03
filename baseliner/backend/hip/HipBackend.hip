@@ -1,4 +1,5 @@
 #include <baseliner/backend/hip/HipBackend.hpp>
+
 void check_hip_error(hipError_t error_code, const char *file, int line) {
   if (error_code != hipSuccess) {
     std::string msg = std::string("HIP Error : ") + hipGetErrorString(error_code) + std::string(" in : ") + file +

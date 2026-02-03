@@ -7,6 +7,7 @@ string(COMPARE EQUAL "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}" is_top_
 if(is_top_level)
     find_package(baseliner REQUIRED)
 endif()
+set(CMAKE_HIP_RUNTIME_LIBRARY Shared)
 
 set(sources main.hip)
 include_directories(${CMAKE_INCLUDE_CURRENT_DIR})
