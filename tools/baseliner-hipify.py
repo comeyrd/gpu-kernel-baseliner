@@ -27,7 +27,10 @@ def baseliner_hipify(input_file):
     output_file = input_file
     if input_file.endswith('.cu'):
         output_file = input_file[:-3] + '.hip'
-
+    output_file = output_file.replace('cuda', 'hip')
+    output_file = output_file.replace('CUDA', 'HIP')
+    output_file = output_file.replace('Cuda', 'Hip')
+    output_file = output_file.replace('.cu', '.hip')   
     try:
         with open(output_file, 'w') as f:
             f.write(hipified_baseliner)
