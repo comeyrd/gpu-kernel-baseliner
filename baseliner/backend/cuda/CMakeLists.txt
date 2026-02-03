@@ -1,5 +1,4 @@
 target_sources(baseliner PRIVATE
     CudaBackend.cu
     BlockingKernel.cu
-    L2Flusher.cu
-    GpuTimer.cu)
+    L2Flusher.cu)

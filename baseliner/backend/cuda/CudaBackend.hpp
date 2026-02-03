@@ -3,7 +3,7 @@
 #include <baseliner/Kernel.hpp>
 #include <baseliner/Timer.hpp>
 #include <baseliner/backend/Backend.hpp>
-#include <chrono>
+
 void check_cuda_error(cudaError_t error_code, const char *file, int line);
 void check_cuda_error_no_except(cudaError_t error_code, const char *file, int line);
 #define CHECK_CUDA(error) check_cuda_error(error, __FILE__, __LINE__)
@@ -11,7 +11,36 @@ void check_cuda_error_no_except(cudaError_t error_code, const char *file, int li
 
 namespace Baseliner {
   template <typename Input, typename Output>
-  using ICudaKernel = IKernel<cudaStream_t, Input, Output>;
+  class ICudaKernel : public IKernel<cudaStream_t, Input, Output> {
+  public:
+    ICudaKernel(const Input &input)
+        : IKernel<cudaStream_t, Input, Output>(input) {
+      CHECK_CUDA(cudaEventCreate(&m_start_event));
+      CHECK_CUDA(cudaEventCreate(&m_stop_event));
+    }
+    ~ICudaKernel() {
+      CHECK_CUDA(cudaEventDestroy(m_start_event));
+      CHECK_CUDA(cudaEventDestroy(m_stop_event));
+    }
+
+    void measure_start(std::shared_ptr<cudaStream_t> &stream) override final {
+      CHECK_CUDA(cudaEventRecord(m_start_event, *stream));
+    };
+    void measure_stop(std::shared_ptr<cudaStream_t> &stream) override final {
+      CHECK_CUDA(cudaEventRecord(m_stop_event, *stream));
+    };
+    float_milliseconds time_elapsed() final {
+      float result;
+      CHECK_CUDA(cudaEventSynchronize(m_stop_event));
+      CHECK_CUDA(cudaEventElapsedTime(&result, m_start_event, m_stop_event));
+      return float_milliseconds(result);
+    };
+
+  private:
+    cudaEvent_t m_start_event;
+    cudaEvent_t m_stop_event;
+  };
+
   namespace Backend {
     class CudaBackend : public IDevice<cudaEvent_t, cudaStream_t> {
     public:
@@ -32,20 +61,33 @@ namespace Baseliner {
         void block(std::shared_ptr<cudaStream_t> stream, double timeout) override;
         ~BlockingKernel();
       };
-      class GpuTimer : public IDevice::GpuTimer {
+      class Timer : public IDevice::Timer {
       public:
-        GpuTimer(std::shared_ptr<cudaStream_t> stream)
-            : IDevice::GpuTimer(stream) {
+        Timer()
+            : IDevice::Timer() {
           CHECK_CUDA(cudaEventCreate(&m_start_event));
           CHECK_CUDA(cudaEventCreate(&m_stop_event));
-        };
-        ~GpuTimer() {
+        }
+        ~Timer() {
           CHECK_CUDA(cudaEventDestroy(m_start_event));
           CHECK_CUDA(cudaEventDestroy(m_stop_event));
+        }
+        void measure_start(std::shared_ptr<cudaStream_t> &stream) override final {
+          CHECK_CUDA(cudaEventRecord(m_start_event, *stream));
         };
-        void start() override;
-        void stop() override;
-        float_milliseconds time_elapsed() override;
+        void measure_stop(std::shared_ptr<cudaStream_t> &stream) override final {
+          CHECK_CUDA(cudaEventRecord(m_stop_event, *stream));
+        };
+        float_milliseconds time_elapsed() final {
+          float result;
+          CHECK_CUDA(cudaEventSynchronize(m_stop_event));
+          CHECK_CUDA(cudaEventElapsedTime(&result, m_start_event, m_stop_event));
+          return float_milliseconds(result);
+        };
+
+      private:
+        cudaEvent_t m_start_event;
+        cudaEvent_t m_stop_event;
       };
     };
 
