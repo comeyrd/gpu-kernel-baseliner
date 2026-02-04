@@ -5,10 +5,9 @@
 #include <memory>
 namespace Baseliner {
   namespace Backend {
-    template <typename E, typename S>
+    template <typename S>
     class IDevice {
     public:
-      using event_t = E;
       using stream_t = S;
       virtual std::shared_ptr<stream_t> create_stream() = 0;
       virtual void synchronize(std::shared_ptr<stream_t> stream) = 0;

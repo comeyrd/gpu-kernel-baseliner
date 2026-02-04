@@ -43,7 +43,7 @@ namespace Baseliner {
   };
 
   namespace Backend {
-    class HipBackend : public IDevice<hipEvent_t, hipStream_t> {
+    class HipBackend : public IDevice<hipStream_t> {
     public:
       std::shared_ptr<hipStream_t> create_stream() override;
       void get_last_error() override;

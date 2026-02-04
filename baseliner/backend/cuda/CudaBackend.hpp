@@ -42,7 +42,7 @@ namespace Baseliner {
   };
 
   namespace Backend {
-    class CudaBackend : public IDevice<cudaEvent_t, cudaStream_t> {
+    class CudaBackend : public IDevice<cudaStream_t> {
     public:
       std::shared_ptr<cudaStream_t> create_stream() override;
       void get_last_error() override;
