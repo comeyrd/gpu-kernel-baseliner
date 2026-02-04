@@ -1,5 +1,6 @@
 #include <baseliner/Options.hpp>
-
+#include <iostream>
+#include <stdexcept>
 namespace Baseliner {
   // OptionConsumer
   void OptionConsumer::apply_options(const OptionsMap &options_map) {
