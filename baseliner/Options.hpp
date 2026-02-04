@@ -8,6 +8,8 @@
 #include <vector>
 
 namespace Baseliner {
+  // The OptionBinding Namespace is here to take care of the serialization and de-serialization of options
+  // So that new options can propagate without having to write the code.
   namespace OptionBindings {
     inline std::string bool_to_string(bool value) {
       return std::to_string(static_cast<int>(value));
@@ -80,33 +82,9 @@ namespace Baseliner {
   class OptionConsumer {
   public:
     virtual void register_options() = 0;
-    const OptionsMap describe_options() {
-      ensure_registered();
-      OptionsMap opts;
-      for (const auto &binding : m_options_bindings) {
-        opts[binding->m_interface_name][binding->m_name] = Option{binding->m_description, binding->get_value()};
-      }
-      return opts;
-    }
+    const OptionsMap describe_options();
 
-    void apply_options(const OptionsMap &options_map) {
-      ensure_registered();
-      for (const auto &[name, options] : options_map) {
-        for (const auto &[name, opt] : options) {
-          for (auto &binding : m_options_bindings) {
-            if (binding->m_name == name) {
-              try {
-                binding->update_value(opt.m_value);
-              } catch (std::invalid_argument const &e) {
-                std::cout << "Error while applying option : " << binding->m_interface_name << "." << name << "="
-                          << opt.m_value << " Using default value : " << binding->get_value() << std::endl;
-              }
-            }
-          }
-        }
-      }
-      on_update();
-    }
+    void apply_options(const OptionsMap &options_map);
     virtual ~OptionConsumer() = default;
 
   protected:
@@ -120,45 +98,25 @@ namespace Baseliner {
   private:
     std::vector<std::unique_ptr<OptionBindings::OptionBindingBase>> m_options_bindings;
     bool m_is_registered = false;
-    void ensure_registered() {
-      if (!m_is_registered) {
-        register_options();
-        m_is_registered = true;
-      }
-    }
+    void ensure_registered();
   };
+
   class OptionBroadcaster {
   public:
-    void gather_options(OptionsMap &optionsMap) {
-      ensure_initialized();
-      for (OptionConsumer *consumer : m_consumers) {
-        mergeOptionsMap(optionsMap, consumer->describe_options());
-      }
-    };
-    void propagate_options(const OptionsMap &optionsMap) {
-      ensure_initialized();
-      for (OptionConsumer *consumer : m_consumers) {
-        consumer->apply_options(optionsMap);
-      }
-    };
+    void gather_options(OptionsMap &optionsMap);
+    void propagate_options(const OptionsMap &optionsMap);
     virtual void register_dependencies() {};
     virtual ~OptionBroadcaster() = default;
 
   protected:
-    void register_consumer(OptionConsumer &consumer) {
-      m_consumers.push_back(&consumer);
-    }
+    void register_consumer(OptionConsumer &consumer);
 
   private:
     bool m_is_init = false;
     std::vector<OptionConsumer *> m_consumers;
-    void ensure_initialized() {
-      if (!m_is_init) {
-        register_dependencies();
-        m_is_init = true;
-      }
-    }
+    void ensure_initialized();
   };
 
 } // namespace Baseliner
+
 #endif // OPTIONS_HPP

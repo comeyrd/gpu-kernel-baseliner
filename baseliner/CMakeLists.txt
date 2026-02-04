@@ -1,5 +1,6 @@
 add_library(baseliner SHARED)
 add_library(baseliner::baseliner ALIAS baseliner)
+target_sources(baseliner PRIVATE Options.cpp JsonHandler.cpp)
 #JSON
 include(FetchContent)
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz)
