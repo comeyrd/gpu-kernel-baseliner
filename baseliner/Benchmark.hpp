@@ -4,7 +4,6 @@
 #include <baseliner/Options.hpp>
 #include <baseliner/Runner.hpp>
 #include <baseliner/research_questions/research_questions.hpp>
-#include <utility>
 #include <vector>
 namespace Baseliner {
 
@@ -23,7 +22,8 @@ namespace Baseliner {
           tempMap = baseMap;
           tempMap[q.m_axe.m_interface_name][q.m_axe.m_option_name].m_value = axe_val.m_value;
           m_runner.propagate_options(tempMap);
-          axe_val.m_results = m_runner.run();
+          Result result = m_runner.run();
+          axe_val.m_results.emplace(m_runner.run());
         }
       }
     };
@@ -34,7 +34,7 @@ namespace Baseliner {
   };
 
   std::vector<Baseliner::OptionsMap> generate_permutations(Baseliner::OptionsMap base, const std::vector<Axe> &axes,
-                                                           int current = 0) {
+                                                           size_t current = 0) {
     const Axe &axe = axes[current];
     current++;
     std::vector<Baseliner::OptionsMap> omaps;
@@ -56,15 +56,15 @@ namespace Baseliner {
         : m_runner(runner),
           m_axes(axes) {};
 
-    std::vector<std::pair<OptionsMap, std::vector<float_milliseconds>>> run() {
+    std::vector<Result> run() {
       OptionsMap omap;
       m_runner.gather_options(omap);
       std::vector<OptionsMap> omap_v = generate_permutations(omap, m_axes);
-      std::vector<std::pair<OptionsMap, std::vector<float_milliseconds>>> result_vector;
-      for (OptionsMap &omap : omap_v) {
-        m_runner.apply_options(omap);
-        std::vector<float_milliseconds> measures = m_runner.run();
-        result_vector.push_back(std::make_pair(omap, measures));
+      std::vector<Result> result_vector;
+      for (OptionsMap &temp_omap : omap_v) {
+        m_runner.apply_options(temp_omap);
+        Result result = m_runner.run();
+        result_vector.push_back(result);
       }
       return result_vector;
     };

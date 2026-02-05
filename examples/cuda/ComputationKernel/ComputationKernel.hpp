@@ -69,6 +69,9 @@ public:
 
 class ComputationKernel : public Baseliner::ICudaKernel<ComputationInput, ComputationOutput> {
 public:
+  std::string name() override {
+    return "ComputationKernel";
+  };
   void cpu(ComputationOutput &output) override;
   void setup() override {
     CHECK_CUDA(cudaMalloc(&m_d_a, m_input.m_N * sizeof(int)));

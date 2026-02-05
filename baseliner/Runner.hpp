@@ -1,6 +1,8 @@
 #ifndef RUNNER_HPP
 #define RUNNER_HPP
 #include <baseliner/Kernel.hpp>
+#include <baseliner/Metric.hpp>
+#include <baseliner/Result.hpp>
 #include <baseliner/StoppingCriterion.hpp>
 #include <baseliner/Timer.hpp>
 #include <baseliner/backend/Backend.hpp>
@@ -15,7 +17,7 @@ namespace Baseliner {
     bool m_block = false;
     float m_block_duration_ms = 1000.0;
     // OptionConsumer Interfac
-    virtual std::vector<float_milliseconds> run() = 0;
+    virtual Result run() = 0;
     explicit RunnerBase(IStoppingCriterion &stopping)
         : m_stopping(stopping) {};
 
@@ -51,7 +53,7 @@ namespace Baseliner {
           m_blocker(),
           m_kernel(std::make_unique<Kernel>(m_input)) {};
 
-    std::vector<float_milliseconds> run() override {
+    Result run() override {
       m_input.generate_random();
       typename Kernel::Output m_out_cpu(m_input);
       typename Kernel::Output m_out_gpu(m_input);
@@ -69,9 +71,14 @@ namespace Baseliner {
       m_kernel->teardown(m_out_gpu);
       if (!(m_out_gpu == m_out_cpu)) {
         std::cout << "Error, GPU and CPU results are not the same" << std::endl;
-        std::cout << m_out_gpu << std::endl << " | " << m_out_cpu << std::endl;
+        // std::cout << m_out_gpu << std::endl << " | " << m_out_cpu << std::endl;
       }
-      return m_stopping.executionTimes();
+
+      // TODO Fix git version ?
+      Result result(this->gather_options(), m_kernel->name(), "");
+      std::vector<Metric> metrics = m_stopping.get_metrics();
+      result.push_back_metrics(metrics);
+      return result;
     }
 
   protected:

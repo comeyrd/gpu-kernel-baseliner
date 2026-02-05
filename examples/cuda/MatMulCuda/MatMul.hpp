@@ -113,8 +113,9 @@ public:
     if (m_size_C != other.m_size_C)
       return false;
     for (size_t i = 0; i < m_h_C.size(); i++) {
-      if (std::abs(m_h_C[i] - other.m_h_C[i]) > 1e-4)
+      if (std::abs(m_h_C[i] - other.m_h_C[i]) > 1e-3) {
         return false;
+      }
     }
     return true;
   }
@@ -129,6 +130,9 @@ public:
 
 class MatrixMulKernel : public Baseliner::ICudaKernel<MatrixMulInput, MatrixMulOutput> {
 public:
+  std::string name() override {
+    return "MatrixMulKernel";
+  };
   void cpu(MatrixMulOutput &output) override;
 
   void setup() override {

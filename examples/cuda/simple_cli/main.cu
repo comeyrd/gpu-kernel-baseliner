@@ -1,6 +1,7 @@
 #include "ComputationKernel.hpp"
 #include <baseliner/Options.hpp>
 #include <baseliner/Runner.hpp>
+#include <baseliner/Serializer.hpp>
 #include <baseliner/StoppingCriterion.hpp>
 #include <iostream>
 #include <random>
@@ -89,7 +90,8 @@ int main(int argc, char **argv) {
   runner_act.propagate_options(user_options);
   stop.apply_options(user_options);
   runner_act.apply_options(user_options);
-  std::cout << runner_act.run() << std::endl;
+  serialize(std::cout, runner_act.run());
+  std::cout << std::endl;
   /*
   std::vector<float_milliseconds> res = runner_act.run();
   std::cout << res << std::endl;

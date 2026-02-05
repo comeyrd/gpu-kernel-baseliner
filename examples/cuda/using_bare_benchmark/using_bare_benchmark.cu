@@ -4,6 +4,7 @@
 #include <baseliner/JsonHandler.hpp>
 #include <baseliner/Options.hpp>
 #include <baseliner/Runner.hpp>
+#include <baseliner/Serializer.hpp>
 #include <baseliner/StoppingCriterion.hpp>
 #include <iostream>
 
@@ -24,7 +25,10 @@ int main(int argc, char **argv) {
     std::vector<Baseliner::Axe> axes = {{"Kernel", "seed", {"1", "10"}}};
     Baseliner::BareBenchmark bare_bench(runner_act, axes);
     auto res = bare_bench.run();
-    std::cout << res.size() << std::endl;
+
+    serialize(std::cout, res);
+    std::cout << std::endl;
+
     Baseliner::save_to_json(std::cout, res);
   }
 }

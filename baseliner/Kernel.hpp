@@ -53,6 +53,7 @@ namespace Baseliner {
     virtual void reset() = 0;
     virtual void run(std::shared_ptr<stream_t> &stream) = 0;
     virtual void teardown(Output &output) = 0;
+    virtual std::string name() = 0;
 
   public:
     void timed_run(std::shared_ptr<stream_t> &stream) {

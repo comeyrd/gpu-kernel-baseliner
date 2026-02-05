@@ -1,17 +1,19 @@
 #include "ComputationKernel.hpp"
+#include <baseliner/Result.hpp>
 #include <baseliner/Runner.hpp>
+#include <baseliner/Serializer.hpp>
 #include <baseliner/StoppingCriterion.hpp>
 #include <iostream>
-#include <random>
-#include <vector>
 
 int main() {
   std::cout << "Cuda Options Manipuation" << std::endl;
   auto stop = Baseliner::FixedRepetitionStoppingCriterion();
   Baseliner::Runner<ComputationKernel, Baseliner::Backend::CudaBackend> runner_act(stop);
   runner_act.m_block = false;
-  std::vector<Baseliner::float_milliseconds> res = runner_act.run();
-  std::cout << res << std::endl;
+  Baseliner::Result res = runner_act.run();
+  serialize(std::cout, res);
+  std::cout << std::endl;
+
   Baseliner::OptionsMap omap;
   runner_act.gather_options(omap);
   Baseliner::InterfaceOptions &options = omap["ComputationInput"];
@@ -22,6 +24,8 @@ int main() {
   }
   runner_act.propagate_options(omap);
   runner_act.m_block = true;
-  res = runner_act.run();
-  std::cout << res << std::endl;
+  Baseliner::Result second_res = runner_act.run();
+  serialize(std::cout, second_res);
+
+  std::cout << std::endl;
 }
