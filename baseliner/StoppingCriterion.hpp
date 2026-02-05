@@ -1,6 +1,7 @@
 #ifndef STOPPING_CRITERION_HPP
 #define STOPPING_CRITERION_HPP
 #include <baseliner/Durations.hpp>
+#include <baseliner/Metric.hpp>
 #include <baseliner/Options.hpp>
 #include <chrono>
 #include <vector>
@@ -12,6 +13,12 @@ namespace Baseliner {
       m_execution_times_vector.push_back(execution_time);
     };
     virtual bool satisfied() = 0;
+    virtual std::vector<Metric> get_metrics() {
+      std::vector<Metric> metrics;
+
+      metrics.push_back(Metric("execution_times", "ms", m_execution_times_vector));
+      return metrics;
+    };
     std::vector<std::chrono::duration<float, std::milli>> executionTimes() {
       return m_execution_times_vector;
     };

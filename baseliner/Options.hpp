@@ -102,6 +102,7 @@ namespace Baseliner {
   class OptionBroadcaster {
   public:
     void gather_options(OptionsMap &optionsMap);
+    OptionsMap gather_options();
     void propagate_options(const OptionsMap &optionsMap);
     virtual void register_dependencies() {};
     virtual ~OptionBroadcaster() = default;

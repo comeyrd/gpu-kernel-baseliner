@@ -1,10 +1,10 @@
 #include "ComputationKernel.hpp"
 #include <baseliner/Durations.hpp>
 #include <baseliner/Options.hpp>
+#include <baseliner/Result.hpp>
 #include <baseliner/Runner.hpp>
 #include <baseliner/StoppingCriterion.hpp>
 #include <iostream>
-#include <random>
 #include <string>
 #include <vector>
 
@@ -46,18 +46,28 @@ std::vector<Baseliner::OptionsMap> generate_permutations(Baseliner::OptionsMap b
 class Exploration {
 public:
   virtual bool done() = 0;
-  virtual void applyResults(std::vector<Baseliner::float_milliseconds> results) = 0;
+  virtual void applyResults(Baseliner::Result results) = 0;
   virtual Baseliner::OptionsMap next() = 0;
 };
 
 using Score = float;
 
-static Score grade(std::vector<Baseliner::float_milliseconds> result) {
+static Score grade(Baseliner::Result res) {
   Score mean = 0.0;
-  for (auto res : result) {
-    mean += res.count();
+
+  size_t size = 1;
+  for (auto metric : res.m_v_metrics) {
+    if (metric.m_name == "execution_time") {
+      auto *vec_ptr = std::get_if<std::vector<Baseliner::float_milliseconds>>(&metric.m_data);
+      if (vec_ptr) {
+        size = vec_ptr->size();
+        for (const auto &duration : *vec_ptr) {
+          mean += duration.count();
+        }
+      }
+    }
   }
-  mean = mean / result.size();
+  mean = mean / size;
   return mean;
 }
 class AxeExploration : public Exploration {
@@ -69,7 +79,7 @@ public:
       return true;
     }
   };
-  void applyResults(std::vector<Baseliner::float_milliseconds> results) override {
+  void applyResults(Baseliner::Result results) override {
     m_scores.push_back(grade(results));
   };
   Baseliner::OptionsMap next() override {
@@ -94,7 +104,7 @@ public:
     while (!exploration.done()) {
       Baseliner::OptionsMap options = exploration.next();
       runner.propagate_options(options);
-      std::vector<Baseliner::float_milliseconds> results = runner.run();
+      Baseliner::Result results = runner.run();
       exploration.applyResults(results);
     }
   };
