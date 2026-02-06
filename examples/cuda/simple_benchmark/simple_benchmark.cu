@@ -112,8 +112,8 @@ public:
 
 int main(int argc, char **argv) {
   std::cout << "simple_benchmark" << std::endl;
-  auto stop = Baseliner::FixedRepetitionStoppingCriterion();
-  stop.max_repetitions = 10;
+  auto stop = Baseliner::StoppingCriterion();
+  stop.m_max_repetitions = 10;
   Baseliner::Runner<ComputationKernel, Baseliner::Backend::CudaBackend> runner_act(stop);
   Baseliner::OptionsMap omap;
   std::vector<Axe> axes = {{"Kernel", "work_size", {"1", "10", "100", "1000"}}, {"Runner", "block", {"0", "1"}}};

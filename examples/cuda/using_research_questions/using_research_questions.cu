@@ -13,8 +13,8 @@
 
 int main(int argc, char **argv) {
   std::cout << "doing research questions" << std::endl;
-  auto stop = Baseliner::FixedRepetitionStoppingCriterion();
-  stop.max_repetitions = 10;
+  auto stop = Baseliner::StoppingCriterion();
+  stop.m_max_repetitions = 10;
   Baseliner::Runner<ComputationKernel, Baseliner::Backend::CudaBackend> runner_computation(stop);
   std::vector<Baseliner::ResearchQuestions::Question> research_q = Baseliner::ResearchQuestions::AllRQs;
   Baseliner::RqBenchmark bench(runner_computation, research_q);

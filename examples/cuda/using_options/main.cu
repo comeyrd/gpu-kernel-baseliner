@@ -7,7 +7,7 @@
 
 int main() {
   std::cout << "Cuda Options Manipuation" << std::endl;
-  auto stop = Baseliner::FixedRepetitionStoppingCriterion();
+  auto stop = Baseliner::StoppingCriterion();
   Baseliner::Runner<ComputationKernel, Baseliner::Backend::CudaBackend> runner_act(stop);
   runner_act.m_block = false;
   Baseliner::Result res = runner_act.run();

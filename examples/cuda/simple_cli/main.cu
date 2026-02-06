@@ -4,7 +4,7 @@
 #include <baseliner/Serializer.hpp>
 #include <baseliner/StoppingCriterion.hpp>
 #include <iostream>
-#include <random>
+
 #include <string>
 #include <vector>
 inline std::ostream &operator<<(std::ostream &os, const Baseliner::OptionsMap &option_map) {
@@ -40,7 +40,7 @@ void usage(std::vector<std::string> args, Baseliner::OptionsMap &options_map) {
 
 int main(int argc, char **argv) {
   std::cout << "MiniCli" << std::endl;
-  auto stop = Baseliner::FixedRepetitionStoppingCriterion();
+  auto stop = Baseliner::StoppingCriterion();
   Baseliner::Runner<ComputationKernel, Baseliner::Backend::CudaBackend> runner_act(stop);
   Baseliner::OptionsMap omap;
   runner_act.gather_options(omap);
