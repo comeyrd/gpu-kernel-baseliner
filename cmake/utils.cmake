@@ -47,3 +47,19 @@ function(win_copy_deps_to_target_dir target)
         endif()
     endforeach()
 endfunction()
+
+function(baseliner_enable_git_version TARGET_NAME)
+    execute_process(
+        COMMAND git rev-parse HEAD
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        RESULT_VARIABLE GIT_RESULT
+        OUTPUT_VARIABLE GIT_REV
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+    if(GIT_RESULT EQUAL 0)
+        target_compile_definitions(${TARGET_NAME} PRIVATE BASELINER_GIT_VERSION="${GIT_REV}")
+    else()
+        target_compile_definitions(${TARGET_NAME} PRIVATE BASELINER_GIT_VERSION="unknown")
+    endif()
+endfunction()

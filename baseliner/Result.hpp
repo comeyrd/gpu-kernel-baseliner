@@ -1,8 +1,8 @@
 #ifndef BASELINER_RESULT_HPP
 #define BASELINER_RESULT_HPP
+#include <baseliner/GIT_VERSION.hpp>
 #include <baseliner/Metric.hpp>
 #include <baseliner/Options.hpp>
-
 #include <string>
 namespace Baseliner {
   struct Result {
@@ -13,10 +13,10 @@ namespace Baseliner {
     const std::string m_date_time;
     std::vector<Metric> m_v_metrics;
     explicit Result() {};
-    explicit Result(const OptionsMap &omap, std::string kernel_name, std::string git_version)
+    explicit Result(const OptionsMap &omap, std::string kernel_name)
         : m_map(omap),
           m_kernel_name(kernel_name),
-          m_git_version(git_version),
+          m_git_version(BASELINER_GIT_VERSION),
           m_execution_uid(generate_uid()),
           m_date_time(current_time_string()),
           m_v_metrics() {};
