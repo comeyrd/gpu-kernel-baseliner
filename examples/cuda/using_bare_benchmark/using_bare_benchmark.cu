@@ -10,8 +10,8 @@
 
 int main(int argc, char **argv) {
   std::cout << "using bare benchmark" << std::endl;
-  auto stop = Baseliner::FixedRepetitionStoppingCriterion();
-  stop.max_repetitions = 10;
+  auto stop = Baseliner::StoppingCriterion();
+  stop.m_max_repetitions = 10;
   Baseliner::Runner<ComputationKernel, Baseliner::Backend::CudaBackend> runner_act(stop);
   {
     std::vector<Baseliner::Axe> axes = {{"Kernel", "work_size", {"1", "10", "100", "1000"}},

@@ -27,7 +27,7 @@
 
 // Copyright 2026, Come Eyraud.
 #include "MatMul.hpp"
-#include <iostream>
+
 #include <vector>
 
 // ----------------------------------------------------------------------
