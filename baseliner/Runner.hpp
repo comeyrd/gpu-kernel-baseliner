@@ -18,7 +18,7 @@ namespace Baseliner {
     float m_block_duration_ms = 1000.0;
     // OptionConsumer Interfac
     virtual Result run() = 0;
-    explicit RunnerBase(IStoppingCriterion &stopping)
+    explicit RunnerBase(StoppingCriterion &stopping)
         : m_stopping(stopping) {};
 
     virtual ~RunnerBase() = default;
@@ -31,7 +31,7 @@ namespace Baseliner {
     }
 
   protected:
-    IStoppingCriterion &m_stopping;
+    StoppingCriterion &m_stopping;
   };
   template <typename Kernel, typename Device>
   // TODO Setup the static checks at compile time.
@@ -44,7 +44,7 @@ namespace Baseliner {
       register_consumer(*this);
     };
     // Runner
-    explicit Runner(IStoppingCriterion &stopping)
+    explicit Runner(StoppingCriterion &stopping)
         : RunnerBase(stopping),
           m_input(),
           m_backend(),
