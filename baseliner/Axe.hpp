@@ -2,14 +2,12 @@
 #define BASELINER_AXE_HPP
 #include <baseliner/Durations.hpp>
 #include <baseliner/Result.hpp>
-#include <optional>
 #include <string>
 #include <vector>
 namespace Baseliner {
 
   struct AxeValue {
     std::string m_value;
-    std::optional<Result> m_results;
     AxeValue(std::string name)
         : m_value(name) {};
     AxeValue(const char *name)

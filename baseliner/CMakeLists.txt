@@ -1,6 +1,6 @@
 add_library(baseliner SHARED)
 add_library(baseliner::baseliner ALIAS baseliner)
-set(sources Options.cpp JsonHandler.cpp  Options.cpp Result.cpp Stats.cpp StoppingCriterion.cpp)
+set(sources Options.cpp JsonHandler.cpp  Options.cpp Result.cpp Stats.cpp StoppingCriterion.cpp Serializer.cpp main.cpp)
 target_sources(baseliner PRIVATE ${sources})
 #JSON
 include(FetchContent)
@@ -14,7 +14,3 @@ target_include_directories(baseliner PUBLIC
     $<INSTALL_INTERFACE:include> 
 )
 add_subdirectory(backend)
-option(BASELINER_BUILD_RESEARCH_QUESTIONS "Build baseliner research questions" OFF)
-if(BASELINER_BUILD_RESEARCH_QUESTIONS)
-  add_subdirectory(research_questions)
-endif()

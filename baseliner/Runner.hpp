@@ -1,5 +1,6 @@
 #ifndef RUNNER_HPP
 #define RUNNER_HPP
+#include <baseliner/Executable.hpp>
 #include <baseliner/Kernel.hpp>
 #include <baseliner/Metric.hpp>
 #include <baseliner/Result.hpp>
@@ -9,7 +10,7 @@
 #include <iostream>
 namespace Baseliner {
 
-  class RunnerBase : public OptionConsumer, public OptionBroadcaster {
+  class RunnerBase : public OptionConsumer, public OptionBroadcaster, public SingleExecutable {
   public:
     // Runner Options
     bool m_warmup = true;
@@ -17,7 +18,6 @@ namespace Baseliner {
     bool m_block = false;
     float m_block_duration_ms = 1000.0;
     // OptionConsumer Interfac
-    virtual Result run() = 0;
     explicit RunnerBase(StoppingCriterion &stopping)
         : m_stopping(stopping) {};
 
