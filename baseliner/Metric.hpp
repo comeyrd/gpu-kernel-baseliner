@@ -14,8 +14,9 @@ namespace Baseliner {
   struct MetricStats {
     std::string m_name;
     MetricData m_data;
-    explicit MetricStats(std::string name)
-        : m_name(name) {};
+    MetricStats(std::string name, MetricData data)
+        : m_name(name),
+          m_data(data) {};
   };
 
   struct Metric {
@@ -30,7 +31,7 @@ namespace Baseliner {
           m_data(data),
           m_v_stats() {};
 
-    void add_stat(MetricStats &stat) {
+    void add_stat(MetricStats stat) {
       m_v_stats.push_back(stat);
     }
   };
