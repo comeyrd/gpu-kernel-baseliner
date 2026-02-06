@@ -1,5 +1,6 @@
 #ifndef OPTIONS_HPP
 #define OPTIONS_HPP
+#include <baseliner/Conversions.hpp>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -9,13 +10,6 @@ namespace Baseliner {
   // The OptionBinding Namespace is here to take care of the serialization and de-serialization of options
   // So that new options can propagate without having to write the code.
   namespace OptionBindings {
-    inline std::string bool_to_string(bool value) {
-      return std::to_string(static_cast<int>(value));
-    };
-    inline bool string_to_bool(std::string value) {
-      int i_value = std::stoi(value);
-      return (i_value != 0);
-    };
     struct OptionBindingBase {
       std::string m_interface_name;
       std::string m_name;
@@ -34,34 +28,12 @@ namespace Baseliner {
       OptionBinding(std::string interface_name, std::string name, std::string description, T &var)
           : OptionBindingBase(interface_name, name, description),
             m_val_ptr(&var) {};
-      void update_value(const std::string &val) override;
-      std::string get_value() const override {
-        return std::to_string(*m_val_ptr);
+      void update_value(const std::string &val) override {
+        *m_val_ptr = Conversion::baseliner_from_string<T>(val);
       };
-    };
-    template <>
-    inline void OptionBinding<int>::update_value(const std::string &val) {
-      *m_val_ptr = std::stoi(val);
-    };
-    template <>
-    inline void OptionBinding<float>::update_value(const std::string &val) {
-      *m_val_ptr = std::stof(val);
-    };
-    template <>
-    inline void OptionBinding<bool>::update_value(const std::string &val) {
-      *m_val_ptr = string_to_bool(val);
-    };
-    template <>
-    inline std::string OptionBinding<bool>::get_value() const {
-      return bool_to_string(*m_val_ptr);
-    };
-    template <>
-    inline void OptionBinding<std::string>::update_value(const std::string &val) {
-      *m_val_ptr = val;
-    };
-    template <>
-    inline std::string OptionBinding<std::string>::get_value() const {
-      return *m_val_ptr;
+      std::string get_value() const override {
+        return Conversion::baseliner_to_string(*m_val_ptr);
+      };
     };
   } // namespace OptionBindings
 
