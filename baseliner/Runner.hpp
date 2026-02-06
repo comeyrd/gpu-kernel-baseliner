@@ -74,8 +74,7 @@ namespace Baseliner {
         // std::cout << m_out_gpu << std::endl << " | " << m_out_cpu << std::endl;
       }
 
-      // TODO Fix git version ?
-      Result result(this->gather_options(), m_kernel->name(), "");
+      Result result(this->gather_options(), m_kernel->name());
       std::vector<Metric> metrics = m_stopping.get_metrics();
       result.push_back_metrics(metrics);
       return result;
