@@ -66,6 +66,7 @@ namespace Baseliner {
     m_ci_low = m_sorted_execution_times_vector[jk.first - 1].count();
     m_ci_width = m_ci_high - m_ci_low;
     m_median_absolute_dev = Stats::MedianAbsoluteDeviation(m_sorted_execution_times_vector);
+    m_sorted_without_outliers_time_vector = Stats::RemoveOutliers(m_sorted_execution_times_vector);
     if (m_ci_width <= m_precision && m_median_absolute_dev <= m_precision) {
       return true;
     } else {
@@ -76,6 +77,7 @@ namespace Baseliner {
     std::vector<Metric> metrics;
     Metric execution_time = Metric("execution_times", "ms", m_execution_times_vector);
     execution_time.add_stat(MetricStats("sorted", m_sorted_execution_times_vector));
+    execution_time.add_stat(MetricStats("without_outliers", m_sorted_without_outliers_time_vector));
     execution_time.add_stat(MetricStats("median_m_ci_width", m_ci_width));
     execution_time.add_stat(MetricStats("median_m_ci_high", m_ci_high));
     execution_time.add_stat(MetricStats("median_absolute_dev", m_median_absolute_dev));

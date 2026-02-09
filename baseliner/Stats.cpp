@@ -4,6 +4,25 @@
 
 namespace Baseliner {
   namespace Stats {
+    std::vector<float_milliseconds> RemoveOutliers(std::vector<float_milliseconds> &vec_float) {
+      size_t n = vec_float.size();
+      size_t Q1_ix = static_cast<size_t>(std::floor(n / 4));
+      float Q1 = vec_float[Q1_ix].count();
+      size_t Q3_IX = static_cast<size_t>(std::floor((3 * n) / 4));
+      float Q3 = vec_float[Q3_IX].count();
+
+      float IQR = Q3 - Q1;
+
+      float_milliseconds lower_fence = static_cast<float_milliseconds>(Q1 - (1.5f * IQR));
+      float_milliseconds upper_fence = static_cast<float_milliseconds>(Q3 + (1.5f * IQR));
+
+      auto it_start = std::lower_bound(vec_float.begin(), vec_float.end(), lower_fence);
+
+      auto it_end = std::upper_bound(it_start, vec_float.end(), upper_fence);
+
+      return std::vector<float_milliseconds>(it_start, it_end);
+    };
+
     float MedianAbsoluteDeviation(std::vector<float_milliseconds> &vec_float) {
       if (vec_float.empty())
         return 0.0f;
