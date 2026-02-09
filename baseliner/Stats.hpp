@@ -8,7 +8,8 @@ namespace Baseliner {
 
   namespace Stats {
     // TAKES IN SORTED
-    std::vector<float_milliseconds> RemoveOutliers(std::vector<float_milliseconds> &vec_float);
+    std::tuple<std::vector<float_milliseconds>, float, float>
+    RemoveOutliers(std::vector<float_milliseconds> &vec_float);
     // TAKES IN SORTED
     float MedianAbsoluteDeviation(std::vector<float_milliseconds> &vec_float);
 

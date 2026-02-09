@@ -4,7 +4,8 @@
 
 namespace Baseliner {
   namespace Stats {
-    std::vector<float_milliseconds> RemoveOutliers(std::vector<float_milliseconds> &vec_float) {
+    std::tuple<std::vector<float_milliseconds>, float, float>
+    RemoveOutliers(std::vector<float_milliseconds> &vec_float) {
       size_t n = vec_float.size();
       size_t Q1_ix = static_cast<size_t>(std::floor(n / 4));
       float Q1 = vec_float[Q1_ix].count();
@@ -20,7 +21,7 @@ namespace Baseliner {
 
       auto it_end = std::upper_bound(it_start, vec_float.end(), upper_fence);
 
-      return std::vector<float_milliseconds>(it_start, it_end);
+      return std::make_tuple(std::vector<float_milliseconds>(it_start, it_end), Q1, Q3);
     };
 
     float MedianAbsoluteDeviation(std::vector<float_milliseconds> &vec_float) {
