@@ -24,7 +24,6 @@ namespace Baseliner {
     virtual bool criterion_satisfied();
     std::vector<float_milliseconds> m_execution_times_vector;
   };
-
   class ConfidenceIntervalMedianSC : public StoppingCriterion {
   public:
     void register_options() override;
@@ -48,6 +47,8 @@ namespace Baseliner {
     float m_median_absolute_dev = 0;
     float m_Q1 = 0;
     float m_Q3 = 0;
+    float m_relative_error = 0;
+    float m_median = 0;
     Stats::ConfidenceInterval confidence_compute;
     // HIP Reference
     // https://rocm.docs.amd.com/projects/HIP/en/latest/reference/hip_runtime_api/modules/event_management.html    //

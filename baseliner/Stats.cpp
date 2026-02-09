@@ -24,9 +24,9 @@ namespace Baseliner {
       return std::make_tuple(std::vector<float_milliseconds>(it_start, it_end), Q1, Q3);
     };
 
-    float MedianAbsoluteDeviation(std::vector<float_milliseconds> &vec_float) {
+    std::pair<float, float> MedianAbsoluteDeviation(std::vector<float_milliseconds> &vec_float) {
       if (vec_float.empty())
-        return 0.0f;
+        return std::make_pair(0.0f, 0.0f);
       size_t n = vec_float.size();
       size_t middle = static_cast<size_t>(std::floor(n / 2));
       float median = vec_float[middle].count();
@@ -38,7 +38,7 @@ namespace Baseliner {
       }
 
       std::sort(deviations.begin(), deviations.end());
-      return deviations[middle];
+      return std::make_pair(deviations[middle], median);
     }
     // COMPUTED WITH tools/z-score-array-generator.py
     const static double MEDIAN_Z_SCORES[100] = {
