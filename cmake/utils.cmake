@@ -50,8 +50,7 @@ endfunction()
 
 function(baseliner_enable_git_version TARGET_NAME)
     execute_process(
-        COMMAND git rev-parse HEAD
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        COMMAND git rev-parse --short HEAD 
         RESULT_VARIABLE GIT_RESULT
         OUTPUT_VARIABLE GIT_REV
         OUTPUT_STRIP_TRAILING_WHITESPACE
