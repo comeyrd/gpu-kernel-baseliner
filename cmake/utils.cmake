@@ -49,6 +49,12 @@ function(win_copy_deps_to_target_dir target)
 endfunction()
 
 function(baseliner_enable_git_version TARGET_NAME)
+    get_target_property(TARGET_TYPE ${TARGET_NAME} TYPE)
+    if (TARGET_TYPE STREQUAL "INTERFACE_LIBRARY")
+        set(SCOPE INTERFACE)
+    else()
+        set(SCOPE PRIVATE)
+    endif()
     execute_process(
         COMMAND git rev-parse --short HEAD
         WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
@@ -71,5 +77,5 @@ function(baseliner_enable_git_version TARGET_NAME)
         set(DIRTY_STR "-dirty")
     endif()
     set(FULL_VERSION_STR "${GIT_BRANCH}@${GIT_REV}${DIRTY_STR}")
-    target_compile_definitions(${TARGET_NAME} PRIVATE BASELINER_GIT_VERSION="${FULL_VERSION_STR}")
+    target_compile_definitions(${TARGET_NAME} ${SCOPE} BASELINER_GIT_VERSION="${FULL_VERSION_STR}")
 endfunction()
