@@ -10,7 +10,7 @@ namespace Baseliner {
     size_t vec_size = m_execution_times_vector.size();
     if (vec_size > m_max_repetitions) {
       return true;
-    } else if (vec_size % m_batch_size && vec_size > 1) {
+    } else if (((vec_size % m_batch_size) == 0) && vec_size > 1) {
       return criterion_satisfied();
     } else {
       return false;
