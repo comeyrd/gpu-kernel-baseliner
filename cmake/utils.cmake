@@ -50,16 +50,26 @@ endfunction()
 
 function(baseliner_enable_git_version TARGET_NAME)
     execute_process(
-        COMMAND git rev-parse HEAD
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        RESULT_VARIABLE GIT_RESULT
+        COMMAND git rev-parse --short HEAD
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
         OUTPUT_VARIABLE GIT_REV
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
-
-    if(GIT_RESULT EQUAL 0)
-        target_compile_definitions(${TARGET_NAME} PRIVATE BASELINER_GIT_VERSION="${GIT_REV}")
-    else()
-        target_compile_definitions(${TARGET_NAME} PRIVATE BASELINER_GIT_VERSION="unknown")
+    execute_process(
+        COMMAND git rev-parse --abbrev-ref HEAD
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        OUTPUT_VARIABLE GIT_BRANCH
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    execute_process(
+        COMMAND git diff --quiet
+        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+        RESULT_VARIABLE IS_DIRTY
+    )
+    set(DIRTY_STR "")
+    if(NOT IS_DIRTY EQUAL 0)
+        set(DIRTY_STR "-dirty")
     endif()
+    set(FULL_VERSION_STR "${GIT_BRANCH}@${GIT_REV}${DIRTY_STR}")
+    target_compile_definitions(${TARGET_NAME} PRIVATE BASELINER_GIT_VERSION="${FULL_VERSION_STR}")
 endfunction()

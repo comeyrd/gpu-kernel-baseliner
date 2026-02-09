@@ -21,17 +21,10 @@ namespace Baseliner {
     std::vector<std::shared_ptr<Executable>> _executables;
 
   public:
-    static ExecutableManager *instance() {
-      static ExecutableManager manager;
-      return &manager;
-    }
-    const std::vector<std::shared_ptr<Executable>> &getExecutables() {
-      return _executables;
-    };
+    static ExecutableManager *instance();
+    const std::vector<std::shared_ptr<Executable>> &getExecutables();
 
-    void register_executable(std::shared_ptr<Executable> impl) {
-      _executables.push_back(impl);
-    };
+    void register_executable(std::shared_ptr<Executable> impl);
   };
 
   class RegistrarExecutable {
