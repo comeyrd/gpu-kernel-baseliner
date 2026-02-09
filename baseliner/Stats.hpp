@@ -7,13 +7,8 @@
 namespace Baseliner {
 
   namespace Stats {
-
-    class OutliersRemoval : OptionConsumer {
-    public:
-      void register_options() override;
-
-    private:
-    };
+    // TAKES IN SORTED
+    std::vector<float_milliseconds> RemoveOutliers(std::vector<float_milliseconds> &vec_float);
     // TAKES IN SORTED
     float MedianAbsoluteDeviation(std::vector<float_milliseconds> &vec_float);
 

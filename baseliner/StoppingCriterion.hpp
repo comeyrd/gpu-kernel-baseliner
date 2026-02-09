@@ -38,6 +38,7 @@ namespace Baseliner {
 
   private:
     std::vector<float_milliseconds> m_sorted_execution_times_vector;
+    std::vector<float_milliseconds> m_sorted_without_outliers_time_vector;
     bool criterion_satisfied() override;
     bool m_remove_outliers = true;
     float m_precision = 0.0005f * 2; // Cuda Event Precision = 0.0005ms, Hip Event 0.001ms, SYCL events 0.001ms also ~
