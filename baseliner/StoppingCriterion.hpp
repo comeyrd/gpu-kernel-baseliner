@@ -46,6 +46,8 @@ namespace Baseliner {
     float m_ci_high = 0;
     float m_ci_width = 0;
     float m_median_absolute_dev = 0;
+    float m_Q1 = 0;
+    float m_Q3 = 0;
     Stats::ConfidenceInterval confidence_compute;
     // HIP Reference
     // https://rocm.docs.amd.com/projects/HIP/en/latest/reference/hip_runtime_api/modules/event_management.html    //
