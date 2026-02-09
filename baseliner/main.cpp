@@ -17,8 +17,7 @@ std::string generate_uid() {
   uint16_t rand_val = dis(gen);
 
   std::stringstream ss;
-  ss << std::hex << std::setfill('0') << std::setw(8) << now << std::setw(2) << static_cast<int>(count) << std::setw(4)
-     << rand_val;
+  ss << std::hex << std::setfill('0') << std::setw(8) << now << std::setw(2) << std::setw(4) << rand_val;
   return ss.str();
 };
 
