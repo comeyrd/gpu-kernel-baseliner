@@ -65,12 +65,17 @@ namespace Baseliner {
     m_ci_high = m_sorted_execution_times_vector[jk.second - 1].count();
     m_ci_low = m_sorted_execution_times_vector[jk.first - 1].count();
     m_ci_width = m_ci_high - m_ci_low;
-    m_median_absolute_dev = Stats::MedianAbsoluteDeviation(m_sorted_execution_times_vector);
+    auto pair = Stats::MedianAbsoluteDeviation(m_sorted_execution_times_vector);
+    m_median_absolute_dev = pair.first;
+    m_median = pair.second;
     auto tuple = Stats::RemoveOutliers(m_sorted_execution_times_vector);
     m_sorted_without_outliers_time_vector = std::get<0>(tuple);
     m_Q1 = std::get<1>(tuple);
     m_Q3 = std::get<2>(tuple);
+    m_relative_error = m_ci_width / m_median;
     if (m_ci_width <= m_precision && m_median_absolute_dev <= m_precision) {
+      return true;
+    } else if (m_relative_error <= 0.01) {
       return true;
     } else {
       return false;

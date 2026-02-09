@@ -11,7 +11,7 @@ namespace Baseliner {
     std::tuple<std::vector<float_milliseconds>, float, float>
     RemoveOutliers(std::vector<float_milliseconds> &vec_float);
     // TAKES IN SORTED
-    float MedianAbsoluteDeviation(std::vector<float_milliseconds> &vec_float);
+    std::pair<float, float> MedianAbsoluteDeviation(std::vector<float_milliseconds> &vec_float);
 
     class ConfidenceInterval : OptionConsumer {
     public:
