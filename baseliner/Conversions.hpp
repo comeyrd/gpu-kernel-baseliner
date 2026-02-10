@@ -59,20 +59,23 @@ namespace Baseliner::Conversion {
   inline auto baseliner_to_string<long double>(const long double &val) -> std::string {
     return std::to_string(val);
   }
-  template <>
-  inline auto baseliner_to_string<std::vector<std::string>>(const std::vector<std::string> &val) -> std::string {
+  template <typename T>
+  inline auto baseliner_to_string(const std::vector<T> &val) -> std::string {
     if (val.empty()) {
       return "[]";
     }
     std::ostringstream oss;
     oss << "[";
     for (size_t i = 0; i < val.size(); ++i) {
-      oss << "\"" << val[i] << "\"" << (i == val.size() - 1 ? "" : ", ");
+      oss << baseliner_to_string<T>(val[i]) << (i == val.size() - 1 ? "" : ", ");
     }
     oss << "]";
     return oss.str();
   }
-
+  template <>
+  inline auto baseliner_to_string<std::string>(const std::string &val) -> std::string {
+    return val;
+  };
   // From String
   template <>
   inline auto baseliner_from_string(const std::string &val) -> bool {
@@ -114,9 +117,9 @@ namespace Baseliner::Conversion {
   inline auto baseliner_from_string<long double>(const std::string &val) -> long double {
     return std::stold(val);
   }
-  template <>
-  inline auto baseliner_from_string<std::vector<std::string>>(const std::string &val) -> std::vector<std::string> {
-    std::vector<std::string> result;
+  template <typename T>
+  inline auto baseliner_from_string(const std::string &val) -> std::vector<T> {
+    std::vector<T> result;
     std::string string_v = val;
     if (string_v.front() == '[') {
       string_v.erase(0, 1);
@@ -128,9 +131,13 @@ namespace Baseliner::Conversion {
     std::string item;
     while (std::getline(sstream, item, ',')) {
       // Trim whitespace/quotes if necessary
-      result.push_back(item);
+      result.push_back(baseliner_from_string<T>(item));
     }
     return result;
+  }
+  template <>
+  inline auto baseliner_from_string<std::string>(const std::string &val) -> std::string {
+    return val;
   }
 } // namespace Baseliner::Conversion
 
