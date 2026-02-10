@@ -12,6 +12,6 @@ namespace Baseliner {
   };
 
   void ExecutableManager::register_executable(std::shared_ptr<IExecutable> impl) {
-    _executables.push_back(impl);
+    _executables.push_back(std::move(impl));
   };
 } // namespace Baseliner

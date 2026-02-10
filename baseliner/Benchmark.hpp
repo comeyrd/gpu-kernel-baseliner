@@ -13,7 +13,7 @@ namespace Baseliner {
 
   class SingleAxeBenchmark : public IOptionConsumer, public IExecutable {
   public:
-    SingleAxeBenchmark(std::shared_ptr<IRunner> runner, Axe &Axe)
+    SingleAxeBenchmark(std::shared_ptr<IRunner> runner, Axe Axe)
         : m_runner(std::move(runner)),
           m_axe(std::move(Axe)) {};
 
