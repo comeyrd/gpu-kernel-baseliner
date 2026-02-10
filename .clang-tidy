@@ -1,0 +1,26 @@
+---
+Checks: >
+  -*,
+  bugprone-*,
+  cppcoreguidelines-*,
+  modernize-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  misc-*,
+  cert-*,
+  clang-analyzer-*,
+CheckOptions:
+  # Standard Classes: CamelCase (e.g., OptionBinding)
+  - key: readability-identifier-naming.ClassCase
+    value: CamelCase
+
+  # Abstract Classes: I + CamelCase (e.g., IOptionBinding)
+  - key: readability-identifier-naming.AbstractClassCase
+    value: CamelCase
+  - key: readability-identifier-naming.AbstractClassPrefix
+    value: I
+
+HeaderFilterRegex: ".*/baseliner/.*"
+FormatStyle: file
+...
