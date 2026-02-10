@@ -11,7 +11,7 @@
 #include <vector>
 namespace Baseliner {
   constexpr float DEFAULT_BLOCK_DURATION = 1000.0F;
-  class IRunner : public IOptionConsumer, public IOptionBroadcaster, public ISingleExecutable {
+  class IRunner : public IOptionConsumer, public ISingleExecutable {
   public:
     // Runner Options
     // IOptionConsumer Interfac
@@ -60,10 +60,8 @@ namespace Baseliner {
   // TODO Setup the static checks at compile time.
   class Runner : public IRunner {
   public:
-    // IOptionBroadcaster
     void register_dependencies() override {
       register_consumer(*m_input);
-      register_consumer(*this);
       register_consumer(*m_stopping);
     };
     // Runner

@@ -68,12 +68,22 @@ namespace Baseliner {
   class IOptionConsumer {
   public:
     virtual void register_options() = 0;
-    auto describe_options() -> OptionsMap;
-
-    void apply_options(const OptionsMap &options_map);
+    void gather_options(OptionsMap &opts);
+    auto gather_options() -> OptionsMap;
+    void propagate_options(const OptionsMap &optionsMap);
+    virtual void register_dependencies() {};
     virtual ~IOptionConsumer() = default;
+    IOptionConsumer() = default;
+
+    IOptionConsumer(const IOptionConsumer &) = default;
+    auto operator=(const IOptionConsumer &) -> IOptionConsumer & = default;
+
+    // Explicitly allow moving (needed for vectors to work)
+    IOptionConsumer(IOptionConsumer &&) = default;
+    auto operator=(IOptionConsumer &&) -> IOptionConsumer & = default;
 
   protected:
+    void register_consumer(IOptionConsumer &consumer);
     virtual void on_update() {};
     template <typename T>
     void add_option(const std::string &interface, const std::string &name, const std::string &description,
@@ -84,27 +94,10 @@ namespace Baseliner {
 
   private:
     std::vector<std::unique_ptr<OptionBindings::IOptionBinding>> m_options_bindings;
-    bool m_is_registered = false;
-    void ensure_registered();
-  };
-
-  class IOptionBroadcaster {
-  public:
-    void gather_options(OptionsMap &optionsMap);
-    auto gather_options() -> OptionsMap;
-    void propagate_options(const OptionsMap &optionsMap);
-    virtual void register_dependencies() = 0;
-    virtual ~IOptionBroadcaster() = default;
-
-  protected:
-    void register_consumer(IOptionConsumer &consumer);
-
-  private:
     bool m_is_init = false;
     std::vector<IOptionConsumer *> m_consumers;
     void ensure_initialized();
   };
-
 } // namespace Baseliner
 
 #endif // OPTIONS_HPP

@@ -11,7 +11,7 @@
 #include <vector>
 namespace Baseliner {
 
-  class SingleAxeBenchmark : public IOptionBroadcaster, public IExecutable {
+  class SingleAxeBenchmark : public IOptionConsumer, public IExecutable {
   public:
     SingleAxeBenchmark(std::shared_ptr<IRunner> runner, Axe &Axe)
         : m_runner(std::move(runner)),
@@ -22,9 +22,9 @@ namespace Baseliner {
       const OptionsMap baseMap;
       m_runner->gather_options();
       OptionsMap tempMap;
-      for (const std::string &axe_val : m_axe.m_values) {
+      for (const std::string &axe_val : m_axe.get_values()) {
         tempMap = baseMap;
-        tempMap[m_axe.m_interface_name][m_axe.m_option_name].m_value = axe_val;
+        tempMap[m_axe.get_interface_name()][m_axe.get_option_name()].m_value = axe_val;
         m_runner->propagate_options(tempMap);
         const Result result = m_runner->run();
         results_v.push_back(result);
@@ -34,6 +34,9 @@ namespace Baseliner {
     void register_dependencies() override {
       register_consumer(*m_runner);
     };
+    void register_options() override {
+      register_consumer(m_axe);
+    }
 
   private:
     std::shared_ptr<IRunner> m_runner;
