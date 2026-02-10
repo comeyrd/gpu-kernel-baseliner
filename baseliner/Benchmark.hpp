@@ -15,7 +15,7 @@ namespace Baseliner {
   public:
     SingleAxeBenchmark(std::shared_ptr<IRunner> runner, Axe &Axe)
         : m_runner(std::move(runner)),
-          m_axe(Axe) {};
+          m_axe(std::move(Axe)) {};
 
     auto run_all() -> std::vector<Result> override {
       std::vector<Result> results_v{};
