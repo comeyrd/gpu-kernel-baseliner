@@ -118,7 +118,7 @@ namespace Baseliner::Conversion {
     return std::stold(val);
   }
   template <typename T>
-  inline auto baseliner_from_string(const std::string &val) -> std::vector<T> {
+  inline auto baseliner_vector_from_string(const std::string &val) -> std::vector<T> {
     std::vector<T> result;
     std::string string_v = val;
     if (string_v.front() == '[') {

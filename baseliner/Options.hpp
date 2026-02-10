@@ -51,6 +51,25 @@ namespace Baseliner {
     private:
       T *m_val_ptr;
     };
+    template <typename T>
+    class OptionBinding<std::vector<T>> : public IOptionBinding {
+    public:
+      OptionBinding(const std::string &interface_name, const std::string &name, const std::string &description,
+                    std::vector<T> &var)
+          : IOptionBinding(interface_name, name, description),
+            m_val_ptr(&var) {};
+
+      void update_value(const std::string &val) override {
+        *m_val_ptr = Conversion::baseliner_vector_from_string<T>(val);
+      };
+
+      [[nodiscard]] auto get_value() const -> std::string override {
+        return Conversion::baseliner_to_string(*m_val_ptr);
+      };
+
+    private:
+      std::vector<T> *m_val_ptr;
+    };
   } // namespace OptionBindings
 
   struct Option {
