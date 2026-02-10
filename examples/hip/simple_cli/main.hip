@@ -39,7 +39,7 @@ void usage(std::vector<std::string> args, Baseliner::OptionsMap &options_map) {
 
 int main(int argc, char **argv) {
   std::cout << "MiniCli" << std::endl;
-  auto stop = Baseliner::FixedRepetitionStoppingCriterion();
+  auto stop = Baseliner::StoppingCriterion();
   Baseliner::Runner<ComputationKernel, Baseliner::Backend::HipBackend> runner_act(stop);
   Baseliner::OptionsMap omap;
   runner_act.gather_options(omap);

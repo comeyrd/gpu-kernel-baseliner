@@ -158,7 +158,7 @@ public:
     CHECK_HIP(hipMemset(m_d_C, 0, mem_size_C));
   };
 
-  void run(std::shared_ptr<hipStream_t> &stream) override;
+  void run(std::shared_ptr<hipStream_t> stream) override;
 
   void teardown(Output &output) override {
     size_t mem_size_C = m_input.m_hA * m_input.m_wB * sizeof(float);

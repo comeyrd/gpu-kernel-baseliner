@@ -43,7 +43,7 @@ std::vector<Baseliner::OptionsMap> generate_permutations(Baseliner::OptionsMap b
   return omaps;
 };
 
-class Exploration {
+class IExploration {
 public:
   virtual bool done() = 0;
   virtual void applyResults(Baseliner::Result results) = 0;
@@ -56,7 +56,7 @@ static Score grade(Baseliner::Result res) {
   Score mean = 0.0;
 
   size_t size = 1;
-  for (auto metric : res.m_v_metrics) {
+  for (auto metric : res.get_v_metrics()) {
     if (metric.m_name == "execution_time") {
       auto *vec_ptr = std::get_if<std::vector<Baseliner::float_milliseconds>>(&metric.m_data);
       if (vec_ptr) {
@@ -70,7 +70,7 @@ static Score grade(Baseliner::Result res) {
   mean = mean / size;
   return mean;
 }
-class AxeExploration : public Exploration {
+class AxeExploration : public IExploration {
 public:
   bool done() override {
     if (m_current < m_options_maps.size()) {
@@ -100,7 +100,7 @@ private:
 
 class Benchmark {
 public:
-  void run(Baseliner::RunnerBase &runner, Exploration &exploration) {
+  void run(Baseliner::IRunner &runner, IExploration &exploration) {
     while (!exploration.done()) {
       Baseliner::OptionsMap options = exploration.next();
       runner.propagate_options(options);
@@ -112,9 +112,9 @@ public:
 
 int main(int argc, char **argv) {
   std::cout << "simple_benchmark" << std::endl;
-  auto stop = Baseliner::StoppingCriterion();
-  stop.m_max_repetitions = 10;
-  Baseliner::Runner<ComputationKernel, Baseliner::Backend::CudaBackend> runner_act(stop);
+  auto stop = std::make_unique<Baseliner::StoppingCriterion>();
+  stop->set_max_repetitions(10);
+  Baseliner::Runner<ComputationKernel, Baseliner::Backend::CudaBackend> runner_act(std::move(stop));
   Baseliner::OptionsMap omap;
   std::vector<Axe> axes = {{"Kernel", "work_size", {"1", "10", "100", "1000"}}, {"Runner", "block", {"0", "1"}}};
   AxeExploration axe_exp = AxeExploration(axes, omap);

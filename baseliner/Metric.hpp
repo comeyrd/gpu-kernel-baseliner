@@ -2,6 +2,7 @@
 #define BASELINER_METRIC_HPP
 #include <baseliner/Durations.hpp>
 
+#include <cstdint>
 #include <string>
 #include <variant>
 #include <vector>
@@ -14,9 +15,6 @@ namespace Baseliner {
   struct MetricStats {
     std::string m_name;
     MetricData m_data;
-    MetricStats(std::string name, MetricData data)
-        : m_name(name),
-          m_data(data) {};
   };
 
   struct Metric {
@@ -24,16 +22,6 @@ namespace Baseliner {
     std::string m_unit;
     MetricData m_data;
     std::vector<MetricStats> m_v_stats;
-
-    Metric(std::string name, std::string unit, MetricData data)
-        : m_name(name),
-          m_unit(unit),
-          m_data(data),
-          m_v_stats() {};
-
-    void add_stat(MetricStats stat) {
-      m_v_stats.push_back(stat);
-    }
   };
 
 } // namespace Baseliner

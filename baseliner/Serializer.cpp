@@ -1,11 +1,15 @@
+#include <baseliner/Result.hpp>
 #include <baseliner/Serializer.hpp>
 #include <fstream>
 #include <iostream>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
 namespace Baseliner {
-  void result_to_file(std::vector<Result> results, std::string filename) {
+  void result_to_file(const std::vector<Result> &results, std::string filename) {
     std::ifstream infile(filename);
-    bool create_new_file = true;
+    const bool create_new_file = true;
     bool file_exists = false;
     if (infile.is_open()) {
       file_exists = true;

@@ -82,7 +82,7 @@ public:
     CHECK_HIP(hipMemcpy(m_d_b, m_input.m_b_host.data(), m_input.m_N * sizeof(int), hipMemcpyHostToDevice));
   };
   void reset() override {};
-  void run(std::shared_ptr<hipStream_t> &stream) override;
+  void run(std::shared_ptr<hipStream_t> stream) override;
   void teardown(Output &output) override {
     CHECK_HIP(hipMemcpy(output.m_c_host.data(), m_d_c, m_input.m_N * sizeof(int), hipMemcpyDeviceToHost));
     CHECK_HIP(hipFree(m_d_a));

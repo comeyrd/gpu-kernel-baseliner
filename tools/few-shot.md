@@ -27,7 +27,7 @@ MoveOnly &operator=(MoveOnly &&) noexcept = default;
 virtual ~MoveOnly() = default;
 };
 // TODO Work on the instantiation of InputData : Reusing old data and saving data to file.
-class IInput : public MoveOnly, public OptionConsumer {
+class IInput : public MoveOnly, public IOptionConsumer {
 public:
 void register_options() override {
 add_option("Kernel", "work_size", "The multiplier of the base work size to apply to the kernel", m_work_size);
@@ -78,143 +78,286 @@ const Input &m_input;
 This is an example of Cuda Kernel ported to this architecture :
 
 COMPUTATION_KERNEL.HPP
-#ifndef COMPUTATION_HPP
-#define COMPUTATION_HPP
+#ifndef MATRIXMUL_KERNEL_HPP
+#define MATRIXMUL_KERNEL_HPP
+
 #include <baseliner/Kernel.hpp>
 #include <baseliner/Options.hpp>
 #include <baseliner/backend/cuda/CudaBackend.hpp>
+#include <iostream>
 #include <random>
-#include <string>
 #include <vector>
-constexpr int DEFAULT_N = 5000;
 
-class ComputationInput : public Baseliner::IInput {
+class MatrixMulInput : public Baseliner::IInput {
 public:
 void register_options() override {
 IInput::register_options();
-add_option("ComputationInput", "base_N", "The size of the arrays", m_base_N);
+add_option("MatrixMulInput", "wA", "Width of Matrix A", m_wA_base);
+add_option("MatrixMulInput", "hA", "Height of Matrix A", m_hA_base);
+add_option("MatrixMulInput", "wB", "Width of Matrix B", m_wB_base);
+add_option("MatrixMulInput", "hB", "Height of Matrix B", m_hB_base);
+add_option("MatrixMulInput", "block_size", "Block size (16 or 32)", m_block_size);
 };
+
 void on_update() override {
 allocate();
 };
+
 void generate_random() override {
-std::default_random_engine gen(seed);
-std::uniform_int_distribution<int> dist(1, 100);
-for (int i = 0; i < m_N; i++) {
-m_a_host[i] = dist(gen);
-m_b_host[i] = dist(gen);
-}
+std::mt19937 gen(seed);
+std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+
+    for (auto &val : m_h_A)
+      val = dist(gen);
+    for (auto &val : m_h_B)
+      val = dist(gen);
+
 };
-explicit ComputationInput()
+
+explicit MatrixMulInput()
 : Baseliner::IInput() {
 allocate();
 };
+
 void allocate() override {
-m_N = m_base_N \* m_work_size;
-m_a_host = std::vector<int>(m_N);
-m_b_host = std::vector<int>(m_N);
+// Apply work_size multiplier to the height of A to increase workload
+m_wA = m_wA_base;
+m_hA = m_hA_base \* m_work_size;
+
+    // Inner dimensions must match
+    m_hB = m_wA;
+    m_wB = m_wB_base;
+
+    m_size_A = m_wA * m_hA;
+    m_size_B = m_wB * m_hB;
+
+    m_h_A.resize(m_size_A);
+    m_h_B.resize(m_size_B);
+
 }
-int m_base_N = DEFAULT_N;
-int m_N;
-std::vector<int> m_a_host;
-std::vector<int> m_b_host;
+
+// Default dimensions based on the original main() example
+int m*wA_base = 320; // 5 * 2 _ 32
+int m_hA_base = 320;
+int m_wB_base = 640; // 5 _ 4 \_ 32
+int m_hB_base = 320;
+
+int m_wA, m_hA, m_wB, m_hB;
+int m_size_A, m_size_B;
+int m_block_size = 32;
+
+std::vector<float> m_h_A;
+std::vector<float> m_h_B;
 };
 
-class ComputationOutput : public Baseliner::IOutput<ComputationInput> {
+class MatrixMulOutput : public Baseliner::IOutput<MatrixMulInput> {
 public:
-explicit ComputationOutput(const ComputationInput &input)
-: Baseliner::IOutput<ComputationInput>(input) {
-m_c_host = std::vector<int>(m_input.m_N);
+explicit MatrixMulOutput(const MatrixMulInput &input)
+: Baseliner::IOutput<MatrixMulInput>(input) {
+m_size_C = m_input.m_hA \* m_input.m_wB;
+m_h_C.resize(m_size_C);
 };
-std::vector<int> m_c_host;
-bool operator==(const ComputationOutput &other) const {
-if (m_input.m_N == other.m_input.m_N) {
-for (int i = 0; i < m_input.m_N; i++) {
-if (m_c_host[i] != other.m_c_host[i]) {
+
+std::vector<float> m_h_C;
+int m_size_C;
+
+// Optional: equality check for verification
+bool operator==(const MatrixMulOutput &other) const {
+if (m_size_C != other.m_size_C)
+return false;
+for (size_t i = 0; i < m_h_C.size(); i++) {
+if (std::abs(m_h_C[i] - other.m_h_C[i]) > 1e-3) {
 return false;
 }
 }
 return true;
 }
-return false;
-}
-friend std::ostream &operator<<(std::ostream &os, const ComputationOutput &thing) {
-for (int i = 0; i < thing.m_input.m_N; i++) {
-os << thing.m_c_host[i] << ", ";
+friend std::ostream &operator<<(std::ostream &os, const MatrixMulOutput &thing) {
+for (int i = 0; i < thing.m_h_C.size(); i++) {
+os << thing.m_h_C[i] << ", ";
 }
 os << std::endl;
 return os;
 }
 };
 
-class ComputationKernel : public Baseliner::ICudaKernel<ComputationInput, ComputationOutput> {
+class MatrixMulKernel : public Baseliner::ICudaKernel<MatrixMulInput, MatrixMulOutput> {
 public:
-void cpu(ComputationOutput &output) override;
+std::string name() override {
+return "MatrixMulKernel";
+};
+void cpu(MatrixMulOutput &output) override;
+
 void setup() override {
-CHECK*CUDA(cudaMalloc(&m_d_a, m_input.m_N * sizeof(int)));
-CHECK*CUDA(cudaMalloc(&m_d_b, m_input.m_N * sizeof(int)));
-CHECK*CUDA(cudaMalloc(&m_d_c, m_input.m_N * sizeof(int)));
-int threadsPerBlock = 256;
-int blocksPerGrid = (m*input.m_N + threadsPerBlock - 1) / threadsPerBlock;
-m_threads = dim3(threadsPerBlock);
-m_blocks = dim3(blocksPerGrid);
-CHECK_CUDA(cudaMemcpy(m_d_a, m_input.m_a_host.data(), m_input.m_N * sizeof(int), cudaMemcpyHostToDevice));
-CHECK*CUDA(cudaMemcpy(m_d_b, m_input.m_b_host.data(), m_input.m_N * sizeof(int), cudaMemcpyHostToDevice));
+size*t mem_size_A = m_input.m_size_A * sizeof(float);
+size*t mem_size_B = m_input.m_size_B * sizeof(float);
+size*t mem_size_C = m_input.m_hA * m*input.m_wB * sizeof(float);
+
+    CHECK_CUDA(cudaMalloc(&m_d_A, mem_size_A));
+    CHECK_CUDA(cudaMalloc(&m_d_B, mem_size_B));
+    CHECK_CUDA(cudaMalloc(&m_d_C, mem_size_C));
+
+    CHECK_CUDA(cudaMemcpy(m_d_A, m_input.m_h_A.data(), mem_size_A, cudaMemcpyHostToDevice));
+    CHECK_CUDA(cudaMemcpy(m_d_B, m_input.m_h_B.data(), mem_size_B, cudaMemcpyHostToDevice));
+
+    // Setup execution parameters
+    int block_size = m_input.m_block_size;
+    m_threads = dim3(block_size, block_size);
+    m_grid = dim3(m_input.m_wB / m_threads.x, m_input.m_hA / m_threads.y);
+
 };
-void reset() override {};
-void run(std::shared*ptr<cudaStream_t> &stream) override;
+
+void reset() override {
+// Optional: Zero out C if accumulation logic was involved,
+// but this kernel writes directly (C = ...), so reset isn't strictly necessary
+// unless we want to clear previous results.
+size*t mem_size_C = m_input.m_hA * m*input.m_wB * sizeof(float);
+CHECK_CUDA(cudaMemset(m_d_C, 0, mem_size_C));
+};
+
+void run(std::shared_ptr<cudaStream_t> &stream) override;
+
 void teardown(Output &output) override {
-CHECK_CUDA(cudaMemcpy(output.m_c_host.data(), m_d_c, m_input.m_N * sizeof(int), cudaMemcpyDeviceToHost));
-CHECK_CUDA(cudaFree(m_d_a));
-CHECK_CUDA(cudaFree(m_d_b));
-CHECK_CUDA(cudaFree(m_d_c));
+size*t mem_size_C = m_input.m_hA * m*input.m_wB * sizeof(float);
+CHECK_CUDA(cudaMemcpy(output.m_h_C.data(), m_d_C, mem_size_C, cudaMemcpyDeviceToHost));
+
+    CHECK_CUDA(cudaFree(m_d_A));
+    CHECK_CUDA(cudaFree(m_d_B));
+    CHECK_CUDA(cudaFree(m_d_C));
+
 };
-ComputationKernel(const ComputationInput &input)
+
+MatrixMulKernel(const MatrixMulInput &input)
 : Baseliner::ICudaKernel<Input, Output>(input) {};
 
 private:
+float *m_d_A = nullptr;
+float *m_d_B = nullptr;
+float \*m_d_C = nullptr;
 dim3 m_threads;
-dim3 m_blocks;
-int *m_d_a;
-int *m_d_b;
-int \*m_d_c;
+dim3 m_grid;
 };
-#endif // COMPUTATION_HPP
+
+#endif // MATRIXMUL_KERNEL_HPP
 
 COMPUTATION_KERNEL.CU
-#include "ComputationKernel.hpp"
-#include <iostream>
-#include <random>
+#include "MatMul.hpp"
+
 #include <vector>
 
-**global** void computation*kernel(int *a, int _b, int \_c, int N) {
-int idx = blockIdx.x _ blockDim.x + threadIdx.x;
+// ----------------------------------------------------------------------
+// Original Kernel Implementation (Unchanged Logic)
+// ----------------------------------------------------------------------
 
-if (idx < N) {
-c[idx] = a[idx] + b[idx];
+/\*\*
+
+- Matrix multiplication (CUDA Kernel) on the device: C = A \* B
+- wA is A's width and wB is B's width
+  */
+  template <int BLOCK_SIZE>
+  **global** void MatrixMulCUDA(float *C, float *A, float *B, int wA, int wB) {
+  // Block index
+  int bx = blockIdx.x;
+  int by = blockIdx.y;
+
+// Thread index
+int tx = threadIdx.x;
+int ty = threadIdx.y;
+
+// Index of the first sub-matrix of A processed by the block
+int aBegin = wA _ BLOCK_SIZE _ by;
+
+// Index of the last sub-matrix of A processed by the block
+int aEnd = aBegin + wA - 1;
+
+// Step size used to iterate through the sub-matrices of A
+int aStep = BLOCK_SIZE;
+
+// Index of the first sub-matrix of B processed by the block
+int bBegin = BLOCK_SIZE \* bx;
+
+// Step size used to iterate through the sub-matrices of B
+int bStep = BLOCK_SIZE \* wB;
+
+// Csub is used to store the element of the block sub-matrix
+// that is computed by the thread
+float Csub = 0;
+
+// Loop over all the sub-matrices of A and B
+// required to compute the block sub-matrix
+for (int a = aBegin, b = bBegin; a <= aEnd; a += aStep, b += bStep) {
+// Declaration of the shared memory array As used to
+// store the sub-matrix of A
+**shared** float As[BLOCK_SIZE][BLOCK_SIZE];
+
+    // Declaration of the shared memory array Bs used to
+    // store the sub-matrix of B
+    __shared__ float Bs[BLOCK_SIZE][BLOCK_SIZE];
+
+    // Load the matrices from device memory
+    // to shared memory; each thread loads
+    // one element of each matrix
+    As[ty][tx] = A[a + wA * ty + tx];
+    Bs[ty][tx] = B[b + wB * ty + tx];
+
+    // Synchronize to make sure the matrices are loaded
+    __syncthreads();
+
+    // Multiply the two matrices together;
+    // each thread computes one element
+    // of the block sub-matrix
+
+#pragma unroll
+
+    for (int k = 0; k < BLOCK_SIZE; ++k) {
+      Csub += As[ty][k] * Bs[k][tx];
+    }
+
+    // Synchronize to make sure that the preceding
+    // computation is done before loading two new
+    // sub-matrices of A and B in the next iteration
+    __syncthreads();
+
 }
-**syncthreads();
-for (int i = 0; i < 50; i++) {
-if (idx > 0 && idx < N) {
-c[idx] = a[idx] + c[idx] + b[idx] \* b[idx];
+
+// Write the block sub-matrix to device memory;
+// each thread writes one element
+int c = wB _ BLOCK_SIZE _ by + BLOCK*SIZE * bx;
+C[c + wB _ ty + tx] = Csub;
 }
-**syncthreads();
+
+// ----------------------------------------------------------------------
+// Interface Implementation
+// ----------------------------------------------------------------------
+
+void MatrixMulKernel::cpu(MatrixMulOutput &output) {
+int wA = m_input.m_wA;
+int hA = m_input.m_hA;
+int wB = m_input.m_wB;
+
+// Naive CPU implementation for verification
+for (int i = 0; i < hA; ++i) {
+for (int j = 0; j < wB; ++j) {
+double sum = 0;
+for (int k = 0; k < wA; ++k) {
+double a = m*input.m_h_A[i * wA + k];
+double b = m_input.m_h_B[k * wB + j];
+sum += a * b;
+}
+output.m*h_C[i * wB + j] = (float)sum;
+}
 }
 }
 
-void ComputationKernel::cpu(ComputationOutput &output) {
-for (int i = 0; i < m*input.m_N; ++i) {
-output.m_c_host[i] = m_input.m_a_host[i] + m_input.m_b_host[i];
+void MatrixMulKernel::run(std::shared_ptr<cudaStream_t> &stream) {
+// Dispatch based on block size template parameter
+if (m_input.m_block_size == 16) {
+MatrixMulCUDA<16><<<m_grid, m_threads, 0, *stream>>>(
+m_d_C, m_d_A, m_d_B, m_input.m_wA, m_input.m_wB);
+} else {
+MatrixMulCUDA<32><<<m_grid, m_threads, 0, *stream>>>(
+m_d_C, m_d_A, m_d_B, m_input.m_wA, m_input.m_wB);
 }
-for (int * = 0; _ < 50; _++) {
-for (int i = 1; i < m_input.m_N; ++i) {
-output.m_c_host[i] = m_input.m_a_host[i] + output.m_c_host[i] + (m_input.m_b_host[i] \* m_input.m_b_host[i]);
-}
-}
-}
-
-void ComputationKernel::run(std::shared_ptr<cudaStream_t> &stream) {
-computation_kernel<<<m_blocks, m_threads, 0, \*stream>>>(m_d_a, m_d_b, m_d_c, m_input.m_N);
 }
 
 ---
@@ -224,5 +367,8 @@ IF you don't find CPU implementations, simply put a //TODO inside of the CPU imp
 Consider that you need only to find in the code i will give you : Where the device code is (kernels) and put it in the .CU, Where the memory copies are, and put them into setup() and teardown(), put the logic for reseting the memory state in reset(), setup the types for the input and the output.
 If the provided kernel does not have a way of creating a random input, take inspiration from the provided generate random to generate random input data with the seed parameter
 Do not forget to add the logic to display the output to a stream !
+Do not forget the logic to compare two outputs !
+Put the run execution parameters not in run, run must only have the kernels instantiation, nothing else
+The timing is done around run(), so be carefull
 Thanks
 Do this with this kernel :

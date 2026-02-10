@@ -3,32 +3,36 @@
 #include <baseliner/Durations.hpp>
 #include <baseliner/Options.hpp>
 #include <cmath>
+#include <cstddef>
+#include <tuple>
+#include <utility>
+#include <vector>
+namespace Baseliner::Stats {
+  constexpr double MEDIAN = 0.5F;
+  constexpr double CONFIDENCE_95_PERCENT = 0.95F;
+  constexpr size_t LARGE_SAMPLE_TH = 30;
+  // TAKES IN SORTED
+  auto RemoveOutliers(std::vector<float_milliseconds> &vec_float)
+      -> std::tuple<std::vector<float_milliseconds>, float, float>;
+  // TAKES IN SORTED
+  auto MedianAbsoluteDeviation(std::vector<float_milliseconds> &vec_float) -> std::pair<float, float>;
 
-namespace Baseliner {
+  class ConfidenceInterval : IOptionConsumer {
+  public:
+    void register_options() override;
+    auto compute(size_t sample_size) -> std::pair<size_t, size_t>;
+    static auto nCR(size_t sample_size, size_t prob_increment) -> double;
 
-  namespace Stats {
-    // TAKES IN SORTED
-    std::tuple<std::vector<float_milliseconds>, float, float>
-    RemoveOutliers(std::vector<float_milliseconds> &vec_float);
-    // TAKES IN SORTED
-    std::pair<float, float> MedianAbsoluteDeviation(std::vector<float_milliseconds> &vec_float);
+  private:
+    auto compute_small_sample_ranks(size_t sample_size) const -> std::pair<size_t, size_t>;
+    auto compute_large_sample_ranks(size_t sample_size) const -> std::pair<size_t, size_t>;
 
-    class ConfidenceInterval : OptionConsumer {
-    public:
-      void register_options() override;
-      std::pair<size_t, size_t> compute(size_t sample_size);
-      double nCR(size_t sample_size, size_t prob_increment);
+    auto get_z_score() const -> double;
 
-    private:
-      std::pair<size_t, size_t> compute_small_sample_ranks(size_t sample_size);
-      std::pair<size_t, size_t> compute_large_sample_ranks(size_t sample_size);
+    double m_probability = MEDIAN;
+    float m_confidence = CONFIDENCE_95_PERCENT;
+    size_t m_large_sample_threshold = LARGE_SAMPLE_TH;
+  };
+} // namespace Baseliner::Stats
 
-      double get_z_score();
-
-      double m_probability = 0.5;
-      float m_confidence = 0.95f;
-      size_t m_large_sample_threshold = 30;
-    };
-  } // namespace Stats
-} // namespace Baseliner
 #endif // BASELINER_STATS_HPP

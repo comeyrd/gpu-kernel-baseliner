@@ -7,7 +7,7 @@
 
 int main() {
   std::cout << "Hip Options Manipuation" << std::endl;
-  auto stop = Baseliner::FixedRepetitionStoppingCriterion();
+  auto stop = Baseliner::StoppingCriterion();
   Baseliner::Runner<ComputationKernel, Baseliner::Backend::HipBackend> runner_act(stop);
   runner_act.m_block = false;
   std::vector<Baseliner::float_milliseconds> res = runner_act.run();

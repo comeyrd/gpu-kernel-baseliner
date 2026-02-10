@@ -5,9 +5,9 @@
 
 int main() {
   std::cout << "Cuda Kernel Manipuation" << std::endl;
-  auto input = ComputationKernel::Input();
-  input.generate_random();
-  auto output = ComputationKernel::Output(input);
+  auto input = std::make_shared<ComputationKernel::Input>();
+  input->generate_random();
+  auto output = ComputationKernel::Output(std::move(input));
   auto impl = ComputationKernel(input);
   auto backend = Baseliner::Backend::CudaBackend();
   auto stream = backend.create_stream();

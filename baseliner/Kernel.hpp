@@ -12,13 +12,14 @@ namespace Baseliner {
 
   public:
     MoveOnly(const MoveOnly &) = delete;
-    MoveOnly &operator=(const MoveOnly &) = delete;
+    auto operator=(const MoveOnly &) -> MoveOnly & = delete;
     MoveOnly(MoveOnly &&) noexcept = default;
-    MoveOnly &operator=(MoveOnly &&) noexcept = default;
+    auto operator=(MoveOnly &&) noexcept -> MoveOnly & = default;
     virtual ~MoveOnly() = default;
   };
+  constexpr int DEFAULT_SEED = 202;
   // TODO Work on the instantiation of InputData : Reusing old data and saving data to file.
-  class IInput : public MoveOnly, public OptionConsumer {
+  class IInput : public MoveOnly, public IOptionConsumer {
   public:
     void register_options() override {
       add_option("Kernel", "work_size", "The multiplier of the base work size to apply to the kernel", m_work_size);
@@ -26,21 +27,34 @@ namespace Baseliner {
     }
     virtual void generate_random() = 0;
 
-  protected:
+    ~IInput() override = default;
+    IInput() = default;
+
+    auto get_work_size() const -> int {
+      return m_work_size;
+    }
+    auto get_seed() const -> int {
+      return seed;
+    }
+
+  private:
     virtual void allocate() = 0;
     int m_work_size = 1;
-    int seed = 202;
-    IInput() = default;
-    virtual ~IInput() = default;
+    int seed = DEFAULT_SEED;
   };
   template <typename Input>
   class IOutput : public MoveOnly {
   public:
-  protected:
-    const Input &m_input;
-    IOutput(const Input &input)
+    auto get_input() const -> std::shared_ptr<const Input> {
+      return m_input;
+    };
+
+    IOutput(std::shared_ptr<const Input> input)
         : m_input(input) {};
-    virtual ~IOutput() = default;
+    ~IOutput() override = default;
+
+  private:
+    std::shared_ptr<const Input> m_input;
   };
 
   template <typename stream_t, typename I, typename O>
@@ -51,22 +65,25 @@ namespace Baseliner {
     virtual void cpu(Output &output) = 0;
     virtual void setup() = 0;
     virtual void reset() = 0;
-    virtual void run(std::shared_ptr<stream_t> &stream) = 0;
+    virtual void run(std::shared_ptr<stream_t> stream) = 0;
     virtual void teardown(Output &output) = 0;
-    virtual std::string name() = 0;
+    virtual auto name() -> std::string = 0;
 
-  public:
-    void timed_run(std::shared_ptr<stream_t> &stream) {
+    void timed_run(std::shared_ptr<stream_t> stream) {
       this->measure_start(stream);
       run(stream);
       this->measure_stop(stream);
     };
-    IKernel(const Input &input)
+    IKernel(const std::shared_ptr<const Input> input)
         : m_input(input) {};
-    virtual ~IKernel() = default;
+    ~IKernel() override = default;
 
-  protected:
-    const Input &m_input;
+    auto get_input() -> std::shared_ptr<const Input> {
+      return m_input;
+    };
+
+  private:
+    std::shared_ptr<const Input> m_input;
   };
 } // namespace Baseliner
 
