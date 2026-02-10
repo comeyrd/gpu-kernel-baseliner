@@ -31,7 +31,7 @@ namespace Baseliner::ResearchQuestions {
       "How does warmups impact the kernel execution time ?",
       {"Runner", "warmup", {"0", "1"}}};
 
-  const std::vector<Question> AllRQs = {RQ1, RQ2, RQ3, RQ4, RQ5}; // NOLINT
+  // const std::vector<Question> AllRQs = {RQ1, RQ2, RQ3, RQ4, RQ5}; // NOLINT
 } // namespace Baseliner::ResearchQuestions
 
 #endif // BASELINER_RESEARCH_QUESTION_1_HPP

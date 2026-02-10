@@ -2,7 +2,6 @@
 #define JSON_HANDLER_HPP
 #include <baseliner/Options.hpp>
 #include <baseliner/Result.hpp>
-#include <baseliner/research_questions/research_questions.hpp>
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 NLOHMANN_JSON_NAMESPACE_BEGIN
