@@ -8,39 +8,64 @@
 #include <vector>
 namespace Baseliner {
 
-  class StoppingCriterion : public OptionConsumer {
+  constexpr size_t DEFAULT_MAX_REPETITION = 500;
+  constexpr size_t DEFAULT_BATCH_SIZE = 1;
+  class StoppingCriterion : public IOptionConsumer {
   public:
     virtual void addTime(float_milliseconds execution_time);
-    bool satisfied();
+    auto satisfied() -> bool;
     void register_options() override;
-    virtual std::vector<Metric> get_metrics();
-    std::vector<float_milliseconds> executionTimes();
+    virtual auto get_metrics() -> std::vector<Metric>;
+    auto executionTimes() -> std::vector<float_milliseconds>;
     virtual void reset();
 
-    size_t m_max_repetitions = 500;
-    size_t m_batch_size = 1;
+    void set_max_repetitions(const size_t &val) {
+      m_max_repetitions = val;
+    };
+    auto get_max_repetitions() const -> size_t {
+      return m_max_repetitions;
+    }
+    void set_m_batch_size(const size_t &val) {
+      m_batch_size = val;
+    }
+    auto get_batch_size() const -> size_t {
+      return m_batch_size;
+    }
+    auto get_execution_time_vector() -> std::vector<float_milliseconds> & {
+      return m_execution_times_vector;
+    }
 
   protected:
-    virtual bool criterion_satisfied();
+    virtual auto criterion_satisfied() -> bool;
+
+  private:
+    size_t m_max_repetitions = DEFAULT_MAX_REPETITION;
+    size_t m_batch_size = DEFAULT_BATCH_SIZE;
     std::vector<float_milliseconds> m_execution_times_vector;
   };
+  constexpr float MEASURE_PRECISION = 0.0005F;
+  constexpr float DEFAULT_RELATIVE_ERROR_TH = 0.001F;
+  constexpr size_t MAX_REPETITION_CI = 2000;
+  constexpr size_t BATCH_SIZE_CI = 50;
   class ConfidenceIntervalMedianSC : public StoppingCriterion {
   public:
     void register_options() override;
     void addTime(float_milliseconds execution_time) override;
     ConfidenceIntervalMedianSC() {
-      m_max_repetitions = 2000;
-      m_batch_size = 50;
+      set_max_repetitions(MAX_REPETITION_CI);
+      set_m_batch_size(BATCH_SIZE_CI);
     };
     void reset() override;
-    std::vector<Metric> get_metrics() override;
+    auto get_metrics() -> std::vector<Metric> override;
 
   private:
     std::vector<float_milliseconds> m_sorted_execution_times_vector;
     std::vector<float_milliseconds> m_sorted_without_outliers_time_vector;
-    bool criterion_satisfied() override;
+    auto criterion_satisfied() -> bool override;
     bool m_remove_outliers = true;
-    float m_precision = 0.0005f * 2; // Cuda Event Precision = 0.0005ms, Hip Event 0.001ms, SYCL events 0.001ms also ~
+    float m_precision =
+        MEASURE_PRECISION * 2; // Cuda Event Precision = 0.0005ms, Hip Event 0.001ms, SYCL events 0.001ms also ~
+    float m_relative_error_th = DEFAULT_RELATIVE_ERROR_TH;
     float m_ci_low = 0;
     float m_ci_high = 0;
     float m_ci_width = 0;

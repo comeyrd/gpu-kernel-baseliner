@@ -24,10 +24,10 @@ namespace Baseliner {
       CHECK_HIP(hipEventDestroy(m_stop_event));
     }
 
-    void measure_start(std::shared_ptr<hipStream_t> &stream) override final {
+    void measure_start(std::shared_ptr<hipStream_t> stream) override final {
       CHECK_HIP(hipEventRecord(m_start_event, *stream));
     };
-    void measure_stop(std::shared_ptr<hipStream_t> &stream) override final {
+    void measure_stop(std::shared_ptr<hipStream_t> stream) override final {
       CHECK_HIP(hipEventRecord(m_stop_event, *stream));
     };
     float_milliseconds time_elapsed() final {
@@ -73,10 +73,10 @@ namespace Baseliner {
           CHECK_HIP(hipEventDestroy(m_start_event));
           CHECK_HIP(hipEventDestroy(m_stop_event));
         }
-        void measure_start(std::shared_ptr<hipStream_t> &stream) override final {
+        void measure_start(std::shared_ptr<hipStream_t> stream) override final {
           CHECK_HIP(hipEventRecord(m_start_event, *stream));
         };
-        void measure_stop(std::shared_ptr<hipStream_t> &stream) override final {
+        void measure_stop(std::shared_ptr<hipStream_t> stream) override final {
           CHECK_HIP(hipEventRecord(m_stop_event, *stream));
         };
         float_milliseconds time_elapsed() final {

@@ -3,35 +3,56 @@
 #include <baseliner/GIT_VERSION.hpp>
 #include <baseliner/Metric.hpp>
 #include <baseliner/Options.hpp>
+#include <iterator>
 #include <string>
+#include <utility>
+#include <vector>
 namespace Baseliner {
-  struct Result {
-    const OptionsMap m_map;
-    const std::string m_kernel_name;
-    const std::string m_git_version;
-    const std::string m_execution_uid;
-    const std::string m_date_time;
-    std::vector<Metric> m_v_metrics;
-    explicit Result() {};
-    explicit Result(const OptionsMap &omap, std::string kernel_name)
-        : m_map(omap),
-          m_kernel_name(kernel_name),
+  class Result {
+  public:
+    explicit Result(OptionsMap omap, std::string kernel_name)
+        : m_map(std::move(omap)),
+          m_kernel_name(std::move(kernel_name)),
           m_git_version(BASELINER_GIT_VERSION),
           m_execution_uid(generate_uid()),
-          m_date_time(current_time_string()),
-          m_v_metrics() {};
+          m_date_time(current_time_string()) {};
     void push_back_metric(Metric &metric) {
       m_v_metrics.push_back(metric);
     };
     void push_back_metrics(std::vector<Metric> &metrics) {
-      for (auto &m : metrics) {
-        m_v_metrics.push_back(std::move(m));
-      }
-    };
+      m_v_metrics.insert(m_v_metrics.end(), std::make_move_iterator(metrics.begin()),
+                         std::make_move_iterator(metrics.end()));
+    }
+
+    auto get_map() const -> const OptionsMap & {
+      return m_map;
+    }
+    auto get_kernel_name() const -> const std::string & {
+      return m_kernel_name;
+    }
+    auto get_git_version() const -> const std::string & {
+      return m_git_version;
+    }
+    auto get_execution_uid() const -> const std::string & {
+      return m_execution_uid;
+    }
+    auto get_date_time() const -> const std::string & {
+      return m_date_time;
+    }
+    auto get_v_metrics() const -> const std::vector<Metric> & {
+      return m_v_metrics;
+    }
 
   private:
-    static std::string current_time_string();
-    static std::string generate_uid();
+    OptionsMap m_map;
+    std::string m_kernel_name;
+    std::string m_git_version;
+    std::string m_execution_uid;
+    std::string m_date_time;
+    std::vector<Metric> m_v_metrics;
+    explicit Result() = default;
+    static auto current_time_string() -> std::string;
+    static auto generate_uid() -> std::string;
   };
 
 } // namespace Baseliner

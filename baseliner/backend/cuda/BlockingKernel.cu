@@ -28,35 +28,33 @@ namespace {
     const long long timeout_cycles = use_timeout ? static_cast<long long>(timeout * 1e9) : 0;
 
     auto current_clock = clock64();
-    while (!(*flag) && (!use_timeout || (current_clock - start_clock) < timeout_cycles)) {
+    while (((*flag) == 0) && (!use_timeout || (current_clock - start_clock) < timeout_cycles)) {
       current_clock = clock64();
     }
 
     if (use_timeout && (current_clock - start_clock) >= timeout_cycles) {
       *timeout_flag = 1;
-      __threadfence_system(); // Ensure timeout flag visibility on host.
-      printf("\n Deadlock detected\n");
+      __threadfence_system();           // Ensure timeout flag visibility on host.
+      printf("\n Deadlock detected\n"); // NOLINT
     }
   }
 } // namespace
-namespace Baseliner {
-  namespace Backend {
-    CudaBackend::BlockingKernel::BlockingKernel() {
-      CHECK_CUDA(cudaHostRegister(&m_host_flag, sizeof(m_host_flag), cudaHostRegisterMapped));
-      CHECK_CUDA(cudaHostGetDevicePointer(&m_device_flag, &m_host_flag, 0));
-      CHECK_CUDA(cudaHostRegister(&m_host_timeout_flag, sizeof(m_host_timeout_flag), cudaHostRegisterMapped));
-      CHECK_CUDA(cudaHostGetDevicePointer(&m_device_timeout_flag, &m_host_timeout_flag, 0));
-    }
-    CudaBackend::BlockingKernel::~BlockingKernel() {
-      CHECK_CUDA(cudaGetLastError());
-      CHECK_CUDA(cudaHostUnregister(&m_host_flag));
-      CHECK_CUDA(cudaHostUnregister(&m_host_timeout_flag));
-    }
-    void CudaBackend::BlockingKernel::block(std::shared_ptr<cudaStream_t> stream, double timeout) {
-      m_host_flag = 0;
-      m_host_timeout_flag = 0;
-      block_stream<<<1, 1, 0, *stream>>>(m_device_flag, m_device_timeout_flag, timeout);
-    }
-  } // namespace Backend
 
-} // namespace Baseliner
+namespace Baseliner::Backend {
+  CudaBackend::BlockingKernel::BlockingKernel() {
+    CHECK_CUDA(cudaHostRegister(&m_host_flag, sizeof(m_host_flag), cudaHostRegisterMapped));
+    CHECK_CUDA(cudaHostGetDevicePointer(&m_device_flag, &m_host_flag, 0));
+    CHECK_CUDA(cudaHostRegister(&m_host_timeout_flag, sizeof(m_host_timeout_flag), cudaHostRegisterMapped));
+    CHECK_CUDA(cudaHostGetDevicePointer(&m_device_timeout_flag, &m_host_timeout_flag, 0));
+  }
+  CudaBackend::BlockingKernel::~BlockingKernel() {
+    CHECK_CUDA(cudaGetLastError());
+    CHECK_CUDA(cudaHostUnregister(&m_host_flag));
+    CHECK_CUDA(cudaHostUnregister(&m_host_timeout_flag));
+  }
+  void CudaBackend::BlockingKernel::block(std::shared_ptr<cudaStream_t> stream, double timeout) {
+    m_host_flag = 0;
+    m_host_timeout_flag = 0;
+    block_stream<<<1, 1, 0, *stream>>>(m_device_flag, m_device_timeout_flag, timeout);
+  }
+} // namespace Baseliner::Backend

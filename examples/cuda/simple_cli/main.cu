@@ -40,12 +40,12 @@ void usage(std::vector<std::string> args, Baseliner::OptionsMap &options_map) {
 
 int main(int argc, char **argv) {
   std::cout << "MiniCli" << std::endl;
-  auto stop = Baseliner::StoppingCriterion();
-  Baseliner::Runner<ComputationKernel, Baseliner::Backend::CudaBackend> runner_act(stop);
+  auto stop = std::make_unique<Baseliner::StoppingCriterion>();
+  Baseliner::Runner<ComputationKernel, Baseliner::Backend::CudaBackend> runner_act(std::move(stop));
   Baseliner::OptionsMap omap;
   runner_act.gather_options(omap);
   Baseliner::mergeOptionsMap(omap, runner_act.describe_options());
-  Baseliner::mergeOptionsMap(omap, stop.describe_options());
+  Baseliner::mergeOptionsMap(omap, stop->describe_options());
 
   Baseliner::OptionsMap user_options;
   std::vector<std::string> args(argv + 1, argv + argc);
@@ -88,7 +88,7 @@ int main(int argc, char **argv) {
   }
   std::cout << user_options;
   runner_act.propagate_options(user_options);
-  stop.apply_options(user_options);
+  stop->apply_options(user_options);
   runner_act.apply_options(user_options);
   serialize(std::cout, runner_act.run());
   std::cout << std::endl;

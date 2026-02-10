@@ -90,7 +90,7 @@ private:
 
 class Benchmark {
 public:
-  void run(Baseliner::RunnerBase &runner, Exploration &exploration) {
+  void run(Baseliner::IRunner &runner, Exploration &exploration) {
     while (!exploration.done()) {
       Baseliner::OptionsMap options = exploration.next();
       runner.propagate_options(options);
@@ -102,8 +102,8 @@ public:
 
 int main(int argc, char **argv) {
   std::cout << "simple_benchmark" << std::endl;
-  auto stop = Baseliner::FixedRepetitionStoppingCriterion();
-  stop.max_repetitions = 10;
+  auto stop = Baseliner::StoppingCriterion();
+  stop.m_max_repetitions = 10;
   Baseliner::Runner<ComputationKernel, Baseliner::Backend::HipBackend> runner_act(stop);
   Baseliner::OptionsMap omap;
   std::vector<Axe> axes = {{"Kernel", "work_size", {"1", "10", "100", "1000"}}, {"Runner", "block", {"0", "1"}}};

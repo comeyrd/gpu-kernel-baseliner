@@ -4,36 +4,52 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace Baseliner {
   // The OptionBinding Namespace is here to take care of the serialization and de-serialization of options
   // So that new options can propagate without having to write the code.
   namespace OptionBindings {
-    struct OptionBindingBase {
+    class IOptionBinding {
+    public:
+      IOptionBinding(std::string interface_name, std::string name, std::string description)
+          : m_interface_name(std::move(interface_name)),
+            m_name(std::move(name)),
+            m_description(std::move(description)) {};
+      virtual ~IOptionBinding() = default;
+      virtual void update_value(const std::string &val) = 0;
+      [[nodiscard]] virtual auto get_value() const -> std::string = 0;
+      [[nodiscard]] auto get_name() const -> std::string {
+        return m_name;
+      };
+      [[nodiscard]] auto get_interface_name() const -> std::string {
+        return m_interface_name;
+      };
+      [[nodiscard]] auto get_description() const -> std::string {
+        return m_description;
+      };
+
+    private:
       std::string m_interface_name;
       std::string m_name;
       std::string m_description;
-      OptionBindingBase(std::string interface_name, std::string name, std::string description)
-          : m_interface_name(interface_name),
-            m_name(name),
-            m_description(description) {};
-      virtual ~OptionBindingBase() = default;
-      virtual void update_value(const std::string &val) = 0;
-      virtual std::string get_value() const = 0;
     };
     template <typename T>
-    struct OptionBinding : public OptionBindingBase {
-      T *m_val_ptr;
-      OptionBinding(std::string interface_name, std::string name, std::string description, T &var)
-          : OptionBindingBase(interface_name, name, description),
+    class OptionBinding : public IOptionBinding {
+    public:
+      OptionBinding(const std::string &interface_name, const std::string &name, const std::string &description, T &var)
+          : IOptionBinding(interface_name, name, description),
             m_val_ptr(&var) {};
       void update_value(const std::string &val) override {
         *m_val_ptr = Conversion::baseliner_from_string<T>(val);
       };
-      std::string get_value() const override {
+      [[nodiscard]] auto get_value() const -> std::string override {
         return Conversion::baseliner_to_string(*m_val_ptr);
       };
+
+    private:
+      T *m_val_ptr;
     };
   } // namespace OptionBindings
 
@@ -49,42 +65,43 @@ namespace Baseliner {
     destination.insert(source.begin(), source.end());
   };
 
-  class OptionConsumer {
+  class IOptionConsumer {
   public:
     virtual void register_options() = 0;
-    const OptionsMap describe_options();
+    auto describe_options() -> OptionsMap;
 
     void apply_options(const OptionsMap &options_map);
-    virtual ~OptionConsumer() = default;
+    virtual ~IOptionConsumer() = default;
 
   protected:
     virtual void on_update() {};
     template <typename T>
-    void add_option(std::string interface, std::string name, std::string description, T &variable) {
-      m_options_bindings.push_back(std::make_unique<OptionBindings::OptionBinding<T>>(
-          std::move(interface), std::move(name), std::move(description), variable));
+    void add_option(const std::string &interface, const std::string &name, const std::string &description,
+                    T &variable) {
+      m_options_bindings.push_back(
+          std::make_unique<OptionBindings::OptionBinding<T>>(interface, name, description, variable));
     }
 
   private:
-    std::vector<std::unique_ptr<OptionBindings::OptionBindingBase>> m_options_bindings;
+    std::vector<std::unique_ptr<OptionBindings::IOptionBinding>> m_options_bindings;
     bool m_is_registered = false;
     void ensure_registered();
   };
 
-  class OptionBroadcaster {
+  class IOptionBroadcaster {
   public:
     void gather_options(OptionsMap &optionsMap);
-    OptionsMap gather_options();
+    auto gather_options() -> OptionsMap;
     void propagate_options(const OptionsMap &optionsMap);
-    virtual void register_dependencies() {};
-    virtual ~OptionBroadcaster() = default;
+    virtual void register_dependencies() = 0;
+    virtual ~IOptionBroadcaster() = default;
 
   protected:
-    void register_consumer(OptionConsumer &consumer);
+    void register_consumer(IOptionConsumer &consumer);
 
   private:
     bool m_is_init = false;
-    std::vector<OptionConsumer *> m_consumers;
+    std::vector<IOptionConsumer *> m_consumers;
     void ensure_initialized();
   };
 

@@ -1,40 +1,44 @@
 
 #include <baseliner/Executable.hpp>
+#include <baseliner/Result.hpp>
 #include <baseliner/Serializer.hpp>
+#include <chrono>
 #include <iomanip>
 #include <iostream>
 #include <random>
 #include <sstream>
-
+#include <utility>
+#include <vector>
 using namespace Baseliner;
 
-std::string generate_uid() {
+static auto generate_uid() -> std::string { // NOLINT
   using namespace std::chrono;
   auto now = duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
-  static std::random_device rd;
+  static std::random_device rd; // NOLINT
   static std::mt19937 gen(rd());
-  std::uniform_int_distribution<uint16_t> dis(0, 0xFFFF);
-  uint16_t rand_val = dis(gen);
+  std::uniform_int_distribution<uint16_t> dis(0, 0xFFFF); // NOLINT
+  const uint16_t rand_val = dis(gen);
 
-  std::stringstream ss;
-  ss << std::hex << std::setfill('0') << std::setw(8) << now << std::setw(2) << std::setw(4) << rand_val;
-  return ss.str();
+  std::stringstream stringstream;
+  stringstream << std::hex << std::setfill('0') << std::setw(8) << now // NOLINT
+               << std::setw(2) << std::setw(4) << rand_val;
+  return stringstream.str();
 };
 
-__attribute__((weak)) int main(int argc, char **argv) {
+__attribute__((weak)) auto main(int argc, char **argv) -> int { // NOLINT
   // std::cout << argc << argv[0] << std::endl;
-  std::cout << "Baseliner" << std::endl;
+  std::cout << "Baseliner" << "\n";
   auto *manager = ExecutableManager::instance();
-  auto &list = manager->getExecutables();
+  const auto &list = manager->getExecutables();
 
-  std::cout << "[Baseliner] Total Registered Executables: " << list.size() << std::endl;
+  std::cout << "[Baseliner] Total Registered Executables: " << list.size() << "\n";
 
   if (list.empty()) {
-    std::cout << "Warning: No kernels were registered. Check linker settings." << std::endl;
+    std::cout << "Warning: No kernels were registered. Check linker settings." << "\n";
     return 0;
   }
   std::vector<Result> results_vector;
-  for (auto &exe : list) {
+  for (const auto &exe : list) {
     std::vector<Result> local_results = exe->run_all();
     // reserve space to avoid multiple reallocations
     results_vector.reserve(results_vector.size() + local_results.size());
@@ -43,7 +47,7 @@ __attribute__((weak)) int main(int argc, char **argv) {
       results_vector.emplace_back(std::move(res));
     }
   }
-  std::string filename = generate_uid() + ".json";
+  const std::string filename = generate_uid() + ".json";
   result_to_file(results_vector, filename);
   return 0;
 };

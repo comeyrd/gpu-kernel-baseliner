@@ -1,43 +1,44 @@
 #ifndef BASELINER_EXECUTABLE_HPP
 #define BASELINER_EXECUTABLE_HPP
 #include <baseliner/Result.hpp>
+#include <memory>
 #include <vector>
 namespace Baseliner {
-  class Executable {
+  class IExecutable {
   public:
-    virtual std::vector<Result> run_all() = 0;
-    virtual ~Executable() = default;
+    virtual auto run_all() -> std::vector<Result> = 0;
+    virtual ~IExecutable() = default;
   };
-  class SingleExecutable : public Executable {
+  class ISingleExecutable : public IExecutable {
   public:
-    virtual Result run() = 0;
-    std::vector<Result> run_all() override {
+    virtual auto run() -> Result = 0;
+    auto run_all() -> std::vector<Result> override {
       return std::vector{run()};
     };
   };
 
   class ExecutableManager {
   private:
-    std::vector<std::shared_ptr<Executable>> _executables;
+    std::vector<std::shared_ptr<IExecutable>> _executables;
 
   public:
-    static ExecutableManager *instance();
-    const std::vector<std::shared_ptr<Executable>> &getExecutables();
+    static auto instance() -> ExecutableManager *;
+    auto getExecutables() -> std::vector<std::shared_ptr<IExecutable>>;
 
-    void register_executable(std::shared_ptr<Executable> impl);
+    void register_executable(std::shared_ptr<IExecutable> impl);
   };
 
   class RegistrarExecutable {
   public:
-    RegistrarExecutable(Executable *impl) {
+    RegistrarExecutable(IExecutable *impl) {
       // Create a shared_ptr with a custom lambda deleter that does NOTHING
-      auto skip_delete = [](Executable *) { /* do nothing */ };
+      auto skip_delete = [](IExecutable *) { /* do nothing */ };
 
-      ExecutableManager::instance()->register_executable(std::shared_ptr<Executable>(impl, skip_delete));
+      ExecutableManager::instance()->register_executable(std::shared_ptr<IExecutable>(impl, skip_delete));
     }
     template <typename T>
     RegistrarExecutable(std::shared_ptr<T> impl) {
-      ExecutableManager::instance()->register_executable(std::shared_ptr<Executable>(impl));
+      ExecutableManager::instance()->register_executable(std::shared_ptr<IExecutable>(impl));
     }
   };
 
@@ -48,7 +49,9 @@ namespace Baseliner {
 #define ATTRIBUTE_USED
 #endif
 #define CONCAT_IMPL(a, b) a##b
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define CONCAT(a, b) CONCAT_IMPL(a, b)
+// NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define BASELINER_REGISTER_EXECUTABLE(item)                                                                            \
   static Baseliner::RegistrarExecutable ATTRIBUTE_USED CONCAT(registrar_, __LINE__)(item);
 

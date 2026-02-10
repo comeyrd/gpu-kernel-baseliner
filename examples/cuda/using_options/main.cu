@@ -7,9 +7,9 @@
 
 int main() {
   std::cout << "Cuda Options Manipuation" << std::endl;
-  auto stop = Baseliner::StoppingCriterion();
-  Baseliner::Runner<ComputationKernel, Baseliner::Backend::CudaBackend> runner_act(stop);
-  runner_act.m_block = false;
+  auto stop = std::make_unique<Baseliner::StoppingCriterion>();
+  Baseliner::Runner<ComputationKernel, Baseliner::Backend::CudaBackend> runner_act(std::move(stop));
+  runner_act.set_block(false);
   Baseliner::Result res = runner_act.run();
   serialize(std::cout, res);
   std::cout << std::endl;
@@ -23,7 +23,7 @@ int main() {
     }
   }
   runner_act.propagate_options(omap);
-  runner_act.m_block = true;
+  runner_act.set_block(true);
   Baseliner::Result second_res = runner_act.run();
   serialize(std::cout, second_res);
 

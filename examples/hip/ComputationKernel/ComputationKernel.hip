@@ -27,6 +27,6 @@ void ComputationKernel::cpu(ComputationOutput &output) {
   }
 }
 
-void ComputationKernel::run(std::shared_ptr<hipStream_t> &stream) {
+void ComputationKernel::run(std::shared_ptr<hipStream_t> stream) {
   computation_kernel<<<m_blocks, m_threads, 0, *stream>>>(m_d_a, m_d_b, m_d_c, m_input.m_N);
 }
