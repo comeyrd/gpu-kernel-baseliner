@@ -4,7 +4,7 @@
 namespace Baseliner {
   // IOptionConsumer
   // Apply the options to its own parameters
-  void IOptionConsumer::propagate_options(const OptionsMap &options_map) {
+  void IOptionConsumer::propagate_options(const OptionsMap &options_map) { // TODO OPTIMIZE
     ensure_initialized();
     for (const auto &[interface_name, options] : options_map) {
       for (const auto &[option_name, opt] : options) {

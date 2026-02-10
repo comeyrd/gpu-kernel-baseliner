@@ -65,6 +65,8 @@ namespace Baseliner {
     destination.insert(source.begin(), source.end());
   };
 
+  // TODO Setup checks so there is not a cyclic depedency between OptionConsumer
+  // TODO that will make gather_options or propagate_option infinite recursive calls
   class IOptionConsumer {
   public:
     virtual void register_options() = 0;
