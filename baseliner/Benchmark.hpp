@@ -7,13 +7,14 @@
 #include <baseliner/Runner.hpp>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 namespace Baseliner {
 
   class SingleAxeBenchmark : public IOptionBroadcaster, public IExecutable {
   public:
     SingleAxeBenchmark(std::shared_ptr<IRunner> runner, Axe &Axe)
-        : m_runner(runner),
+        : m_runner(std::move(runner)),
           m_axe(Axe) {};
 
     auto run_all() -> std::vector<Result> override {
