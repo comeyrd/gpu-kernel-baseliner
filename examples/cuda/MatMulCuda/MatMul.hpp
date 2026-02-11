@@ -42,15 +42,6 @@
 
 class MatrixMulInput : public Baseliner::IInput {
 public:
-  void register_options() override {
-    IInput::register_options();
-    add_option("MatrixMulInput", "wA", "Width of Matrix A", m_wA_base);
-    add_option("MatrixMulInput", "hA", "Height of Matrix A", m_hA_base);
-    add_option("MatrixMulInput", "wB", "Width of Matrix B", m_wB_base);
-    add_option("MatrixMulInput", "hB", "Height of Matrix B", m_hB_base);
-    add_option("MatrixMulInput", "block_size", "Block size (16 or 32)", m_block_size);
-  };
-
   void on_update() override {
     allocate();
   };
@@ -100,6 +91,16 @@ public:
 
   std::vector<float> m_h_A;
   std::vector<float> m_h_B;
+
+protected:
+  void register_options() override {
+    IInput::register_options();
+    add_option("MatrixMulInput", "wA", "Width of Matrix A", m_wA_base);
+    add_option("MatrixMulInput", "hA", "Height of Matrix A", m_hA_base);
+    add_option("MatrixMulInput", "wB", "Width of Matrix B", m_wB_base);
+    add_option("MatrixMulInput", "hB", "Height of Matrix B", m_hB_base);
+    add_option("MatrixMulInput", "block_size", "Block size (16 or 32)", m_block_size);
+  };
 };
 
 class MatrixMulOutput : public Baseliner::IOutput<MatrixMulInput> {

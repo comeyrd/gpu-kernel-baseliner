@@ -19,9 +19,11 @@ namespace Baseliner::Stats {
 
   class ConfidenceInterval : IOptionConsumer {
   public:
-    void register_options() override;
     auto compute(size_t sample_size) -> std::pair<size_t, size_t>;
     static auto nCR(size_t sample_size, size_t prob_increment) -> double;
+
+  protected:
+    void register_options() override;
 
   private:
     auto compute_small_sample_ranks(size_t sample_size) const -> std::pair<size_t, size_t>;

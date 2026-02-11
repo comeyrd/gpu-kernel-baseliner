@@ -31,6 +31,8 @@ namespace Baseliner {
       }
       return results_v;
     };
+
+  protected:
     void register_dependencies() override {
       register_consumer(*m_runner);
     };

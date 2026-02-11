@@ -19,12 +19,6 @@ namespace Baseliner {
 
     ~IRunner() override = default;
 
-    void register_options() override {
-      add_option("Runner", "block", "Using a blocking kernel", m_block);
-      add_option("Runner", "block_duration", "Duration of the blocking kernel (in ms)", m_block_duration_ms);
-      add_option("Runner", "flush", "Enables the flushing of the L2 cache", m_flush_l2);
-      add_option("Runner", "warmup", "Having a warmup run", m_warmup);
-    }
     void set_warmup(bool warmup) {
       m_warmup = warmup;
     };
@@ -50,6 +44,14 @@ namespace Baseliner {
       return m_block_duration_ms;
     };
 
+  protected:
+    void register_options() override {
+      add_option("Runner", "block", "Using a blocking kernel", m_block);
+      add_option("Runner", "block_duration", "Duration of the blocking kernel (in ms)", m_block_duration_ms);
+      add_option("Runner", "flush", "Enables the flushing of the L2 cache", m_flush_l2);
+      add_option("Runner", "warmup", "Having a warmup run", m_warmup);
+    }
+
   private:
     bool m_warmup = true;
     bool m_flush_l2 = true;
@@ -60,10 +62,6 @@ namespace Baseliner {
   // TODO Setup the static checks at compile time.
   class Runner : public IRunner {
   public:
-    void register_dependencies() override {
-      register_consumer(*m_input);
-      register_consumer(*m_stopping);
-    };
     // Runner
     explicit Runner(std::unique_ptr<StoppingCriterion> stopping)
         : IRunner(),
@@ -101,6 +99,12 @@ namespace Baseliner {
       result.push_back_metrics(metrics);
       return result;
     }
+
+  protected:
+    void register_dependencies() override {
+      register_consumer(*m_input);
+      register_consumer(*m_stopping);
+    };
 
   private:
     // Kernel Types

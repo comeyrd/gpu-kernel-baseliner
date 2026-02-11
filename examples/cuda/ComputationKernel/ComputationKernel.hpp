@@ -12,10 +12,6 @@ constexpr int DEFAULT_N = 5000;
 
 class ComputationInput : public Baseliner::IInput {
 public:
-  void register_options() override {
-    IInput::register_options();
-    add_option("ComputationInput", "base_N", "The size of the arrays", m_base_N);
-  };
   void on_update() override {
     allocate();
   };
@@ -36,10 +32,17 @@ public:
     m_a_host = std::vector<int>(m_N);
     m_b_host = std::vector<int>(m_N);
   }
+
   int m_base_N = DEFAULT_N;
-  int m_N;
+  int m_N = 0;
   std::vector<int> m_a_host;
   std::vector<int> m_b_host;
+
+protected:
+  void register_options() override {
+    IInput::register_options();
+    add_option("ComputationInput", "base_N", "The size of the arrays", m_base_N);
+  };
 };
 
 class ComputationOutput : public Baseliner::IOutput<ComputationInput> {

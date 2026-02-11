@@ -4,9 +4,9 @@
 namespace Baseliner {
   // IOptionConsumer
   // Apply the options to its own parameters
-  void IOptionConsumer::propagate_options(const OptionsMap &options_map) { // TODO OPTIMIZE
+  void IOptionConsumer::propagate_options(const OptionsMap &optionsMap) { // TODO OPTIMIZE
     ensure_initialized();
-    for (const auto &[interface_name, options] : options_map) {
+    for (const auto &[interface_name, options] : optionsMap) {
       for (const auto &[option_name, opt] : options) {
         for (auto &binding : m_options_bindings) {
           if (binding->get_name() == option_name && binding->get_interface_name() == interface_name) {
@@ -22,7 +22,7 @@ namespace Baseliner {
     }
     on_update();
     for (IOptionConsumer *consumer : m_consumers) {
-      consumer->propagate_options(options_map);
+      consumer->propagate_options(optionsMap);
     }
   }
 
@@ -45,14 +45,18 @@ namespace Baseliner {
   };
   // Ensure that his own options are registered
   void IOptionConsumer::ensure_initialized() {
-    if (!m_is_init) {
+    if (!m_init_ended) {
+      m_init_phase = true;
       register_options();
       register_dependencies();
-      m_is_init = true;
+      m_init_phase = false;
+      m_init_ended = true;
     }
   }
   void IOptionConsumer::register_consumer(IOptionConsumer &consumer) {
-    m_consumers.push_back(&consumer);
+    if (m_init_phase) {
+      m_consumers.push_back(&consumer);
+    }
   };
 
 } // namespace Baseliner

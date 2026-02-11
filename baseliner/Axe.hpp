@@ -23,6 +23,7 @@ namespace Baseliner {
       return m_values;
     }
 
+  protected:
     void register_options() override {
       add_option("Axe", "interface_name", "The interface name", m_interface_name);
       add_option("Axe", "option_name", "The option name", m_option_name);

@@ -14,7 +14,6 @@ namespace Baseliner {
   public:
     virtual void addTime(float_milliseconds execution_time);
     auto satisfied() -> bool;
-    void register_options() override;
     virtual auto get_metrics() -> std::vector<Metric>;
     auto executionTimes() -> std::vector<float_milliseconds>;
     virtual void reset();
@@ -37,6 +36,7 @@ namespace Baseliner {
 
   protected:
     virtual auto criterion_satisfied() -> bool;
+    void register_options() override;
 
   private:
     size_t m_max_repetitions = DEFAULT_MAX_REPETITION;
@@ -49,7 +49,6 @@ namespace Baseliner {
   constexpr size_t BATCH_SIZE_CI = 50;
   class ConfidenceIntervalMedianSC : public StoppingCriterion {
   public:
-    void register_options() override;
     void addTime(float_milliseconds execution_time) override;
     ConfidenceIntervalMedianSC() {
       set_max_repetitions(MAX_REPETITION_CI);
@@ -57,6 +56,9 @@ namespace Baseliner {
     };
     void reset() override;
     auto get_metrics() -> std::vector<Metric> override;
+
+  protected:
+    void register_options() override;
 
   private:
     std::vector<float_milliseconds> m_sorted_execution_times_vector;

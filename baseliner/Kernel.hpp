@@ -21,10 +21,6 @@ namespace Baseliner {
   // TODO Work on the instantiation of InputData : Reusing old data and saving data to file.
   class IInput : public MoveOnly, public IOptionConsumer {
   public:
-    void register_options() override {
-      add_option("Kernel", "work_size", "The multiplier of the base work size to apply to the kernel", m_work_size);
-      add_option("Kernel", "seed", "The seed used for the generation of input data", seed);
-    }
     virtual void generate_random() = 0;
 
     ~IInput() override = default;
@@ -35,6 +31,12 @@ namespace Baseliner {
     }
     auto get_seed() const -> int {
       return seed;
+    }
+
+  protected:
+    void register_options() override {
+      add_option("Kernel", "work_size", "The multiplier of the base work size to apply to the kernel", m_work_size);
+      add_option("Kernel", "seed", "The seed used for the generation of input data", seed);
     }
 
   private:

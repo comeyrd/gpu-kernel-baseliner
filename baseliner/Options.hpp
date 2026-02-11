@@ -88,34 +88,67 @@ namespace Baseliner {
   // TODO that will make gather_options or propagate_option infinite recursive calls
   class IOptionConsumer {
   public:
-    virtual void register_options() = 0;
     void gather_options(OptionsMap &opts);
     auto gather_options() -> OptionsMap;
     void propagate_options(const OptionsMap &optionsMap);
-    virtual void register_dependencies() {};
     virtual ~IOptionConsumer() = default;
     IOptionConsumer() = default;
 
-    IOptionConsumer(const IOptionConsumer &) = default;
-    auto operator=(const IOptionConsumer &) -> IOptionConsumer & = default;
+    IOptionConsumer(const IOptionConsumer & /*old_consumer*/) {};
+    auto operator=(const IOptionConsumer &other) -> IOptionConsumer & {
+      if (this != &other) {
+        m_options_bindings.clear();
+        m_consumers.clear();
+        m_init_ended = false;
+        m_init_phase = false;
+      }
+      return *this;
+    }
 
-    // Explicitly allow moving (needed for vectors to work)
-    IOptionConsumer(IOptionConsumer &&) = default;
-    auto operator=(IOptionConsumer &&) -> IOptionConsumer & = default;
+    // Moving
+    IOptionConsumer(IOptionConsumer &&other) noexcept {
+      other.m_consumers.clear();
+      other.m_options_bindings.clear();
+      other.m_init_ended = false;
+      other.m_init_phase = false;
+    }
+
+    // Moving
+    auto operator=(IOptionConsumer &&other) noexcept -> IOptionConsumer & {
+      if (this != &other) {
+        this->m_consumers.clear();
+        this->m_options_bindings.clear();
+        this->m_init_phase = false;
+        this->m_init_ended = false;
+        this->m_options_bindings.clear();
+        other.m_consumers.clear();
+        other.m_options_bindings.clear();
+        other.m_init_ended = false;
+        other.m_init_phase = false;
+      }
+      return *this;
+    }
 
   protected:
+    virtual void register_options() = 0;
+    virtual void register_dependencies() {};
+
     void register_consumer(IOptionConsumer &consumer);
     virtual void on_update() {};
     template <typename T>
     void add_option(const std::string &interface, const std::string &name, const std::string &description,
                     T &variable) {
-      m_options_bindings.push_back(
-          std::make_unique<OptionBindings::OptionBinding<T>>(interface, name, description, variable));
+      if (m_init_phase) {
+        m_options_bindings.push_back(
+            std::make_unique<OptionBindings::OptionBinding<T>>(interface, name, description, variable));
+      }
     }
 
   private:
+    bool m_init_ended = false;
+    bool m_init_phase = false;
+    // Never access these two vectors to add bindings or consumer else than with ensure_initialized();
     std::vector<std::unique_ptr<OptionBindings::IOptionBinding>> m_options_bindings;
-    bool m_is_init = false;
     std::vector<IOptionConsumer *> m_consumers;
     void ensure_initialized();
   };
