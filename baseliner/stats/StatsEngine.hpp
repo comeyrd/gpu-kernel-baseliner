@@ -1,5 +1,5 @@
-#ifndef _BASELINER_STATS_ENGINE_HPP
-#define _BASELINER_STATS_ENGINE_HPP
+#ifndef BASELINER_STATS_ENGINE_HPP
+#define BASELINER_STATS_ENGINE_HPP
 #include <baseliner/stats/IStats.hpp>
 #include <baseliner/stats/StatsRegistry.hpp>
 #include <memory>

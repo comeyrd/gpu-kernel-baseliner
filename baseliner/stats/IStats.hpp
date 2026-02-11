@@ -1,5 +1,5 @@
-#ifndef __BASELINER__ISTATS_HPP
-#define __BASELINER__ISTATS_HPP
+#ifndef BASELINER_ISTATS_HPP
+#define BASELINER_ISTATS_HPP
 
 #include <baseliner/stats/StatsRegistry.hpp>
 #include <typeindex>

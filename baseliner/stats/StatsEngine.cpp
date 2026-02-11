@@ -1,6 +1,10 @@
 #include <baseliner/stats/IStats.hpp>
 #include <baseliner/stats/StatsEngine.hpp>
+#include <cstddef>
 #include <stdexcept>
+#include <typeindex>
+#include <unordered_map>
+#include <vector>
 namespace Baseliner::Stats {
 
   void StatsEngine::ensure_build() {
