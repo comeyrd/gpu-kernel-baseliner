@@ -4,9 +4,13 @@
 #include <baseliner/Metric.hpp>
 #include <baseliner/Options.hpp>
 #include <baseliner/Result.hpp>
+#include <baseliner/Stats.hpp>
 #include <baseliner/StoppingCriterion.hpp>
+#include <baseliner/stats/IStats.hpp>
+#include <baseliner/stats/StatsEngine.hpp>
 #include <iostream>
 #include <memory>
+#include <type_traits>
 #include <utility>
 #include <vector>
 namespace Baseliner {
@@ -63,15 +67,30 @@ namespace Baseliner {
   class Runner : public IRunner {
   public:
     // Runner
-    explicit Runner(std::unique_ptr<StoppingCriterion> stopping)
+    explicit Runner()
         : IRunner(),
-          m_stopping(std::move(stopping)),
           m_input(std::make_shared<typename Kernel::Input>()),
           m_backend(),
           m_stream(m_backend.create_stream()),
           m_flusher(),
           m_blocker(),
-          m_kernel(std::make_unique<Kernel>(m_input)) {};
+          m_kernel(std::make_unique<Kernel>(m_input)),
+          m_stats_engine(std::make_shared<Stats::StatsEngine>()),
+          m_stopping(std::make_unique<StoppingCriterion>(m_stats_engine)) {};
+
+    template <typename TStopping, typename... Args>
+    auto set_stopping_criterion(Args &&...args) -> Runner & {
+      static_assert(std::is_base_of_v<StoppingCriterion, TStopping>,
+                    "TStopping must inherit from Baseliner::StoppingCriterion");
+      m_stopping = std::make_unique<TStopping>(m_stats_engine, std::forward<Args>(args)...);
+      return *this;
+    }
+    template <typename TStat, typename... Args>
+    auto add_stat(Args &&...args) -> Runner & {
+      static_assert(std::is_base_of_v<Stats::IStatBase, TStat>, "A Stat must inherit from Baseliner::Stats::IStatBase");
+      m_stats_engine->register_stat<TStat>((args, ...));
+      return *this;
+    }
 
     auto run() -> Result override {
       m_input->generate_random();
@@ -85,7 +104,8 @@ namespace Baseliner {
         preRun();
         m_kernel->timed_run(m_stream);
         postRun();
-        m_stopping->addTime(m_kernel->time_elapsed());
+        m_stats_engine->update_values<Stats::ExecutionTime>(m_kernel->time_elapsed());
+        m_stats_engine->compute_stats();
       }
       postAll();
       m_kernel->teardown(m_out_gpu);
@@ -95,7 +115,7 @@ namespace Baseliner {
       }
 
       Result result(this->gather_options(), m_kernel->name());
-      std::vector<Metric> metrics = m_stopping->get_metrics();
+      std::vector<Metric> metrics = {m_stats_engine->get_metrics()};
       result.push_back_metrics(metrics);
       return result;
     }
@@ -108,9 +128,11 @@ namespace Baseliner {
 
   private:
     // Kernel Types
+    std::shared_ptr<Stats::StatsEngine> m_stats_engine;
     std::unique_ptr<StoppingCriterion> m_stopping;
     std::shared_ptr<typename Kernel::Input> m_input;
 
+    // Stats registry
     // Backend specifics
     Device m_backend;
     typename Device::L2Flusher m_flusher;
@@ -121,10 +143,17 @@ namespace Baseliner {
     std::unique_ptr<Kernel> m_kernel;
 
     virtual void preAll() {
+      m_stats_engine->register_stat<Stats::Repetitions>();
+      m_stats_engine->register_stat<Stats::ExecutionTimeVector>();
+      m_stats_engine->register_stat<Stats::SortedExecutionTimeVector>();
+      m_stats_engine->register_stat<Stats::Q1>();
+      m_stats_engine->register_stat<Stats::Q3>();
+      m_stats_engine->register_stat<Stats::Median>();
+      m_stats_engine->register_stat<Stats::MedianConfidenceInterval>();
+      m_stats_engine->build_execution_plan();
       if (get_warmup()) {
         m_kernel->run(m_stream);
       }
-      m_stopping->reset();
     };
     virtual void preRun() {
       if (get_flush_l2()) {

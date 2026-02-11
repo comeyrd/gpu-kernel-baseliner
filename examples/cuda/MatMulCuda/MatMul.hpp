@@ -87,7 +87,7 @@ public:
 
   int m_wA, m_hA, m_wB, m_hB;
   int m_size_A, m_size_B;
-  int m_block_size = 32;
+  int m_block_size = 16;
 
   std::vector<float> m_h_A;
   std::vector<float> m_h_B;
@@ -157,7 +157,8 @@ public:
     // Setup execution parameters
     int block_size = get_input()->m_block_size;
     m_threads = dim3(block_size, block_size);
-    m_grid = dim3(get_input()->m_wB / m_threads.x, get_input()->m_hA / m_threads.y);
+    m_grid =
+        dim3((get_input()->m_wB + m_threads.x - 1) / m_threads.x, (get_input()->m_hA + m_threads.y - 1) / m_threads.y);
   };
 
   void reset() override {

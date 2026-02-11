@@ -5,7 +5,8 @@
 #include <unordered_map>
 
 namespace Baseliner::Stats {
-
+  template <typename OutputTag, typename ValueType, typename... InputTags>
+  class IStat;
   class StatsRegistry {
   public:
     // Writes data into the store.
@@ -25,6 +26,14 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto has() const -> bool {
       return m_storage.find(std::type_index(typeid(Tag))) != m_storage.end();
     };
+
+  protected:
+    template <typename Tag>
+    [[nodiscard]] auto get_mutable() -> typename Tag::type & {
+      return std::any_cast<typename Tag::type &>(m_storage.at(std::type_index(typeid(Tag))));
+    };
+    template <typename OutputTag, typename ValueType, typename... InputTags>
+    friend class IStat;
 
   private:
     // Maps TypeIndex (Tag) -> std::any (Value)

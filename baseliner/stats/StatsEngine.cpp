@@ -80,7 +80,7 @@ namespace Baseliner::Stats {
     m_is_built = true;
   };
 
-  void StatsEngine::compute_pass() {
+  void StatsEngine::compute_stats() {
     build_execution_plan();
     for (IStatBase *stat : m_execution_plan) {
       stat->compute(m_registry);

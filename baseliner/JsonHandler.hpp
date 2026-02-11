@@ -1,9 +1,19 @@
 #ifndef JSON_HANDLER_HPP
 #define JSON_HANDLER_HPP
+#include <baseliner/Metric.hpp>
 #include <baseliner/Options.hpp>
 #include <baseliner/Result.hpp>
+#include <baseliner/StatsType.hpp>
+#include <iomanip>
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
+namespace Baseliner {
+  void to_json(json &json_obj, const MetricData &metricData);
+
+  template <typename T>
+  void to_json(json &json_obj, const ConfidenceInterval<T> &obj);
+} // namespace Baseliner
+
 NLOHMANN_JSON_NAMESPACE_BEGIN
 template <>
 struct adl_serializer<Baseliner::float_milliseconds> {
@@ -18,8 +28,7 @@ struct adl_serializer<Baseliner::float_milliseconds> {
 template <>
 struct adl_serializer<Baseliner::MetricData> {
   static void to_json(json &json_obj, const Baseliner::MetricData &metricData) {
-
-    std::visit([&json_obj](auto &&arg) { json_obj = arg; }, metricData);
+    Baseliner::to_json(json_obj, metricData);
   }
 };
 NLOHMANN_JSON_NAMESPACE_END
@@ -33,6 +42,13 @@ namespace Baseliner {
   void to_json(json &json_obj, const Result &result);
   void to_json(json &json_obj, const Metric &metric);
   void to_json(json &json_obj, const MetricStats &metricStats);
+
+  template <typename T>
+  void to_json(json &json_obj, const ConfidenceInterval<T> &obj) {
+    json_obj["high"] = obj.high;
+    json_obj["low"] = obj.low;
+  };
+
   template <typename T>
   void save_to_json(std::ostream &oss, T &obj) {
     json json_obj;

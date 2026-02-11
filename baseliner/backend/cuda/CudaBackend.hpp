@@ -54,6 +54,9 @@ namespace Baseliner {
       void synchronize(std::shared_ptr<cudaStream_t> stream) override;
       void set_device(int device) override;
       void reset_device() override;
+      CudaBackend() {
+        set_device(2);
+      };
       class L2Flusher : public IDevice::IL2Flusher {
       public:
         L2Flusher();

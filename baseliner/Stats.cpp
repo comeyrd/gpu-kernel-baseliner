@@ -9,45 +9,7 @@
 #include <utility>
 #include <vector>
 namespace Baseliner::Stats {
-  constexpr float IQR_OUTLIER_RANGE = 1.5F;
-  constexpr size_t ONE_HUNDRED_PERCENT = 100;
-  auto RemoveOutliers(std::vector<float_milliseconds> &vec_float)
-      -> std::tuple<std::vector<float_milliseconds>, float, float> {
-    const size_t vec_size = vec_float.size();
-    auto Quartile1_ix = static_cast<size_t>(std::floor(vec_size / 4));
-    const float Quartile1 = vec_float[Quartile1_ix].count();
-    auto Quartile3_IX = static_cast<size_t>(std::floor((3 * vec_size) / 4));
-    const float Quartile3 = vec_float[Quartile3_IX].count();
-
-    const float InterQuartileRange = Quartile3 - Quartile1;
-
-    auto lower_fence = static_cast<float_milliseconds>(Quartile1 - (IQR_OUTLIER_RANGE * InterQuartileRange));
-    auto upper_fence = static_cast<float_milliseconds>(Quartile3 + (IQR_OUTLIER_RANGE * InterQuartileRange));
-
-    auto it_start = std::lower_bound(vec_float.begin(), vec_float.end(), lower_fence);
-
-    auto it_end = std::upper_bound(it_start, vec_float.end(), upper_fence);
-
-    return std::make_tuple(std::vector<float_milliseconds>(it_start, it_end), Quartile1, Quartile3);
-  };
-
-  auto MedianAbsoluteDeviation(std::vector<float_milliseconds> &vec_float) -> std::pair<float, float> {
-    if (vec_float.empty()) {
-      return std::make_pair(0.0F, 0.0F);
-    }
-    const size_t vec_size = vec_float.size();
-    const auto middle = static_cast<size_t>(std::floor(vec_size / 2));
-    const float median = vec_float[middle].count();
-
-    std::vector<float> deviations;
-    deviations.reserve(vec_size);
-    for (const auto &item : vec_float) {
-      deviations.push_back(std::abs(item.count() - median));
-    }
-
-    std::sort(deviations.begin(), deviations.end());
-    return std::make_pair(deviations[middle], median);
-  }
+  constexpr float ONE_HUNDRED_PERCENT = 100;
   // COMPUTED WITH tools/z-score-array-generator.py
   static constexpr std::array<double, 100> MEDIAN_Z_SCORES = {
       0.012533, 0.024942, 0.037355, 0.049773, 0.062199, 0.074635, 0.087082, 0.099543, 0.112019, 0.124513,
@@ -61,12 +23,13 @@ namespace Baseliner::Stats {
       1.287039, 1.315977, 1.346061, 1.377415, 1.410186, 1.444545, 1.480699, 1.518899, 1.559454, 1.602750,
       1.649277, 1.699676, 1.754803, 1.815846, 1.884518, 1.963432, 2.056888, 2.172765, 2.328247, 2.575829};
 
-  void ConfidenceInterval::register_options() {
-    add_option("ConfidenceInterval", "quartile",
+  void MedianConfidenceInterval::register_options() {
+    add_option("MedianConfidenceInterval", "quartile",
                "The quartile to process the confidence interval in (Q1 = 0.25, Q2 = 0.5 ...)", m_probability);
-    add_option("ConfidenceInterval", "confidence", "The aimed percentage confidence interval", m_confidence);
+    add_option("MedianConfidenceInterval", "confidence", "The aimed percentage confidence interval", m_confidence);
   };
-  auto ConfidenceInterval::compute(size_t sample_size) -> std::pair<size_t, size_t> {
+
+  auto MedianConfidenceInterval::get_confidence_interval(size_t sample_size) const -> ConfidenceInterval<size_t> {
     if (sample_size == 0) {
       return {0, 0};
     }
@@ -75,7 +38,7 @@ namespace Baseliner::Stats {
     }
     return compute_large_sample_ranks(sample_size);
   };
-  auto ConfidenceInterval::get_z_score() const -> double {
+  auto MedianConfidenceInterval::get_z_score() const -> double {
     const float clamped_confidence = std::clamp(m_confidence, 0.0F, 1.0F);
     auto index = static_cast<size_t>(std::floor(clamped_confidence * ONE_HUNDRED_PERCENT));
     if (index >= 0 && index < ONE_HUNDRED_PERCENT) {
@@ -84,7 +47,7 @@ namespace Baseliner::Stats {
     throw std::runtime_error("Unreachable code");
   }
 
-  auto ConfidenceInterval::nCR(size_t sample_size, size_t prob_increment) -> double {
+  auto MedianConfidenceInterval::nCR(size_t sample_size, size_t prob_increment) -> double {
     if (prob_increment > sample_size) {
       return 0;
     }
@@ -101,7 +64,7 @@ namespace Baseliner::Stats {
     return res;
   };
 
-  auto ConfidenceInterval::compute_small_sample_ranks(size_t sample_size) const -> std::pair<size_t, size_t> {
+  auto MedianConfidenceInterval::compute_small_sample_ranks(size_t sample_size) const -> ConfidenceInterval<size_t> {
     const double alpha_half = (1.0 - static_cast<double>(m_confidence)) / 2.0;
     size_t lower_bound = 1;
 
@@ -119,19 +82,18 @@ namespace Baseliner::Stats {
         break;
       }
     }
-
     // k is the symmetric upper rank.
     const size_t upper_bound = sample_size - lower_bound + 1;
-    return {lower_bound, upper_bound};
+    return {upper_bound, lower_bound};
   }
 
-  auto ConfidenceInterval::compute_large_sample_ranks(size_t sample_size) const -> std::pair<size_t, size_t> {
+  auto MedianConfidenceInterval::compute_large_sample_ranks(size_t sample_size) const -> ConfidenceInterval<size_t> {
     const double eta = get_z_score();
     auto d_sample = static_cast<double>(sample_size);
     const double sqrt_part = eta * std::sqrt(d_sample * m_probability * (1 - m_probability));
     auto lower_bound = static_cast<size_t>(std::floor((d_sample * m_probability) - sqrt_part));
     auto upper_bound = static_cast<size_t>(std::ceil((d_sample * m_probability) + sqrt_part) + 1);
-    return {lower_bound, upper_bound};
+    return {upper_bound, lower_bound};
   }
 
 } // namespace Baseliner::Stats

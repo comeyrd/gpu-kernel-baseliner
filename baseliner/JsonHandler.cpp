@@ -53,5 +53,7 @@ namespace Baseliner {
     json_obj["datetime"] = result.get_date_time();
     json_obj["metrics"] = result.get_v_metrics();
   }
-
+  void to_json(json &json_obj, const MetricData &metricData) {
+    std::visit([&json_obj](auto &&arg) { json_obj = arg; }, metricData);
+  }
 } // namespace Baseliner
