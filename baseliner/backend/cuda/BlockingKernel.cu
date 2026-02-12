@@ -42,19 +42,38 @@ namespace {
 
 namespace Baseliner::Backend {
   CudaBackend::BlockingKernel::BlockingKernel() {
-    CHECK_CUDA(cudaHostRegister(&m_host_flag, sizeof(m_host_flag), cudaHostRegisterMapped));
-    CHECK_CUDA(cudaHostGetDevicePointer(&m_device_flag, &m_host_flag, 0));
-    CHECK_CUDA(cudaHostRegister(&m_host_timeout_flag, sizeof(m_host_timeout_flag), cudaHostRegisterMapped));
-    CHECK_CUDA(cudaHostGetDevicePointer(&m_device_timeout_flag, &m_host_timeout_flag, 0));
+    CHECK_CUDA(cudaHostRegister(m_host_flag, sizeof(int), cudaHostRegisterMapped));
+    CHECK_CUDA(cudaHostGetDevicePointer(&m_device_flag, m_host_flag, 0));
+    CHECK_CUDA(cudaHostRegister(m_host_timeout_flag, sizeof(int), cudaHostRegisterMapped));
+    CHECK_CUDA(cudaHostGetDevicePointer(&m_device_timeout_flag, m_host_timeout_flag, 0));
   }
   CudaBackend::BlockingKernel::~BlockingKernel() {
     CHECK_CUDA(cudaGetLastError());
-    CHECK_CUDA(cudaHostUnregister(&m_host_flag));
-    CHECK_CUDA(cudaHostUnregister(&m_host_timeout_flag));
+    if (m_host_flag != nullptr) {
+      CHECK_CUDA(cudaHostUnregister(m_host_flag));
+    }
+    if (m_host_timeout_flag != nullptr) {
+      CHECK_CUDA(cudaHostUnregister(m_host_timeout_flag));
+    }
   }
   void CudaBackend::BlockingKernel::block(std::shared_ptr<cudaStream_t> stream, double timeout) {
-    m_host_flag = 0;
-    m_host_timeout_flag = 0;
+    *m_host_flag = 0;
+    *m_host_timeout_flag = 0;
     block_stream<<<1, 1, 0, *stream>>>(m_device_flag, m_device_timeout_flag, timeout);
+  }
+  CudaBackend::BlockingKernel::BlockingKernel(BlockingKernel &&other) noexcept
+      : IBlockingKernel(std::move(other)) {
+  }
+  auto CudaBackend::BlockingKernel::operator=(BlockingKernel &&other) noexcept -> CudaBackend::BlockingKernel & {
+    if (this != &other) {
+      if (m_host_flag != nullptr) {
+        CHECK_CUDA(cudaHostUnregister(m_host_flag));
+      }
+      if (m_host_timeout_flag != nullptr) {
+        CHECK_CUDA(cudaHostUnregister(m_host_timeout_flag));
+      }
+      IBlockingKernel::operator=(std::move(other));
+    }
+    return *this;
   }
 } // namespace Baseliner::Backend

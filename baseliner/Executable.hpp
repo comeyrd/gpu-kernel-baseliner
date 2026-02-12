@@ -53,6 +53,6 @@ namespace Baseliner {
 #define CONCAT(a, b) CONCAT_IMPL(a, b)
 // NOLINTNEXTLINE(cppcoreguidelines-macro-usage)
 #define BASELINER_REGISTER_EXECUTABLE(item)                                                                            \
-  static Baseliner::RegistrarExecutable ATTRIBUTE_USED CONCAT(registrar_, __LINE__)(item);
+  static const Baseliner::RegistrarExecutable ATTRIBUTE_USED CONCAT(registrar_, __LINE__)(item);
 
 #endif // BASELINER_EXECUTABLE_HPP

@@ -77,19 +77,35 @@ namespace Baseliner {
           m_kernel(std::make_unique<Kernel>(m_input)),
           m_stats_engine(std::make_shared<Stats::StatsEngine>()),
           m_stopping(std::make_unique<StoppingCriterion>(m_stats_engine)) {};
+    Runner(Runner &&) noexcept = default;
+    auto operator=(Runner &&) noexcept -> Runner & = default;
 
+    // Ensure copies are still deleted (good for safety)
+    Runner(const Runner &) = delete;
+    auto operator=(const Runner &) -> Runner & = delete;
     template <typename TStopping, typename... Args>
-    auto set_stopping_criterion(Args &&...args) -> Runner & {
+    auto set_stopping_criterion(Args &&...args) & -> Runner & {
       static_assert(std::is_base_of_v<StoppingCriterion, TStopping>,
                     "TStopping must inherit from Baseliner::StoppingCriterion");
       m_stopping = std::make_unique<TStopping>(m_stats_engine, std::forward<Args>(args)...);
       return *this;
     }
+    template <typename TStopping, typename... Args>
+    auto set_stopping_criterion(Args &&...args) && -> Runner {
+      this->set_stopping_criterion<TStopping>(std::forward<Args>(args)...);
+      return std::move(*this);
+    }
+
     template <typename TStat, typename... Args>
-    auto add_stat(Args &&...args) -> Runner & {
+    auto add_stat(Args &&...args) & -> Runner & {
       static_assert(std::is_base_of_v<Stats::IStatBase, TStat>, "A Stat must inherit from Baseliner::Stats::IStatBase");
-      m_stats_engine->register_stat<TStat>((args, ...));
+      m_stats_engine->register_stat<TStat>(std::forward<Args>(args)...);
       return *this;
+    }
+    template <typename TStat, typename... Args>
+    auto add_stat(Args &&...args) && -> Runner {
+      this->add_stat<TStat>(std::forward<Args>(args)...);
+      return *std::move(this);
     }
 
     auto run() -> Result override {

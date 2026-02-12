@@ -62,10 +62,18 @@ namespace Baseliner {
         L2Flusher();
         ~L2Flusher() override;
         void flush(std::shared_ptr<cudaStream_t> stream) override;
+        L2Flusher(L2Flusher &&) noexcept;
+        auto operator=(L2Flusher &&) noexcept -> L2Flusher &;
+        L2Flusher(const L2Flusher &) = delete;
+        auto operator=(const L2Flusher &) -> L2Flusher & = delete;
       };
       class BlockingKernel : public IDevice::IBlockingKernel {
       public:
         BlockingKernel();
+        BlockingKernel(BlockingKernel &&) noexcept;
+        auto operator=(BlockingKernel &&) noexcept -> BlockingKernel &;
+        BlockingKernel(const BlockingKernel &) = delete;
+        auto operator=(const BlockingKernel &) -> BlockingKernel & = delete;
         void block(std::shared_ptr<cudaStream_t> stream, double timeout) override;
         ~BlockingKernel() override;
       };
