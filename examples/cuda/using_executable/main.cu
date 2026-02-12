@@ -12,7 +12,11 @@ namespace {
   static auto runner1 = matrixmul_runner();
 
   // Create a lambda or a helper to initialize and configure in one go
-  auto runner2 = computation_runner().set_stopping_criterion<Baseliner::ConfidenceIntervalMedianSC>();
+  auto runner2 = computation_runner()
+                     .set_stopping_criterion<Baseliner::ConfidenceIntervalMedianSC>()
+                     .add_stat<Baseliner::Stats::Q1>()
+                     .add_stat<Baseliner::Stats::Q3>()
+                     .add_stat<Baseliner::Stats::Median>();
   // Note: You must pass the raw pointer to the register macro
   BASELINER_REGISTER_EXECUTABLE(&runner1);
   BASELINER_REGISTER_EXECUTABLE(&runner2);

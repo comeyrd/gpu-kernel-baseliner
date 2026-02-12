@@ -105,7 +105,7 @@ namespace Baseliner {
     template <typename TStat, typename... Args>
     auto add_stat(Args &&...args) && -> Runner {
       this->add_stat<TStat>(std::forward<Args>(args)...);
-      return *std::move(this);
+      return std::move(*this);
     }
 
     auto run() -> Result override {
