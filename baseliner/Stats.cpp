@@ -95,5 +95,9 @@ namespace Baseliner::Stats {
     auto upper_bound = static_cast<size_t>(std::ceil((d_sample * m_probability) + sqrt_part) + 1);
     return {upper_bound, lower_bound};
   }
+  void WithoutOutliers::register_options() {
+    add_option("WithoutOutliersStat", "InterQuartileRange", "The range at which we define an outlier",
+               m_i_q_r_outlier_range);
+  };
 
 } // namespace Baseliner::Stats
