@@ -15,10 +15,10 @@
 #include <vector>
 namespace Baseliner {
   constexpr float DEFAULT_BLOCK_DURATION = 1000.0F;
-  class IRunner : public IOptionConsumer, public ISingleExecutable {
+  class IRunner : public IOption, public ISingleExecutable {
   public:
     // Runner Options
-    // IOptionConsumer Interfac
+    // IOption Interfac
     explicit IRunner() = default;
 
     ~IRunner() override = default;
@@ -137,9 +137,10 @@ namespace Baseliner {
     }
 
   protected:
-    void register_dependencies() override {
+    void register_options_dependencies() override {
       register_consumer(*m_input);
       register_consumer(*m_stopping);
+      register_consumer(*m_stats_engine);
     };
 
   private:

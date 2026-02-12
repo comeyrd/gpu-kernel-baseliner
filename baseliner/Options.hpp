@@ -86,16 +86,21 @@ namespace Baseliner {
 
   // TODO Setup checks so there is not a cyclic depedency between OptionConsumer
   // TODO that will make gather_options or propagate_option infinite recursive calls
-  class IOptionConsumer {
+  // This has a small impact on object footprint, but it could have even less if we want everything to be an option,
+  // even if they don't give option atm
+  // We would store a unique_ptr to a struct with all the members (the vectors etc) and then if a class REALLY uses
+  // options, the struct would be malloc
+  // and the memory usefull ?
+  class IOption {
   public:
     void gather_options(OptionsMap &opts);
     auto gather_options() -> OptionsMap;
     void propagate_options(const OptionsMap &optionsMap);
-    virtual ~IOptionConsumer() = default;
-    IOptionConsumer() = default;
+    virtual ~IOption() = default;
+    IOption() = default;
 
-    IOptionConsumer(const IOptionConsumer & /*old_consumer*/) {};
-    auto operator=(const IOptionConsumer &other) -> IOptionConsumer & {
+    IOption(const IOption & /*old_consumer*/) {};
+    auto operator=(const IOption &other) -> IOption & {
       if (this != &other) {
         m_options_bindings.clear();
         m_consumers.clear();
@@ -106,7 +111,7 @@ namespace Baseliner {
     }
 
     // Moving
-    IOptionConsumer(IOptionConsumer &&other) noexcept {
+    IOption(IOption &&other) noexcept {
       other.m_consumers.clear();
       other.m_options_bindings.clear();
       other.m_init_ended = false;
@@ -114,7 +119,7 @@ namespace Baseliner {
     }
 
     // Moving
-    auto operator=(IOptionConsumer &&other) noexcept -> IOptionConsumer & {
+    auto operator=(IOption &&other) noexcept -> IOption & {
       if (this != &other) {
         this->m_consumers.clear();
         this->m_options_bindings.clear();
@@ -131,9 +136,9 @@ namespace Baseliner {
 
   protected:
     virtual void register_options() = 0;
-    virtual void register_dependencies() {};
+    virtual void register_options_dependencies() {};
 
-    void register_consumer(IOptionConsumer &consumer);
+    void register_consumer(IOption &consumer);
     virtual void on_update() {};
     template <typename T>
     void add_option(const std::string &interface, const std::string &name, const std::string &description,
@@ -149,8 +154,13 @@ namespace Baseliner {
     bool m_init_phase = false;
     // Never access these two vectors to add bindings or consumer else than with ensure_initialized();
     std::vector<std::unique_ptr<OptionBindings::IOptionBinding>> m_options_bindings;
-    std::vector<IOptionConsumer *> m_consumers;
+    std::vector<IOption *> m_consumers;
     void ensure_initialized();
+  };
+
+  class LazyOption : public IOption {
+  public:
+    void register_options() override {};
   };
 } // namespace Baseliner
 

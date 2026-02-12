@@ -11,9 +11,9 @@
 namespace Baseliner {
 
   using MetricData =
-      std::variant<float_milliseconds, int64_t, std::string, size_t, float, std::vector<float_milliseconds>,
-                   std::vector<int64_t>, std::vector<std::string>, std::vector<float>, ConfidenceInterval<float>,
-                   ConfidenceInterval<float_milliseconds>, ConfidenceInterval<size_t>>;
+      std::variant<std::monostate, float_milliseconds, int64_t, std::string, size_t, float,
+                   std::vector<float_milliseconds>, std::vector<int64_t>, std::vector<std::string>, std::vector<float>,
+                   ConfidenceInterval<float>, ConfidenceInterval<float_milliseconds>, ConfidenceInterval<size_t>>;
 
   struct MetricStats {
     std::string m_name;

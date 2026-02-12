@@ -11,7 +11,7 @@
 #include <vector>
 namespace Baseliner {
 
-  class SingleAxeBenchmark : public IOptionConsumer, public IExecutable {
+  class SingleAxeBenchmark : public IOption, public IExecutable {
   public:
     SingleAxeBenchmark(std::shared_ptr<IRunner> runner, Axe Axe)
         : m_runner(std::move(runner)),
@@ -33,11 +33,11 @@ namespace Baseliner {
     };
 
   protected:
-    void register_dependencies() override {
+    void register_options_dependencies() override {
       register_consumer(*m_runner);
+      register_consumer(m_axe);
     };
     void register_options() override {
-      register_consumer(m_axe);
     }
 
   private:

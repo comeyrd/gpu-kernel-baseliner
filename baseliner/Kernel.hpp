@@ -19,7 +19,7 @@ namespace Baseliner {
   };
   constexpr int DEFAULT_SEED = 202;
   // TODO Work on the instantiation of InputData : Reusing old data and saving data to file.
-  class IInput : public MoveOnly, public IOptionConsumer {
+  class IInput : public MoveOnly, public IOption {
   public:
     virtual void generate_random() = 0;
 

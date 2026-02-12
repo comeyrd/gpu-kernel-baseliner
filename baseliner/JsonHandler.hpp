@@ -31,6 +31,12 @@ struct adl_serializer<Baseliner::MetricData> {
     Baseliner::to_json(json_obj, metricData);
   }
 };
+template <>
+struct adl_serializer<std::monostate> {
+  static void to_json(json &json_obj, const std::monostate & /*monostate*/) {
+    json_obj = "";
+  }
+};
 NLOHMANN_JSON_NAMESPACE_END
 
 namespace Baseliner {

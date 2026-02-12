@@ -2,6 +2,7 @@
 #define BASELINER_ISTATS_HPP
 
 #include <baseliner/Metric.hpp>
+#include <baseliner/Options.hpp>
 #include <baseliner/stats/StatsRegistry.hpp>
 #include <string>
 #include <typeindex>
@@ -9,7 +10,7 @@
 
 namespace Baseliner::Stats {
 
-  class IStatBase {
+  class IStatBase : public LazyOption {
   public:
     [[nodiscard]] virtual auto name() const -> std::string = 0;
     virtual ~IStatBase() = default;
@@ -55,12 +56,18 @@ namespace Baseliner::Stats {
         reg.set<OutputTag>(ValueType{});
       }
       if (!(reg.has<InputTags>() && ...)) {
+        std::stringstream sstream;
+        sstream << "Error in stat compute graph, one of inputs : ";
+        bool first = true;
+        ((sstream << (first ? "" : ", ") << typeid(InputTags).name(), first = false), ...);
+        sstream << "are not yet computed by needed by " << typeid(OutputTag).name();
+        throw std::runtime_error(sstream.str());
       }
       calculate(reg.get_mutable<OutputTag>(), reg.get<InputTags>()...);
     };
   };
 
-  class IMetricBase {
+  class IMetricBase : public LazyOption {
   public:
     [[nodiscard]] virtual auto name() const -> std::string = 0;
     [[nodiscard]] virtual auto unit() const -> std::string = 0;

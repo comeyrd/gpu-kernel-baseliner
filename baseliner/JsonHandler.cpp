@@ -5,6 +5,7 @@
 #include <baseliner/Serializer.hpp>
 #include <iomanip>
 #include <ostream>
+#include <variant>
 namespace Baseliner {
 
   template <typename T>
@@ -39,9 +40,15 @@ namespace Baseliner {
   };
 
   void to_json(json &json_obj, const Metric &metric) {
-    json_obj["stats"] = metric.m_v_stats;
-    json_obj["value"] = metric.m_data;
-    json_obj["unit"] = metric.m_unit;
+    if (not metric.m_v_stats.empty()) {
+      json_obj["stats"] = metric.m_v_stats;
+    }
+    if (!std::holds_alternative<std::monostate>(metric.m_data)) {
+      json_obj["value"] = metric.m_data;
+    }
+    if (metric.m_unit.empty()) {
+      json_obj["unit"] = metric.m_unit;
+    }
     json_obj["name"] = metric.m_name;
   }
 

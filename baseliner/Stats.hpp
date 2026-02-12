@@ -90,8 +90,7 @@ namespace Baseliner::Stats {
   constexpr double CONFIDENCE_95_PERCENT = 0.95F;
   constexpr size_t LARGE_SAMPLE_TH = 30;
   class MedianConfidenceInterval
-      : public IStat<MedianConfidenceInterval, ConfidenceInterval<float_milliseconds>, SortedExecutionTimeVector>,
-        IOptionConsumer {
+      : public IStat<MedianConfidenceInterval, ConfidenceInterval<float_milliseconds>, SortedExecutionTimeVector> {
     [[nodiscard]] auto name() const -> std::string override {
       return "median_ci";
     }
@@ -120,8 +119,7 @@ namespace Baseliner::Stats {
   constexpr float IQR_OUTLIER_RANGE = 1.5F;
 
   class WithoutOutliers
-      : public IStat<WithoutOutliers, std::vector<float_milliseconds>, SortedExecutionTimeVector, Q1, Q3>,
-        IOptionConsumer {
+      : public IStat<WithoutOutliers, std::vector<float_milliseconds>, SortedExecutionTimeVector, Q1, Q3> {
   public:
     [[nodiscard]] auto name() const -> std::string override {
       return "median_ci";

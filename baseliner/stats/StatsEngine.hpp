@@ -5,8 +5,8 @@
 #include <baseliner/stats/StatsRegistry.hpp>
 #include <cstddef>
 #include <functional>
-
 #include <memory>
+#include <sstream>
 #include <typeindex>
 #include <unordered_set>
 #include <vector>
@@ -29,7 +29,7 @@ namespace std {
   };
 } // namespace std
 namespace Baseliner::Stats {
-  class StatsEngine {
+  class StatsEngine : public LazyOption {
   public:
     // Ownership is transferred to the Engine.
     // TODO link a Stat to a Metric
@@ -66,7 +66,7 @@ namespace Baseliner::Stats {
       }
     };
     template <typename... InputTags>
-    void register_depedencies() {
+    void register_stats_dependencies() {
       (
           [&] {
             if constexpr (std::is_base_of_v<IStatBase, InputTags>) {
@@ -97,6 +97,9 @@ namespace Baseliner::Stats {
       if (iterator != m_registered_types.end()) {
         return m_registry.get<StatType>();
       }
+      std::ostringstream oss;
+      oss << "StatsEngine error in get_result(): " << typeid(StatType).name() << " Stat is not registered";
+      throw std::runtime_error(oss.str());
     };
     void compute_stats();
 
@@ -115,13 +118,29 @@ namespace Baseliner::Stats {
         }
         metrics_vector.push_back(metric);
       }
+      for (auto &stat : m_unlinked_stats) {
+        Metric metric;
+        metric.m_name = stat->name();
+        metric.m_unit = "";
+        metric.m_data = stat->get_value(m_registry);
+        metrics_vector.push_back(metric);
+      }
       return metrics_vector;
     }
+
+    void register_options_dependencies() override {
+      for (auto &stat : m_stats) {
+        register_consumer(*stat);
+      }
+      for (auto &metric : m_metrics) {
+        register_consumer(*metric);
+      }
+    };
 
   private:
     template <typename... Ts>
     void expand_and_register(std::tuple<Ts...> * /*unused*/) {
-      register_depedencies<Ts...>();
+      register_stats_dependencies<Ts...>();
     }
     template <typename StatType, typename... Args>
     void inner_register_type(Args &&...args) {

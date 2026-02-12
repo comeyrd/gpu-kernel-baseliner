@@ -2,9 +2,9 @@
 #include <iostream>
 #include <stdexcept>
 namespace Baseliner {
-  // IOptionConsumer
+  // IOption
   // Apply the options to its own parameters
-  void IOptionConsumer::propagate_options(const OptionsMap &optionsMap) { // TODO OPTIMIZE
+  void IOption::propagate_options(const OptionsMap &optionsMap) { // TODO OPTIMIZE
     ensure_initialized();
     for (const auto &[interface_name, options] : optionsMap) {
       for (const auto &[option_name, opt] : options) {
@@ -21,39 +21,39 @@ namespace Baseliner {
       }
     }
     on_update();
-    for (IOptionConsumer *consumer : m_consumers) {
+    for (IOption *consumer : m_consumers) {
       consumer->propagate_options(optionsMap);
     }
   }
 
   // Describe its own options
-  void IOptionConsumer::gather_options(OptionsMap &opts) {
+  void IOption::gather_options(OptionsMap &opts) {
     ensure_initialized();
     for (const auto &binding : m_options_bindings) {
       opts[binding->get_interface_name()][binding->get_name()] =
           Option{binding->get_description(), binding->get_value()};
     }
-    for (IOptionConsumer *consumer : m_consumers) {
+    for (IOption *consumer : m_consumers) {
       consumer->gather_options(opts);
     }
   }
 
-  auto IOptionConsumer::gather_options() -> OptionsMap {
+  auto IOption::gather_options() -> OptionsMap {
     OptionsMap map;
     this->gather_options(map);
     return map;
   };
   // Ensure that his own options are registered
-  void IOptionConsumer::ensure_initialized() {
+  void IOption::ensure_initialized() {
     if (!m_init_ended) {
       m_init_phase = true;
       register_options();
-      register_dependencies();
+      register_options_dependencies();
       m_init_phase = false;
       m_init_ended = true;
     }
   }
-  void IOptionConsumer::register_consumer(IOptionConsumer &consumer) {
+  void IOption::register_consumer(IOption &consumer) {
     if (m_init_phase) {
       m_consumers.push_back(&consumer);
     }

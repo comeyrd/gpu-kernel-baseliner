@@ -6,7 +6,7 @@
 #include <vector>
 namespace Baseliner {
 
-  class Axe : public IOptionConsumer {
+  class Axe : public IOption {
   public:
     Axe(std::string interface_name, std::string option_name, std::vector<std::string> values)
         : m_interface_name(std::move(interface_name)),

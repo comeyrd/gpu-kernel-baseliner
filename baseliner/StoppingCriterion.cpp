@@ -1,6 +1,7 @@
 
 #include <baseliner/Durations.hpp>
 #include <baseliner/Stats.hpp>
+#include <baseliner/StatsType.hpp>
 #include <baseliner/StoppingCriterion.hpp>
 #include <cstddef>
 namespace Baseliner {
@@ -15,7 +16,7 @@ namespace Baseliner {
       return false;
     }
     const size_t &vec_size = m_stats_engine->get_result<Stats::Repetitions>();
-    if (vec_size > m_max_repetitions) {
+    if (vec_size >= m_max_repetitions) {
       return true;
     }
     if (((vec_size % m_batch_size) == 0) && vec_size > 1) {
