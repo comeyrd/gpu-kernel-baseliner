@@ -33,18 +33,15 @@ namespace Baseliner::Stats {
   class IStat : public IStatBase {
   public:
     using type = ValueType;
-    using InputTuple = std::tuple<InputTags...>;
+    using tuple = std::tuple<InputTags...>;
     [[nodiscard]] auto dependencies() const -> std::vector<std::type_index> override {
       return {std::type_index(typeid(InputTags))...};
     }
 
-    auto get_value(const StatsRegistry &reg) const -> MetricData override {
+    [[nodiscard]] auto get_value(const StatsRegistry &reg) const -> MetricData override {
       if (!reg.has<OutputTag>()) {
-        return {}; // Returns the first type in variant (monostate/default)
+        return {};
       }
-
-      // Because ValueType is one of the types in your MetricData variant,
-      // this assignment works automatically.
       return reg.get<OutputTag>();
     }
 
@@ -61,6 +58,29 @@ namespace Baseliner::Stats {
       }
       calculate(reg.get_mutable<OutputTag>(), reg.get<InputTags>()...);
     };
+  };
+
+  class IMetricBase {
+  public:
+    [[nodiscard]] virtual auto name() const -> std::string = 0;
+    [[nodiscard]] virtual auto unit() const -> std::string = 0;
+    [[nodiscard]] virtual auto output() const -> std::type_index = 0;
+    [[nodiscard]] virtual auto get_value(const StatsRegistry &reg) const -> MetricData = 0;
+    virtual ~IMetricBase() = default;
+  };
+  template <typename OutputTag, typename ValueType>
+  class Imetric : public IMetricBase {
+  public:
+    using type = ValueType;
+    [[nodiscard]] auto get_value(const StatsRegistry &reg) const -> MetricData override {
+      if (!reg.has<OutputTag>()) {
+        return {}; // Returns the first type in variant (monostate/default)
+      }
+      return reg.get<OutputTag>();
+    }
+    [[nodiscard]] auto output() const -> std::type_index override {
+      return std::type_index(typeid(OutputTag));
+    }
   };
 
 } // namespace Baseliner::Stats

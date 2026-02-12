@@ -7,16 +7,22 @@
 #include <baseliner/stats/IStats.hpp>
 #include <cmath>
 #include <cstddef>
-#include <iostream>
+#include <string>
 #include <vector>
 namespace Baseliner::Stats {
 
-  struct ExecutionTime {
-    using type = float_milliseconds;
+  class ExecutionTime : public Imetric<ExecutionTime, float_milliseconds> {
+  public:
+    [[nodiscard]] auto name() const -> std::string override {
+      return "execution_time";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "ms";
+    }
   };
   class Repetitions : public IStat<Repetitions, size_t> {
   public:
-    auto name() const -> std::string override {
+    [[nodiscard]] auto name() const -> std::string override {
       return "Repetitions";
     }
     void calculate(Repetitions::type &value_to_update) override {
@@ -26,7 +32,7 @@ namespace Baseliner::Stats {
 
   class ExecutionTimeVector : public IStat<ExecutionTimeVector, std::vector<float_milliseconds>, ExecutionTime> {
   public:
-    auto name() const -> std::string override {
+    [[nodiscard]] auto name() const -> std::string override {
       return "execution_times";
     }
     void calculate(ExecutionTimeVector::type &value_to_update, const typename ExecutionTime::type &inputs) override {
@@ -37,7 +43,7 @@ namespace Baseliner::Stats {
   class SortedExecutionTimeVector
       : public IStat<SortedExecutionTimeVector, std::vector<float_milliseconds>, ExecutionTime> {
   public:
-    auto name() const -> std::string override {
+    [[nodiscard]] auto name() const -> std::string override {
       return "sorted_execution_times";
     }
     void calculate(SortedExecutionTimeVector::type &value_to_update,
@@ -50,7 +56,7 @@ namespace Baseliner::Stats {
 
   class Median : public IStat<Median, float, SortedExecutionTimeVector> {
   public:
-    auto name() const -> std::string override {
+    [[nodiscard]] auto name() const -> std::string override {
       return "median";
     }
     void calculate(Median::type &value_to_update, const typename SortedExecutionTimeVector::type &inputs) override {
@@ -61,7 +67,7 @@ namespace Baseliner::Stats {
 
   class Q1 : public IStat<Median, float, SortedExecutionTimeVector> {
   public:
-    auto name() const -> std::string override {
+    [[nodiscard]] auto name() const -> std::string override {
       return "Q1";
     }
     void calculate(Median::type &value_to_update, const typename SortedExecutionTimeVector::type &inputs) override {
@@ -71,7 +77,7 @@ namespace Baseliner::Stats {
   };
   class Q3 : public IStat<Median, float, SortedExecutionTimeVector> {
   public:
-    auto name() const -> std::string override {
+    [[nodiscard]] auto name() const -> std::string override {
       return "Q3";
     }
     void calculate(Median::type &value_to_update, const typename SortedExecutionTimeVector::type &inputs) override {
@@ -86,7 +92,7 @@ namespace Baseliner::Stats {
   class MedianConfidenceInterval
       : public IStat<MedianConfidenceInterval, ConfidenceInterval<float_milliseconds>, SortedExecutionTimeVector>,
         IOptionConsumer {
-    auto name() const -> std::string override {
+    [[nodiscard]] auto name() const -> std::string override {
       return "median_ci";
     }
 
@@ -117,7 +123,7 @@ namespace Baseliner::Stats {
       : public IStat<WithoutOutliers, std::vector<float_milliseconds>, SortedExecutionTimeVector, Q1, Q3>,
         IOptionConsumer {
   public:
-    auto name() const -> std::string override {
+    [[nodiscard]] auto name() const -> std::string override {
       return "median_ci";
     }
     void calculate(std::vector<float_milliseconds> &value_to_update,
@@ -145,7 +151,7 @@ namespace Baseliner::Stats {
   class MedianAbsoluteDeviation : public IStat<MedianAbsoluteDeviation, float, SortedExecutionTimeVector, Median> {
 
   public:
-    auto name() const -> std::string override {
+    [[nodiscard]] auto name() const -> std::string override {
       return "median_ci";
     }
     void calculate(float &value_to_update, const typename SortedExecutionTimeVector::type &sorted_vec,

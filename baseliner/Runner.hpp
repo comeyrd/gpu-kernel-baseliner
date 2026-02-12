@@ -160,12 +160,6 @@ namespace Baseliner {
 
     virtual void preAll() {
       m_stats_engine->register_stat<Stats::Repetitions>();
-      m_stats_engine->register_stat<Stats::ExecutionTimeVector>();
-      m_stats_engine->register_stat<Stats::SortedExecutionTimeVector>();
-      m_stats_engine->register_stat<Stats::Q1>();
-      m_stats_engine->register_stat<Stats::Q3>();
-      m_stats_engine->register_stat<Stats::Median>();
-      m_stats_engine->register_stat<Stats::MedianConfidenceInterval>();
       m_stats_engine->build_execution_plan();
       if (get_warmup()) {
         m_kernel->run(m_stream);
