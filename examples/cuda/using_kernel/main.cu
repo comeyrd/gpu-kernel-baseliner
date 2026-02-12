@@ -5,14 +5,15 @@
 
 int main() {
   std::cout << "Cuda Kernel Manipuation" << std::endl;
-  auto input = std::make_shared<ComputationKernel::Input>();
-  input->generate_random();
-  auto output = ComputationKernel::Output(std::move(input));
-  auto impl = ComputationKernel(input);
+
   auto backend = Baseliner::Backend::CudaBackend();
   auto stream = backend.create_stream();
   auto flusher = Baseliner::Backend::CudaBackend::L2Flusher();
   auto blocker = Baseliner::Backend::CudaBackend::BlockingKernel();
+  auto input = std::make_shared<ComputationKernel::Input>();
+  auto impl = ComputationKernel(input);
+  auto output = ComputationKernel::Output(input);
+  input->generate_random();
   impl.setup();
   impl.timed_run(stream);
   std::cout << "Warmup: " << impl.time_elapsed().count() << std::endl;

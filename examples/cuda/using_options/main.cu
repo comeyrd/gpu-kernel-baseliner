@@ -7,8 +7,7 @@
 
 int main() {
   std::cout << "Cuda Options Manipuation" << std::endl;
-  auto stop = std::make_unique<Baseliner::StoppingCriterion>();
-  Baseliner::Runner<ComputationKernel, Baseliner::Backend::CudaBackend> runner_act(std::move(stop));
+  auto runner_act = Baseliner::Runner<ComputationKernel, Baseliner::Backend::CudaBackend>();
   runner_act.set_block(false);
   Baseliner::Result res = runner_act.run();
   serialize(std::cout, res);

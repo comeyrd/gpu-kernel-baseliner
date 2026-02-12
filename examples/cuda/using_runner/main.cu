@@ -8,8 +8,7 @@
 int main() {
   std::cout << "Cuda Runner Manipuation" << std::endl;
   {
-    auto stop = std::make_unique<Baseliner::ConfidenceIntervalMedianSC>();
-    Baseliner::Runner<MatrixMulKernel, Baseliner::Backend::CudaBackend> runner_act(std::move(stop));
+    auto runner_act = Baseliner::Runner<ComputationKernel, Baseliner::Backend::CudaBackend>();
     Baseliner::OptionsMap omap;
     runner_act.gather_options(omap);
     Baseliner::InterfaceOptions &options = omap["Kernel"];
@@ -24,8 +23,8 @@ int main() {
     std::cout << std::endl;
   }
   {
-    auto stop = std::make_unique<Baseliner::ConfidenceIntervalMedianSC>();
-    Baseliner::Runner<ComputationKernel, Baseliner::Backend::CudaBackend> runner_act(std::move(stop));
+    auto runner_act = Baseliner::Runner<ComputationKernel, Baseliner::Backend::CudaBackend>()
+                          .set_stopping_criterion<Baseliner::ConfidenceIntervalMedianSC>();
     Baseliner::OptionsMap omap;
     runner_act.gather_options(omap);
     Baseliner::InterfaceOptions &options = omap["Kernel"];

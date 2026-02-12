@@ -112,9 +112,8 @@ public:
 
 int main(int argc, char **argv) {
   std::cout << "simple_benchmark" << std::endl;
-  auto stop = std::make_unique<Baseliner::StoppingCriterion>();
-  stop->set_max_repetitions(10);
-  Baseliner::Runner<ComputationKernel, Baseliner::Backend::CudaBackend> runner_act(std::move(stop));
+  auto runner_act = Baseliner::Runner<ComputationKernel, Baseliner::Backend::CudaBackend>()
+                        .set_stopping_criterion<Baseliner::StoppingCriterion>(25, 1);
   Baseliner::OptionsMap omap;
   std::vector<Axe> axes = {{"Kernel", "work_size", {"1", "10", "100", "1000"}}, {"Runner", "block", {"0", "1"}}};
   AxeExploration axe_exp = AxeExploration(axes, omap);
