@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.15)
-project(baseliner VERSION 1.0.0 LANGUAGES CXX)
+project(baseliner VERSION 0.3.2 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 option(BASELINER_BUILD_EXAMPLES "Build baseliner examples" OFF)
 set(BASELINER_FOUND_DEVICE_COMPILER OFF)
+
 
 include(CheckLanguage)
 check_language(CUDA)

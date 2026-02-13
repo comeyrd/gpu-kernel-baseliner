@@ -56,6 +56,7 @@ namespace Baseliner {
     json_obj["options"] = result.get_map();
     json_obj["kernel_name"] = result.get_kernel_name();
     json_obj["git_version"] = result.get_git_version();
+    json_obj["baseliner_version"] = result.get_basliner_version();
     json_obj["execution_id"] = result.get_execution_uid();
     json_obj["datetime"] = result.get_date_time();
     json_obj["metrics"] = result.get_v_metrics();

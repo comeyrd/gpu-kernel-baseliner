@@ -3,6 +3,7 @@
 #include <baseliner/GIT_VERSION.hpp>
 #include <baseliner/Metric.hpp>
 #include <baseliner/Options.hpp>
+#include <baseliner/Version.hpp>
 #include <iterator>
 #include <string>
 #include <utility>
@@ -15,7 +16,8 @@ namespace Baseliner {
           m_kernel_name(std::move(kernel_name)),
           m_git_version(BASELINER_GIT_VERSION),
           m_execution_uid(generate_uid()),
-          m_date_time(current_time_string()) {};
+          m_date_time(current_time_string()),
+          m_baseliner_version(Version::string) {};
     void push_back_metric(Metric &metric) {
       m_v_metrics.push_back(metric);
     };
@@ -33,6 +35,9 @@ namespace Baseliner {
     auto get_git_version() const -> const std::string & {
       return m_git_version;
     }
+    auto get_basliner_version() const -> const std::string & {
+      return m_baseliner_version;
+    }
     auto get_execution_uid() const -> const std::string & {
       return m_execution_uid;
     }
@@ -49,6 +54,7 @@ namespace Baseliner {
     std::string m_git_version;
     std::string m_execution_uid;
     std::string m_date_time;
+    std::string m_baseliner_version;
     std::vector<Metric> m_v_metrics;
     explicit Result() = default;
     static auto current_time_string() -> std::string;
