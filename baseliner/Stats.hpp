@@ -65,7 +65,7 @@ namespace Baseliner::Stats {
     };
   };
 
-  class Q1 : public IStat<Median, float, SortedExecutionTimeVector> {
+  class Q1 : public IStat<Q1, float, SortedExecutionTimeVector> {
   public:
     [[nodiscard]] auto name() const -> std::string override {
       return "Q1";
@@ -75,7 +75,7 @@ namespace Baseliner::Stats {
       value_to_update = inputs[quarter].count();
     };
   };
-  class Q3 : public IStat<Median, float, SortedExecutionTimeVector> {
+  class Q3 : public IStat<Q3, float, SortedExecutionTimeVector> {
   public:
     [[nodiscard]] auto name() const -> std::string override {
       return "Q3";
