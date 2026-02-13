@@ -46,7 +46,7 @@ namespace Baseliner {
     if (!std::holds_alternative<std::monostate>(metric.m_data)) {
       json_obj["value"] = metric.m_data;
     }
-    if (metric.m_unit.empty()) {
+    if (!metric.m_unit.empty()) {
       json_obj["unit"] = metric.m_unit;
     }
     json_obj["name"] = metric.m_name;
