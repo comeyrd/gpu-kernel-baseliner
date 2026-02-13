@@ -13,6 +13,7 @@ namespace Baseliner::Stats {
     if (!m_is_built) {
       build_execution_plan();
       m_is_built = true;
+      set_default();
     }
   };
   // TODO Simplify
@@ -150,5 +151,10 @@ namespace Baseliner::Stats {
       stat->compute(m_registry);
     }
   };
+  void StatsEngine::set_default() {
+    for (auto &stat : m_stats) {
+      stat->set_default(m_registry);
+    }
+  }
 
 } // namespace Baseliner::Stats

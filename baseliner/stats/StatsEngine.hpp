@@ -23,7 +23,7 @@ namespace Baseliner::Stats {
 namespace std {
   template <>
   struct hash<Baseliner::Stats::TypeIndexArgs> {
-    size_t operator()(const Baseliner::Stats::TypeIndexArgs &obj) const {
+    auto operator()(const Baseliner::Stats::TypeIndexArgs &obj) const {
       return std::hash<std::type_index>{}(obj.type_ix);
     }
   };
@@ -141,6 +141,12 @@ namespace Baseliner::Stats {
       }
     };
 
+    void reset() {
+      ensure_build();
+      m_registry = StatsRegistry();
+      set_default();
+    };
+
   private:
     template <typename... Ts>
     void expand_and_register(std::tuple<Ts...> * /*unused*/) {
@@ -196,6 +202,7 @@ namespace Baseliner::Stats {
     bool m_is_built = false;
     void ensure_build();
     void build_execution_plan();
+    void set_default();
   };
 } // namespace Baseliner::Stats
 #endif

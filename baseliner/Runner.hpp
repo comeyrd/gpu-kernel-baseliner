@@ -76,7 +76,9 @@ namespace Baseliner {
           m_blocker(),
           m_kernel(std::make_unique<Kernel>(m_input)),
           m_stats_engine(std::make_shared<Stats::StatsEngine>()),
-          m_stopping(std::make_unique<StoppingCriterion>(m_stats_engine)) {};
+          m_stopping(std::make_unique<StoppingCriterion>(m_stats_engine)) {
+      m_stats_engine->register_stat<Stats::ExecutionTimeVector>();
+    };
     Runner(Runner &&) noexcept = default;
     auto operator=(Runner &&) noexcept -> Runner & = default;
 
@@ -160,7 +162,7 @@ namespace Baseliner {
     std::unique_ptr<Kernel> m_kernel;
 
     virtual void preAll() {
-      m_stats_engine->register_stat<Stats::ExecutionTimeVector>();
+      m_stats_engine->reset();
       if (get_warmup()) {
         m_kernel->run(m_stream);
       }

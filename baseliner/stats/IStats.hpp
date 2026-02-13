@@ -23,7 +23,7 @@ namespace Baseliner::Stats {
 
     virtual void compute(StatsRegistry &reg) = 0;
     [[nodiscard]] virtual auto get_value(const StatsRegistry &reg) const -> MetricData = 0;
-
+    virtual void set_default(StatsRegistry &reg) = 0;
     IStatBase() = default;
 
   private:
@@ -65,6 +65,19 @@ namespace Baseliner::Stats {
       }
       calculate(reg.get_mutable<OutputTag>(), reg.get<InputTags>()...);
     };
+    void set_default(StatsRegistry &reg) override {
+      reg.set<OutputTag>(m_default_value);
+    }
+    IStat()
+        : IStatBase(),
+          m_default_value{} {};
+
+    IStat(ValueType default_value)
+        : IStatBase(),
+          m_default_value(default_value) {};
+
+  private:
+    ValueType m_default_value;
   };
 
   class IMetricBase : public LazyOption {
