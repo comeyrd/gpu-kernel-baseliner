@@ -8,16 +8,15 @@ namespace {
   using computation_runner = Baseliner::Runner<ComputationKernel, Baseliner::Backend::CudaBackend>;
   using matrixmul_runner = Baseliner::Runner<MatrixMulKernel, Baseliner::Backend::CudaBackend>;
 
-  // Store by VALUE, not reference
   static auto runner1 = matrixmul_runner();
 
-  // Create a lambda or a helper to initialize and configure in one go
   auto runner2 = computation_runner()
                      .set_stopping_criterion<Baseliner::ConfidenceIntervalMedianSC>()
                      .add_stat<Baseliner::Stats::Q1>()
                      .add_stat<Baseliner::Stats::Q3>()
-                     .add_stat<Baseliner::Stats::Median>();
-  // Note: You must pass the raw pointer to the register macro
+                     .add_stat<Baseliner::Stats::Median>()
+                     .add_stat<Baseliner::Stats::WithoutOutliers>()
+                     .add_stat<Baseliner::Stats::MedianAbsoluteDeviation>();
   BASELINER_REGISTER_EXECUTABLE(&runner1);
   BASELINER_REGISTER_EXECUTABLE(&runner2);
 } // namespace
