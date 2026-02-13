@@ -161,7 +161,6 @@ namespace Baseliner {
 
     virtual void preAll() {
       m_stats_engine->register_stat<Stats::ExecutionTimeVector>();
-      m_stats_engine->build_execution_plan();
       if (get_warmup()) {
         m_kernel->run(m_stream);
       }

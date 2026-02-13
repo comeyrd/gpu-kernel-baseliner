@@ -36,6 +36,9 @@ namespace Baseliner::Stats {
     // TODO check if everybody has it's depedencies fulfilled
     template <typename StatType, typename... Args>
     void register_stat(Args &&...args) {
+      if (m_is_built) {
+        throw std::runtime_error("Trying to register a metric after the Engine is built");
+      }
       static_assert(std::is_base_of_v<IStatBase, StatType>, "Must derive from IStatBase");
 
       auto iterator = m_registered_types.find({std::type_index(typeid(StatType)), false});
@@ -43,21 +46,26 @@ namespace Baseliner::Stats {
 
       if (iterator != m_registered_types.end()) {
         if (!iterator->has_args && has_args) {
-          inner_register_type<StatType>(std::forward<Args>(args)...);
+          inner_remove_stat<StatType>();
+          inner_register_stat<StatType>(std::forward<Args>(args)...);
         }
       } else {
-        inner_register_type<StatType>(std::forward<Args>(args)...);
+        inner_register_stat<StatType>(std::forward<Args>(args)...);
       }
     }
     template <typename MetricType, typename... Args>
     void register_metric(Args &&...args) {
+      if (m_is_built) {
+        throw std::runtime_error("Trying to register a metric after the Engine is built");
+      }
       static_assert(std::is_base_of_v<IMetricBase, MetricType>, "Registered type must derive from IMetricBase");
       auto iterator = m_registered_types.find({std::type_index(typeid(MetricType)), false});
-      bool current_has_args = sizeof...(args) > 0;
+      const bool current_has_args = sizeof...(args) > 0;
 
       if (iterator != m_registered_types.end()) {
         if (!iterator->has_args) {
           if (current_has_args) {
+            inner_remove_metric<MetricType>();
             inner_register_metric<MetricType>(std::forward<Args>(args)...);
           }
         }
@@ -79,10 +87,6 @@ namespace Baseliner::Stats {
           }(),
           ...);
     }
-
-    // Builds the execution_plan
-    //  Must be called once before compute().
-    void build_execution_plan();
 
     // Sets the source inputs
     template <typename... StatType>
@@ -121,7 +125,7 @@ namespace Baseliner::Stats {
       for (auto &stat : m_unlinked_stats) {
         Metric metric;
         metric.m_name = stat->name();
-        metric.m_unit = "";
+        metric.m_unit = std::string();
         metric.m_data = stat->get_value(m_registry);
         metrics_vector.push_back(metric);
       }
@@ -143,20 +147,40 @@ namespace Baseliner::Stats {
       register_stats_dependencies<Ts...>();
     }
     template <typename StatType, typename... Args>
-    void inner_register_type(Args &&...args) {
-      bool current_has_args = sizeof...(args) > 0;
+    void inner_register_stat(Args &&...args) {
+      const bool current_has_args = sizeof...(args) > 0;
       auto new_stat = std::make_unique<StatType>(std::forward<Args>(args)...);
       m_stats.push_back(std::move(new_stat));
       m_registered_types.insert({std::type_index(typeid(StatType)), current_has_args});
       expand_and_register(static_cast<typename StatType::tuple *>(nullptr));
     };
+
+    template <typename StatType>
+    void inner_remove_stat() {
+      auto test = [](std::unique_ptr<IStatBase> &basestat) { return (typeid(basestat->output()) == typeid(StatType)); };
+      auto iterator = std::find_if(m_stats.begin(), m_stats.end(), test);
+      if (iterator != m_stats.end()) {
+        m_stats.erase(iterator);
+      }
+    }
+
     template <typename MetricType, typename... Args>
     void inner_register_metric(Args &&...args) {
-      bool current_has_args = sizeof...(args) > 0;
+      const bool current_has_args = sizeof...(args) > 0;
       auto new_metric = std::make_unique<MetricType>(std::forward<Args>(args)...);
       m_metrics.push_back(std::move(new_metric));
       m_registered_types.insert({std::type_index(typeid(MetricType)), current_has_args});
     };
+    template <typename MetricType>
+    void inner_remove_metric() {
+      auto test = [](std::unique_ptr<IMetricBase> &basemetric) {
+        return (typeid(basemetric->output()) == typeid(MetricType));
+      };
+      auto iterator = std::find_if(m_metrics.begin(), m_metrics.end(), test);
+      if (iterator != m_metrics.end()) {
+        m_metrics.erase(iterator);
+      }
+    }
 
     StatsRegistry m_registry;
     std::vector<std::unique_ptr<IMetricBase>> m_metrics;
@@ -171,6 +195,7 @@ namespace Baseliner::Stats {
     std::unordered_map<IMetricBase *, std::vector<IStatBase *>> m_metric_to_stats;
     bool m_is_built = false;
     void ensure_build();
+    void build_execution_plan();
   };
 } // namespace Baseliner::Stats
 #endif

@@ -4,6 +4,8 @@
 #include <stdexcept>
 #include <typeindex>
 #include <unordered_map>
+#include <unordered_set>
+#include <utility>
 #include <vector>
 namespace Baseliner::Stats {
 
@@ -16,144 +18,134 @@ namespace Baseliner::Stats {
   // TODO Simplify
   // TODO Build adjacency matrix ? with width and height all stats and all metrics ? easier to do lookups afterward.
 
+  enum class NodeStatus : uint8_t {
+    Unvisited,
+    Visiting,
+    Resolved
+  };
+
+  static void
+  depth_first_search(std::type_index current,
+                     std::unordered_map<std::type_index, std::unordered_set<std::type_index>> &producer_to_dep,
+                     std::unordered_map<std::type_index, NodeStatus> &status) {
+    NodeStatus &current_status = status[current];
+
+    if (current_status == NodeStatus::Resolved) {
+      return;
+    }
+    if (current_status == NodeStatus::Visiting) {
+      throw std::runtime_error("Circular dependency detected in metrics graph!");
+    }
+
+    // 2. Mark as currently visiting (on the recursion stack)
+    current_status = NodeStatus::Visiting;
+
+    std::unordered_set<std::type_index> flattened_deps;
+
+    // 3. Process dependencies
+    if (producer_to_dep.count(current) > 0) {
+      // We copy the immediate dependencies because we will be
+      // overwriting producer_to_dep[current] later.
+      auto immediate_deps = producer_to_dep.at(current);
+
+      for (const auto &dep : immediate_deps) {
+        // Recurse first to ensure the child is fully flattened
+        depth_first_search(dep, producer_to_dep, status);
+
+        // Add the child itself
+        flattened_deps.insert(dep);
+
+        // Add all of the child's now-flattened dependencies
+        const auto &child_flattened = producer_to_dep.at(dep);
+        flattened_deps.insert(child_flattened.begin(), child_flattened.end());
+      }
+    }
+
+    // 4. Update the map with the flattened results and mark as Resolved
+    producer_to_dep[current] = std::move(flattened_deps);
+    current_status = NodeStatus::Resolved;
+  }
+
   void StatsEngine::build_execution_plan() {
     m_execution_plan.clear();
     m_metric_to_stats.clear();
     m_unlinked_stats.clear();
 
-    // 1. Identify all Metric Tags
-    std::unordered_set<std::type_index> metric_tags;
     std::unordered_map<std::type_index, IMetricBase *> tag_to_metric;
+    std::unordered_map<std::type_index, IStatBase *> tag_to_producers;
+
+    std::unordered_map<std::type_index, std::unordered_set<std::type_index>> producer_to_depedency;
+    std::unordered_map<std::type_index, std::unordered_set<std::type_index>> depedency_to_producer;
+
+    // fill the metric maps
     for (const auto &metric : m_metrics) {
-      metric_tags.insert(metric->output());
       tag_to_metric[metric->output()] = metric.get();
     }
-
-    // 2. Map Producers (Who provides what Tag)
-    std::unordered_map<std::type_index, IStatBase *> producers;
+    // create the map and the reverse map
     for (const auto &stat : m_stats) {
-      producers[stat->output()] = stat.get();
+      // filling the producers Map
+      tag_to_producers[stat->output()] = stat.get();
+      // filling producer_to_depedency & depedency_to_producer_map
+      auto depedencies = stat->dependencies();
+      producer_to_depedency[stat->output()].insert(depedencies.begin(), depedencies.end());
     }
 
-    // 3. Trace Links from Stats to Metrics
-    // We check every Stat: "Do you (or your children) eventually consume a Metric Tag?"
-    std::unordered_set<IStatBase *> linked_stats;
+    // We use a separate list of keys to avoid iterator invalidation on the map itself
+    std::vector<std::type_index> keys;
+    keys.reserve(producer_to_depedency.size());
+    for (auto const &[key, _] : producer_to_depedency) {
+      keys.push_back(key);
+    }
+    std::unordered_map<std::type_index, NodeStatus> status;
+    for (const auto &key : keys) {
+      depth_first_search(key, producer_to_depedency, status);
+    }
+    // we got the flattened producer_to_depedency map
 
-    // Recursive helper: returns true if this tag or its deps reach a Metric
-    std::unordered_map<IStatBase *, bool> memo;
-    std::function<bool(IStatBase *)> check_link = [&](IStatBase *stat) -> bool {
-      if (memo.count(stat))
-        return memo[stat];
+    // now we create the reverse map
+    for (auto &[producer, depedencies] : producer_to_depedency) {
+      for (const auto &depedency : depedencies) {
+        depedency_to_producer[depedency].insert(producer);
+      }
+    }
+    // adding stats with no depedency to unlinked stats
+    for (const auto &[producer_tag, ptr] : tag_to_producers) {
+      if (producer_to_depedency[producer_tag].empty()) {
+        m_unlinked_stats.push_back(ptr);
+      }
+    }
 
-      bool reaches_metric = false;
-      for (const auto &dep_type : stat->dependencies()) {
-        // Does this Stat directly consume a Metric?
-        if (metric_tags.count(dep_type)) {
-          m_metric_to_stats[tag_to_metric[dep_type]].push_back(stat);
-          reaches_metric = true;
-        }
-        // Or does it consume another Stat that eventually leads to a Metric?
-        else if (producers.count(dep_type)) {
-          if (check_link(producers[dep_type])) {
-            // If the child reaches a metric, then this parent does too.
-            // We associate this stat with the same metrics its children have.
-            for (const auto &metric_ptr : m_metrics) {
-              auto &v = m_metric_to_stats[metric_ptr.get()];
-              auto &child_v = m_metric_to_stats[metric_ptr.get()];
-              // Note: To keep it clean, we verify the child is in that metric's list
-              // This ensures transitive mapping: Median -> Sorted -> Metric
-            }
-            reaches_metric = true;
+    // First remove metrics and fill metric_to_stats
+    for (const auto &[metric_tag, ptr] : tag_to_metric) {
+      for (const auto &stat : depedency_to_producer[metric_tag]) {
+        producer_to_depedency[stat].erase(metric_tag);
+        m_metric_to_stats[tag_to_metric[metric_tag]].push_back(tag_to_producers[stat]);
+      }
+      depedency_to_producer.erase(metric_tag);
+    }
+
+    auto not_in_execution_plan = tag_to_producers;
+    while (!not_in_execution_plan.empty()) {
+      for (auto &[producer, ptr] : tag_to_producers) {
+        if (producer_to_depedency[producer].empty()) {
+          m_execution_plan.push_back(ptr);
+          not_in_execution_plan.erase(producer);
+          for (const auto &depedencies : depedency_to_producer[producer]) {
+            producer_to_depedency[depedencies].erase(producer);
           }
+          depedency_to_producer.erase(producer);
         }
       }
-
-      if (reaches_metric)
-        linked_stats.insert(stat);
-      return memo[stat] = reaches_metric;
-    };
-
-    // Correcting the transitive mapping logic to satisfy "Median depends on Metric"
-    for (const auto &stat : m_stats) {
-      for (const auto &dep_type : stat->dependencies()) {
-        if (metric_tags.count(dep_type)) {
-          // Direct link
-          IStatBase *current = stat.get();
-          IMetricBase *root_metric = tag_to_metric[dep_type];
-
-          // We now need to bubble this "Metric-ness" up to anyone who consumes 'current'
-          // But since we want "Median -> Sorted -> Metric", we use a simple discovery
-          linked_stats.insert(current);
-          m_metric_to_stats[root_metric].push_back(current);
-        }
-      }
+      tag_to_producers = not_in_execution_plan;
     }
-
-    // Propagate the links: If Stat A consumes Stat B, and B is linked to Metric X, then A is linked to X
-    bool changed = true;
-    while (changed) {
-      changed = false;
-      for (const auto &stat : m_stats) {
-        for (const auto &dep_type : stat->dependencies()) {
-          if (producers.count(dep_type)) {
-            IStatBase *dependency = producers[dep_type];
-            for (const auto &metric : m_metrics) {
-              auto &vec = m_metric_to_stats[metric.get()];
-              // If my dependency is linked to a metric, and I'm not yet...
-              if (std::find(vec.begin(), vec.end(), dependency) != vec.end()) {
-                if (std::find(vec.begin(), vec.end(), stat.get()) == vec.end()) {
-                  vec.push_back(stat.get());
-                  linked_stats.insert(stat.get());
-                  changed = true;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    // 4. Identify Unlinked Stats
-    for (const auto &stat : m_stats) {
-      if (linked_stats.find(stat.get()) == linked_stats.end()) {
-        m_unlinked_stats.push_back(stat.get());
-      }
-    }
-
-    // 5. Kahn's Algorithm (Standard Execution Order)
-    std::unordered_map<std::type_index, std::vector<IStatBase *>> consumers;
-    std::unordered_map<IStatBase *, int> dependency_count;
-    std::vector<IStatBase *> ready_queue;
-
-    for (const auto &stat : m_stats) {
-      int count = 0;
-      for (const auto &dep_type : stat->dependencies()) {
-        if (producers.count(dep_type)) {
-          count++;
-          consumers[dep_type].push_back(stat.get());
-        }
-      }
-      dependency_count[stat.get()] = count;
-      if (count == 0)
-        ready_queue.push_back(stat.get());
-    }
-
-    while (!ready_queue.empty()) {
-      IStatBase *current = ready_queue.back();
-      ready_queue.pop_back();
-      m_execution_plan.push_back(current);
-      if (consumers.count(current->output())) {
-        for (IStatBase *neighbor : consumers[current->output()]) {
-          if (--dependency_count[neighbor] == 0)
-            ready_queue.push_back(neighbor);
-        }
-      }
+    if (m_execution_plan.size() != m_stats.size()) {
+      throw std::runtime_error("Circular dependency detected in Stats Graph!");
     }
 
     m_is_built = true;
   }
   void StatsEngine::compute_stats() {
-    build_execution_plan();
+    ensure_build();
     for (IStatBase *stat : m_execution_plan) {
       stat->compute(m_registry);
     }
