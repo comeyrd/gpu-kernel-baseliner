@@ -1,5 +1,7 @@
 #include "ComputationKernel.hpp"
 #include "MatMul.hpp"
+#include <baseliner/Axe.hpp>
+#include <baseliner/Benchmark.hpp>
 #include <baseliner/Executable.hpp>
 #include <baseliner/Runner.hpp>
 #include <baseliner/Serializer.hpp>
@@ -18,5 +20,8 @@ namespace {
                      .add_stat<Baseliner::Stats::WithoutOutliers>()
                      .add_stat<Baseliner::Stats::MedianAbsoluteDeviation>();
   BASELINER_REGISTER_EXECUTABLE(&runner1);
-  BASELINER_REGISTER_EXECUTABLE(&runner2);
+
+  Baseliner::Axe axe = {"StoppingCriterion", "max_nb_repetition", {"100", "250", "500", "1000", "2000"}};
+  Baseliner::SingleAxeBenchmark bench(std::make_shared<computation_runner>(std::move(runner2)), axe);
+  BASELINER_REGISTER_EXECUTABLE(&bench);
 } // namespace
