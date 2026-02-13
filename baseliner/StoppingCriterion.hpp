@@ -42,7 +42,6 @@ namespace Baseliner {
     };
 
   private:
-    bool m_started = false;
     std::shared_ptr<Stats::StatsEngine> m_stats_engine;
     size_t m_max_repetitions;
     size_t m_batch_size;

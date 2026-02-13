@@ -11,10 +11,6 @@ namespace Baseliner {
   //
 
   auto StoppingCriterion::satisfied() -> bool {
-    if (!m_started) {
-      m_started = true;
-      return false;
-    }
     const size_t &vec_size = m_stats_engine->get_result<Stats::Repetitions>();
     if (vec_size >= m_max_repetitions) {
       return true;
