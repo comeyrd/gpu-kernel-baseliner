@@ -99,17 +99,6 @@ namespace Baseliner {
     virtual ~IOption() = default;
     IOption() = default;
 
-    IOption(const IOption & /*old_consumer*/) {};
-    auto operator=(const IOption &other) -> IOption & {
-      if (this != &other) {
-        m_options_bindings.clear();
-        m_consumers.clear();
-        m_init_ended = false;
-        m_init_phase = false;
-      }
-      return *this;
-    }
-
     // Moving
     IOption(IOption &&other) noexcept {
       other.m_consumers.clear();
