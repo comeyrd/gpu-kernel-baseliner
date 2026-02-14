@@ -11,13 +11,14 @@
 namespace Baseliner {
   class Result {
   public:
-    explicit Result(OptionsMap omap, std::string kernel_name)
+    explicit Result(OptionsMap omap, std::string kernel_name, bool valid)
         : m_map(std::move(omap)),
           m_kernel_name(std::move(kernel_name)),
           m_git_version(BASELINER_GIT_VERSION),
           m_execution_uid(generate_uid()),
           m_date_time(current_time_string()),
-          m_baseliner_version(Version::string) {};
+          m_baseliner_version(Version::string),
+          m_valid(valid) {};
     void push_back_metric(Metric &metric) {
       m_v_metrics.push_back(metric);
     };
@@ -56,6 +57,7 @@ namespace Baseliner {
     std::string m_date_time;
     std::string m_baseliner_version;
     std::vector<Metric> m_v_metrics;
+    bool m_valid;
     explicit Result() = default;
     static auto current_time_string() -> std::string;
     static auto generate_uid() -> std::string;
