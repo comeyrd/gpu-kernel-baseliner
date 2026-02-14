@@ -1,107 +1,106 @@
 #ifndef BACKEND_HPP
 #define BACKEND_HPP
+#include <baseliner/Durations.hpp>
 #include <baseliner/Timer.hpp>
 #include <iostream>
 #include <memory>
-namespace Baseliner::Backend {
+namespace Baseliner::Device {
   template <typename S>
-  class IDevice {
+  class Backend {
   public:
     using stream_t = S;
-    virtual auto create_stream() -> std::shared_ptr<stream_t> = 0;
-    virtual void synchronize(std::shared_ptr<stream_t> stream) = 0;
-    virtual void get_last_error() = 0;
-    virtual void set_device(int device) = 0;
-    virtual void reset_device() = 0;
-    virtual ~IDevice() = default;
+    auto create_stream() -> std::shared_ptr<stream_t>;
+    void synchronize(std::shared_ptr<stream_t> stream);
+    void get_last_error();
+    void set_device(int device);
+    void reset_device();
+    ~Backend() = default;
+  };
+  template <typename Backend>
+  class L2Flusher {
+  public:
+    void flush(std::shared_ptr<typename Backend::stream_t> stream);
+    ~L2Flusher();
+    L2Flusher();
+    L2Flusher(L2Flusher &&other) noexcept
+        : m_buffer_size(other.m_buffer_size),
+          m_l2_buffer(other.m_l2_buffer) {
+      other.m_l2_buffer = nullptr;
+    }
 
-    class IL2Flusher {
-    public:
-      virtual void flush(std::shared_ptr<stream_t> stream) = 0;
-      virtual ~IL2Flusher() = default;
-      IL2Flusher() = default;
-      IL2Flusher(IL2Flusher &&other) noexcept
-          : m_buffer_size(other.m_buffer_size),
-            m_l2_buffer(other.m_l2_buffer) {
+    auto operator=(L2Flusher &&other) noexcept -> L2Flusher & {
+      if (this != &other) {
+        m_buffer_size = other.m_buffer_size;
+        m_l2_buffer = other.m_l2_buffer;
+
         other.m_l2_buffer = nullptr;
       }
+      return *this;
+    }
 
-      auto operator=(IL2Flusher &&other) noexcept -> IL2Flusher & {
-        if (this != &other) {
-          m_buffer_size = other.m_buffer_size;
-          m_l2_buffer = other.m_l2_buffer;
-
-          other.m_l2_buffer = nullptr;
-        }
-        return *this;
-      }
-
-    protected:
-      int m_buffer_size{}; // NOLINT
-      int *m_l2_buffer{};  // NOLINT
-    };
-    class IBlockingKernel {
-    public:
-      virtual void block(std::shared_ptr<stream_t> stream, double timeout) = 0;
-      void unblock() {
-        if (m_host_flag == nullptr || m_host_timeout_flag == nullptr) {
-          return;
-        }
-        *static_cast<volatile int *>(m_host_flag) = 1;
-
-        if (*static_cast<volatile int *>(m_host_timeout_flag) != 0) {
-          IBlockingKernel::timeout_detected();
-        }
-      }
-      virtual ~IBlockingKernel() {
-        delete m_host_flag;
-        delete m_host_timeout_flag;
-      };
-      IBlockingKernel() {
-        m_host_flag = new int;         // NOLINT
-        m_host_timeout_flag = new int; // NOLINT
-      };
-      IBlockingKernel(IBlockingKernel &&other) noexcept
-          : m_host_flag(other.m_host_flag),
-            m_host_timeout_flag(other.m_host_timeout_flag),
-            m_device_flag(other.m_device_flag),
-            m_device_timeout_flag(other.m_device_timeout_flag) {
-        other.m_device_flag = nullptr;
-        other.m_device_timeout_flag = nullptr;
-        other.m_host_flag = nullptr;
-        other.m_host_timeout_flag = nullptr;
-      }
-
-      auto operator=(IBlockingKernel &&other) noexcept -> IBlockingKernel & {
-        if (this != &other) {
-          delete m_host_flag;
-          delete m_host_timeout_flag;
-          m_host_flag = other.m_host_flag;
-          m_host_timeout_flag = other.m_host_timeout_flag;
-          m_device_flag = other.m_device_flag;
-          m_device_timeout_flag = other.m_device_timeout_flag;
-          other.m_device_flag = nullptr;
-          other.m_device_timeout_flag = nullptr;
-          other.m_host_flag = nullptr;
-          other.m_host_timeout_flag = nullptr;
-        }
-        return *this;
-      }
-      IBlockingKernel(const IBlockingKernel &) = delete;
-      auto operator=(const IBlockingKernel &) -> IBlockingKernel & = delete;
-
-    protected:
-      int *m_host_flag;             // NOLINT
-      int *m_host_timeout_flag;     // NOLINT
-      int *m_device_flag{};         // NOLINT
-      int *m_device_timeout_flag{}; // NOLINT
-
-      static void timeout_detected() {
-        std::cout << "Deadlock detected" << "\n";
-      };
-    };
-    class ITimer : public IGpuTimer<stream_t> {};
+  protected:
+    int m_buffer_size{}; // NOLINT
+    int *m_l2_buffer{};  // NOLINT
   };
-} // namespace Baseliner::Backend
+  template <typename IBackend>
+  class BlockingKernel {
+  public:
+    void block(std::shared_ptr<typename IBackend::stream_t> stream, double timeout);
+    void unblock() {
+      if (m_host_flag == nullptr || m_host_timeout_flag == nullptr) {
+        return;
+      }
+      *static_cast<volatile int *>(m_host_flag) = 1;
+
+      if (*static_cast<volatile int *>(m_host_timeout_flag) != 0) {
+        BlockingKernel::timeout_detected();
+      }
+    }
+
+    BlockingKernel(BlockingKernel &&other) noexcept
+        : m_host_flag(other.m_host_flag),
+          m_host_timeout_flag(other.m_host_timeout_flag),
+          m_device_flag(other.m_device_flag),
+          m_device_timeout_flag(other.m_device_timeout_flag) {
+      other.m_device_flag = nullptr;
+      other.m_device_timeout_flag = nullptr;
+      other.m_host_flag = nullptr;
+      other.m_host_timeout_flag = nullptr;
+    }
+    ~BlockingKernel();
+    BlockingKernel();
+    auto operator=(BlockingKernel &&other) noexcept -> BlockingKernel &;
+
+    BlockingKernel(const BlockingKernel &) = delete;
+    auto operator=(const BlockingKernel &) -> BlockingKernel & = delete;
+
+  protected:
+    int *m_host_flag;             // NOLINT
+    int *m_host_timeout_flag;     // NOLINT
+    int *m_device_flag{};         // NOLINT
+    int *m_device_timeout_flag{}; // NOLINT
+
+    static void timeout_detected() {
+      std::cout << "Deadlock detected" << "\n";
+    };
+  };
+
+  template <typename Device>
+  class GpuTimer {
+  public:
+    ~GpuTimer();
+    GpuTimer();
+    GpuTimer(const GpuTimer &) = delete;
+    auto operator=(const GpuTimer &) -> GpuTimer & = delete;
+    GpuTimer(GpuTimer &&) = delete;
+    auto operator=(GpuTimer &&) -> GpuTimer & = delete;
+    auto time_elapsed() -> float_milliseconds;
+
+    void measure_start(std::shared_ptr<typename Device::stream_t> stream);
+    void measure_stop(std::shared_ptr<typename Device::stream_t> stream);
+
+  protected:
+  };
+} // namespace Baseliner::Device
 
 #endif // BACKEND_HPP

@@ -14,22 +14,26 @@ void check_cuda_error_no_except(cudaError_t error_code, const char *file, int li
   }
 }
 namespace Baseliner {
-  namespace Backend {
+  namespace Device {
+    template <>
     void CudaBackend::set_device(int device) {
       CHECK_CUDA(cudaSetDevice(device));
     }
+    template <>
     void CudaBackend::reset_device() {
       CHECK_CUDA(cudaDeviceReset());
     }
-
+    template <>
     void CudaBackend::synchronize(std::shared_ptr<cudaStream_t> stream) {
       CHECK_CUDA(cudaStreamSynchronize(*stream));
     }
+    template <>
     void CudaBackend::get_last_error() {
       CHECK_CUDA(cudaGetLastError());
     }
-    std::shared_ptr<cudaStream_t> CudaBackend::create_stream() {
-      cudaStream_t *stream = new cudaStream_t;
+    template <>
+    std::shared_ptr<CudaBackend::stream_t> CudaBackend::create_stream() {
+      auto *stream = new CudaBackend::stream_t;
       CHECK_CUDA(cudaStreamCreate(stream));
 
       return std::shared_ptr<cudaStream_t>(stream, [](cudaStream_t *s) {
@@ -39,6 +43,6 @@ namespace Baseliner {
         }
       });
     }
-  } // namespace Backend
+  } // namespace Device
 
 } // namespace Baseliner

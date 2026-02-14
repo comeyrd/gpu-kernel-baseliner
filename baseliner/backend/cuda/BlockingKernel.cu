@@ -40,14 +40,18 @@ namespace {
   }
 } // namespace
 
-namespace Baseliner::Backend {
-  CudaBackend::BlockingKernel::BlockingKernel() {
+namespace Baseliner::Device {
+  template <>
+  BlockingKernel<CudaBackend>::BlockingKernel() {
+    m_host_flag = new int;         // NOLINT
+    m_host_timeout_flag = new int; // NOLINT
     CHECK_CUDA(cudaHostRegister(m_host_flag, sizeof(int), cudaHostRegisterMapped));
     CHECK_CUDA(cudaHostGetDevicePointer(&m_device_flag, m_host_flag, 0));
     CHECK_CUDA(cudaHostRegister(m_host_timeout_flag, sizeof(int), cudaHostRegisterMapped));
     CHECK_CUDA(cudaHostGetDevicePointer(&m_device_timeout_flag, m_host_timeout_flag, 0));
   }
-  CudaBackend::BlockingKernel::~BlockingKernel() {
+  template <>
+  BlockingKernel<CudaBackend>::~BlockingKernel() {
     CHECK_CUDA(cudaGetLastError());
     if (m_host_flag != nullptr) {
       CHECK_CUDA(cudaHostUnregister(m_host_flag));
@@ -55,25 +59,39 @@ namespace Baseliner::Backend {
     if (m_host_timeout_flag != nullptr) {
       CHECK_CUDA(cudaHostUnregister(m_host_timeout_flag));
     }
+    delete m_host_flag;
+    delete m_host_timeout_flag;
   }
-  void CudaBackend::BlockingKernel::block(std::shared_ptr<cudaStream_t> stream, double timeout) {
+  template <>
+  void BlockingKernel<CudaBackend>::block(std::shared_ptr<cudaStream_t> stream, double timeout) {
     *m_host_flag = 0;
     *m_host_timeout_flag = 0;
     block_stream<<<1, 1, 0, *stream>>>(m_device_flag, m_device_timeout_flag, timeout);
   }
-  CudaBackend::BlockingKernel::BlockingKernel(BlockingKernel &&other) noexcept
-      : IBlockingKernel(std::move(other)) {
-  }
-  auto CudaBackend::BlockingKernel::operator=(BlockingKernel &&other) noexcept -> CudaBackend::BlockingKernel & {
-    if (this != &other) {
-      if (m_host_flag != nullptr) {
-        CHECK_CUDA(cudaHostUnregister(m_host_flag));
+
+  template <>
+  auto BlockingKernel<CudaBackend>::operator=(BlockingKernel<CudaBackend> &&other) noexcept
+      -> BlockingKernel<CudaBackend> & {
+    {
+      if (this != &other) {
+        if (m_host_flag != nullptr) {
+          CHECK_CUDA(cudaHostUnregister(m_host_flag));
+        }
+        if (m_host_timeout_flag != nullptr) {
+          CHECK_CUDA(cudaHostUnregister(m_host_timeout_flag));
+        }
+        delete m_host_flag;
+        delete m_host_timeout_flag;
+        m_host_flag = other.m_host_flag;
+        m_host_timeout_flag = other.m_host_timeout_flag;
+        m_device_flag = other.m_device_flag;
+        m_device_timeout_flag = other.m_device_timeout_flag;
+        other.m_device_flag = nullptr;
+        other.m_device_timeout_flag = nullptr;
+        other.m_host_flag = nullptr;
+        other.m_host_timeout_flag = nullptr;
       }
-      if (m_host_timeout_flag != nullptr) {
-        CHECK_CUDA(cudaHostUnregister(m_host_timeout_flag));
-      }
-      IBlockingKernel::operator=(std::move(other));
+      return *this;
     }
-    return *this;
   }
-} // namespace Baseliner::Backend
+} // namespace Baseliner::Device
