@@ -21,6 +21,9 @@ CheckOptions:
   - key: readability-identifier-naming.AbstractClassPrefix
     value: I
 
+  - key: readability-identifier-naming.FunctionCase
+    value: lower_case
+
 HeaderFilterRegex: ".*/baseliner/.*"
 FormatStyle: file
 ...
