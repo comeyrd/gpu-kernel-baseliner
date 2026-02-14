@@ -112,25 +112,6 @@ __global__ void MatrixMulCUDA(float *C, float *A, float *B, int wA, int wB) {
 // Interface Implementation
 // ----------------------------------------------------------------------
 
-void MatrixMulKernel::cpu(MatrixMulOutput &output) {
-  int wAx = get_input()->m_wA;
-  int hAx = get_input()->m_hA;
-  int wBx = get_input()->m_wB;
-
-  // Naive CPU implementation for verification
-  for (int i = 0; i < hAx; ++i) {
-    for (int j = 0; j < wBx; ++j) {
-      double sum = 0;
-      for (int k = 0; k < wAx; ++k) {
-        double asd = get_input()->m_h_A[(i * wAx) + k];
-        double bsd = get_input()->m_h_B[(k * wBx) + j];
-        sum += asd * bsd;
-      }
-      output.m_h_C[(i * wBx) + j] = (float)sum;
-    }
-  }
-}
-
 void MatrixMulKernel::run(std::shared_ptr<cudaStream_t> stream) {
   // Dispatch based on block size template parameter
   if (get_input()->m_block_size == 16) { // NOLINT

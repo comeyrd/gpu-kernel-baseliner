@@ -1,8 +1,8 @@
 #include "ComputationKernel.hpp"
+#include <baseliner/Benchmark.hpp>
 #include <baseliner/Durations.hpp>
 #include <baseliner/Options.hpp>
 #include <baseliner/Result.hpp>
-#include <baseliner/Runner.hpp>
 #include <baseliner/StoppingCriterion.hpp>
 #include <iostream>
 #include <string>
@@ -100,11 +100,11 @@ private:
 
 class Benchmark {
 public:
-  void run(Baseliner::IRunner &runner, IExploration &exploration) {
+  void run(Baseliner::IBenchmark &benchmark, IExploration &exploration) {
     while (!exploration.done()) {
       Baseliner::OptionsMap options = exploration.next();
-      runner.propagate_options(options);
-      Baseliner::Result results = runner.run();
+      benchmark.propagate_options(options);
+      Baseliner::Result results = benchmark.run();
       exploration.applyResults(results);
     }
   };
@@ -112,20 +112,22 @@ public:
 
 int main(int argc, char **argv) {
   std::cout << "simple_benchmark" << std::endl;
-  auto runner_act = Baseliner::Runner<ComputationKernel, Baseliner::Backend::CudaBackend>()
-                        .set_stopping_criterion<Baseliner::StoppingCriterion>(25, 1);
+  static auto benchmark1 =
+      Baseliner::CudaBenchmark().set_kernel<ComputationKernel>().set_stopping_criterion<Baseliner::StoppingCriterion>(
+          25, 1);
+  ;
   Baseliner::OptionsMap omap;
   std::vector<Axe> axes = {{"Kernel", "work_size", {"1", "10", "100", "1000"}}, {"Runner", "block", {"0", "1"}}};
   AxeExploration axe_exp = AxeExploration(axes, omap);
   Benchmark bench;
-  bench.run(runner_act, axe_exp);
+  bench.run(benchmark1, axe_exp);
   for (int i = 0; i < axe_exp.m_options_maps.size(); i++) {
     std::cout << axe_exp.m_options_maps[i] << std::endl;
     std::cout << "Score : " << axe_exp.m_scores[i] << std::endl;
     std::cout << "-------------" << std::endl;
   }
   /*
-  std::vector<float_milliseconds> res = runner_act.run();
+  std::vector<float_milliseconds> res = benchmark_act.run();
   std::cout << res << std::endl;
   */
 }

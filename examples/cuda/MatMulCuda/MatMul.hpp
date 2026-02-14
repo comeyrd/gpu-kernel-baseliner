@@ -137,12 +137,11 @@ public:
 
 class MatrixMulKernel : public Baseliner::ICudaKernel<MatrixMulInput, MatrixMulOutput> {
 public:
-  std::string name() override {
+  auto name() -> std::string override {
     return "MatrixMulKernel";
   };
-  void cpu(MatrixMulOutput &output) override;
 
-  void setup() override {
+  void setup(std::shared_ptr<cudaStream_t> stream) override {
     size_t mem_size_A = get_input()->m_size_A * sizeof(float);
     size_t mem_size_B = get_input()->m_size_B * sizeof(float);
     size_t mem_size_C = get_input()->m_hA * get_input()->m_wB * sizeof(float);
@@ -151,8 +150,8 @@ public:
     CHECK_CUDA(cudaMalloc(&m_d_B, mem_size_B));
     CHECK_CUDA(cudaMalloc(&m_d_C, mem_size_C));
 
-    CHECK_CUDA(cudaMemcpy(m_d_A, get_input()->m_h_A.data(), mem_size_A, cudaMemcpyHostToDevice));
-    CHECK_CUDA(cudaMemcpy(m_d_B, get_input()->m_h_B.data(), mem_size_B, cudaMemcpyHostToDevice));
+    CHECK_CUDA(cudaMemcpyAsync(m_d_A, get_input()->m_h_A.data(), mem_size_A, cudaMemcpyHostToDevice, *stream));
+    CHECK_CUDA(cudaMemcpyAsync(m_d_B, get_input()->m_h_B.data(), mem_size_B, cudaMemcpyHostToDevice, *stream));
 
     // Setup execution parameters
     int block_size = get_input()->m_block_size;
@@ -161,19 +160,19 @@ public:
         dim3((get_input()->m_wB + m_threads.x - 1) / m_threads.x, (get_input()->m_hA + m_threads.y - 1) / m_threads.y);
   };
 
-  void reset() override {
+  void reset_kernel(std::shared_ptr<cudaStream_t> stream) override {
     // Optional: Zero out C if accumulation logic was involved,
     // but this kernel writes directly (C = ...), so reset isn't strictly necessary
     // unless we want to clear previous results.
     size_t mem_size_C = get_input()->m_hA * get_input()->m_wB * sizeof(float);
-    CHECK_CUDA(cudaMemset(m_d_C, 0, mem_size_C));
+    CHECK_CUDA(cudaMemsetAsync(m_d_C, 0, mem_size_C, *stream));
   };
 
   void run(std::shared_ptr<cudaStream_t> stream) override;
 
-  void teardown(Output &output) override {
+  void teardown(std::shared_ptr<cudaStream_t> stream, Output &output) override {
     size_t mem_size_C = get_input()->m_hA * get_input()->m_wB * sizeof(float);
-    CHECK_CUDA(cudaMemcpy(output.m_h_C.data(), m_d_C, mem_size_C, cudaMemcpyDeviceToHost));
+    CHECK_CUDA(cudaMemcpyAsync(output.m_h_C.data(), m_d_C, mem_size_C, cudaMemcpyDeviceToHost, *stream));
 
     CHECK_CUDA(cudaFree(m_d_A));
     CHECK_CUDA(cudaFree(m_d_B));
