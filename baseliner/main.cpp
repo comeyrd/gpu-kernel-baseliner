@@ -1,7 +1,7 @@
 
-#include <baseliner/Executable.hpp>
 #include <baseliner/Result.hpp>
 #include <baseliner/Serializer.hpp>
+#include <baseliner/Task.hpp>
 #include <chrono>
 #include <iomanip>
 #include <iostream>
@@ -28,8 +28,8 @@ static auto generate_uid() -> std::string { // NOLINT
 __attribute__((weak)) auto main(int argc, char **argv) -> int { // NOLINT
   // std::cout << argc << argv[0] << std::endl;
   std::cout << "Baseliner" << "\n";
-  auto *manager = ExecutableManager::instance();
-  const auto &list = manager->getExecutables();
+  auto *manager = TaskManager::instance();
+  const auto &list = manager->get_tasks();
 
   std::cout << "[Baseliner] Total Registered Executables: " << list.size() << "\n";
 

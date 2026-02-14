@@ -20,6 +20,33 @@ namespace Baseliner::Stats {
       return "ms";
     }
   };
+  class SetupTime : public Imetric<SetupTime, float_milliseconds> {
+  public:
+    [[nodiscard]] auto name() const -> std::string override {
+      return "setup_time";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "ms";
+    }
+  };
+  class TeardownTime : public Imetric<TeardownTime, float_milliseconds> {
+  public:
+    [[nodiscard]] auto name() const -> std::string override {
+      return "teardown_time";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "ms";
+    }
+  };
+  class WarmupTime : public Imetric<WarmupTime, float_milliseconds> {
+  public:
+    [[nodiscard]] auto name() const -> std::string override {
+      return "warmup_time";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "ms";
+    }
+  };
   class Repetitions : public IStat<Repetitions, size_t> {
   public:
     [[nodiscard]] auto name() const -> std::string override {
@@ -81,7 +108,7 @@ namespace Baseliner::Stats {
       return "Q3";
     }
     void calculate(Median::type &value_to_update, const typename SortedExecutionTimeVector::type &inputs) override {
-      const auto three_quarter = static_cast<size_t>(std::floor(inputs.size() / 4));
+      const auto three_quarter = static_cast<size_t>(std::floor(3 * inputs.size() / 4));
       value_to_update = inputs[three_quarter].count();
     };
   };
@@ -162,6 +189,78 @@ namespace Baseliner::Stats {
       std::sort(deviations.begin(), deviations.end());
       const auto middle = static_cast<size_t>(std::floor(sorted_vec.size() / 2));
       value_to_update = deviations[middle];
+    }
+  };
+  class SnEstimator : public IStat<SnEstimator, float, SortedExecutionTimeVector> {
+  public:
+    [[nodiscard]] auto name() const -> std::string override {
+      return "sn_scale";
+    }
+
+    void calculate(float &value_to_update, const typename SortedExecutionTimeVector::type &inputs) override {
+      const size_t n = inputs.size();
+      if (n < 2) {
+        value_to_update = 0.0f;
+        return;
+      }
+
+      std::vector<float> outer_medians;
+      outer_medians.reserve(n);
+
+      for (size_t i = 0; i < n; ++i) {
+        std::vector<float> distances;
+        distances.reserve(n - 1);
+        for (size_t j = 0; j < n; ++j) {
+          if (i == j)
+            continue;
+          distances.push_back(std::abs(inputs[i].count() - inputs[j].count()));
+        }
+        // Sorting to find the median of distances for this specific i
+        std::sort(distances.begin(), distances.end());
+        outer_medians.push_back(distances[distances.size() / 2]);
+      }
+
+      std::sort(outer_medians.begin(), outer_medians.end());
+
+      // Sn = c * med_i(med_j |xi - xj|)
+      // c is 1.1926 for consistency with normal distribution
+      value_to_update = 1.1926f * outer_medians[n / 2];
+    }
+  };
+
+  class QnEstimator : public IStat<QnEstimator, float, SortedExecutionTimeVector> {
+  public:
+    [[nodiscard]] auto name() const -> std::string override {
+      return "qn_scale";
+    }
+
+    void calculate(float &value_to_update, const typename SortedExecutionTimeVector::type &inputs) override {
+      const size_t n = inputs.size();
+      if (n < 2) {
+        value_to_update = 0.0f;
+        return;
+      }
+
+      // Calculate all pairwise differences |xi - xj| for i < j
+      std::vector<float> diffs;
+      diffs.reserve(n * (n - 1) / 2);
+
+      for (size_t i = 0; i < n; ++i) {
+        for (size_t j = i + 1; j < n; ++j) {
+          diffs.push_back(std::abs(inputs[i].count() - inputs[j].count()));
+        }
+      }
+
+      // The k-th order statistic. For Qn, k is roughly (n choose 2) / 4
+      // Formula: h = floor(n/2) + 1; k = h*(h-1)/2
+      const size_t h = (n / 2) + 1;
+      const size_t k = (h * (h - 1)) / 2;
+
+      std::nth_element(diffs.begin(), diffs.begin() + k - 1, diffs.end());
+
+      // Qn = d * {|xi - xj|; i < j}_(k)
+      // d is 2.2191 for consistency
+      value_to_update = 2.2191f * diffs[k - 1];
     }
   };
 

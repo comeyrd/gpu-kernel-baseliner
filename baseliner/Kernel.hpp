@@ -2,6 +2,7 @@
 #define KERNEL_HPP
 #include <baseliner/Options.hpp>
 #include <baseliner/Timer.hpp>
+#include <baseliner/backend/Backend.hpp>
 #include <memory>
 namespace Baseliner {
 
@@ -59,26 +60,21 @@ namespace Baseliner {
     std::shared_ptr<const Input> m_input;
   };
 
-  template <typename stream_t, typename I, typename O>
-  class IKernel : public IGpuTimer<stream_t> {
+  template <typename B, typename I, typename O>
+  class IKernel {
   public:
     using Input = I;
     using Output = O;
-    virtual void cpu(Output &output) = 0;
-    virtual void setup() = 0;
-    virtual void reset() = 0;
-    virtual void run(std::shared_ptr<stream_t> stream) = 0;
-    virtual void teardown(Output &output) = 0;
+    using Backend = B;
+    virtual void setup(std::shared_ptr<typename Backend::stream_t> stream) = 0;
+    virtual void reset_kernel(std::shared_ptr<typename Backend::stream_t> stream) = 0;
+    virtual void run(std::shared_ptr<typename Backend::stream_t> stream) = 0;
+    virtual void teardown(std::shared_ptr<typename Backend::stream_t> stream, Output &output) = 0;
     virtual auto name() -> std::string = 0;
 
-    void timed_run(std::shared_ptr<stream_t> stream) {
-      this->measure_start(stream);
-      run(stream);
-      this->measure_stop(stream);
-    };
     IKernel(const std::shared_ptr<const Input> input)
         : m_input(input) {};
-    ~IKernel() override = default;
+    virtual ~IKernel() = default;
 
     auto get_input() -> std::shared_ptr<const Input> {
       return m_input;
