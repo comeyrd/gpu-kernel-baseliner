@@ -119,6 +119,9 @@ namespace Baseliner::Stats {
           for (IStatBase *stat : m_metric_to_stats.at(metric_ptr.get())) {
             metric.m_v_stats.push_back({stat->name(), stat->get_value(m_registry)});
           }
+        } else {
+          // If a metric doesn't have stats, put the raw value
+          metric.m_data = metric_ptr->get_value(m_registry);
         }
         metrics_vector.push_back(metric);
       }
@@ -141,7 +144,7 @@ namespace Baseliner::Stats {
       }
     };
 
-    void reset() {
+    void reset_engine() {
       ensure_build();
       m_registry = StatsRegistry();
       set_default();
