@@ -1,12 +1,19 @@
 #ifndef BASELINER_EXECUTABLE_HPP
 #define BASELINER_EXECUTABLE_HPP
 #include <baseliner/Result.hpp>
+#include <iomanip>
 #include <memory>
+#include <sstream>
 #include <vector>
 namespace Baseliner {
+  using str_conf = std::pair<std::string, bool>;
   class ITask {
   public:
+    virtual auto name() -> std::string = 0;
     virtual auto run_all() -> std::vector<Result> = 0;
+    virtual auto print_console(const std::vector<Result> &results) -> std::string {
+      return "";
+    };
     virtual ~ITask() = default;
   };
   class ISingleTask : public ITask {

@@ -177,7 +177,7 @@ namespace Baseliner::Stats {
 
   public:
     [[nodiscard]] auto name() const -> std::string override {
-      return "median_absolute_dev";
+      return "MAD";
     }
     void calculate(float &value_to_update, const typename SortedExecutionTimeVector::type &sorted_vec,
                    const typename Median::type &median) override {
