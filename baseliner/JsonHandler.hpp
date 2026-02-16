@@ -3,7 +3,7 @@
 #include <baseliner/Metric.hpp>
 #include <baseliner/Options.hpp>
 #include <baseliner/Result.hpp>
-#include <baseliner/StatsType.hpp>
+#include <baseliner/stats/StatsType.hpp>
 #include <iomanip>
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;

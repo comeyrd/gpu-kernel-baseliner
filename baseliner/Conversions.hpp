@@ -1,7 +1,7 @@
 #ifndef BASELINER_CONVERSION_HPP
 #define BASELINER_CONVERSION_HPP
 #include <baseliner/Durations.hpp>
-#include <baseliner/StatsType.hpp>
+#include <baseliner/stats/StatsType.hpp>
 #include <sstream>
 #include <string>
 #include <type_traits>
@@ -150,7 +150,7 @@ namespace Baseliner::Conversion {
 
   template <typename T>
   inline auto baseliner_to_string(const ConfidenceInterval<T> &val) -> std::string {
-    return baseliner_to_string(val.high) + " ," + baseliner_to_string(val.low);
+    return baseliner_to_string(val.low) + " ," + baseliner_to_string(val.high);
   }
 
   template <typename... Types>

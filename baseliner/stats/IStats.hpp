@@ -9,6 +9,10 @@
 #include <vector>
 
 namespace Baseliner::Stats {
+  enum StatComputePolicy : u_int8_t {
+    EVERY_TICK,
+    ON_DEMAND
+  };
 
   class IStatBase : public LazyOption {
   public:
@@ -20,6 +24,9 @@ namespace Baseliner::Stats {
 
     // What types do i provide
     [[nodiscard]] virtual auto output() const -> std::type_index = 0;
+
+    // When do i need to refresh
+    [[nodiscard]] virtual auto compute_policy() -> StatComputePolicy = 0;
 
     virtual void compute(StatsRegistry &reg) = 0;
     [[nodiscard]] virtual auto get_value(const StatsRegistry &reg) const -> MetricData = 0;

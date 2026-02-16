@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <array>
 #include <baseliner/Durations.hpp>
-#include <baseliner/Stats.hpp>
+#include <baseliner/stats/Stats.hpp>
 #include <cmath>
 #include <cstddef>
 #include <stdexcept>
