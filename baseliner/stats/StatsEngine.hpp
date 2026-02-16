@@ -210,12 +210,7 @@ namespace Baseliner::Stats {
           ensure_on_demand_up_to_date(iter->first, iter->second);
         }
       }
-      std::cout << "updating :" << typeix.name() << std::endl;
-      auto start = std::chrono::high_resolution_clock::now();
       stat_ptr->compute(m_registry);
-      auto end = std::chrono::high_resolution_clock::now();
-      std::cout << "compute done :" << typeix.name() << std::chrono::duration<double>(end - start).count() << "s"
-                << std::endl;
       m_on_demand_up_to_date_stats.insert(typeix);
     }
     StatsRegistry m_registry;
