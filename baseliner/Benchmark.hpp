@@ -18,13 +18,13 @@
 
 #define BASELINER_BENCHMARK_SETTER(name, type)                                                                         \
   auto set_##name(type value) &->Benchmark & {                                                                         \
-    this->set_##name(value); /* or call an internal logic function */                                                  \
+    this->set_m_##name(value); /* or call an internal logic function */                                                \
     return *this;                                                                                                      \
   }                                                                                                                    \
                                                                                                                        \
   /* The R-value version: calls the one above and moves *this */                                                       \
   auto set_##name(type value) &&->Benchmark {                                                                          \
-    this->set_##name(value); /* Calls the & version */                                                                 \
+    this->set_m_##name(value); /* Calls the & version */                                                               \
     return std::move(*this);                                                                                           \
   }
 
@@ -44,37 +44,37 @@ namespace Baseliner {
 
     ~IBenchmark() override = default;
 
-    void set_warmup(bool warmup) {
+    void set_m_warmup(bool warmup) {
       m_warmup = warmup;
     };
     auto get_warmup() const -> bool {
       return m_warmup;
     };
-    void set_flush_l2(bool flush_l2) {
+    void set_m_flush_l2(bool flush_l2) {
       m_flush_l2 = flush_l2;
     };
     auto get_flush_l2() const -> bool {
       return m_flush_l2;
     };
-    void set_block(bool block) {
+    void set_m_block(bool block) {
       m_block = block;
     };
     auto get_block() const -> bool {
       return m_block;
     };
-    void set_block_duration(float block_duration) {
+    void set_m_block_duration(float block_duration) {
       m_block_duration_ms = block_duration;
     };
     auto get_block_duration() const -> float {
       return m_block_duration_ms;
     };
-    void set_timed_setup(bool timed_setup) {
+    void set_m_timed_setup(bool timed_setup) {
       m_time_setup = timed_setup;
     };
     auto get_timed_setup() const -> bool {
       return m_time_setup;
     };
-    void set_timed_teardown(bool timed_teardown) {
+    void set_m_timed_teardown(bool timed_teardown) {
       m_time_teardown = timed_teardown;
     };
     auto get_timed_teardown() const -> bool {
@@ -83,7 +83,7 @@ namespace Baseliner {
     auto get_first() const -> bool {
       return m_first;
     }
-    void set_first(bool first) {
+    void set_m_first(bool first) {
       m_first = first;
     }
 
