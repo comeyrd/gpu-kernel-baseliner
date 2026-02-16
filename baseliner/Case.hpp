@@ -15,6 +15,8 @@ namespace Baseliner {
     virtual ~ICase() = default;
     virtual auto name() -> std::string = 0;
     virtual void setup(std::shared_ptr<typename Backend::stream_t> stream) = 0;
+    virtual void setup_metrics(std::shared_ptr<Stats::StatsEngine> &engine) {};
+    virtual void update_metrics(std::shared_ptr<Stats::StatsEngine> &engine) {};
     virtual void reset_case(std::shared_ptr<typename Backend::stream_t> stream) = 0;
     virtual void run_case(std::shared_ptr<typename Backend::stream_t> stream) = 0;
     virtual void teardown(std::shared_ptr<typename Backend::stream_t> stream) = 0;
