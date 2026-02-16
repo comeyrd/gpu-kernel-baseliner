@@ -15,6 +15,19 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
+
+#define BASELINER_BENCHMARK_SETTER(name, type)                                                                         \
+  auto set_##name(type value) &->Benchmark & {                                                                         \
+    this->set_##name(value); /* or call an internal logic function */                                                  \
+    return *this;                                                                                                      \
+  }                                                                                                                    \
+                                                                                                                       \
+  /* The R-value version: calls the one above and moves *this */                                                       \
+  auto set_##name(type value) &&->Benchmark {                                                                          \
+    this->set_##name(value); /* Calls the & version */                                                                 \
+    return std::move(*this);                                                                                           \
+  }
+
 namespace Baseliner {
   constexpr float DEFAULT_BLOCK_DURATION = 1000.0F;
   class IBenchmark : public IOption, public ISingleTask {
@@ -115,6 +128,14 @@ namespace Baseliner {
     // Ensure copies are still deleted (good for safety)
     Benchmark(const Benchmark &) = delete;
     auto operator=(const Benchmark &) -> Benchmark & = delete;
+
+    BASELINER_BENCHMARK_SETTER(warmup, bool);
+    BASELINER_BENCHMARK_SETTER(block, bool);
+    BASELINER_BENCHMARK_SETTER(block_duration, float);
+    BASELINER_BENCHMARK_SETTER(flush_l2, float);
+    BASELINER_BENCHMARK_SETTER(timed_setup, float);
+    BASELINER_BENCHMARK_SETTER(timed_teardown, float);
+    BASELINER_BENCHMARK_SETTER(first, bool);
 
     template <typename TStopping, typename... Args>
     auto set_stopping_criterion(Args &&...args) & -> Benchmark & {
