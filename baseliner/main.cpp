@@ -40,6 +40,7 @@ __attribute__((weak)) auto main(int argc, char **argv) -> int { // NOLINT
   std::vector<Result> results_vector;
   for (const auto &exe : list) {
     std::vector<Result> local_results = exe->run_all();
+    std::cout << exe->print_console(local_results);
     // reserve space to avoid multiple reallocations
     results_vector.reserve(results_vector.size() + local_results.size());
 

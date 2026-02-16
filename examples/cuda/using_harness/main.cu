@@ -16,9 +16,9 @@ namespace {
                         .add_stat<Baseliner::Stats::Q3>()
                         .add_stat<Baseliner::Stats::Median>()
                         .add_stat<Baseliner::Stats::WithoutOutliers>()
-                        .add_stat<Baseliner::Stats::SnEstimator>()
-                        .add_stat<Baseliner::Stats::MedianAbsoluteDeviation>()
-                        .add_stat<Baseliner::Stats::QnEstimator>();
+                        .add_stat<Baseliner::Stats::MedianAbsoluteDeviation>();
+  //.add_stat<Baseliner::Stats::SnEstimator>()
+  //.add_stat<Baseliner::Stats::QnEstimator>();
 
   BASELINER_REGISTER_TASK(&benchmark1);
 

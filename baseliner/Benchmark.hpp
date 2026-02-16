@@ -15,7 +15,7 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
-
+const static std::string DEFAULT_BENCHMARK_NAME = "Benchmark";
 #define BASELINER_BENCHMARK_SETTER(name, type)                                                                         \
   auto set_##name(type value) &->Benchmark & {                                                                         \
     this->set_m_##name(value); /* or call an internal logic function */                                                \
@@ -86,6 +86,12 @@ namespace Baseliner {
     void set_m_first(bool first) {
       m_first = first;
     }
+    auto get_m_name() const -> std::string {
+      return m_name;
+    }
+    void set_m_name(std::string name) {
+      m_name = name;
+    }
 
   protected:
     void register_options() override {
@@ -105,6 +111,7 @@ namespace Baseliner {
     bool m_time_setup = false;
     bool m_time_teardown = false;
     bool m_first = true;
+    std::string m_name = DEFAULT_BENCHMARK_NAME;
   };
 
   template <typename Backend>
@@ -130,6 +137,7 @@ namespace Baseliner {
     auto operator=(const Benchmark &) -> Benchmark & = delete;
 
     BASELINER_BENCHMARK_SETTER(warmup, bool);
+    BASELINER_BENCHMARK_SETTER(name, std::string);
     BASELINER_BENCHMARK_SETTER(block, bool);
     BASELINER_BENCHMARK_SETTER(block_duration, float);
     BASELINER_BENCHMARK_SETTER(flush_l2, float);
@@ -137,6 +145,12 @@ namespace Baseliner {
     BASELINER_BENCHMARK_SETTER(timed_teardown, float);
     BASELINER_BENCHMARK_SETTER(first, bool);
 
+    std::string name() override {
+      if (m_case) {
+        return m_case->name() + get_m_name();
+      }
+      return get_m_name();
+    }
     template <typename TStopping, typename... Args>
     auto set_stopping_criterion(Args &&...args) & -> Benchmark & {
       static_assert(std::is_base_of_v<StoppingCriterion, TStopping>,
@@ -234,7 +248,6 @@ namespace Baseliner {
     std::shared_ptr<typename Backend::stream_t> m_stream;
 
     std::shared_ptr<ICase<Backend>> m_case;
-
     virtual void setup_metrics() {
       if (get_first()) {
         if (get_warmup()) {
