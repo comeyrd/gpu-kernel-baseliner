@@ -67,8 +67,9 @@ namespace Baseliner::Stats {
     current_status = NodeStatus::Resolved;
   }
 
+  // TODO Clean up, add check so no everytick stats depends on on demand stats
   void StatsEngine::build_execution_plan() {
-    m_execution_plan.clear();
+    m_every_tick_execution_plan.clear();
     m_metric_to_stats.clear();
     m_unlinked_stats.clear();
 
@@ -103,7 +104,7 @@ namespace Baseliner::Stats {
     }
     // we got the flattened producer_to_depedency map
 
-    // now we create the reverse map
+    // now we create the reverse map and check if a everytick depends on a on demand
     for (auto &[producer, depedencies] : producer_to_depedency) {
       for (const auto &depedency : depedencies) {
         depedency_to_producer[depedency].insert(producer);
@@ -129,7 +130,12 @@ namespace Baseliner::Stats {
     while (!not_in_execution_plan.empty()) {
       for (auto &[producer, ptr] : tag_to_producers) {
         if (producer_to_depedency[producer].empty()) {
-          m_execution_plan.push_back(ptr);
+          // Only add to the every tick execution plan stats that have the corresponding compute policy
+          if (ptr->compute_policy() == StatComputePolicy::EVERY_TICK) {
+            m_every_tick_execution_plan.push_back(ptr);
+          } else {
+            m_on_demand_stats[producer] = ptr;
+          }
           not_in_execution_plan.erase(producer);
           for (const auto &depedencies : depedency_to_producer[producer]) {
             producer_to_depedency[depedencies].erase(producer);
@@ -139,17 +145,15 @@ namespace Baseliner::Stats {
       }
       tag_to_producers = not_in_execution_plan;
     }
-    if (m_execution_plan.size() != m_stats.size()) {
-      throw std::runtime_error("Circular dependency detected in Stats Graph!");
-    }
-
+    m_on_demand_up_to_date_stats.reserve(m_on_demand_stats.size());
     m_is_built = true;
   }
   void StatsEngine::compute_stats() {
     ensure_build();
-    for (IStatBase *stat : m_execution_plan) {
+    for (IStatBase *stat : m_every_tick_execution_plan) {
       stat->compute(m_registry);
     }
+    m_on_demand_up_to_date_stats.clear();
   };
   void StatsEngine::set_default() {
     for (auto &stat : m_stats) {

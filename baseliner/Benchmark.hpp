@@ -4,10 +4,10 @@
 #include <baseliner/Metric.hpp>
 #include <baseliner/Options.hpp>
 #include <baseliner/Result.hpp>
-#include <baseliner/Stats.hpp>
 #include <baseliner/StoppingCriterion.hpp>
 #include <baseliner/Task.hpp>
 #include <baseliner/stats/IStats.hpp>
+#include <baseliner/stats/Stats.hpp>
 #include <baseliner/stats/StatsEngine.hpp>
 #include <iostream>
 #include <memory>

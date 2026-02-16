@@ -1,7 +1,7 @@
 #ifndef BASELINER_METRIC_HPP
 #define BASELINER_METRIC_HPP
 #include <baseliner/Durations.hpp>
-#include <baseliner/StatsType.hpp>
+#include <baseliner/stats/StatsType.hpp>
 #include <cstddef>
 #include <cstdint>
 #include <string>

@@ -3,7 +3,7 @@
 #include <baseliner/Durations.hpp>
 #include <baseliner/Metric.hpp>
 #include <baseliner/Options.hpp>
-#include <baseliner/Stats.hpp>
+#include <baseliner/stats/Stats.hpp>
 #include <baseliner/stats/StatsEngine.hpp>
 
 namespace Baseliner {

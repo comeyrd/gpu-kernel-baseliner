@@ -3,8 +3,8 @@
 #include <algorithm>
 #include <baseliner/Durations.hpp>
 #include <baseliner/Options.hpp>
-#include <baseliner/StatsType.hpp>
 #include <baseliner/stats/IStats.hpp>
+#include <baseliner/stats/StatsType.hpp>
 #include <cmath>
 #include <cstddef>
 #include <string>
@@ -15,6 +15,33 @@ namespace Baseliner::Stats {
   public:
     [[nodiscard]] auto name() const -> std::string override {
       return "execution_time";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "ms";
+    }
+  };
+  class ItemsPerKernel : public Imetric<ItemsPerKernel, size_t> {
+  public:
+    [[nodiscard]] auto name() const -> std::string override {
+      return "items_per_kernel";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "ms";
+    }
+  };
+  class GlobalMemoryRead : public Imetric<GlobalMemoryRead, size_t> {
+  public:
+    [[nodiscard]] auto name() const -> std::string override {
+      return "global_memory_read";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "ms";
+    }
+  };
+  class GlobalMemoryWrite : public Imetric<GlobalMemoryWrite, size_t> {
+  public:
+    [[nodiscard]] auto name() const -> std::string override {
+      return "global_memory_write";
     }
     [[nodiscard]] auto unit() const -> std::string override {
       return "ms";
@@ -55,6 +82,9 @@ namespace Baseliner::Stats {
     void calculate(Repetitions::type &value_to_update) override {
       value_to_update = value_to_update + 1;
     };
+    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
+      return StatComputePolicy::EVERY_TICK;
+    };
   };
 
   class ExecutionTimeVector : public IStat<ExecutionTimeVector, std::vector<float_milliseconds>, ExecutionTime> {
@@ -64,6 +94,9 @@ namespace Baseliner::Stats {
     }
     void calculate(ExecutionTimeVector::type &value_to_update, const typename ExecutionTime::type &inputs) override {
       value_to_update.push_back(inputs);
+    };
+    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
+      return StatComputePolicy::EVERY_TICK;
     };
   };
 
@@ -79,6 +112,9 @@ namespace Baseliner::Stats {
       auto iterator = std::lower_bound(value_to_update.begin(), value_to_update.end(), inputs);
       value_to_update.insert(iterator, inputs);
     };
+    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
+      return StatComputePolicy::EVERY_TICK;
+    };
   };
 
   class Median : public IStat<Median, float, SortedExecutionTimeVector> {
@@ -90,6 +126,9 @@ namespace Baseliner::Stats {
       const auto middle = static_cast<size_t>(std::floor(inputs.size() / 2));
       value_to_update = inputs[middle].count();
     };
+    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
+      return StatComputePolicy::ON_DEMAND;
+    };
   };
 
   class Q1 : public IStat<Q1, float, SortedExecutionTimeVector> {
@@ -97,9 +136,12 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto name() const -> std::string override {
       return "Q1";
     }
-    void calculate(Median::type &value_to_update, const typename SortedExecutionTimeVector::type &inputs) override {
+    void calculate(Q1::type &value_to_update, const typename SortedExecutionTimeVector::type &inputs) override {
       const auto quarter = static_cast<size_t>(std::floor(inputs.size() / 4));
       value_to_update = inputs[quarter].count();
+    };
+    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
+      return StatComputePolicy::ON_DEMAND;
     };
   };
   class Q3 : public IStat<Q3, float, SortedExecutionTimeVector> {
@@ -107,9 +149,12 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto name() const -> std::string override {
       return "Q3";
     }
-    void calculate(Median::type &value_to_update, const typename SortedExecutionTimeVector::type &inputs) override {
+    void calculate(Q3::type &value_to_update, const typename SortedExecutionTimeVector::type &inputs) override {
       const auto three_quarter = static_cast<size_t>(std::floor(3 * inputs.size() / 4));
       value_to_update = inputs[three_quarter].count();
+    };
+    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
+      return StatComputePolicy::ON_DEMAND;
     };
   };
 
@@ -127,6 +172,9 @@ namespace Baseliner::Stats {
                    const typename SortedExecutionTimeVector::type &inputs) override {
       const ConfidenceInterval<size_t> bounds = get_confidence_interval(inputs.size());
       value_to_update = {inputs[bounds.high - 1], inputs[bounds.low - 1]};
+    };
+    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
+      return StatComputePolicy::ON_DEMAND;
     };
 
   protected:
@@ -166,6 +214,9 @@ namespace Baseliner::Stats {
 
       value_to_update = std::vector<float_milliseconds>(it_start, it_end);
     }
+    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
+      return StatComputePolicy::ON_DEMAND;
+    };
 
   protected:
     void register_options() override;
@@ -179,6 +230,9 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto name() const -> std::string override {
       return "MAD";
     }
+    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
+      return StatComputePolicy::ON_DEMAND;
+    };
     void calculate(float &value_to_update, const typename SortedExecutionTimeVector::type &sorted_vec,
                    const typename Median::type &median) override {
       std::vector<float> deviations;
@@ -196,7 +250,9 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto name() const -> std::string override {
       return "sn_scale";
     }
-
+    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
+      return StatComputePolicy::ON_DEMAND;
+    };
     void calculate(float &value_to_update, const typename SortedExecutionTimeVector::type &inputs) override {
       const size_t n = inputs.size();
       if (n < 2) {
@@ -204,27 +260,34 @@ namespace Baseliner::Stats {
         return;
       }
 
+      // 1. Pre-allocate ONCE
       std::vector<float> outer_medians;
       outer_medians.reserve(n);
 
+      std::vector<float> distances;
+      distances.reserve(n); // Re-use this buffer
+
       for (size_t i = 0; i < n; ++i) {
-        std::vector<float> distances;
-        distances.reserve(n - 1);
+        distances.clear(); // Does not deallocate memory
+        float val_i = inputs[i].count();
+
         for (size_t j = 0; j < n; ++j) {
           if (i == j)
             continue;
-          distances.push_back(std::abs(inputs[i].count() - inputs[j].count()));
+          distances.push_back(std::abs(val_i - inputs[j].count()));
         }
-        // Sorting to find the median of distances for this specific i
-        std::sort(distances.begin(), distances.end());
-        outer_medians.push_back(distances[distances.size() / 2]);
+
+        // 2. Use nth_element instead of sort (O(N) vs O(N log N))
+        auto mid_it = distances.begin() + distances.size() / 2;
+        std::nth_element(distances.begin(), mid_it, distances.end());
+        outer_medians.push_back(*mid_it);
       }
 
-      std::sort(outer_medians.begin(), outer_medians.end());
+      // Final median
+      auto final_mid_it = outer_medians.begin() + outer_medians.size() / 2;
+      std::nth_element(outer_medians.begin(), final_mid_it, outer_medians.end());
 
-      // Sn = c * med_i(med_j |xi - xj|)
-      // c is 1.1926 for consistency with normal distribution
-      value_to_update = 1.1926f * outer_medians[n / 2];
+      value_to_update = 1.1926f * (*final_mid_it);
     }
   };
 
@@ -233,6 +296,9 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto name() const -> std::string override {
       return "qn_scale";
     }
+    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
+      return StatComputePolicy::ON_DEMAND;
+    };
 
     void calculate(float &value_to_update, const typename SortedExecutionTimeVector::type &inputs) override {
       const size_t n = inputs.size();

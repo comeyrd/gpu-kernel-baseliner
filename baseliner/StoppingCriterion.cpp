@@ -1,8 +1,8 @@
 
 #include <baseliner/Durations.hpp>
-#include <baseliner/Stats.hpp>
-#include <baseliner/StatsType.hpp>
 #include <baseliner/StoppingCriterion.hpp>
+#include <baseliner/stats/Stats.hpp>
+#include <baseliner/stats/StatsType.hpp>
 #include <cstddef>
 namespace Baseliner {
 

@@ -5,6 +5,7 @@
 #include <baseliner/stats/StatsRegistry.hpp>
 #include <cstddef>
 #include <functional>
+#include <iostream>
 #include <memory>
 #include <sstream>
 #include <typeindex>
@@ -96,15 +97,20 @@ namespace Baseliner::Stats {
 
     // Access a result.
     template <typename StatType>
-    auto get_result() const -> const typename StatType::type & {
+    auto get_result() -> const typename StatType::type & {
       auto iterator = m_registered_types.find({std::type_index(typeid(StatType)), false});
       if (iterator != m_registered_types.end()) {
+        auto iter = m_on_demand_stats.find(std::type_index(typeid(StatType)));
+        if (iter != m_on_demand_stats.end()) {
+          ensure_on_demand_up_to_date(iter->first, iter->second);
+        }
         return m_registry.get<StatType>();
       }
       std::ostringstream oss;
       oss << "StatsEngine error in get_result(): " << typeid(StatType).name() << " Stat is not registered";
       throw std::runtime_error(oss.str());
     };
+
     void compute_stats();
 
     auto get_metrics() -> std::vector<Metric> {
@@ -117,6 +123,7 @@ namespace Baseliner::Stats {
         // Use the map we built in build_execution_plan
         if (m_metric_to_stats.count(metric_ptr.get()) > 0) {
           for (IStatBase *stat : m_metric_to_stats.at(metric_ptr.get())) {
+            ensure_on_demand_up_to_date(stat->output(), stat);
             metric.m_v_stats.push_back({stat->name(), stat->get_value(m_registry)});
           }
         } else {
@@ -129,6 +136,7 @@ namespace Baseliner::Stats {
         Metric metric;
         metric.m_name = stat->name();
         metric.m_unit = std::string();
+        ensure_on_demand_up_to_date(stat->output(), stat);
         metric.m_data = stat->get_value(m_registry);
         metrics_vector.push_back(metric);
       }
@@ -147,6 +155,7 @@ namespace Baseliner::Stats {
     void reset_engine() {
       ensure_build();
       m_registry = StatsRegistry();
+      m_on_demand_up_to_date_stats.clear();
       set_default();
     };
 
@@ -191,6 +200,24 @@ namespace Baseliner::Stats {
       }
     }
 
+    void ensure_on_demand_up_to_date(std::type_index typeix, IStatBase *stat_ptr) {
+      if (m_on_demand_up_to_date_stats.find(typeix) != m_on_demand_up_to_date_stats.end()) {
+        return;
+      }
+      for (auto &dep : stat_ptr->dependencies()) {
+        auto iter = m_on_demand_stats.find(dep);
+        if (iter != m_on_demand_stats.end()) {
+          ensure_on_demand_up_to_date(iter->first, iter->second);
+        }
+      }
+      std::cout << "updating :" << typeix.name() << std::endl;
+      auto start = std::chrono::high_resolution_clock::now();
+      stat_ptr->compute(m_registry);
+      auto end = std::chrono::high_resolution_clock::now();
+      std::cout << "compute done :" << typeix.name() << std::chrono::duration<double>(end - start).count() << "s"
+                << std::endl;
+      m_on_demand_up_to_date_stats.insert(typeix);
+    }
     StatsRegistry m_registry;
     std::vector<std::unique_ptr<IMetricBase>> m_metrics;
 
@@ -200,7 +227,12 @@ namespace Baseliner::Stats {
     std::unordered_set<TypeIndexArgs> m_registered_types;
     std::vector<IStatBase *> m_unlinked_stats;
     // These point to the objects inside stats_.
-    std::vector<IStatBase *> m_execution_plan;
+    std::vector<IStatBase *> m_every_tick_execution_plan;
+
+    // The set that tells if a on demand stat is up to date
+    std::unordered_set<std::type_index> m_on_demand_up_to_date_stats;
+
+    std::unordered_map<std::type_index, IStatBase *> m_on_demand_stats;
     std::unordered_map<IMetricBase *, std::vector<IStatBase *>> m_metric_to_stats;
     bool m_is_built = false;
     void ensure_build();
