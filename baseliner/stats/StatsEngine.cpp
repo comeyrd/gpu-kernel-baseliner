@@ -159,6 +159,9 @@ namespace Baseliner::Stats {
     for (auto &stat : m_stats) {
       stat->set_default(m_registry);
     }
+    for (auto &metric : m_metrics) {
+      metric->set_default(m_registry);
+    }
   }
 
 } // namespace Baseliner::Stats
