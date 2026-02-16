@@ -114,13 +114,16 @@ namespace Baseliner::Stats {
     };
   };
 
-  class MedianItemTroughput : public IStat<MedianItemTroughput, double, Median, ByteNumbers> {
+  class MedianItemTroughput : public IStat<MedianItemTroughput, float, Median, ByteNumbers> {
     [[nodiscard]] auto name() const -> std::string override {
       return "MedianThroughput";
     }
     void calculate(MedianItemTroughput::type &value_to_update, const typename Median::type &median,
                    const typename ByteNumbers::type &nb_bytes) override {
       value_to_update = nb_bytes / (median * 1e6);
+    };
+    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
+      return StatComputePolicy::ON_DEMAND;
     };
   };
 

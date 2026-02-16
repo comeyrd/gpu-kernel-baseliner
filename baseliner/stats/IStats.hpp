@@ -93,6 +93,8 @@ namespace Baseliner::Stats {
     [[nodiscard]] virtual auto unit() const -> std::string = 0;
     [[nodiscard]] virtual auto output() const -> std::type_index = 0;
     [[nodiscard]] virtual auto get_value(const StatsRegistry &reg) const -> MetricData = 0;
+    virtual void set_default(StatsRegistry &reg) = 0;
+
     virtual ~IMetricBase() = default;
   };
   template <typename OutputTag, typename ValueType>
@@ -108,6 +110,19 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto output() const -> std::type_index override {
       return std::type_index(typeid(OutputTag));
     }
+    void set_default(StatsRegistry &reg) override {
+      reg.set<OutputTag>(m_default_value);
+    }
+    Imetric()
+        : IMetricBase(),
+          m_default_value{} {};
+
+    Imetric(ValueType default_value)
+        : IMetricBase(),
+          m_default_value(default_value) {};
+
+  private:
+    ValueType m_default_value;
   };
 
 } // namespace Baseliner::Stats
