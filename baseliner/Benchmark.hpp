@@ -259,7 +259,13 @@ namespace Baseliner {
         if (get_timed_teardown()) {
           m_stats_engine->register_metric<Stats::TeardownTime>();
         }
+        if (m_case) {
+          m_case->setup_metrics(m_stats_engine);
+        }
         set_first(false);
+      }
+      if (m_case) {
+        m_case->update_metrics(m_stats_engine);
       }
     }
     virtual void pre_all() {
