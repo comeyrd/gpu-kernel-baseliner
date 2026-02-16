@@ -23,6 +23,7 @@ namespace Baseliner::Stats {
   // For throughput calculations
   class ByteNumbers : public Imetric<ByteNumbers, size_t> {
   public:
+    using Imetric<ByteNumbers, size_t>::Imetric; // Needs this for defaults
     [[nodiscard]] auto name() const -> std::string override {
       return "number_of_bytes_per_kernel";
     }

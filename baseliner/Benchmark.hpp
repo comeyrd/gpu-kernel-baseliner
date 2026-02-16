@@ -203,6 +203,7 @@ namespace Baseliner {
       check_case();
       setup_metrics();
       m_stats_engine->reset_engine();
+      update_metrics();
       m_case->setup(m_stream);
       pre_all();
       while (!m_stopping->satisfied()) {
@@ -248,6 +249,11 @@ namespace Baseliner {
     std::shared_ptr<typename Backend::stream_t> m_stream;
 
     std::shared_ptr<ICase<Backend>> m_case;
+    virtual void update_metrics() {
+      if (m_case) {
+        m_case->update_metrics(m_stats_engine);
+      }
+    }
     virtual void setup_metrics() {
       if (get_first()) {
         if (get_warmup()) {
@@ -263,9 +269,6 @@ namespace Baseliner {
           m_case->setup_metrics(m_stats_engine);
         }
         set_first(false);
-      }
-      if (m_case) {
-        m_case->update_metrics(m_stats_engine);
       }
     }
     virtual void pre_all() {
