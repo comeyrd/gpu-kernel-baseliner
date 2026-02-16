@@ -65,7 +65,7 @@ namespace Baseliner {
       }
       sstream << "\n";
 
-      sstream << std::left << std::setw(AXE_WIDTH) << "Axe" << " | ";
+      sstream << std::left << std::setw(AXE_WIDTH) << m_axe.get_option_name() << " | ";
 
       struct StatRef {
         std::string metric_name;
