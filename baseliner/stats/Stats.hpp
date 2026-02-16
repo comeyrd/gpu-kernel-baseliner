@@ -20,28 +20,11 @@ namespace Baseliner::Stats {
       return "ms";
     }
   };
-  class ItemsPerKernel : public Imetric<ItemsPerKernel, size_t> {
+  // For throughput calculations
+  class ByteNumbers : public Imetric<ByteNumbers, size_t> {
   public:
     [[nodiscard]] auto name() const -> std::string override {
-      return "items_per_kernel";
-    }
-    [[nodiscard]] auto unit() const -> std::string override {
-      return "ms";
-    }
-  };
-  class GlobalMemoryRead : public Imetric<GlobalMemoryRead, size_t> {
-  public:
-    [[nodiscard]] auto name() const -> std::string override {
-      return "global_memory_read";
-    }
-    [[nodiscard]] auto unit() const -> std::string override {
-      return "ms";
-    }
-  };
-  class GlobalMemoryWrite : public Imetric<GlobalMemoryWrite, size_t> {
-  public:
-    [[nodiscard]] auto name() const -> std::string override {
-      return "global_memory_write";
+      return "number_of_bytes_per_kernel";
     }
     [[nodiscard]] auto unit() const -> std::string override {
       return "ms";
@@ -128,6 +111,16 @@ namespace Baseliner::Stats {
     };
     [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
       return StatComputePolicy::ON_DEMAND;
+    };
+  };
+
+  class MedianItemTroughput : public IStat<MedianItemTroughput, double, Median, ByteNumbers> {
+    [[nodiscard]] auto name() const -> std::string override {
+      return "MedianThroughput";
+    }
+    void calculate(MedianItemTroughput::type &value_to_update, const typename Median::type &median,
+                   const typename ByteNumbers::type &nb_bytes) override {
+      value_to_update = nb_bytes / (median * 1e6);
     };
   };
 
