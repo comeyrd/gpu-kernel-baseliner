@@ -99,6 +99,9 @@ namespace Baseliner {
     virtual ~IOption() = default;
     IOption() = default;
 
+    IOption(const IOption&) = delete;
+    IOption& operator=(const IOption&) = delete;
+    
     // Moving
     IOption(IOption &&other) noexcept {
       other.m_consumers.clear();

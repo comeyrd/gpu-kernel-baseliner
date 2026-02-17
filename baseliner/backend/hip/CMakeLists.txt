@@ -1,4 +1,5 @@
 target_sources(baseliner PRIVATE
     HipBackend.hip
     BlockingKernel.hip
-    L2Flusher.hip)
+    L2Flusher.hip
+    Timer.hip)

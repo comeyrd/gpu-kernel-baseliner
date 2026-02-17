@@ -1,9 +1,10 @@
 #include "ComputationKernel.hpp"
+#include <baseliner/Benchmark.hpp>
 #include <baseliner/Options.hpp>
-#include <baseliner/Runner.hpp>
+#include <baseliner/Serializer.hpp>
 #include <baseliner/StoppingCriterion.hpp>
 #include <iostream>
-#include <random>
+
 #include <string>
 #include <vector>
 inline std::ostream &operator<<(std::ostream &os, const Baseliner::OptionsMap &option_map) {
@@ -39,12 +40,9 @@ void usage(std::vector<std::string> args, Baseliner::OptionsMap &options_map) {
 
 int main(int argc, char **argv) {
   std::cout << "MiniCli" << std::endl;
-  auto stop = Baseliner::StoppingCriterion();
-  Baseliner::Runner<ComputationKernel, Baseliner::Backend::HipBackend> runner_act(stop);
-  Baseliner::OptionsMap omap;
-  runner_act.gather_options(omap);
-  Baseliner::mergeOptionsMap(omap, runner_act.describe_options());
-  Baseliner::mergeOptionsMap(omap, stop.describe_options());
+  auto benchmark_act = Baseliner::HipBenchmark().set_kernel<ComputationKernel>();
+
+  Baseliner::OptionsMap omap = benchmark_act.gather_options();
 
   Baseliner::OptionsMap user_options;
   std::vector<std::string> args(argv + 1, argv + argc);
@@ -86,12 +84,11 @@ int main(int argc, char **argv) {
     }
   }
   std::cout << user_options;
-  runner_act.propagate_options(user_options);
-  stop.apply_options(user_options);
-  runner_act.apply_options(user_options);
-  std::cout << runner_act.run() << std::endl;
+  benchmark_act.propagate_options(user_options);
+  serialize(std::cout, benchmark_act.run());
+  std::cout << std::endl;
   /*
-  std::vector<float_milliseconds> res = runner_act.run();
+  std::vector<float_milliseconds> res = benchmark_act.run();
   std::cout << res << std::endl;
   */
 }

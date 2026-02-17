@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 #include "ComputationKernel.hpp"
 #include <vector>
 
@@ -16,17 +17,6 @@ __global__ void computation_kernel(int *a, int *b, int *c, int N) {
   }
 }
 
-void ComputationKernel::cpu(ComputationOutput &output) {
-  for (int i = 0; i < m_input.m_N; ++i) {
-    output.m_c_host[i] = m_input.m_a_host[i] + m_input.m_b_host[i];
-  }
-  for (int _ = 0; _ < 50; _++) {
-    for (int i = 1; i < m_input.m_N; ++i) {
-      output.m_c_host[i] = m_input.m_a_host[i] + output.m_c_host[i] + (m_input.m_b_host[i] * m_input.m_b_host[i]);
-    }
-  }
-}
-
 void ComputationKernel::run(std::shared_ptr<hipStream_t> stream) {
-  computation_kernel<<<m_blocks, m_threads, 0, *stream>>>(m_d_a, m_d_b, m_d_c, m_input.m_N);
+  computation_kernel<<<m_blocks, m_threads, 0, *stream>>>(m_d_a, m_d_b, m_d_c, get_input()->m_N);
 }

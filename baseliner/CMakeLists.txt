@@ -1,6 +1,6 @@
 add_library(baseliner SHARED)
 add_library(baseliner::baseliner ALIAS baseliner)
-set(sources JsonHandler.cpp  Options.cpp Result.cpp stats/Stats.cpp StoppingCriterion.cpp Serializer.cpp main.cpp Task.cpp stats/StatsEngine.cpp )
+set(sources JsonHandler.cpp  Result.cpp stats/Stats.cpp StoppingCriterion.cpp Serializer.cpp main.cpp Task.cpp stats/StatsEngine.cpp Options.cpp )
 target_sources(baseliner PRIVATE ${sources})
 #JSON
 include(FetchContent)
