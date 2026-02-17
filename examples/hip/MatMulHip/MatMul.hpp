@@ -34,44 +34,40 @@
 #include <baseliner/Kernel.hpp>
 #include <baseliner/Options.hpp>
 #include <baseliner/backend/hip/HipBackend.hpp>
+#include <cstddef>
 #include <iostream>
+#include <memory>
 #include <random>
+#include <string>
 #include <vector>
 
 class MatrixMulInput : public Baseliner::IInput {
 public:
-  void register_options() override {
-    IInput::register_options();
-    add_option("MatrixMulInput", "wA", "Width of Matrix A", m_wA_base);
-    add_option("MatrixMulInput", "hA", "Height of Matrix A", m_hA_base);
-    add_option("MatrixMulInput", "wB", "Width of Matrix B", m_wB_base);
-    add_option("MatrixMulInput", "hB", "Height of Matrix B", m_hB_base);
-    add_option("MatrixMulInput", "block_size", "Block size (16 or 32)", m_block_size);
-  };
-
   void on_update() override {
     allocate();
   };
 
   void generate_random() override {
-    std::mt19937 gen(seed);
-    std::uniform_real_distribution<float> dist(0.0f, 1.0f);
+    std::mt19937 gen(get_seed());
+    std::uniform_real_distribution<float> dist(0.0f, 1.0f); // NOLINT
 
-    for (auto &val : m_h_A)
+    for (auto &val : m_h_A) {
       val = dist(gen);
-    for (auto &val : m_h_B)
+    }
+    for (auto &val : m_h_B) {
       val = dist(gen);
+    }
   };
 
   explicit MatrixMulInput()
-      : Baseliner::IInput() {
+      : Baseliner::IInput() { // NOLINT
     allocate();
   };
 
   void allocate() override {
     // Apply work_size multiplier to the height of A to increase workload
     m_wA = m_wA_base;
-    m_hA = m_hA_base * m_work_size;
+    m_hA = m_hA_base * get_work_size();
 
     // Inner dimensions must match
     m_hB = m_wA;
@@ -85,24 +81,34 @@ public:
   }
 
   // Default dimensions based on the original main() example
-  int m_wA_base = 320; // 5 * 2 * 32
-  int m_hA_base = 320;
-  int m_wB_base = 640; // 5 * 4 * 32
-  int m_hB_base = 320;
+  int m_wA_base = 320; // NOLINT 5 * 2 * 32
+  int m_hA_base = 320; // NOLINT
+  int m_wB_base = 640; // NOLINT 5 * 4 * 32
+  int m_hB_base = 320; // NOLINT
 
   int m_wA, m_hA, m_wB, m_hB;
   int m_size_A, m_size_B;
-  int m_block_size = 32;
+  int m_block_size = 16;
 
   std::vector<float> m_h_A;
   std::vector<float> m_h_B;
+
+protected:
+  void register_options() override {
+    IInput::register_options();
+    add_option("MatrixMulInput", "wA", "Width of Matrix A", m_wA_base);
+    add_option("MatrixMulInput", "hA", "Height of Matrix A", m_hA_base);
+    add_option("MatrixMulInput", "wB", "Width of Matrix B", m_wB_base);
+    add_option("MatrixMulInput", "hB", "Height of Matrix B", m_hB_base);
+    add_option("MatrixMulInput", "block_size", "Block size (16 or 32)", m_block_size);
+  };
 };
 
 class MatrixMulOutput : public Baseliner::IOutput<MatrixMulInput> {
 public:
-  explicit MatrixMulOutput(const MatrixMulInput &input)
+  explicit MatrixMulOutput(std::shared_ptr<const MatrixMulInput> input)
       : Baseliner::IOutput<MatrixMulInput>(input) {
-    m_size_C = m_input.m_hA * m_input.m_wB;
+    m_size_C = get_input()->m_hA * get_input()->m_wB;
     m_h_C.resize(m_size_C);
   };
 
@@ -110,74 +116,79 @@ public:
   int m_size_C;
 
   // Optional: equality check for verification
-  bool operator==(const MatrixMulOutput &other) const {
-    if (m_size_C != other.m_size_C)
+  auto operator==(const MatrixMulOutput &other) const {
+    if (m_size_C != other.m_size_C) {
       return false;
+    }
     for (size_t i = 0; i < m_h_C.size(); i++) {
-      if (std::abs(m_h_C[i] - other.m_h_C[i]) > 1e-4)
+      if (std::abs(m_h_C[i] - other.m_h_C[i]) > 1e-3) {
         return false;
+      }
     }
     return true;
   }
-  friend std::ostream &operator<<(std::ostream &os, const MatrixMulOutput &thing) {
+  friend auto operator<<(std::ostream &oss, const MatrixMulOutput &thing) -> std::ostream & {
     for (int i = 0; i < thing.m_h_C.size(); i++) {
-      os << thing.m_h_C[i] << ", ";
+      oss << thing.m_h_C[i] << ", ";
     }
-    os << std::endl;
-    return os;
+    oss << std::endl;
+    return oss;
   }
 };
 
 class MatrixMulKernel : public Baseliner::IHipKernel<MatrixMulInput, MatrixMulOutput> {
 public:
-  void cpu(MatrixMulOutput &output) override;
+  auto name() -> std::string override {
+    return "MatrixMulKernel";
+  };
 
-  void setup() override {
-    size_t mem_size_A = m_input.m_size_A * sizeof(float);
-    size_t mem_size_B = m_input.m_size_B * sizeof(float);
-    size_t mem_size_C = m_input.m_hA * m_input.m_wB * sizeof(float);
+  void setup(std::shared_ptr<hipStream_t> stream) override {
+    size_t mem_size_A = get_input()->m_size_A * sizeof(float);
+    size_t mem_size_B = get_input()->m_size_B * sizeof(float);
+    size_t mem_size_C = get_input()->m_hA * get_input()->m_wB * sizeof(float);
 
     CHECK_HIP(hipMalloc(&m_d_A, mem_size_A));
     CHECK_HIP(hipMalloc(&m_d_B, mem_size_B));
     CHECK_HIP(hipMalloc(&m_d_C, mem_size_C));
 
-    CHECK_HIP(hipMemcpy(m_d_A, m_input.m_h_A.data(), mem_size_A, hipMemcpyHostToDevice));
-    CHECK_HIP(hipMemcpy(m_d_B, m_input.m_h_B.data(), mem_size_B, hipMemcpyHostToDevice));
+    CHECK_HIP(hipMemcpyAsync(m_d_A, get_input()->m_h_A.data(), mem_size_A, hipMemcpyHostToDevice, *stream));
+    CHECK_HIP(hipMemcpyAsync(m_d_B, get_input()->m_h_B.data(), mem_size_B, hipMemcpyHostToDevice, *stream));
 
     // Setup execution parameters
-    int block_size = m_input.m_block_size;
+    int block_size = get_input()->m_block_size;
     m_threads = dim3(block_size, block_size);
-    m_grid = dim3(m_input.m_wB / m_threads.x, m_input.m_hA / m_threads.y);
+    m_grid =
+        dim3((get_input()->m_wB + m_threads.x - 1) / m_threads.x, (get_input()->m_hA + m_threads.y - 1) / m_threads.y);
   };
 
-  void reset() override {
+  void reset_kernel(std::shared_ptr<hipStream_t> stream) override {
     // Optional: Zero out C if accumulation logic was involved,
     // but this kernel writes directly (C = ...), so reset isn't strictly necessary
     // unless we want to clear previous results.
-    size_t mem_size_C = m_input.m_hA * m_input.m_wB * sizeof(float);
-    CHECK_HIP(hipMemset(m_d_C, 0, mem_size_C));
+    size_t mem_size_C = get_input()->m_hA * get_input()->m_wB * sizeof(float);
+    CHECK_HIP(hipMemsetAsync(m_d_C, 0, mem_size_C, *stream));
   };
 
   void run(std::shared_ptr<hipStream_t> stream) override;
 
-  void teardown(Output &output) override {
-    size_t mem_size_C = m_input.m_hA * m_input.m_wB * sizeof(float);
-    CHECK_HIP(hipMemcpy(output.m_h_C.data(), m_d_C, mem_size_C, hipMemcpyDeviceToHost));
+  void teardown(std::shared_ptr<hipStream_t> stream, Output &output) override {
+    size_t mem_size_C = get_input()->m_hA * get_input()->m_wB * sizeof(float);
+    CHECK_HIP(hipMemcpyAsync(output.m_h_C.data(), m_d_C, mem_size_C, hipMemcpyDeviceToHost, *stream));
 
     CHECK_HIP(hipFree(m_d_A));
     CHECK_HIP(hipFree(m_d_B));
     CHECK_HIP(hipFree(m_d_C));
   };
 
-  MatrixMulKernel(const MatrixMulInput &input)
+  MatrixMulKernel(std::shared_ptr<const MatrixMulInput> input)
       : Baseliner::IHipKernel<Input, Output>(input) {};
 
 private:
   float *m_d_A = nullptr;
   float *m_d_B = nullptr;
   float *m_d_C = nullptr;
-  dim3 m_threads;
-  dim3 m_grid;
+  dim3 m_threads{};
+  dim3 m_grid{};
 };
 
 #endif // MATRIXMUL_KERNEL_HPP

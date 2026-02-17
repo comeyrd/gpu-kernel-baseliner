@@ -44,11 +44,11 @@ void run_kernel() {
 
   int threadsPerBlock = 256;
   int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock;
-  auto backend = Baseliner::Backend::HipBackend();
+  auto backend = Baseliner::Device::HipBackend();
   auto stream = backend.create_stream();
-  auto flusher = Baseliner::Backend::HipBackend::L2Flusher();
-  auto blocker = Baseliner::Backend::HipBackend::BlockingKernel();
-  auto timer = Baseliner::Backend::HipBackend::Timer();
+  auto flusher = Baseliner::Device::L2Flusher<Baseliner::Device::HipBackend>();
+  auto blocker = Baseliner::Device::BlockingKernel<Baseliner::Device::HipBackend>();
+  auto timer = Baseliner::Device::GpuTimer<Baseliner::Device::HipBackend>();
   timer.measure_start(stream);
   computation_kernel<<<blocksPerGrid, threadsPerBlock, 0, *stream>>>(d_a, d_b, d_c, N);
   timer.measure_stop(stream);

@@ -28,7 +28,7 @@
 
 // Copyright 2026, Come Eyraud.
 #include "MatMul.hpp"
-#include <iostream>
+
 #include <vector>
 
 // ----------------------------------------------------------------------
@@ -108,35 +108,18 @@ __global__ void MatrixMulHIP(float *C, float *A, float *B, int wA, int wB) {
   int c = wB * BLOCK_SIZE * by + BLOCK_SIZE * bx;
   C[c + wB * ty + tx] = Csub;
 }
-
+// NOLINTEND
 // ----------------------------------------------------------------------
 // Interface Implementation
 // ----------------------------------------------------------------------
 
-void MatrixMulKernel::cpu(MatrixMulOutput &output) {
-  int wA = m_input.m_wA;
-  int hA = m_input.m_hA;
-  int wB = m_input.m_wB;
-
-  // Naive CPU implementation for verification
-  for (int i = 0; i < hA; ++i) {
-    for (int j = 0; j < wB; ++j) {
-      double sum = 0;
-      for (int k = 0; k < wA; ++k) {
-        double a = m_input.m_h_A[i * wA + k];
-        double b = m_input.m_h_B[k * wB + j];
-        sum += a * b;
-      }
-      output.m_h_C[i * wB + j] = (float)sum;
-    }
-  }
-}
-
 void MatrixMulKernel::run(std::shared_ptr<hipStream_t> stream) {
   // Dispatch based on block size template parameter
-  if (m_input.m_block_size == 16) {
-    MatrixMulHIP<16><<<m_grid, m_threads, 0, *stream>>>(m_d_C, m_d_A, m_d_B, m_input.m_wA, m_input.m_wB);
+  if (get_input()->m_block_size == 16) { // NOLINT
+    MatrixMulHIP<16>                    // NOLINT
+        <<<m_grid, m_threads, 0, *stream>>>(m_d_C, m_d_A, m_d_B, get_input()->m_wA, get_input()->m_wB);
   } else {
-    MatrixMulHIP<32><<<m_grid, m_threads, 0, *stream>>>(m_d_C, m_d_A, m_d_B, m_input.m_wA, m_input.m_wB);
+    MatrixMulHIP<32> // NOLINT
+        <<<m_grid, m_threads, 0, *stream>>>(m_d_C, m_d_A, m_d_B, get_input()->m_wA, get_input()->m_wB);
   }
 }

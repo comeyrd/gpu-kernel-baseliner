@@ -3,6 +3,8 @@
 #include <baseliner/Kernel.hpp>
 #include <baseliner/Options.hpp>
 #include <baseliner/backend/hip/HipBackend.hpp>
+#include <memory>
+#include <ostream>
 #include <random>
 #include <string>
 #include <vector>
@@ -10,15 +12,11 @@ constexpr int DEFAULT_N = 5000;
 
 class ComputationInput : public Baseliner::IInput {
 public:
-  void register_options() override {
-    IInput::register_options();
-    add_option("ComputationInput", "base_N", "The size of the arrays", m_base_N);
-  };
   void on_update() override {
     allocate();
   };
   void generate_random() override {
-    std::default_random_engine gen(seed);
+    std::default_random_engine gen(get_seed());
     std::uniform_int_distribution<int> dist(1, 100);
     for (int i = 0; i < m_N; i++) {
       m_a_host[i] = dist(gen);
@@ -30,26 +28,33 @@ public:
     allocate();
   };
   void allocate() override {
-    m_N = m_base_N * m_work_size;
+    m_N = m_base_N * get_work_size();
     m_a_host = std::vector<int>(m_N);
     m_b_host = std::vector<int>(m_N);
   }
+
   int m_base_N = DEFAULT_N;
-  int m_N;
+  int m_N = 0;
   std::vector<int> m_a_host;
   std::vector<int> m_b_host;
+
+protected:
+  void register_options() override {
+    IInput::register_options();
+    add_option("ComputationInput", "base_N", "The size of the arrays", m_base_N);
+  };
 };
 
 class ComputationOutput : public Baseliner::IOutput<ComputationInput> {
 public:
-  explicit ComputationOutput(const ComputationInput &input)
-      : Baseliner::IOutput<ComputationInput>(input) {
-    m_c_host = std::vector<int>(m_input.m_N);
+  explicit ComputationOutput(std::shared_ptr<const ComputationInput> input)
+      : Baseliner::IOutput<ComputationInput>(std::move(input)) {
+    m_c_host = std::vector<int>(get_input()->m_N);
   };
   std::vector<int> m_c_host;
-  bool operator==(const ComputationOutput &other) const {
-    if (m_input.m_N == other.m_input.m_N) {
-      for (int i = 0; i < m_input.m_N; i++) {
+  auto operator==(const ComputationOutput &other) const {
+    if (get_input()->m_N == other.get_input()->m_N) {
+      for (int i = 0; i < get_input()->m_N; i++) {
         if (m_c_host[i] != other.m_c_host[i]) {
           return false;
         }
@@ -58,45 +63,47 @@ public:
     }
     return false;
   }
-  friend std::ostream &operator<<(std::ostream &os, const ComputationOutput &thing) {
-    for (int i = 0; i < thing.m_input.m_N; i++) {
-      os << thing.m_c_host[i] << ", ";
+  friend auto operator<<(std::ostream &oss, const ComputationOutput &thing) -> std::ostream & {
+    for (int i = 0; i < thing.get_input()->m_N; i++) {
+      oss << thing.m_c_host[i] << ", ";
     }
-    os << std::endl;
-    return os;
+    oss << std::endl;
+    return oss;
   }
 };
 
 class ComputationKernel : public Baseliner::IHipKernel<ComputationInput, ComputationOutput> {
 public:
-  void cpu(ComputationOutput &output) override;
-  void setup() override {
-    CHECK_HIP(hipMalloc(&m_d_a, m_input.m_N * sizeof(int)));
-    CHECK_HIP(hipMalloc(&m_d_b, m_input.m_N * sizeof(int)));
-    CHECK_HIP(hipMalloc(&m_d_c, m_input.m_N * sizeof(int)));
+  auto name() -> std::string override {
+    return "ComputationKernel";
+  };
+  void setup(std::shared_ptr<ComputationKernel::Backend::stream_t> stream) override {
+    CHECK_HIP(hipMallocAsync(&m_d_a, get_input()->m_N * sizeof(int), *stream));
+    CHECK_HIP(hipMallocAsync(&m_d_b, get_input()->m_N * sizeof(int), *stream));
+    CHECK_HIP(hipMallocAsync(&m_d_c, get_input()->m_N * sizeof(int), *stream));
     int threadsPerBlock = 256;
-    int blocksPerGrid = (m_input.m_N + threadsPerBlock - 1) / threadsPerBlock;
+    int blocksPerGrid = (get_input()->m_N + threadsPerBlock - 1) / threadsPerBlock;
     m_threads = dim3(threadsPerBlock);
     m_blocks = dim3(blocksPerGrid);
-    CHECK_HIP(hipMemcpy(m_d_a, m_input.m_a_host.data(), m_input.m_N * sizeof(int), hipMemcpyHostToDevice));
-    CHECK_HIP(hipMemcpy(m_d_b, m_input.m_b_host.data(), m_input.m_N * sizeof(int), hipMemcpyHostToDevice));
+    CHECK_HIP(hipMemcpy(m_d_a, get_input()->m_a_host.data(), get_input()->m_N * sizeof(int), hipMemcpyHostToDevice));
+    CHECK_HIP(hipMemcpy(m_d_b, get_input()->m_b_host.data(), get_input()->m_N * sizeof(int), hipMemcpyHostToDevice));
   };
-  void reset() override {};
-  void run(std::shared_ptr<hipStream_t> stream) override;
-  void teardown(Output &output) override {
-    CHECK_HIP(hipMemcpy(output.m_c_host.data(), m_d_c, m_input.m_N * sizeof(int), hipMemcpyDeviceToHost));
+  void reset_kernel(std::shared_ptr<ComputationKernel::Backend::stream_t> stream) override {};
+  void run(std::shared_ptr<ComputationKernel::Backend::stream_t> stream) override;
+  void teardown(std::shared_ptr<ComputationKernel::Backend::stream_t> stream, Output &output) override {
+    CHECK_HIP(hipMemcpy(output.m_c_host.data(), m_d_c, get_input()->m_N * sizeof(int), hipMemcpyDeviceToHost));
     CHECK_HIP(hipFree(m_d_a));
     CHECK_HIP(hipFree(m_d_b));
     CHECK_HIP(hipFree(m_d_c));
   };
-  ComputationKernel(const ComputationInput &input)
-      : Baseliner::IHipKernel<Input, Output>(input) {};
+  ComputationKernel(std::shared_ptr<const ComputationInput> input)
+      : Baseliner::IHipKernel<Input, Output>(std::move(input)) {};
 
 private:
   dim3 m_threads;
   dim3 m_blocks;
-  int *m_d_a;
-  int *m_d_b;
-  int *m_d_c;
+  int *m_d_a = nullptr;
+  int *m_d_b = nullptr;
+  int *m_d_c = nullptr;
 };
 #endif // COMPUTATION_HPP

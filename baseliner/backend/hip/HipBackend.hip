@@ -1,5 +1,4 @@
 #include <baseliner/backend/hip/HipBackend.hpp>
-
 void check_hip_error(hipError_t error_code, const char *file, int line) {
   if (error_code != hipSuccess) {
     std::string msg = std::string("HIP Error : ") + hipGetErrorString(error_code) + std::string(" in : ") + file +
@@ -15,22 +14,26 @@ void check_hip_error_no_except(hipError_t error_code, const char *file, int line
   }
 }
 namespace Baseliner {
-  namespace Backend {
+  namespace Device {
+    template <>
     void HipBackend::set_device(int device) {
       CHECK_HIP(hipSetDevice(device));
     }
+    template <>
     void HipBackend::reset_device() {
       CHECK_HIP(hipDeviceReset());
     }
-
+    template <>
     void HipBackend::synchronize(std::shared_ptr<hipStream_t> stream) {
       CHECK_HIP(hipStreamSynchronize(*stream));
     }
+    template <>
     void HipBackend::get_last_error() {
       CHECK_HIP(hipGetLastError());
     }
-    std::shared_ptr<hipStream_t> HipBackend::create_stream() {
-      hipStream_t *stream = new hipStream_t;
+    template <>
+    std::shared_ptr<HipBackend::stream_t> HipBackend::create_stream() {
+      auto *stream = new HipBackend::stream_t;
       CHECK_HIP(hipStreamCreate(stream));
 
       return std::shared_ptr<hipStream_t>(stream, [](hipStream_t *s) {
@@ -40,6 +43,6 @@ namespace Baseliner {
         }
       });
     }
-  } // namespace Backend
+  } // namespace Device
 
 } // namespace Baseliner

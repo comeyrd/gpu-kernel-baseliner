@@ -5,25 +5,25 @@
 
 int main() {
   std::cout << "Hip Kernel Manipuation" << std::endl;
-  auto input = ComputationKernel::Input();
-  input.generate_random();
-  auto output = ComputationKernel::Output(input);
-  auto impl = ComputationKernel(input);
-  auto backend = Baseliner::Backend::HipBackend();
+
+  auto backend = Baseliner::Device::HipBackend();
   auto stream = backend.create_stream();
-  auto flusher = Baseliner::Backend::HipBackend::L2Flusher();
-  auto blocker = Baseliner::Backend::HipBackend::BlockingKernel();
-  impl.setup();
-  impl.timed_run(stream);
-  std::cout << "Warmup: " << impl.time_elapsed().count() << std::endl;
+  auto flusher = Baseliner::Device::L2Flusher<Baseliner::Device::HipBackend>();
+  auto blocker = Baseliner::Device::BlockingKernel<Baseliner::Device::HipBackend>();
+  auto timer = Baseliner::Device::GpuTimer<Baseliner::Device::HipBackend>();
+  auto computation_case = Baseliner::KernelCase<ComputationKernel>();
+  computation_case.setup(stream);
+  computation_case.timed_run(stream);
+  std::cout << "Warmup: " << computation_case.time_elapsed().count() << std::endl;
 
   for (int r = 0; r < 10; r++) {
+    computation_case.reset_case(stream);
     flusher.flush(stream);
     blocker.block(stream, 1000.0);
-    impl.timed_run(stream);
+    computation_case.timed_run(stream);
     blocker.unblock();
-    std::cout << impl.time_elapsed().count() << " | ";
+    std::cout << computation_case.time_elapsed().count() << " | ";
   }
-  impl.teardown(output);
+  computation_case.teardown(stream);
   std::cout << std::endl;
 }
