@@ -140,7 +140,7 @@ namespace Baseliner {
     BASELINER_BENCHMARK_SETTER(name, std::string);
     BASELINER_BENCHMARK_SETTER(block, bool);
     BASELINER_BENCHMARK_SETTER(block_duration, float);
-    BASELINER_BENCHMARK_SETTER(flush_l2, float);
+    BASELINER_BENCHMARK_SETTER(flush_l2, bool);
     BASELINER_BENCHMARK_SETTER(timed_setup, float);
     BASELINER_BENCHMARK_SETTER(timed_teardown, float);
     BASELINER_BENCHMARK_SETTER(first, bool);
