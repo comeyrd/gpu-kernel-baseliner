@@ -115,29 +115,12 @@ namespace Baseliner::Stats {
 
     auto get_metrics() -> std::vector<Metric> {
       std::vector<Metric> metrics_vector{};
-      for (auto &metric_ptr : m_metrics) {
+      for (auto &stat_ptr : m_stats) {
         Metric metric;
-        metric.m_name = metric_ptr->name();
-        metric.m_unit = metric_ptr->unit();
-
-        // Use the map we built in build_execution_plan
-        if (m_metric_to_stats.count(metric_ptr.get()) > 0) {
-          for (IStatBase *stat : m_metric_to_stats.at(metric_ptr.get())) {
-            ensure_on_demand_up_to_date(stat->output(), stat);
-            metric.m_v_stats.push_back({stat->name(), stat->get_value(m_registry)});
-          }
-        } else {
-          // If a metric doesn't have stats, put the raw value
-          metric.m_data = metric_ptr->get_value(m_registry);
-        }
-        metrics_vector.push_back(metric);
-      }
-      for (auto &stat : m_unlinked_stats) {
-        Metric metric;
-        metric.m_name = stat->name();
-        metric.m_unit = std::string();
-        ensure_on_demand_up_to_date(stat->output(), stat);
-        metric.m_data = stat->get_value(m_registry);
+        metric.m_name = stat_ptr->name();
+        metric.m_unit = stat_ptr->unit();
+        ensure_on_demand_up_to_date(stat_ptr->output(), stat_ptr.get());
+        metric.m_data = stat_ptr->get_value(m_registry);
         metrics_vector.push_back(metric);
       }
       return metrics_vector;
@@ -202,6 +185,9 @@ namespace Baseliner::Stats {
 
     void ensure_on_demand_up_to_date(std::type_index typeix, IStatBase *stat_ptr) {
       if (m_on_demand_up_to_date_stats.find(typeix) != m_on_demand_up_to_date_stats.end()) {
+        return;
+      }
+      if (m_on_demand_stats.find(typeix) == m_on_demand_stats.end()) {
         return;
       }
       for (auto &dep : stat_ptr->dependencies()) {

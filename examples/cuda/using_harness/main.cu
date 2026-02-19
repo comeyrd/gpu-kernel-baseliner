@@ -11,14 +11,11 @@ namespace {
 
   auto benchmark2 = Baseliner::CudaBenchmark()
                         .set_kernel<MatrixMulKernel>()
-                        .set_stopping_criterion<Baseliner::ConfidenceIntervalMedianSC>()
                         .add_stat<Baseliner::Stats::Q1>()
                         .add_stat<Baseliner::Stats::Q3>()
                         .add_stat<Baseliner::Stats::Median>()
                         .add_stat<Baseliner::Stats::WithoutOutliers>()
-                        .add_stat<Baseliner::Stats::MedianAbsoluteDeviation>()
-                        .add_stat<Baseliner::Stats::SnEstimator>()
-                        .add_stat<Baseliner::Stats::QnEstimator>();
+                        .add_stat<Baseliner::Stats::MedianAbsoluteDeviation>();
 
   BASELINER_REGISTER_TASK(&benchmark1);
 

@@ -47,7 +47,6 @@ namespace Baseliner {
 
   void to_json(json &json_obj, const Result &result);
   void to_json(json &json_obj, const Metric &metric);
-  void to_json(json &json_obj, const MetricStats &metricStats);
 
   template <typename T>
   void to_json(json &json_obj, const ConfidenceInterval<T> &obj) {

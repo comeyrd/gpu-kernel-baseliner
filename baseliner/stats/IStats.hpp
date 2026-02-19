@@ -17,6 +17,7 @@ namespace Baseliner::Stats {
   class IStatBase : public LazyOption {
   public:
     [[nodiscard]] virtual auto name() const -> std::string = 0;
+    [[nodiscard]] virtual auto unit() const -> std::string = 0;
     virtual ~IStatBase() = default;
 
     // What types do i need

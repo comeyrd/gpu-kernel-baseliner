@@ -28,7 +28,7 @@ namespace Baseliner::Stats {
       return "number_of_bytes_per_kernel";
     }
     [[nodiscard]] auto unit() const -> std::string override {
-      return "ms";
+      return "";
     }
   };
   class SetupTime : public Imetric<SetupTime, float_milliseconds> {
@@ -63,6 +63,9 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto name() const -> std::string override {
       return "Repetitions";
     }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "";
+    }
     void calculate(Repetitions::type &value_to_update) override {
       value_to_update = value_to_update + 1;
     };
@@ -75,6 +78,9 @@ namespace Baseliner::Stats {
   public:
     [[nodiscard]] auto name() const -> std::string override {
       return "execution_time_vector";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "ms";
     }
     void calculate(ExecutionTimeVector::type &value_to_update, const typename ExecutionTime::type &inputs) override {
       value_to_update.push_back(inputs);
@@ -89,6 +95,9 @@ namespace Baseliner::Stats {
   public:
     [[nodiscard]] auto name() const -> std::string override {
       return "sorted_execution_time_vector";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "ms";
     }
     void calculate(SortedExecutionTimeVector::type &value_to_update,
                    const typename ExecutionTime::type &inputs) override {
@@ -110,6 +119,9 @@ namespace Baseliner::Stats {
       const auto middle = static_cast<size_t>(std::floor(inputs.size() / 2));
       value_to_update = inputs[middle].count();
     };
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "ms";
+    }
     [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
       return StatComputePolicy::ON_DEMAND;
     };
@@ -123,6 +135,9 @@ namespace Baseliner::Stats {
                    const typename ByteNumbers::type &nb_bytes) override {
       value_to_update = nb_bytes / (median * 1e6);
     };
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "GB/s";
+    }
     [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
       return StatComputePolicy::ON_DEMAND;
     };
@@ -132,6 +147,9 @@ namespace Baseliner::Stats {
   public:
     [[nodiscard]] auto name() const -> std::string override {
       return "Q1";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "ms";
     }
     void calculate(Q1::type &value_to_update, const typename SortedExecutionTimeVector::type &inputs) override {
       const auto quarter = static_cast<size_t>(std::floor(inputs.size() / 4));
@@ -145,6 +163,9 @@ namespace Baseliner::Stats {
   public:
     [[nodiscard]] auto name() const -> std::string override {
       return "Q3";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "ms";
     }
     void calculate(Q3::type &value_to_update, const typename SortedExecutionTimeVector::type &inputs) override {
       const auto three_quarter = static_cast<size_t>(std::floor(3 * inputs.size() / 4));
@@ -162,6 +183,9 @@ namespace Baseliner::Stats {
       : public IStat<MedianConfidenceInterval, ConfidenceInterval<float_milliseconds>, SortedExecutionTimeVector> {
     [[nodiscard]] auto name() const -> std::string override {
       return "median_ci";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "ms";
     }
 
   public:
@@ -196,6 +220,9 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto name() const -> std::string override {
       return "without_outliers";
     }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "ms";
+    }
     void calculate(std::vector<float_milliseconds> &value_to_update,
                    const typename SortedExecutionTimeVector::type &sorted_vec, const typename Q1::type &Q1_,
                    const typename Q3::type &Q3_) override {
@@ -227,6 +254,9 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto name() const -> std::string override {
       return "MAD";
     }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "ms";
+    }
     [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
       return StatComputePolicy::ON_DEMAND;
     };
@@ -240,90 +270,6 @@ namespace Baseliner::Stats {
       std::sort(deviations.begin(), deviations.end());
       const auto middle = static_cast<size_t>(std::floor(sorted_vec.size() / 2));
       value_to_update = deviations[middle];
-    }
-  };
-  class SnEstimator : public IStat<SnEstimator, float, SortedExecutionTimeVector> {
-  public:
-    [[nodiscard]] auto name() const -> std::string override {
-      return "sn_scale";
-    }
-    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
-      return StatComputePolicy::ON_DEMAND;
-    };
-    void calculate(float &value_to_update, const typename SortedExecutionTimeVector::type &inputs) override {
-      const size_t n = inputs.size();
-      if (n < 2) {
-        value_to_update = 0.0f;
-        return;
-      }
-
-      // 1. Pre-allocate ONCE
-      std::vector<float> outer_medians;
-      outer_medians.reserve(n);
-
-      std::vector<float> distances;
-      distances.reserve(n); // Re-use this buffer
-
-      for (size_t i = 0; i < n; ++i) {
-        distances.clear(); // Does not deallocate memory
-        float val_i = inputs[i].count();
-
-        for (size_t j = 0; j < n; ++j) {
-          if (i == j)
-            continue;
-          distances.push_back(std::abs(val_i - inputs[j].count()));
-        }
-
-        // 2. Use nth_element instead of sort (O(N) vs O(N log N))
-        auto mid_it = distances.begin() + distances.size() / 2;
-        std::nth_element(distances.begin(), mid_it, distances.end());
-        outer_medians.push_back(*mid_it);
-      }
-
-      // Final median
-      auto final_mid_it = outer_medians.begin() + outer_medians.size() / 2;
-      std::nth_element(outer_medians.begin(), final_mid_it, outer_medians.end());
-
-      value_to_update = 1.1926f * (*final_mid_it);
-    }
-  };
-
-  class QnEstimator : public IStat<QnEstimator, float, SortedExecutionTimeVector> {
-  public:
-    [[nodiscard]] auto name() const -> std::string override {
-      return "qn_scale";
-    }
-    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
-      return StatComputePolicy::ON_DEMAND;
-    };
-
-    void calculate(float &value_to_update, const typename SortedExecutionTimeVector::type &inputs) override {
-      const size_t n = inputs.size();
-      if (n < 2) {
-        value_to_update = 0.0f;
-        return;
-      }
-
-      // Calculate all pairwise differences |xi - xj| for i < j
-      std::vector<float> diffs;
-      diffs.reserve(n * (n - 1) / 2);
-
-      for (size_t i = 0; i < n; ++i) {
-        for (size_t j = i + 1; j < n; ++j) {
-          diffs.push_back(std::abs(inputs[i].count() - inputs[j].count()));
-        }
-      }
-
-      // The k-th order statistic. For Qn, k is roughly (n choose 2) / 4
-      // Formula: h = floor(n/2) + 1; k = h*(h-1)/2
-      const size_t h = (n / 2) + 1;
-      const size_t k = (h * (h - 1)) / 2;
-
-      std::nth_element(diffs.begin(), diffs.begin() + k - 1, diffs.end());
-
-      // Qn = d * {|xi - xj|; i < j}_(k)
-      // d is 2.2191 for consistency
-      value_to_update = 2.2191f * diffs[k - 1];
     }
   };
 

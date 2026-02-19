@@ -18,7 +18,6 @@ namespace Baseliner {
   template void serialize<Metric>(std::ostream &oss, const Metric &obj);
   template void serialize<Result>(std::ostream &oss, const Result &obj);
   template void serialize<MetricData>(std::ostream &oss, const MetricData &obj);
-  template void serialize<MetricStats>(std::ostream &oss, const MetricStats &obj);
   template void serialize<Option>(std::ostream &oss, const Option &obj);
 
   template void serialize<std::vector<Result>>(std::ostream &oss, const std::vector<Result> &obj);
@@ -34,15 +33,7 @@ namespace Baseliner {
     json_obj.get_to(opt.m_value);
   }
 
-  void to_json(json &json_obj, const MetricStats &metricStats) {
-    json_obj["name"] = metricStats.m_name;
-    json_obj["value"] = metricStats.m_data;
-  };
-
   void to_json(json &json_obj, const Metric &metric) {
-    if (not metric.m_v_stats.empty()) {
-      json_obj["stats"] = metric.m_v_stats;
-    }
     if (!std::holds_alternative<std::monostate>(metric.m_data)) {
       json_obj["value"] = metric.m_data;
     }
