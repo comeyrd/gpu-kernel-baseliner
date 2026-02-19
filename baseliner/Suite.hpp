@@ -22,9 +22,15 @@ namespace Baseliner {
     }
     auto run_all() -> std::vector<Result> override {
       std::vector<Result> results_v{};
-      const OptionsMap baseMap;
-      m_benchmark->gather_options();
+      const OptionsMap baseMap = m_benchmark->gather_options();
       OptionsMap tempMap;
+      //Checks that the Axe interface name and option exist
+      if(baseMap.find(m_axe.get_interface_name()) == baseMap.end()){
+        throw std::runtime_error("Axe error : The interface "+m_axe.get_interface_name()+" does not exist");
+      }
+      if(baseMap.at(m_axe.get_interface_name()).find(m_axe.get_option_name())==baseMap.at(m_axe.get_interface_name()).end()){
+        throw std::runtime_error("Axe error : No option "+m_axe.get_option_name()+" in interface "+m_axe.get_interface_name());
+      }
       for (const std::string &axe_val : m_axe.get_values()) {
         tempMap = baseMap;
         tempMap[m_axe.get_interface_name()][m_axe.get_option_name()].m_value = axe_val;
