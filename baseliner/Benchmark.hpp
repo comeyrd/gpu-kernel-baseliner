@@ -203,8 +203,8 @@ namespace Baseliner {
       check_case();
       setup_metrics();
       m_stats_engine->reset_engine();
-      update_metrics();
       m_case->setup(m_stream);
+      update_metrics();
       pre_all();
       while (!m_stopping->satisfied()) {
         m_case->reset_case(m_stream);
