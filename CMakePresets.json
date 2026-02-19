@@ -11,11 +11,12 @@
         "CMAKE_CXX_COMPILER": "clang++",
         "CMAKE_EXE_LINKER_FLAGS": "-fuse-ld=lld",
         "CMAKE_SHARED_LINKER_FLAGS": "-fuse-ld=lld",
-        "BASELINER_BUILD_EXAMPLES": "ON",
         "CMAKE_POLICY_DEFAULT_CMP0135": "NEW",
         "CMAKE_CXX_USE_RESPONSE_FILE_FOR_OBJECTS": "OFF",
         "CMAKE_CXX_USE_RESPONSE_FILE_FOR_LIBRARIES": "OFF",
-        "CMAKE_CXX_USE_RESPONSE_FILE_FOR_INCLUDES": "OFF"
+        "CMAKE_CXX_USE_RESPONSE_FILE_FOR_INCLUDES": "OFF",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON",
+        "BASELINER_BUILD_EXAMPLES": "ON"
       }
     },
     {
@@ -38,10 +39,7 @@
     },
     {
       "name": "debug-cuda",
-      "inherits": [
-        "base-common",
-        "flags-debug"
-      ],
+      "inherits": ["base-common", "flags-debug"],
       "displayName": "Debug CUDA (Clang/NVCC)",
       "cacheVariables": {
         "CMAKE_CUDA_HOST_COMPILER": "clang++",
@@ -53,10 +51,7 @@
     },
     {
       "name": "release-cuda",
-      "inherits": [
-        "base-common",
-        "flags-release"
-      ],
+      "inherits": ["base-common", "flags-release"],
       "displayName": "Release CUDA (Clang/NVCC)",
       "cacheVariables": {
         "CMAKE_CUDA_HOST_COMPILER": "clang++",
@@ -68,10 +63,7 @@
     },
     {
       "name": "debug-hip",
-      "inherits": [
-        "base-common",
-        "flags-debug"
-      ],
+      "inherits": ["base-common", "flags-debug"],
       "displayName": "Debug HIP (ROCm)",
       "cacheVariables": {
         "CMAKE_HIP_COMPILER": "clang++",
@@ -81,10 +73,7 @@
     },
     {
       "name": "release-hip",
-      "inherits": [
-        "base-common",
-        "flags-release"
-      ],
+      "inherits": ["base-common", "flags-release"],
       "displayName": "Release HIP (ROCm)",
       "cacheVariables": {
         "CMAKE_HIP_COMPILER": "clang++",

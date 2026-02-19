@@ -15,16 +15,10 @@ namespace Baseliner {
                    std::vector<float_milliseconds>, std::vector<int64_t>, std::vector<std::string>, std::vector<float>,
                    ConfidenceInterval<float>, ConfidenceInterval<float_milliseconds>, ConfidenceInterval<size_t>>;
 
-  struct MetricStats {
-    std::string m_name;
-    MetricData m_data;
-  };
-
   struct Metric {
     std::string m_name;
     std::string m_unit;
     MetricData m_data;
-    std::vector<MetricStats> m_v_stats;
   };
 
 } // namespace Baseliner
