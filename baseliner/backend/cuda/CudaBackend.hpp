@@ -40,4 +40,41 @@ namespace Baseliner {
   using ICudaKernel = IKernel<Device::CudaBackend, Input, Output>;
 } // namespace Baseliner
 
+#ifdef BASELINER_HAS_NVML
+#include <nvml.h>
+void check_nvml_error(nvmlReturn_t error_code, const char *file, int line);               // NOLINT
+void check_nvml_error_no_except(nvmlReturn_t error_code, const char *file, int line);     // NOLINT
+#define CHECK_NVML(error) check_nvml_error(error, __FILE__, __LINE__)                     // NOLINT
+#define CHECK_NVML_NO_EXCEPT(error) check_nvml_error_no_except(error, __FILE__, __LINE__) // NOLINT
+class NvmlManager {
+public:
+  // This is called automatically the first time Instance() is accessed
+  NvmlManager() {
+    nvmlInit();
+  }
+
+  // This is called when the program exits
+  ~NvmlManager() {
+    nvmlShutdown();
+  }
+  static auto get_current_device() -> nvmlDevice_t {
+    ensure_init();
+
+    int cudaIdx = 0;
+    CHECK_CUDA(cudaGetDevice(&cudaIdx));
+
+    char pciBusId[64];
+    CHECK_CUDA(cudaDeviceGetPCIBusId(pciBusId, 64, cudaIdx));
+
+    // 3. Ask NVML for the handle matching that specific PCI Bus ID
+    nvmlDevice_t device;
+    CHECK_NVML(nvmlDeviceGetHandleByPciBusId(pciBusId, &device));
+    return device;
+  }
+
+  static void ensure_init() {
+    static NvmlManager instance;
+  }
+};
+#endif
 #endif // CUDA_BACKEND_HPP
