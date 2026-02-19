@@ -31,6 +31,16 @@ namespace Baseliner::Stats {
       return "";
     }
   };
+   class FLOPCount : public Imetric<FLOPCount, size_t> {
+  public:
+    using Imetric<FLOPCount, size_t>::Imetric; // Needs this for defaults
+    [[nodiscard]] auto name() const -> std::string override {
+      return "FloatingPointOperation_per_kernel";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "";
+    }
+  };
   class SetupTime : public Imetric<SetupTime, float_milliseconds> {
   public:
     [[nodiscard]] auto name() const -> std::string override {
@@ -144,6 +154,28 @@ namespace Baseliner::Stats {
     };
     [[nodiscard]] auto unit() const -> std::string override {
       return "GB/s";
+    }
+    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
+      return StatComputePolicy::ON_DEMAND;
+    };
+  };
+   class FLOPThroughput : public IStat<FLOPThroughput, float, Median, FLOPCount> {
+    [[nodiscard]] auto name() const -> std::string override {
+      return "FLOPThroughput";
+    }
+    void calculate(FLOPThroughput::type &value_to_update, const typename Median::type &median,
+                   const typename FLOPCount::type &nb_flops) override {
+      auto flops = static_cast<double>(nb_flops);
+      auto miliseconds = static_cast<double>(median);
+
+      if (miliseconds > 0) {
+        value_to_update = static_cast<float>(flops / (miliseconds * 1e6));
+      } else {
+        value_to_update = 0.0f;
+      }
+    };
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "GFLOP/S";
     }
     [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
       return StatComputePolicy::ON_DEMAND;
