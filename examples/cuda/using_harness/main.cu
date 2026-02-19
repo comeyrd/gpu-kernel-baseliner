@@ -6,6 +6,7 @@
 #include <baseliner/StoppingCriterion.hpp>
 #include <baseliner/Suite.hpp>
 #include <baseliner/Task.hpp>
+#include <baseliner/backend/BackendStats.hpp>
 namespace {
   static auto benchmark1 = Baseliner::CudaBenchmark().set_kernel<ComputationKernel>();
 
@@ -15,7 +16,8 @@ namespace {
                         .add_stat<Baseliner::Stats::Q3>()
                         .add_stat<Baseliner::Stats::Median>()
                         .add_stat<Baseliner::Stats::WithoutOutliers>()
-                        .add_stat<Baseliner::Stats::MedianAbsoluteDeviation>();
+                        .add_stat<Baseliner::Stats::MedianAbsoluteDeviation>()
+                        .add_stat<Baseliner::Stats::ClockFrequencyVector<Baseliner::Device::CudaBackend>>();
 
   BASELINER_REGISTER_TASK(&benchmark1);
 
