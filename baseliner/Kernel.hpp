@@ -1,5 +1,6 @@
 #ifndef KERNEL_HPP
 #define KERNEL_HPP
+#include "baseliner/stats/StatsEngine.hpp"
 #include <baseliner/Options.hpp>
 #include <baseliner/Timer.hpp>
 #include <baseliner/backend/Backend.hpp>
@@ -68,6 +69,8 @@ namespace Baseliner {
     using Backend = B;
     virtual void setup(std::shared_ptr<typename Backend::stream_t> stream) = 0;
     virtual void reset_kernel(std::shared_ptr<typename Backend::stream_t> stream) = 0;
+     virtual void setup_metrics(std::shared_ptr<Stats::StatsEngine> &engine) {};
+    virtual void update_metrics(std::shared_ptr<Stats::StatsEngine> &engine) {};
     virtual void run(std::shared_ptr<typename Backend::stream_t> stream) = 0;
     virtual void teardown(std::shared_ptr<typename Backend::stream_t> stream, Output &output) = 0;
     virtual auto name() -> std::string = 0;

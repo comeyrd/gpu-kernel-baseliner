@@ -74,6 +74,12 @@ namespace Baseliner {
     auto name() -> std::string override {
       return m_kernel->name();
     }
+    void setup_metrics(std::shared_ptr<Stats::StatsEngine> &engine) override{
+      m_kernel->setup_metrics(engine);
+    };
+    void update_metrics(std::shared_ptr<Stats::StatsEngine> &engine) override{
+      m_kernel->update_metrics(engine);
+    };
 
   private:
     std::shared_ptr<typename Kernel::Input> m_input;
