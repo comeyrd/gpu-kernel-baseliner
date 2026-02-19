@@ -137,7 +137,7 @@ namespace Baseliner::Stats {
       auto seconds = static_cast<double>(median);
 
       if (seconds > 0) {
-        value_to_update = static_cast<float>(bytes / (seconds * 1e9));
+        value_to_update = static_cast<float>(bytes / (seconds * 1e6));
       } else {
         value_to_update = 0.0f;
       }
