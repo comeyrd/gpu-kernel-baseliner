@@ -34,6 +34,20 @@ if(CMAKE_HIP_COMPILER)
     endif()
     set(BASELINER_HAS_HIP ON)
     set(BASELINER_FOUND_DEVICE_COMPILER ON)
+    set(ROCM_PATH "/opt/rocm" CACHE PATH "Path to ROCm installation")
+        find_path(AMDSMI_INCLUDE_DIR NAMES amd_smi/amdsmi.h PATHS ${ROCM_PATH}/include)
+    find_library(AMDSMI_LIBRARY NAMES amd_smi PATHS ${ROCM_PATH}/lib)
+
+    if(AMDSMI_INCLUDE_DIR AND AMDSMI_LIBRARY)
+        message(STATUS "Found AMD SMI: ${AMDSMI_LIBRARY}")  
+        set(BASELINER_HAS_AMDSMI ON)
+        add_compile_definitions(BASELINER_HAS_AMDSMI) 
+        add_library(AMD::amdsmi UNKNOWN IMPORTED)
+        set_target_properties(AMD::amdsmi PROPERTIES
+            INTERFACE_INCLUDE_DIRECTORIES "${AMDSMI_INCLUDE_DIR}"
+            IMPORTED_LOCATION "${AMDSMI_LIBRARY}"
+        ) 
+    endif()
 endif()
 
 if(NOT BASELINER_FOUND_DEVICE_COMPILER)

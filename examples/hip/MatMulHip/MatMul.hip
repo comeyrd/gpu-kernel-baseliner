@@ -73,11 +73,11 @@ __global__ void MatrixMulHIP(float *C, float *A, float *B, int wA, int wB) {
   for (int a = aBegin, b = bBegin; a <= aEnd; a += aStep, b += bStep) {
     // Declaration of the shared memory array As used to
     // store the sub-matrix of A
-    __shared__ float As[BLOCK_SIZE][BLOCK_SIZE];
+    __shared__ float As[BLOCK_SIZE][BLOCK_SIZE+1];
 
     // Declaration of the shared memory array Bs used to
     // store the sub-matrix of B
-    __shared__ float Bs[BLOCK_SIZE][BLOCK_SIZE];
+    __shared__ float Bs[BLOCK_SIZE][BLOCK_SIZE+1];
 
     // Load the matrices from device memory
     // to shared memory; each thread loads
@@ -122,4 +122,35 @@ void MatrixMulKernel::run(std::shared_ptr<hipStream_t> stream) {
     MatrixMulHIP<32> // NOLINT
         <<<m_grid, m_threads, 0, *stream>>>(m_d_C, m_d_A, m_d_B, get_input()->m_wA, get_input()->m_wB);
   }
+}
+
+void MatrixMulKernel::setup_metrics(std::shared_ptr<Baseliner::Stats::StatsEngine> &engine) {
+    auto input = get_input();
+    uint64_t hA = static_cast<uint64_t>(input->m_hA);
+    uint64_t wA = static_cast<uint64_t>(input->m_wA);
+    uint64_t wB = static_cast<uint64_t>(input->m_wB);
+    uint64_t BS = static_cast<uint64_t>(input->m_block_size);
+
+    uint64_t total_flops = 2 * hA * wB * wA;
+
+    uint64_t read_A = hA * wA * (wB / BS);
+    uint64_t read_B = wA * wB * (hA / BS);
+    uint64_t write_C = hA * wB;
+    
+    uint64_t total_bytes = (read_A + read_B + write_C) * sizeof(float);
+    engine->register_metric<Baseliner::Stats::ByteNumbers>(total_bytes);
+}
+
+void MatrixMulKernel::update_metrics(std::shared_ptr<Baseliner::Stats::StatsEngine> &engine) {
+  auto input = get_input();
+    uint64_t hA = static_cast<uint64_t>(input->m_hA);
+    uint64_t wA = static_cast<uint64_t>(input->m_wA);
+    uint64_t wB = static_cast<uint64_t>(input->m_wB);
+    uint64_t BS = static_cast<uint64_t>(input->m_block_size);
+    uint64_t total_flops = 2 * hA * wB * wA;
+    uint64_t read_A = hA * wA * (wB / BS);
+    uint64_t read_B = wA * wB * (hA / BS);
+    uint64_t write_C = hA * wB;
+    uint64_t total_bytes = (read_A + read_B + write_C) * sizeof(float);
+    engine->update_values<Baseliner::Stats::ByteNumbers>(total_bytes);
 }

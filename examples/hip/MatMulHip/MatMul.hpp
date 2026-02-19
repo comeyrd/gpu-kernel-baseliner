@@ -66,7 +66,7 @@ public:
 
   void allocate() override {
     // Apply work_size multiplier to the height of A to increase workload
-    m_wA = m_wA_base;
+    m_wA = m_wA_base * get_work_size();
     m_hA = m_hA_base * get_work_size();
 
     // Inner dimensions must match
@@ -88,7 +88,7 @@ public:
 
   int m_wA, m_hA, m_wB, m_hB;
   int m_size_A, m_size_B;
-  int m_block_size = 16;
+  int m_block_size = 32;
 
   std::vector<float> m_h_A;
   std::vector<float> m_h_B;
@@ -141,6 +141,8 @@ public:
   auto name() -> std::string override {
     return "MatrixMulKernel";
   };
+  void setup_metrics(std::shared_ptr<Baseliner::Stats::StatsEngine> &engine) override;
+  void update_metrics(std::shared_ptr<Baseliner::Stats::StatsEngine> &engine) override;
 
   void setup(std::shared_ptr<hipStream_t> stream) override {
     size_t mem_size_A = get_input()->m_size_A * sizeof(float);
