@@ -6,7 +6,7 @@
 #include <sstream>
 #include <vector>
 namespace Baseliner {
-  using str_conf = std::pair<std::string, bool>;
+
   class ITask {
   public:
     virtual auto name() -> std::string = 0;
