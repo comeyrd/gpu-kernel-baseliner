@@ -133,7 +133,14 @@ namespace Baseliner::Stats {
     }
     void calculate(MedianItemTroughput::type &value_to_update, const typename Median::type &median,
                    const typename ByteNumbers::type &nb_bytes) override {
-      value_to_update = nb_bytes / (median * 1e6);
+      auto bytes = static_cast<double>(nb_bytes);
+      auto seconds = static_cast<double>(median);
+
+      if (seconds > 0) {
+        value_to_update = static_cast<float>(bytes / (seconds * 1e9));
+      } else {
+        value_to_update = 0.0f;
+      }
     };
     [[nodiscard]] auto unit() const -> std::string override {
       return "GB/s";
