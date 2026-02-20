@@ -5,6 +5,7 @@
 #include <baseliner/Timer.hpp>
 #include <baseliner/backend/Backend.hpp>
 #include <memory>
+#include <optional>
 namespace Baseliner {
 
   // Move only semantics base class
@@ -69,12 +70,17 @@ namespace Baseliner {
     using Backend = B;
     virtual void setup(std::shared_ptr<typename Backend::stream_t> stream) = 0;
     virtual void reset_kernel(std::shared_ptr<typename Backend::stream_t> stream) = 0;
-     virtual void setup_metrics(std::shared_ptr<Stats::StatsEngine> &engine) {};
+    virtual void setup_metrics(std::shared_ptr<Stats::StatsEngine> &engine) {};
     virtual void update_metrics(std::shared_ptr<Stats::StatsEngine> &engine) {};
     virtual void run(std::shared_ptr<typename Backend::stream_t> stream) = 0;
     virtual void teardown(std::shared_ptr<typename Backend::stream_t> stream, Output &output) = 0;
     virtual auto name() -> std::string = 0;
-
+    virtual auto number_of_floating_point_operations() -> std::optional<size_t> {
+      return {};
+    }
+    virtual auto number_of_bytes() -> std::optional<size_t> {
+      return {};
+    }
     IKernel(const std::shared_ptr<const Input> input)
         : m_input(input) {};
     virtual ~IKernel() = default;

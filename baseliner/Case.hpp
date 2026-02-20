@@ -1,11 +1,13 @@
 #ifndef BASELINER_CASE_HPP
 #define BASELINER_CASE_HPP
 #include "baseliner/Options.hpp"
+#include "baseliner/stats/Stats.hpp"
 #include "baseliner/stats/StatsEngine.hpp"
 #include <baseliner/Task.hpp>
 #include <baseliner/Timer.hpp>
 #include <baseliner/backend/Backend.hpp>
 #include <memory>
+#include <optional>
 namespace Baseliner {
   template <typename Backend>
   class ICase : public Device::GpuTimer<Backend>, public LazyOption {
@@ -74,14 +76,34 @@ namespace Baseliner {
     auto name() -> std::string override {
       return m_kernel->name();
     }
-    void setup_metrics(std::shared_ptr<Stats::StatsEngine> &engine) override{
+    void setup_metrics(std::shared_ptr<Stats::StatsEngine> &engine) override {
+      std::optional<size_t> bytes = m_kernel->number_of_bytes();
+      std::optional<size_t> flops = m_kernel->number_of_floating_point_operations();
+      if (bytes.has_value()) {
+        engine->register_metric<Stats::ByteNumbers>(bytes.value());
+        m_bytes = true;
+      }
+      if (flops.has_value()) {
+        engine->register_metric<Stats::FLOPCount>(flops.value());
+        m_bytes = true;
+      }
       m_kernel->setup_metrics(engine);
     };
-    void update_metrics(std::shared_ptr<Stats::StatsEngine> &engine) override{
+    void update_metrics(std::shared_ptr<Stats::StatsEngine> &engine) override {
+      std::optional<size_t> bytes = m_kernel->number_of_bytes();
+      std::optional<size_t> flops = m_kernel->number_of_floating_point_operations();
+      if (m_bytes) {
+        engine->update_values<Stats::ByteNumbers>(bytes.value());
+      }
+      if (m_flops) {
+        engine->update_values<Stats::FLOPCount>(flops.value());
+      }
       m_kernel->update_metrics(engine);
     };
 
   private:
+    bool m_flops = false;
+    bool m_bytes = false;
     std::shared_ptr<typename Kernel::Input> m_input;
     std::unique_ptr<Kernel> m_kernel;
     std::shared_ptr<typename Kernel::Output> m_gpu_output;
