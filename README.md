@@ -27,7 +27,7 @@ Baseliner is designed to answer specific performance questions:
 - **Nvidia**: CUDA Toolkit (11.0+)
 - **AMD**: ROCm(5.2+)
 
-_The recommended setup is the highest CUDA or HIP version your device supports._
+_The recommended setup is the highest CUDA or HIP version your Backend supports._
 _Note_: You need at least one of the GPU architectures to compile and use this library.
 
 ### Depedencies

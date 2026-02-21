@@ -49,13 +49,13 @@ namespace Detail {
 } // namespace Detail
 
 template <typename T>
-class RocBlasGemmCase : public Baseliner::ICase<Baseliner::Device::HipBackend> {
+class RocBlasGemmCase : public Baseliner::ICase<Baseliner::Backend::HipBackend> {
 public:
   auto name() -> std::string override {
     return "RocBlasGemm_" + std::string(typeid(T).name());
   }
 
-  void setup(std::shared_ptr<typename Baseliner::Device::HipBackend::stream_t> stream) override {
+  void setup(std::shared_ptr<typename Baseliner::Backend::HipBackend::stream_t> stream) override {
     rocblas_create_handle(&m_handle);
     rocblas_set_stream(m_handle, *stream);
     m_m = m_m_def * m_work_size;
@@ -79,7 +79,7 @@ public:
     CHECK_HIP(hipMemcpyAsync(m_d_B, h_B.data(), size_B * sizeof(T), hipMemcpyHostToDevice, *stream));
   }
 
-  void run_case(std::shared_ptr<typename Baseliner::Device::HipBackend::stream_t> stream) override {
+  void run_case(std::shared_ptr<typename Baseliner::Backend::HipBackend::stream_t> stream) override {
     Detail::RocBlasTraits<T>::gemm(m_handle, rocblas_operation_none, rocblas_operation_none, m_m, m_n, m_k, &m_alpha,
                                    m_d_A, m_m, m_d_B, m_k, &m_beta, m_d_C, m_m);
   }
@@ -99,14 +99,14 @@ public:
     uint64_t total_flops = 2ULL * M * N * K;
     engine->update_values<Baseliner::Stats::FLOPCount>(total_flops);
   }
-  void teardown(std::shared_ptr<typename Baseliner::Device::HipBackend::stream_t> stream) override {
+  void teardown(std::shared_ptr<typename Baseliner::Backend::HipBackend::stream_t> stream) override {
     rocblas_destroy_handle(m_handle);
     CHECK_HIP(hipFree(m_d_A));
     CHECK_HIP(hipFree(m_d_B));
     CHECK_HIP(hipFree(m_d_C));
   }
 
-  void reset_case(std::shared_ptr<typename Baseliner::Device::HipBackend::stream_t> stream) override {
+  void reset_case(std::shared_ptr<typename Baseliner::Backend::HipBackend::stream_t> stream) override {
     CHECK_HIP(hipMemsetAsync(m_d_C, 0, (m_m * m_n) * sizeof(T), *stream));
   }
 

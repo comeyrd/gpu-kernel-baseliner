@@ -251,7 +251,7 @@ COMPUTATION_KERNEL.CU
 
 /\*\*
 
-- Matrix multiplication (CUDA Kernel) on the device: C = A \* B
+- Matrix multiplication (CUDA Kernel) on the Backend: C = A \* B
 - wA is A's width and wB is B's width
   */
   template <int BLOCK_SIZE>
@@ -294,7 +294,7 @@ for (int a = aBegin, b = bBegin; a <= aEnd; a += aStep, b += bStep) {
     // store the sub-matrix of B
     __shared__ float Bs[BLOCK_SIZE][BLOCK_SIZE];
 
-    // Load the matrices from device memory
+    // Load the matrices from Backend memory
     // to shared memory; each thread loads
     // one element of each matrix
     As[ty][tx] = A[a + wA * ty + tx];
@@ -320,7 +320,7 @@ for (int a = aBegin, b = bBegin; a <= aEnd; a += aStep, b += bStep) {
 
 }
 
-// Write the block sub-matrix to device memory;
+// Write the block sub-matrix to Backend memory;
 // each thread writes one element
 int c = wB _ BLOCK_SIZE _ by + BLOCK*SIZE * bx;
 C[c + wB _ ty + tx] = Csub;
@@ -364,7 +364,7 @@ m_d_C, m_d_A, m_d_B, m_input.m_wA, m_input.m_wB);
 
 IF you don't find CPU implementations, simply put a //TODO inside of the CPU impl.
 
-Consider that you need only to find in the code i will give you : Where the device code is (kernels) and put it in the .CU, Where the memory copies are, and put them into setup() and teardown(), put the logic for reseting the memory state in reset(), setup the types for the input and the output.
+Consider that you need only to find in the code i will give you : Where the Backend code is (kernels) and put it in the .CU, Where the memory copies are, and put them into setup() and teardown(), put the logic for reseting the memory state in reset(), setup the types for the input and the output.
 If the provided kernel does not have a way of creating a random input, take inspiration from the provided generate random to generate random input data with the seed parameter
 Do not forget to add the logic to display the output to a stream !
 Do not forget the logic to compare two outputs !

@@ -13,7 +13,7 @@ void check_hip_error_no_except(hipError_t error_code, const char *file, int line
 #define CHECK_HIP_NO_EXCEPT(error) check_hip_error_no_except(error, __FILE__, __LINE__) // NOLINT
 
 namespace Baseliner {
-  namespace Device {
+  namespace Backend {
     using HipBackend = Backend<hipStream_t>;
     template <>
     class GpuTimer<HipBackend> {
@@ -34,12 +34,12 @@ namespace Baseliner {
       hipEvent_t m_start_event{};
       hipEvent_t m_stop_event{};
     };
-  } // namespace Device
-  using IHipCase = ICase<Device::HipBackend>;
-  using HipBenchmark = Benchmark<Device::HipBackend>;
+  } // namespace Backend
+  using IHipCase = ICase<Backend::HipBackend>;
+  using HipBenchmark = Benchmark<Backend::HipBackend>;
 
   template <typename Input, typename Output>
-  using IHipKernel = IKernel<Device::HipBackend, Input, Output>;
+  using IHipKernel = IKernel<Backend::HipBackend, Input, Output>;
 } // namespace Baseliner
 
 #ifdef BASELINER_HAS_AMDSMI
@@ -89,7 +89,7 @@ public:
     CHECK_AMDSMI(amdsmi_get_processor_handle_from_bdf(bdf, &proc));
 
     return m_processors[0];
-    //return proc;
+    // return proc;
   }
 
   static auto ensure_init() -> AmdSmiManager * {

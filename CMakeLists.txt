@@ -51,7 +51,7 @@ if(CMAKE_HIP_COMPILER)
 endif()
 
 if(NOT BASELINER_FOUND_DEVICE_COMPILER)
-    message(FATAL_ERROR "Baseliner requires at least one device device compiler")
+    message(FATAL_ERROR "Baseliner requires at least one Backend Backend compiler")
 endif()
 #TEMPORARY FIX AS THROUGH PRESETS IT DOES NOT WORK
 set(CMAKE_CUDA_USE_RESPONSE_FILE_FOR_INCLUDES 0)

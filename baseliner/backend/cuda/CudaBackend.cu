@@ -14,10 +14,10 @@ void check_cuda_error_no_except(cudaError_t error_code, const char *file, int li
   }
 }
 namespace Baseliner {
-  namespace Device {
+  namespace Backend {
     template <>
-    void CudaBackend::set_device(int device) {
-      CHECK_CUDA(cudaSetDevice(device));
+    void CudaBackend::set_device(int Backend) {
+      CHECK_CUDA(cudaSetDevice(Backend));
     }
     template <>
     void CudaBackend::reset_device() {
@@ -43,6 +43,6 @@ namespace Baseliner {
         }
       });
     }
-  } // namespace Device
+  } // namespace Backend
 
 } // namespace Baseliner

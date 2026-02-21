@@ -77,7 +77,7 @@ public:
   auto name() -> std::string override {
     return "ComputationKernel";
   };
-  void setup(std::shared_ptr<ComputationKernel::Backend::stream_t> stream) override {
+  void setup(std::shared_ptr<ComputationKernel::Kernel_Backend::stream_t> stream) override {
     CHECK_CUDA(cudaMallocAsync(&m_d_a, get_input()->m_N * sizeof(int), *stream));
     CHECK_CUDA(cudaMallocAsync(&m_d_b, get_input()->m_N * sizeof(int), *stream));
     CHECK_CUDA(cudaMallocAsync(&m_d_c, get_input()->m_N * sizeof(int), *stream));
@@ -88,9 +88,9 @@ public:
     CHECK_CUDA(cudaMemcpy(m_d_a, get_input()->m_a_host.data(), get_input()->m_N * sizeof(int), cudaMemcpyHostToDevice));
     CHECK_CUDA(cudaMemcpy(m_d_b, get_input()->m_b_host.data(), get_input()->m_N * sizeof(int), cudaMemcpyHostToDevice));
   };
-  void reset_kernel(std::shared_ptr<ComputationKernel::Backend::stream_t> stream) override {};
-  void run(std::shared_ptr<ComputationKernel::Backend::stream_t> stream) override;
-  void teardown(std::shared_ptr<ComputationKernel::Backend::stream_t> stream, Output &output) override {
+  void reset_kernel(std::shared_ptr<ComputationKernel::Kernel_Backend::stream_t> stream) override {};
+  void run(std::shared_ptr<ComputationKernel::Kernel_Backend::stream_t> stream) override;
+  void teardown(std::shared_ptr<ComputationKernel::Kernel_Backend::stream_t> stream, Output &output) override {
     CHECK_CUDA(cudaMemcpy(output.m_c_host.data(), m_d_c, get_input()->m_N * sizeof(int), cudaMemcpyDeviceToHost));
     CHECK_CUDA(cudaFree(m_d_a));
     CHECK_CUDA(cudaFree(m_d_b));

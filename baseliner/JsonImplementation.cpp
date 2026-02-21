@@ -1,4 +1,4 @@
-#include <baseliner/JsonHandler.hpp>
+#include <baseliner/JsonImplementation.hpp>
 #include <baseliner/Metric.hpp>
 #include <baseliner/Options.hpp>
 #include <baseliner/Result.hpp>

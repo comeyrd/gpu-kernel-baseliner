@@ -6,11 +6,11 @@
 int main() {
   std::cout << "Cuda Kernel Manipuation" << std::endl;
 
-  auto backend = Baseliner::Device::CudaBackend();
+  auto backend = Baseliner::Backend::CudaBackend();
   auto stream = backend.create_stream();
-  auto flusher = Baseliner::Device::L2Flusher<Baseliner::Device::CudaBackend>();
-  auto blocker = Baseliner::Device::BlockingKernel<Baseliner::Device::CudaBackend>();
-  auto timer = Baseliner::Device::GpuTimer<Baseliner::Device::CudaBackend>();
+  auto flusher = Baseliner::Backend::L2Flusher<Baseliner::Backend::CudaBackend>();
+  auto blocker = Baseliner::Backend::BlockingKernel<Baseliner::Backend::CudaBackend>();
+  auto timer = Baseliner::Backend::GpuTimer<Baseliner::Backend::CudaBackend>();
   auto computation_case = Baseliner::KernelCase<ComputationKernel>();
   computation_case.setup(stream);
   computation_case.timed_run(stream);

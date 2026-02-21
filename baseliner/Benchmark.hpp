@@ -16,6 +16,7 @@
 #include <utility>
 #include <vector>
 const static std::string DEFAULT_BENCHMARK_NAME = "Benchmark";
+
 #define BASELINER_BENCHMARK_SETTER(name, type)                                                                         \
   auto set_##name(type value) &->Benchmark & {                                                                         \
     this->set_m_##name(value); /* or call an internal logic function */                                                \
@@ -114,8 +115,7 @@ namespace Baseliner {
     std::string m_name = DEFAULT_BENCHMARK_NAME;
   };
 
-  template <typename Backend>
-  // TODO Setup the static checks at compile time.
+  template <typename BackendT>
   class Benchmark : public IBenchmark {
   public:
     // Benchmark
@@ -243,12 +243,12 @@ namespace Baseliner {
 
     // Stats registry
     // Backend specifics
-    Backend m_backend;
-    Device::L2Flusher<Backend> m_flusher;
-    Device::BlockingKernel<Backend> m_blocker;
-    std::shared_ptr<typename Backend::stream_t> m_stream;
+    BackendT m_backend;
+    Backend::L2Flusher<BackendT> m_flusher;
+    Backend::BlockingKernel<BackendT> m_blocker;
+    std::shared_ptr<typename BackendT::stream_t> m_stream;
 
-    std::shared_ptr<ICase<Backend>> m_case;
+    std::shared_ptr<ICase<BackendT>> m_case;
     virtual void update_metrics() {
       if (m_case) {
         m_case->update_metrics(m_stats_engine);

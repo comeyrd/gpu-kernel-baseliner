@@ -35,7 +35,7 @@
 // ----------------------------------------------------------------------
 
 /**
- * Matrix multiplication (CUDA Kernel) on the device: C = A * B
+ * Matrix multiplication (CUDA Kernel) on the Backend: C = A * B
  * wA is A's width and wB is B's width
  */
 template <int BLOCK_SIZE>
@@ -78,7 +78,7 @@ __global__ void MatrixMulCUDA(float *C, float *A, float *B, int wA, int wB) {
     // store the sub-matrix of B
     __shared__ float Bs[BLOCK_SIZE][BLOCK_SIZE];
 
-    // Load the matrices from device memory
+    // Load the matrices from Backend memory
     // to shared memory; each thread loads
     // one element of each matrix
     As[ty][tx] = A[a + wA * ty + tx];
@@ -102,7 +102,7 @@ __global__ void MatrixMulCUDA(float *C, float *A, float *B, int wA, int wB) {
     __syncthreads();
   }
 
-  // Write the block sub-matrix to device memory;
+  // Write the block sub-matrix to Backend memory;
   // each thread writes one element
   int c = wB * BLOCK_SIZE * by + BLOCK_SIZE * bx;
   C[c + wB * ty + tx] = Csub;

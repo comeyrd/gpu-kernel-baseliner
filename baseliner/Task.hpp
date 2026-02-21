@@ -1,5 +1,5 @@
-#ifndef BASELINER_EXECUTABLE_HPP
-#define BASELINER_EXECUTABLE_HPP
+#ifndef BASELINER_TASK_HPP
+#define BASELINER_TASK_HPP
 #include <baseliner/Result.hpp>
 #include <iomanip>
 #include <memory>
@@ -62,4 +62,4 @@ namespace Baseliner {
 #define BASELINER_REGISTER_TASK(item)                                                                                  \
   static const Baseliner::TaskRegistrar ATTRIBUTE_USED CONCAT(registrar_, __LINE__)(item);
 
-#endif // BASELINER_EXECUTABLE_HPP
+#endif // BASELINER_TASK_HPP

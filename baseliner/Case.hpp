@@ -1,40 +1,40 @@
 #ifndef BASELINER_CASE_HPP
 #define BASELINER_CASE_HPP
-#include "baseliner/Options.hpp"
-#include "baseliner/stats/Stats.hpp"
-#include "baseliner/stats/StatsEngine.hpp"
+#include <baseliner/Options.hpp>
 #include <baseliner/Task.hpp>
 #include <baseliner/Timer.hpp>
 #include <baseliner/backend/Backend.hpp>
+#include <baseliner/stats/Stats.hpp>
+#include <baseliner/stats/StatsEngine.hpp>
 #include <memory>
 #include <optional>
 namespace Baseliner {
-  template <typename Backend>
-  class ICase : public Device::GpuTimer<Backend>, public LazyOption {
+  template <typename BackendT>
+  class ICase : public Backend::GpuTimer<BackendT>, public LazyOption {
   public:
-    using Device::GpuTimer<Backend>::time_elapsed;
+    using Backend::GpuTimer<BackendT>::time_elapsed;
     ICase() = default;
     virtual ~ICase() = default;
     virtual auto name() -> std::string = 0;
-    virtual void setup(std::shared_ptr<typename Backend::stream_t> stream) = 0;
+    virtual void setup(std::shared_ptr<typename BackendT::stream_t> stream) = 0;
     virtual void setup_metrics(std::shared_ptr<Stats::StatsEngine> &engine) {};
     virtual void update_metrics(std::shared_ptr<Stats::StatsEngine> &engine) {};
-    virtual void reset_case(std::shared_ptr<typename Backend::stream_t> stream) = 0;
-    virtual void run_case(std::shared_ptr<typename Backend::stream_t> stream) = 0;
-    virtual void teardown(std::shared_ptr<typename Backend::stream_t> stream) = 0;
+    virtual void reset_case(std::shared_ptr<typename BackendT::stream_t> stream) = 0;
+    virtual void run_case(std::shared_ptr<typename BackendT::stream_t> stream) = 0;
+    virtual void teardown(std::shared_ptr<typename BackendT::stream_t> stream) = 0;
     virtual auto validate_case() -> bool = 0;
 
-    virtual void timed_run(std::shared_ptr<typename Backend::stream_t> stream) {
+    virtual void timed_run(std::shared_ptr<typename BackendT::stream_t> stream) {
       this->measure_start(stream);
       run_case(stream);
       this->measure_stop(stream);
     };
-    virtual void time_setup(std::shared_ptr<typename Backend::stream_t> stream) {
+    virtual void time_setup(std::shared_ptr<typename BackendT::stream_t> stream) {
       this->measure_start(stream);
       setup(stream);
       this->measure_stop(stream);
     };
-    virtual void time_teardown(std::shared_ptr<typename Backend::stream_t> stream) {
+    virtual void time_teardown(std::shared_ptr<typename BackendT::stream_t> stream) {
       this->measure_start(stream);
       teardown(stream);
       this->measure_stop(stream);
@@ -42,25 +42,24 @@ namespace Baseliner {
   };
 
   template <typename Kernel>
-  class KernelCase : public ICase<typename Kernel::Backend> {
-    using Backend = typename Kernel::Backend;
+  class KernelCase : public ICase<typename Kernel::Kernel_Backend> {
+    using BackendT = typename Kernel::Kernel_Backend;
 
   public:
     KernelCase()
         : m_input(std::make_shared<typename Kernel::Input>()),
-          m_kernel(std::make_unique<Kernel>(m_input)) {
-    }
-    void setup(std::shared_ptr<typename Backend::stream_t> stream) override {
+          m_kernel(std::make_unique<Kernel>(m_input)) {};
+    void setup(std::shared_ptr<typename BackendT::stream_t> stream) override {
       m_input->generate_random();
       m_kernel->setup(stream);
     };
-    void reset_case(std::shared_ptr<typename Backend::stream_t> stream) override {
+    void reset_case(std::shared_ptr<typename BackendT::stream_t> stream) override {
       m_kernel->reset_kernel(stream);
     }
-    void run_case(std::shared_ptr<typename Backend::stream_t> stream) override {
+    void run_case(std::shared_ptr<typename BackendT::stream_t> stream) override {
       m_kernel->run(stream);
     }
-    void teardown(std::shared_ptr<typename Backend::stream_t> stream) override {
+    void teardown(std::shared_ptr<typename BackendT::stream_t> stream) override {
       m_gpu_output = std::make_shared<typename Kernel::Output>(m_input);
       m_kernel->teardown(stream, *m_gpu_output);
     }

@@ -1,5 +1,5 @@
 #include <baseliner/backend/hip/HipBackend.hpp>
-namespace Baseliner::Device {
+namespace Baseliner::Backend {
 
   GpuTimer<HipBackend>::GpuTimer() {
     CHECK_HIP(hipEventCreate(&m_start_event));
@@ -22,4 +22,4 @@ namespace Baseliner::Device {
     return float_milliseconds(result);
   };
 
-} // namespace Baseliner::Device
+} // namespace Baseliner::Backend

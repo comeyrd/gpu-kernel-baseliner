@@ -43,11 +43,11 @@ void run_kernel() {
 
   int threadsPerBlock = 256;
   int blocksPerGrid = (N + threadsPerBlock - 1) / threadsPerBlock;
-  auto backend = Baseliner::Device::CudaBackend();
+  auto backend = Baseliner::Backend::CudaBackend();
   auto stream = backend.create_stream();
-  auto flusher = Baseliner::Device::L2Flusher<Baseliner::Device::CudaBackend>();
-  auto blocker = Baseliner::Device::BlockingKernel<Baseliner::Device::CudaBackend>();
-  auto timer = Baseliner::Device::GpuTimer<Baseliner::Device::CudaBackend>();
+  auto flusher = Baseliner::Backend::L2Flusher<Baseliner::Backend::CudaBackend>();
+  auto blocker = Baseliner::Backend::BlockingKernel<Baseliner::Backend::CudaBackend>();
+  auto timer = Baseliner::Backend::GpuTimer<Baseliner::Backend::CudaBackend>();
   timer.measure_start(stream);
   computation_kernel<<<blocksPerGrid, threadsPerBlock, 0, *stream>>>(d_a, d_b, d_c, N);
   timer.measure_stop(stream);
@@ -70,6 +70,6 @@ void run_kernel() {
 }
 
 int main() {
-  std::cout << "Cuda Device Manipuation" << std::endl;
+  std::cout << "Cuda Backend Manipuation" << std::endl;
   run_kernel();
 }

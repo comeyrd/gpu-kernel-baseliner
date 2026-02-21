@@ -1,6 +1,6 @@
 #include <baseliner/backend/hip/HipBackend.hpp>
 namespace Baseliner {
-  namespace Device {
+  namespace Backend {
 
     template <>
     L2Flusher<HipBackend>::L2Flusher() {
@@ -24,6 +24,6 @@ namespace Baseliner {
         CHECK_HIP(hipMemsetAsync(m_l2_buffer, 0, static_cast<std::size_t>(m_buffer_size), *stream));
       }
     }
-  } // namespace Device
+  } // namespace Backend
 
 } // namespace Baseliner

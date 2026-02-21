@@ -67,13 +67,13 @@ namespace Baseliner {
   public:
     using Input = I;
     using Output = O;
-    using Backend = B;
-    virtual void setup(std::shared_ptr<typename Backend::stream_t> stream) = 0;
-    virtual void reset_kernel(std::shared_ptr<typename Backend::stream_t> stream) = 0;
+    using Kernel_Backend = B;
+    virtual void setup(std::shared_ptr<typename Kernel_Backend::stream_t> stream) = 0;
+    virtual void reset_kernel(std::shared_ptr<typename Kernel_Backend::stream_t> stream) = 0;
     virtual void setup_metrics(std::shared_ptr<Stats::StatsEngine> &engine) {};
     virtual void update_metrics(std::shared_ptr<Stats::StatsEngine> &engine) {};
-    virtual void run(std::shared_ptr<typename Backend::stream_t> stream) = 0;
-    virtual void teardown(std::shared_ptr<typename Backend::stream_t> stream, Output &output) = 0;
+    virtual void run(std::shared_ptr<typename Kernel_Backend::stream_t> stream) = 0;
+    virtual void teardown(std::shared_ptr<typename Kernel_Backend::stream_t> stream, Output &output) = 0;
     virtual auto name() -> std::string = 0;
     virtual auto number_of_floating_point_operations() -> std::optional<size_t> {
       return {};

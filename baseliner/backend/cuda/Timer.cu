@@ -1,5 +1,5 @@
 #include <baseliner/backend/cuda/CudaBackend.hpp>
-namespace Baseliner::Device {
+namespace Baseliner::Backend {
 
   GpuTimer<CudaBackend>::GpuTimer() {
     CHECK_CUDA(cudaEventCreate(&m_start_event));
@@ -22,4 +22,4 @@ namespace Baseliner::Device {
     return float_milliseconds(result);
   };
 
-} // namespace Baseliner::Device
+} // namespace Baseliner::Backend

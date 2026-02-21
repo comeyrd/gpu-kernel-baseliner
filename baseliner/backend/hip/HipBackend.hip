@@ -14,10 +14,10 @@ void check_hip_error_no_except(hipError_t error_code, const char *file, int line
   }
 }
 namespace Baseliner {
-  namespace Device {
+  namespace Backend {
     template <>
-    void HipBackend::set_device(int device) {
-      CHECK_HIP(hipSetDevice(device));
+    void HipBackend::set_device(int Backend) {
+      CHECK_HIP(hipSetDevice(Backend));
     }
     template <>
     void HipBackend::reset_device() {
@@ -43,6 +43,6 @@ namespace Baseliner {
         }
       });
     }
-  } // namespace Device
+  } // namespace Backend
 
 } // namespace Baseliner

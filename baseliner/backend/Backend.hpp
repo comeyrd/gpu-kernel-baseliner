@@ -4,7 +4,7 @@
 #include <baseliner/Timer.hpp>
 #include <iostream>
 #include <memory>
-namespace Baseliner::Device {
+namespace Baseliner::Backend {
   template <typename S>
   class Backend {
   public:
@@ -12,14 +12,15 @@ namespace Baseliner::Device {
     auto create_stream() -> std::shared_ptr<stream_t>;
     void synchronize(std::shared_ptr<stream_t> stream);
     void get_last_error();
-    void set_device(int device);
+    void set_device(int Backend);
     void reset_device();
     ~Backend() = default;
   };
-  template <typename Backend>
+
+  template <typename BackendT>
   class L2Flusher {
   public:
-    void flush(std::shared_ptr<typename Backend::stream_t> stream);
+    void flush(std::shared_ptr<typename BackendT::stream_t> stream);
     ~L2Flusher();
     L2Flusher();
     L2Flusher(L2Flusher &&other) noexcept
@@ -42,10 +43,10 @@ namespace Baseliner::Device {
     int m_buffer_size{}; // NOLINT
     int *m_l2_buffer{};  // NOLINT
   };
-  template <typename IBackend>
+  template <typename BackendT>
   class BlockingKernel {
   public:
-    void block(std::shared_ptr<typename IBackend::stream_t> stream, double timeout);
+    void block(std::shared_ptr<typename BackendT::stream_t> stream, double timeout);
     void unblock() {
       if (m_host_flag == nullptr || m_host_timeout_flag == nullptr) {
         return;
@@ -85,7 +86,7 @@ namespace Baseliner::Device {
     };
   };
 
-  template <typename Device>
+  template <typename BackendT>
   class GpuTimer {
   public:
     ~GpuTimer();
@@ -96,11 +97,11 @@ namespace Baseliner::Device {
     auto operator=(GpuTimer &&) -> GpuTimer & = delete;
     auto time_elapsed() -> float_milliseconds;
 
-    void measure_start(std::shared_ptr<typename Device::stream_t> stream);
-    void measure_stop(std::shared_ptr<typename Device::stream_t> stream);
+    void measure_start(std::shared_ptr<typename BackendT::stream_t> stream);
+    void measure_stop(std::shared_ptr<typename BackendT::stream_t> stream);
 
   protected:
   };
-} // namespace Baseliner::Device
+} // namespace Baseliner::Backend
 
 #endif // BACKEND_HPP

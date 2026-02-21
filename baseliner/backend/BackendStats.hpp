@@ -4,28 +4,29 @@
 
 namespace Baseliner::Stats {
 
-  template <typename Device>
-  class ClockFrequency : public IStat<ClockFrequency<Device>, float> {
+  template <typename BackendT>
+  class ClockFrequency : public IStat<ClockFrequency<BackendT>, float> {
   public:
     [[nodiscard]] auto name() const -> std::string override;
     [[nodiscard]] auto unit() const -> std::string override {
       return "GHz";
     }
-    void calculate(typename ClockFrequency<Device>::type &value_to_update) override;
+    void calculate(typename ClockFrequency<BackendT>::type &value_to_update) override;
     [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
       return StatComputePolicy::EVERY_TICK;
     };
   };
 
-  template <typename Device>
-  class ClockFrequencyVector : public IStat<ClockFrequencyVector<Device>, std::vector<float>, ClockFrequency<Device>> {
+  template <typename BackendT>
+  class ClockFrequencyVector
+      : public IStat<ClockFrequencyVector<BackendT>, std::vector<float>, ClockFrequency<BackendT>> {
   public:
     [[nodiscard]] auto name() const -> std::string override;
     [[nodiscard]] auto unit() const -> std::string override {
       return "GHz";
     }
-    void calculate(typename ClockFrequencyVector<Device>::type &value_to_update,
-                   typename ClockFrequency<Device>::type const &input) override {
+    void calculate(typename ClockFrequencyVector<BackendT>::type &value_to_update,
+                   typename ClockFrequency<BackendT>::type const &input) override {
       value_to_update.push_back(input);
     };
     [[nodiscard]] auto compute_policy() -> StatComputePolicy override {

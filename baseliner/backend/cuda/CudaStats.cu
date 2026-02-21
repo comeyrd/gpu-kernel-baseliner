@@ -7,19 +7,19 @@ namespace Baseliner::Stats {
 #ifdef BASELINER_HAS_NVML
 #include <nvml.h>
   template <>
-  std::string ClockFrequency<Device::CudaBackend>::name() const {
+  std::string ClockFrequency<Backend::CudaBackend>::name() const {
     return "CudaClockFrequency";
   }
   template <>
-  void ClockFrequency<Device::CudaBackend>::calculate(ClockFrequency<Device::CudaBackend>::type &value_to_update) {
+  void ClockFrequency<Backend::CudaBackend>::calculate(ClockFrequency<Backend::CudaBackend>::type &value_to_update) {
     NvmlManager::ensure_init();
-    nvmlDevice_t device = NvmlManager::get_current_device();
+    nvmlDevice_t Backend = NvmlManager::get_current_device();
     unsigned int clockMHz = 0;
-    CHECK_NVML(nvmlDeviceGetClockInfo(device, NVML_CLOCK_SM, &clockMHz));
+    CHECK_NVML(nvmlDeviceGetClockInfo(Backend, NVML_CLOCK_SM, &clockMHz));
     value_to_update = static_cast<float>(clockMHz) / 1000;
   }
   template <>
-  std::string ClockFrequencyVector<Device::CudaBackend>::name() const {
+  std::string ClockFrequencyVector<Backend::CudaBackend>::name() const {
     return "CudaClockFrequencyVector";
   }
 #endif

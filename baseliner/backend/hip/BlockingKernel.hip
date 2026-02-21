@@ -41,7 +41,7 @@ namespace {
   }
 } // namespace
 
-namespace Baseliner::Device {
+namespace Baseliner::Backend {
   template <>
   BlockingKernel<HipBackend>::BlockingKernel() {
     m_host_flag = new int;         // NOLINT
@@ -95,4 +95,4 @@ namespace Baseliner::Device {
       return *this;
     }
   }
-} // namespace Baseliner::Device
+} // namespace Baseliner::Backend

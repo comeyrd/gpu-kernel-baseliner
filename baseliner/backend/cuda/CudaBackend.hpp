@@ -11,7 +11,7 @@ void check_cuda_error_no_except(cudaError_t error_code, const char *file, int li
 #define CHECK_CUDA_NO_EXCEPT(error) check_cuda_error_no_except(error, __FILE__, __LINE__) // NOLINT
 
 namespace Baseliner {
-  namespace Device {
+  namespace Backend {
     using CudaBackend = Backend<cudaStream_t>;
     template <>
     class GpuTimer<CudaBackend> {
@@ -32,12 +32,12 @@ namespace Baseliner {
       cudaEvent_t m_start_event{};
       cudaEvent_t m_stop_event{};
     };
-  } // namespace Device
-  using ICudaCase = ICase<Device::CudaBackend>;
-  using CudaBenchmark = Benchmark<Device::CudaBackend>;
+  } // namespace Backend
+  using ICudaCase = ICase<Backend::CudaBackend>;
+  using CudaBenchmark = Benchmark<Backend::CudaBackend>;
 
   template <typename Input, typename Output>
-  using ICudaKernel = IKernel<Device::CudaBackend, Input, Output>;
+  using ICudaKernel = IKernel<Backend::CudaBackend, Input, Output>;
 } // namespace Baseliner
 
 #ifdef BASELINER_HAS_NVML
@@ -67,9 +67,9 @@ public:
     CHECK_CUDA(cudaDeviceGetPCIBusId(pciBusId, 64, cudaIdx));
 
     // 3. Ask NVML for the handle matching that specific PCI Bus ID
-    nvmlDevice_t device;
-    CHECK_NVML(nvmlDeviceGetHandleByPciBusId(pciBusId, &device));
-    return device;
+    nvmlDevice_t Backend;
+    CHECK_NVML(nvmlDeviceGetHandleByPciBusId(pciBusId, &Backend));
+    return Backend;
   }
 
   static void ensure_init() {

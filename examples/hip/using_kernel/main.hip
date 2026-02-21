@@ -6,11 +6,11 @@
 int main() {
   std::cout << "Hip Kernel Manipuation" << std::endl;
 
-  auto backend = Baseliner::Device::HipBackend();
+  auto backend = Baseliner::Backend::HipBackend();
   auto stream = backend.create_stream();
-  auto flusher = Baseliner::Device::L2Flusher<Baseliner::Device::HipBackend>();
-  auto blocker = Baseliner::Device::BlockingKernel<Baseliner::Device::HipBackend>();
-  auto timer = Baseliner::Device::GpuTimer<Baseliner::Device::HipBackend>();
+  auto flusher = Baseliner::Backend::L2Flusher<Baseliner::Backend::HipBackend>();
+  auto blocker = Baseliner::Backend::BlockingKernel<Baseliner::Backend::HipBackend>();
+  auto timer = Baseliner::Backend::GpuTimer<Baseliner::Backend::HipBackend>();
   auto computation_case = Baseliner::KernelCase<ComputationKernel>();
   computation_case.setup(stream);
   computation_case.timed_run(stream);

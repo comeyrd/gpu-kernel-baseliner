@@ -25,7 +25,7 @@ namespace ase {
                            .add_stat<Baseliner::Stats::Median>()
                            .add_stat<Baseliner::Stats::WithoutOutliers>()
                            .add_stat<Baseliner::Stats::MedianAbsoluteDeviation>()
-                           .add_stat<Baseliner::Stats::ClockFrequency<Baseliner::Device::HipBackend>>()
+                           .add_stat<Baseliner::Stats::ClockFrequency<Baseliner::Backend::HipBackend>>()
                            .add_stat<Baseliner::Stats::FLOPThroughput>();
 
   Baseliner::Axe axe = {"RocBlasGemm", "work_size", {"1", "2", "3", "4", "5", "6", "7", "8"}};

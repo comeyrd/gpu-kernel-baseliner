@@ -17,7 +17,7 @@ namespace {
                         .add_stat<Baseliner::Stats::Median>()
                         .add_stat<Baseliner::Stats::WithoutOutliers>()
                         .add_stat<Baseliner::Stats::MedianAbsoluteDeviation>()
-                        .add_stat<Baseliner::Stats::ClockFrequencyVector<Baseliner::Device::CudaBackend>>();
+                        .add_stat<Baseliner::Stats::ClockFrequencyVector<Baseliner::Backend::CudaBackend>>();
 
   BASELINER_REGISTER_TASK(&benchmark1);
 
