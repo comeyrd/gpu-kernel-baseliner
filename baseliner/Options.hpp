@@ -80,7 +80,7 @@ namespace Baseliner {
   using InterfaceOptions = std::unordered_map<std::string, Option>;
   using OptionsMap = std::unordered_map<std::string, InterfaceOptions>;
 
-  inline void mergeOptionsMap(OptionsMap &destination, const OptionsMap &source) {
+  inline void merge_options_map(OptionsMap &destination, const OptionsMap &source) {
     destination.insert(source.begin(), source.end());
   };
 
@@ -100,8 +100,8 @@ namespace Baseliner {
     IOption() = default;
 
     IOption(const IOption&) = delete;
-    IOption& operator=(const IOption&) = delete;
-    
+    auto operator=(const IOption &) -> IOption & = delete;
+
     // Moving
     IOption(IOption &&other) noexcept {
       other.m_consumers.clear();

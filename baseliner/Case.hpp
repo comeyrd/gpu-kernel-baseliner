@@ -12,9 +12,10 @@ namespace Baseliner {
   template <typename BackendT>
   class ICase : public Backend::GpuTimer<BackendT>, public LazyOption {
   public:
+    using backend = BackendT;
     using Backend::GpuTimer<BackendT>::time_elapsed;
     ICase() = default;
-    virtual ~ICase() = default;
+    ~ICase() override = default;
     virtual auto name() -> std::string = 0;
     virtual void setup(std::shared_ptr<typename BackendT::stream_t> stream) = 0;
     virtual void setup_metrics(std::shared_ptr<Stats::StatsEngine> &engine) {};
@@ -42,8 +43,8 @@ namespace Baseliner {
   };
 
   template <typename Kernel>
-  class KernelCase : public ICase<typename Kernel::Kernel_Backend> {
-    using BackendT = typename Kernel::Kernel_Backend;
+  class KernelCase : public ICase<typename Kernel::backend> {
+    using BackendT = typename Kernel::backend;
 
   public:
     KernelCase()

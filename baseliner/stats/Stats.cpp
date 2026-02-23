@@ -47,7 +47,7 @@ namespace Baseliner::Stats {
     throw std::runtime_error("Unreachable code");
   }
 
-  auto MedianConfidenceInterval::nCR(size_t sample_size, size_t prob_increment) -> double {
+  auto MedianConfidenceInterval::n_cr(size_t sample_size, size_t prob_increment) -> double {
     if (prob_increment > sample_size) {
       return 0;
     }
@@ -73,7 +73,7 @@ namespace Baseliner::Stats {
     double cumulative_prob = 0.0;
     for (size_t i = 0; i < sample_size / 2; ++i) {
       // Binomial probability: P(X = i) for p=0.5 is nCr(n, i) * 0.5^n.
-      const double p_i = nCR(sample_size, i) * std::pow(0.5, static_cast<double>(sample_size)); // NOLINT
+      const double p_i = n_cr(sample_size, i) * std::pow(0.5, static_cast<double>(sample_size)); // NOLINT
 
       if (cumulative_prob + p_i <= alpha_half) {
         cumulative_prob += p_i;

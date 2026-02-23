@@ -1,7 +1,9 @@
 
+#include <baseliner/Manager.hpp>
 #include <baseliner/Result.hpp>
 #include <baseliner/Serializer.hpp>
 #include <baseliner/Task.hpp>
+#include <baseliner/backend/cuda/CudaBackend.hpp>
 #include <chrono>
 #include <iomanip>
 #include <iostream>
@@ -37,6 +39,21 @@ __attribute__((weak)) auto main(int argc, char **argv) -> int { // NOLINT
     std::cout << "Warning: No kernels were registered. Check linker settings." << "\n";
     return 0;
   }
+  auto *cuda_manager = Manager<Backend::CudaBackend>::instance();
+  std::cout << "type : " << typeid(Backend::CudaBackend).name() << "\n";
+
+  auto cases = cuda_manager->get_cases();
+
+  for (auto [name, _] : cases) {
+    std::cout << "Case : " << name << "\n";
+  }
+
+  auto benchmarks = cuda_manager->get_benchmarks();
+
+  for (auto [name, _] : benchmarks) {
+    std::cout << "Benchmark : " << name << "\n";
+  }
+
   std::vector<Result> results_vector;
   for (const auto &exe : list) {
     std::vector<Result> local_results = exe->run_all();

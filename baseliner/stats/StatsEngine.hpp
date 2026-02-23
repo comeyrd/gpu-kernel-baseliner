@@ -16,7 +16,7 @@ namespace Baseliner::Stats {
   struct TypeIndexArgs {
     std::type_index type_ix;
     bool has_args;
-    bool operator==(const TypeIndexArgs &other) const {
+    auto operator==(const TypeIndexArgs &other) const -> bool {
       return (type_ix == other.type_ix);
     };
   };
@@ -33,8 +33,6 @@ namespace Baseliner::Stats {
   class StatsEngine : public LazyOption {
   public:
     // Ownership is transferred to the Engine.
-    // TODO link a Stat to a Metric
-    // TODO check if everybody has it's depedencies fulfilled
     template <typename StatType, typename... Args>
     void register_stat(Args &&...args) {
       if (m_is_built) {

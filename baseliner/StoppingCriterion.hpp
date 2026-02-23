@@ -17,13 +17,13 @@ namespace Baseliner {
     void set_max_repetitions(const size_t &val) {
       m_max_repetitions = val;
     };
-    auto get_max_repetitions() const -> size_t {
+    [[nodiscard]] auto get_max_repetitions() const -> size_t {
       return m_max_repetitions;
     }
     void set_m_batch_size(const size_t &val) {
       m_batch_size = val;
     }
-    auto get_batch_size() const -> size_t {
+    [[nodiscard]] auto get_batch_size() const -> size_t {
       return m_batch_size;
     }
     StoppingCriterion(std::shared_ptr<Stats::StatsEngine> engine, size_t max_repetition = DEFAULT_MAX_REPETITION,

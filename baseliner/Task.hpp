@@ -11,7 +11,7 @@ namespace Baseliner {
   public:
     virtual auto name() -> std::string = 0;
     virtual auto run_all() -> std::vector<Result> = 0;
-    virtual auto print_console(const std::vector<Result> &results) -> std::string {
+    virtual auto print_console(const std::vector<Result> & /*results*/) -> std::string {
       return "";
     };
     virtual ~ITask() = default;

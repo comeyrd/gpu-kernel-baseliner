@@ -149,7 +149,7 @@ namespace Baseliner::Stats {
       if (seconds > 0) {
         value_to_update = static_cast<float>(bytes / (seconds * 1e6));
       } else {
-        value_to_update = 0.0f;
+        value_to_update = 0.0F;
       }
     };
     [[nodiscard]] auto unit() const -> std::string override {
@@ -171,7 +171,7 @@ namespace Baseliner::Stats {
       if (miliseconds > 0) {
         value_to_update = static_cast<float>(flops / (miliseconds * 1e6));
       } else {
-        value_to_update = 0.0f;
+        value_to_update = 0.0F;
       }
     };
     [[nodiscard]] auto unit() const -> std::string override {
@@ -241,11 +241,11 @@ namespace Baseliner::Stats {
     void register_options() override;
 
   private:
-    auto get_confidence_interval(size_t sample_size) const -> ConfidenceInterval<size_t>;
-    static auto nCR(size_t sample_size, size_t prob_increment) -> double;
-    auto compute_small_sample_ranks(size_t sample_size) const -> ConfidenceInterval<size_t>;
-    auto compute_large_sample_ranks(size_t sample_size) const -> ConfidenceInterval<size_t>;
-    auto get_z_score() const -> double;
+    [[nodiscard]] auto get_confidence_interval(size_t sample_size) const -> ConfidenceInterval<size_t>;
+    static auto n_cr(size_t sample_size, size_t prob_increment) -> double;
+    [[nodiscard]] auto compute_small_sample_ranks(size_t sample_size) const -> ConfidenceInterval<size_t>;
+    [[nodiscard]] auto compute_large_sample_ranks(size_t sample_size) const -> ConfidenceInterval<size_t>;
+    [[nodiscard]] auto get_z_score() const -> double;
 
     double m_probability = MEDIAN;
     float m_confidence = CONFIDENCE_95_PERCENT;

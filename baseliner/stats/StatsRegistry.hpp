@@ -11,7 +11,7 @@ namespace Baseliner::Stats {
   public:
     // Writes data into the store.
     template <typename Tag>
-    void set(typename Tag::type value) {
+    void set(const typename Tag::type &value) {
       m_storage[std::type_index(typeid(Tag))] = value;
     };
 

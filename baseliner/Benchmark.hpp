@@ -1,5 +1,6 @@
 #ifndef BASELINER_BENCHMARK_HPP
 #define BASELINER_BENCHMARK_HPP
+#include "baseliner/backend/Backend.hpp"
 #include <baseliner/Case.hpp>
 #include <baseliner/Metric.hpp>
 #include <baseliner/Options.hpp>
@@ -12,6 +13,7 @@
 #include <iostream>
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include <type_traits>
 #include <utility>
 #include <vector>
@@ -48,50 +50,50 @@ namespace Baseliner {
     void set_m_warmup(bool warmup) {
       m_warmup = warmup;
     };
-    auto get_warmup() const -> bool {
+    [[nodiscard]] auto get_warmup() const -> bool {
       return m_warmup;
     };
     void set_m_flush_l2(bool flush_l2) {
       m_flush_l2 = flush_l2;
     };
-    auto get_flush_l2() const -> bool {
+    [[nodiscard]] auto get_flush_l2() const -> bool {
       return m_flush_l2;
     };
     void set_m_block(bool block) {
       m_block = block;
     };
-    auto get_block() const -> bool {
+    [[nodiscard]] auto get_block() const -> bool {
       return m_block;
     };
     void set_m_block_duration(float block_duration) {
       m_block_duration_ms = block_duration;
     };
-    auto get_block_duration() const -> float {
+    [[nodiscard]] auto get_block_duration() const -> float {
       return m_block_duration_ms;
     };
     void set_m_timed_setup(bool timed_setup) {
       m_time_setup = timed_setup;
     };
-    auto get_timed_setup() const -> bool {
+    [[nodiscard]] auto get_timed_setup() const -> bool {
       return m_time_setup;
     };
     void set_m_timed_teardown(bool timed_teardown) {
       m_time_teardown = timed_teardown;
     };
-    auto get_timed_teardown() const -> bool {
+    [[nodiscard]] auto get_timed_teardown() const -> bool {
       return m_time_teardown;
     };
-    auto get_first() const -> bool {
+    [[nodiscard]] auto get_first() const -> bool {
       return m_first;
     }
     void set_m_first(bool first) {
       m_first = first;
     }
-    auto get_m_name() const -> std::string {
+    [[nodiscard]] auto get_m_name() const -> std::string {
       return m_name;
     }
     void set_m_name(std::string name) {
-      m_name = name;
+      m_name = std::move(name);
     }
 
   protected:
@@ -118,6 +120,7 @@ namespace Baseliner {
   template <typename BackendT>
   class Benchmark : public IBenchmark {
   public:
+    using backend = BackendT;
     // Benchmark
     explicit Benchmark()
         : IBenchmark(),
@@ -145,7 +148,7 @@ namespace Baseliner {
     BASELINER_BENCHMARK_SETTER(timed_teardown, float);
     BASELINER_BENCHMARK_SETTER(first, bool);
 
-    std::string name() override {
+    auto name() -> std::string override {
       if (m_case) {
         return m_case->name() + get_m_name();
       }
@@ -164,26 +167,28 @@ namespace Baseliner {
       return std::move(*this);
     }
 
-    template <typename Kernel, typename... Args>
+    template <typename TKernel, typename... Args>
     auto set_kernel(Args &&...args) & -> Benchmark & {
-      m_case = std::make_shared<KernelCase<Kernel>>(std::forward<Args>(args)...);
+      m_case = std::make_shared<KernelCase<TKernel>>(std::forward<Args>(args)...);
       return *this;
     }
 
-    template <typename Kernel, typename... Args>
+    template <typename TKernel, typename... Args>
     auto set_kernel(Args &&...args) && -> Benchmark {
-      this->set_kernel<Kernel>(std::forward<Args>(args)...);
+      this->set_kernel<TKernel>(std::forward<Args>(args)...);
       return std::move(*this);
     }
-    template <typename Case, typename... Args>
+    template <typename TCase, typename... Args>
     auto set_case(Args &&...args) & -> Benchmark & {
-      m_case = std::make_shared<Case>(std::forward<Args>(args)...);
+      static_assert(std::is_base_of_v<ICase<BackendT>, TCase>,
+                    "TStopping must inherit from Baseliner::StoppingCriterion");
+      m_case = std::make_shared<TCase>(std::forward<Args>(args)...);
       return *this;
     }
 
-    template <typename Case, typename... Args>
+    template <typename TCase, typename... Args>
     auto set_case(Args &&...args) && -> Benchmark {
-      this->set_case<Case>(std::forward<Args>(args)...);
+      this->set_case<TCase>(std::forward<Args>(args)...);
       return std::move(*this);
     }
 
