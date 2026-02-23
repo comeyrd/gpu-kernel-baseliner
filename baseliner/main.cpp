@@ -2,6 +2,7 @@
 #include <baseliner/Manager.hpp>
 #include <baseliner/Result.hpp>
 #include <baseliner/Serializer.hpp>
+#include <baseliner/Suite.hpp>
 #include <baseliner/Task.hpp>
 #include <baseliner/backend/cuda/CudaBackend.hpp>
 #include <chrono>
@@ -31,6 +32,18 @@ __attribute__((weak)) auto main(int argc, char **argv) -> int { // NOLINT
   // std::cout << argc << argv[0] << std::endl;
   std::cout << "Baseliner" << "\n";
   auto *manager = TaskManager::instance();
+  auto *cuda_manager = Manager<Backend::CudaBackend>::instance();
+  std::cout << "Cases : \n";
+  for (auto name : cuda_manager->get_cases_names()) {
+    std::cout << name << "\n";
+  }
+  for (auto name : cuda_manager->get_benchmarks_names()) {
+    std::cout << name << "\n";
+  }
+  auto case_ = cuda_manager->get_case("ComputationKernel");
+  auto bench = cuda_manager->get_benchmark("CudaBenchmark");
+  bench->set_case(case_);
+  BASELINER_REGISTER_TASK(bench);
   const auto &list = manager->get_tasks();
 
   std::cout << "[Baseliner] Total Registered Executables: " << list.size() << "\n";
@@ -39,21 +52,6 @@ __attribute__((weak)) auto main(int argc, char **argv) -> int { // NOLINT
     std::cout << "Warning: No kernels were registered. Check linker settings." << "\n";
     return 0;
   }
-  auto *cuda_manager = Manager<Backend::CudaBackend>::instance();
-  std::cout << "type : " << typeid(Backend::CudaBackend).name() << "\n";
-
-  auto cases = cuda_manager->get_cases();
-
-  for (auto [name, _] : cases) {
-    std::cout << "Case : " << name << "\n";
-  }
-
-  auto benchmarks = cuda_manager->get_benchmarks();
-
-  for (auto [name, _] : benchmarks) {
-    std::cout << "Benchmark : " << name << "\n";
-  }
-
   std::vector<Result> results_vector;
   for (const auto &exe : list) {
     std::vector<Result> local_results = exe->run_all();
