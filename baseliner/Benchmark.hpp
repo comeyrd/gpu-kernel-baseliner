@@ -9,6 +9,7 @@
 #include <baseliner/Task.hpp>
 #include <baseliner/stats/IStats.hpp>
 #include <baseliner/stats/Stats.hpp>
+#include <baseliner/stats/StatsDictionnary.hpp>
 #include <baseliner/stats/StatsEngine.hpp>
 #include <iostream>
 #include <memory>
@@ -17,7 +18,7 @@
 #include <type_traits>
 #include <utility>
 #include <vector>
-const static std::string DEFAULT_BENCHMARK_NAME = "Benchmark";
+inline static const std::string_view DEFAULT_BENCHMARK_NAME = "Benchmark";
 
 #define BASELINER_BENCHMARK_SETTER(name, type)                                                                         \
   auto set_##name(type value) &->Benchmark & {                                                                         \
@@ -114,7 +115,7 @@ namespace Baseliner {
     bool m_time_setup = false;
     bool m_time_teardown = false;
     bool m_first = true;
-    std::string m_name = DEFAULT_BENCHMARK_NAME;
+    std::string m_name{DEFAULT_BENCHMARK_NAME};
   };
 
   template <typename BackendT>
@@ -191,6 +192,15 @@ namespace Baseliner {
       this->set_case<TCase>(std::forward<Args>(args)...);
       return std::move(*this);
     }
+    auto set_case(std::shared_ptr<ICase<BackendT>> case_impl) & -> Benchmark & {
+      m_case = case_impl;
+      return *this;
+    }
+
+    auto set_case(std::shared_ptr<ICase<BackendT>> case_impl) && -> Benchmark {
+      this->set_case(case_impl);
+      return std::move(*this);
+    }
 
     template <typename TStat, typename... Args>
     auto add_stat(Args &&...args) & -> Benchmark & {
@@ -202,6 +212,14 @@ namespace Baseliner {
     auto add_stat(Args &&...args) && -> Benchmark {
       this->add_stat<TStat>(std::forward<Args>(args)...);
       return std::move(*this);
+    }
+    void add_stats(std::vector<std::string> stats_names) {
+      for (auto stat : stats_names) {
+        add_stat(stat);
+      }
+    }
+    void add_stat(std::string statname) {
+      Stats::StatsDictionnary::instance()->add_stat_to_engine(statname, m_stats_engine);
     }
 
     auto run() -> Result override {

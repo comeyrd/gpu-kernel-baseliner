@@ -5,6 +5,7 @@
 #include <baseliner/Suite.hpp>
 #include <baseliner/Task.hpp>
 #include <baseliner/backend/cuda/CudaBackend.hpp>
+#include <baseliner/stats/StatsDictionnary.hpp>
 #include <chrono>
 #include <iomanip>
 #include <iostream>
@@ -32,17 +33,35 @@ __attribute__((weak)) auto main(int argc, char **argv) -> int { // NOLINT
   // std::cout << argc << argv[0] << std::endl;
   std::cout << "Baseliner" << "\n";
   auto *manager = TaskManager::instance();
-  auto *cuda_manager = Manager<Backend::CudaBackend>::instance();
+  std::string backend;
+  std::string selected_benchmark;
+  std::string selected_case;
+  std::string added_stat;
+  std::cout << "Backends \n";
+  for (auto name : BackendRegistry::list_backends()) {
+    std::cout << name << "\n";
+    backend = name;
+  }
+  auto device_manager = BackendRegistry::get(backend);
   std::cout << "Cases : \n";
-  for (auto name : cuda_manager->get_cases_names()) {
+  for (auto name : device_manager->list_cases()) {
     std::cout << name << "\n";
+    selected_case = name;
   }
-  for (auto name : cuda_manager->get_benchmarks_names()) {
+  std::cout << "Benchmarks \n";
+  for (auto name : device_manager->list_benchmarks()) {
     std::cout << name << "\n";
+    selected_benchmark = name;
   }
-  auto case_ = cuda_manager->get_case("ComputationKernel");
-  auto bench = cuda_manager->get_benchmark("CudaBenchmark");
-  bench->set_case(case_);
+  auto *stat_dict = Stats::StatsDictionnary::instance();
+  std::cout << "Stats \n";
+  for (auto name : stat_dict->list_stats()) {
+    std::cout << name << "\n";
+    added_stat = name;
+  }
+
+  auto bench = device_manager->get_benchmark_with_case(selected_benchmark, selected_case);
+  // bench->add_stats({"Median", "SortedExecutionTimeVector", "Q1"});
   BASELINER_REGISTER_TASK(bench);
   const auto &list = manager->get_tasks();
 

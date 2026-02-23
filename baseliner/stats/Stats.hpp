@@ -4,6 +4,7 @@
 #include <baseliner/Durations.hpp>
 #include <baseliner/Options.hpp>
 #include <baseliner/stats/IStats.hpp>
+#include <baseliner/stats/StatsDictionnary.hpp>
 #include <baseliner/stats/StatsType.hpp>
 #include <cmath>
 #include <cstddef>
@@ -31,7 +32,7 @@ namespace Baseliner::Stats {
       return "";
     }
   };
-   class FLOPCount : public Imetric<FLOPCount, size_t> {
+  class FLOPCount : public Imetric<FLOPCount, size_t> {
   public:
     using Imetric<FLOPCount, size_t>::Imetric; // Needs this for defaults
     [[nodiscard]] auto name() const -> std::string override {
@@ -83,7 +84,6 @@ namespace Baseliner::Stats {
       return StatComputePolicy::EVERY_TICK;
     };
   };
-
   class ExecutionTimeVector : public IStat<ExecutionTimeVector, std::vector<float_milliseconds>, ExecutionTime> {
   public:
     [[nodiscard]] auto name() const -> std::string override {
@@ -159,7 +159,7 @@ namespace Baseliner::Stats {
       return StatComputePolicy::ON_DEMAND;
     };
   };
-   class FLOPThroughput : public IStat<FLOPThroughput, float, Median, FLOPCount> {
+  class FLOPThroughput : public IStat<FLOPThroughput, float, Median, FLOPCount> {
     [[nodiscard]] auto name() const -> std::string override {
       return "FLOPThroughput";
     }

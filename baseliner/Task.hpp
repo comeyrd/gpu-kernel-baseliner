@@ -43,6 +43,9 @@ namespace Baseliner {
 
       TaskManager::instance()->register_task(std::shared_ptr<ITask>(impl, skip_delete));
     }
+    TaskRegistrar(std::shared_ptr<ITask> impl) {
+      TaskManager::instance()->register_task(impl);
+    }
     template <typename T>
     TaskRegistrar(std::shared_ptr<T> impl) {
       TaskManager::instance()->register_task(std::shared_ptr<ITask>(impl));

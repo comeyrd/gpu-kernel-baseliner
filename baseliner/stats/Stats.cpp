@@ -100,4 +100,11 @@ namespace Baseliner::Stats {
                m_i_q_r_outlier_range);
   };
 
+  BASELINER_REGISTER_STAT(Repetitions)
+  BASELINER_REGISTER_STAT(ExecutionTimeVector)
+  BASELINER_REGISTER_STAT(SortedExecutionTimeVector)
+  BASELINER_REGISTER_STAT(Median)
+  BASELINER_REGISTER_STAT(MedianItemTroughput)
+  BASELINER_REGISTER_STAT(Q1)
+
 } // namespace Baseliner::Stats

@@ -1,3 +1,4 @@
+#include <baseliner/Manager.hpp>
 #include <baseliner/backend/cuda/CudaBackend.hpp>
 void check_cuda_error(cudaError_t error_code, const char *file, int line) {
   if (error_code != cudaSuccess) {
@@ -43,6 +44,8 @@ namespace Baseliner {
         }
       });
     }
+    BASELINER_REGISTER_BENCHMARK(CudaBenchmark);
+    BASELINER_REGISTER_BACKEND(CudaBackend,"cuda");
   } // namespace Backend
 
 } // namespace Baseliner
