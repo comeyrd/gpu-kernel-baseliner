@@ -1,5 +1,8 @@
-#include <baseliner/Manager.hpp>
+#include <baseliner/RQ.hpp>
 #include <baseliner/backend/cuda/CudaBackend.hpp>
+#include <baseliner/managers/BackendManager.hpp>
+#include <baseliner/managers/BenchmarkCaseManager.hpp>
+#include <baseliner/managers/SuiteManager.hpp>
 void check_cuda_error(cudaError_t error_code, const char *file, int line) {
   if (error_code != cudaSuccess) {
     std::string msg = std::string("CUDA Error : ") + cudaGetErrorString(error_code) + std::string(" in : ") + file +
@@ -45,7 +48,9 @@ namespace Baseliner {
       });
     }
     BASELINER_REGISTER_BENCHMARK(CudaBenchmark);
-    BASELINER_REGISTER_BACKEND(CudaBackend,"cuda");
+    BASELINER_REGISTER_BACKEND(CudaBackend, "cuda");
+    BASELINER_REGISTER_BENCHMARK_LAMBDA(CudaBackend, build_RQ_Benchmark<CudaBackend>, "Rq_benchmark");
+
   } // namespace Backend
 
 } // namespace Baseliner
