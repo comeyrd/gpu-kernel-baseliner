@@ -1,6 +1,7 @@
 
 #include <baseliner/Durations.hpp>
 #include <baseliner/StoppingCriterion.hpp>
+#include <baseliner/managers/StoppingManager.hpp>
 #include <baseliner/stats/Stats.hpp>
 #include <baseliner/stats/StatsType.hpp>
 #include <cstddef>
@@ -36,8 +37,6 @@ namespace Baseliner {
   void ConfidenceIntervalMedianSC::register_options() {
     StoppingCriterion::register_options();
     add_option("ConfidenceIntervalSC", "precision", "The aimed precision (ms)", m_precision);
-    add_option("ConfidenceIntervalSC", "remove_outliers",
-               "If true, it will remove outliers in accordance to the outliers parameters", m_remove_outliers);
     add_option("ConfidenceIntervalSC", "relative_error_th", "The threshold at which it will consider converged",
                m_relative_error_th);
   };
@@ -50,4 +49,6 @@ namespace Baseliner {
     return m_ci_width.count() <= m_precision;
   };
 
+  BASELINER_REGISTER_STOPPING(StoppingCriterion)
+  BASELINER_REGISTER_STOPPING(ConfidenceIntervalMedianSC)
 } // namespace Baseliner
