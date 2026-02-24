@@ -2,26 +2,17 @@
 #include "MatMul.hpp"
 #include <baseliner/Axe.hpp>
 #include <baseliner/Benchmark.hpp>
+#include <baseliner/Recipe.hpp>
 #include <baseliner/Serializer.hpp>
 #include <baseliner/StoppingCriterion.hpp>
 #include <baseliner/Suite.hpp>
-#include <baseliner/Task.hpp>
+#include <baseliner/managers/BenchmarkCaseManager.hpp>
+
 #include <baseliner/backend/BackendStats.hpp>
 namespace {
-  static auto benchmark1 = Baseliner::CudaBenchmark().set_kernel<ComputationKernel>();
 
-  auto benchmark2 = Baseliner::CudaBenchmark()
-                        .set_kernel<MatrixMulKernel>()
-                        .add_stat<Baseliner::Stats::Q1>()
-                        .add_stat<Baseliner::Stats::Q3>()
-                        .add_stat<Baseliner::Stats::Median>()
-                        .add_stat<Baseliner::Stats::WithoutOutliers>()
-                        .add_stat<Baseliner::Stats::MedianAbsoluteDeviation>()
-                        .add_stat<Baseliner::Stats::ClockFrequencyVector<Baseliner::Backend::CudaBackend>>();
+  /*  Baseliner::Recipe recipe{"cuda", "RQ1", "Rq_benchmark", "ComputationKernel", {}, "StoppingCriterion"};
+    BASELINER_REGISTER_RECIPE(recipe)
+    */
 
-  //BASELINER_REGISTER_TASK(&benchmark1);
-
-  Baseliner::Axe axe = {"StoppingCriterion", "max_nb_repetition", {"100", "250", "500", "1000", "2000"}};
-  Baseliner::SingleAxeSuite bench(std::make_shared<Baseliner::CudaBenchmark>(std::move(benchmark2)), std::move(axe));
-  //BASELINER_REGISTER_TASK(&bench);
 } // namespace
