@@ -6,7 +6,7 @@
 #include <baseliner/Options.hpp>
 #include <baseliner/Result.hpp>
 #include <baseliner/StoppingCriterion.hpp>
-#include <baseliner/Task.hpp>
+
 #include <baseliner/stats/IStats.hpp>
 #include <baseliner/stats/Stats.hpp>
 #include <baseliner/stats/StatsDictionnary.hpp>
@@ -34,11 +34,14 @@ inline static const std::string_view DEFAULT_BENCHMARK_NAME = "Benchmark";
 
 namespace Baseliner {
   constexpr float DEFAULT_BLOCK_DURATION = 1000.0F;
-  class IBenchmark : public IOption, public ISingleTask {
+  class IBenchmark : public IOption {
   public:
     // Benchmark Options
     // IOption Interface
-    explicit IBenchmark() = default;
+    explicit IBenchmark()
+        : m_stats_engine(std::make_shared<Stats::StatsEngine>()) {};
+    virtual auto name() -> std::string = 0;
+    virtual auto run() -> Result = 0;
 
     IBenchmark(IBenchmark &&) noexcept = default;
     auto operator=(IBenchmark &&) noexcept -> IBenchmark & = default;
@@ -97,6 +100,11 @@ namespace Baseliner {
       m_name = std::move(name);
     }
 
+    void set_stopping_criterion(
+        std::function<std::unique_ptr<StoppingCriterion>(std::shared_ptr<Stats::StatsEngine>)> stopping_builder) {
+      m_stopping = stopping_builder(m_stats_engine);
+    }
+
   protected:
     void register_options() override {
       add_option("Benchmark", "block", "Using a blocking kernel", m_block);
@@ -106,6 +114,8 @@ namespace Baseliner {
       add_option("Benchmark", "timed_setup", "Time the setup", m_time_setup);
       add_option("Benchmark", "timed_teardown", "Time the teardown", m_time_teardown);
     }
+    std::unique_ptr<StoppingCriterion> m_stopping;
+    std::shared_ptr<Stats::StatsEngine> m_stats_engine;
 
   private:
     bool m_warmup = true;
@@ -128,9 +138,7 @@ namespace Baseliner {
           m_backend(),
           m_stream(m_backend.create_stream()),
           m_flusher(),
-          m_blocker(),
-          m_stats_engine(std::make_shared<Stats::StatsEngine>()),
-          m_stopping(std::make_unique<StoppingCriterion>(m_stats_engine)) {
+          m_blocker() {
       m_stats_engine->register_stat<Stats::ExecutionTimeVector>();
     };
     Benchmark(Benchmark &&) noexcept = default;
@@ -213,12 +221,12 @@ namespace Baseliner {
       this->add_stat<TStat>(std::forward<Args>(args)...);
       return std::move(*this);
     }
-    void add_stats(std::vector<std::string> stats_names) {
+    void add_stats(std::vector<std::string> &stats_names) {
       for (auto stat : stats_names) {
         add_stat(stat);
       }
     }
-    void add_stat(std::string statname) {
+    void add_stat(std::string &statname) {
       Stats::StatsDictionnary::instance()->add_stat_to_engine(statname, m_stats_engine);
     }
 
@@ -261,8 +269,6 @@ namespace Baseliner {
 
   private:
     // Kernel Types
-    std::shared_ptr<Stats::StatsEngine> m_stats_engine;
-    std::unique_ptr<StoppingCriterion> m_stopping;
 
     // Stats registry
     // Backend specifics
