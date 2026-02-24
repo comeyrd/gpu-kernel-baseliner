@@ -1,7 +1,7 @@
 #ifndef BASELINER_CASE_HPP
 #define BASELINER_CASE_HPP
 #include <baseliner/Options.hpp>
-#include <baseliner/Task.hpp>
+
 #include <baseliner/Timer.hpp>
 #include <baseliner/backend/Backend.hpp>
 #include <baseliner/stats/Stats.hpp>
