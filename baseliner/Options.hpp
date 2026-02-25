@@ -79,10 +79,29 @@ namespace Baseliner {
 
   using InterfaceOptions = std::unordered_map<std::string, Option>;
   using OptionsMap = std::unordered_map<std::string, InterfaceOptions>;
-
-  inline void merge_options_map(OptionsMap &destination, const OptionsMap &source) {
-    destination.insert(source.begin(), source.end());
-  };
+  namespace Options {
+    static auto have_same_schema(const OptionsMap &omap1, const OptionsMap &omap2) -> bool {
+      if (omap1.size() != omap2.size()) {
+        return false;
+      }
+      for (const auto &[interface_name, interface_opt] : omap1) {
+        auto omap2_interface_it = omap2.find(interface_name);
+        if (omap2_interface_it == omap2.end()) {
+          return false;
+        }
+        const auto &interface_opt_omap2 = omap2_interface_it->second;
+        if (interface_opt.size() != interface_opt_omap2.size()) {
+          return false;
+        }
+        for (const auto &[option_name, _] : interface_opt) {
+          if (interface_opt_omap2.find(option_name) == interface_opt_omap2.end()) {
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+  } // namespace Options
 
   // TODO Setup checks so there is not a cyclic depedency between OptionConsumer
   // TODO that will make gather_options or propagate_option infinite recursive calls
@@ -99,7 +118,7 @@ namespace Baseliner {
     virtual ~IOption() = default;
     IOption() = default;
 
-    IOption(const IOption&) = delete;
+    IOption(const IOption &) = delete;
     auto operator=(const IOption &) -> IOption & = delete;
 
     // Moving

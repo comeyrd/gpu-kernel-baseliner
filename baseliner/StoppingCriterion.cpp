@@ -1,7 +1,6 @@
 
 #include <baseliner/Durations.hpp>
 #include <baseliner/StoppingCriterion.hpp>
-#include <baseliner/managers/StoppingManager.hpp>
 #include <baseliner/stats/Stats.hpp>
 #include <baseliner/stats/StatsType.hpp>
 #include <cstddef>
@@ -10,8 +9,14 @@ namespace Baseliner {
   //----------
   // Stopping criterion
   //
+  void StoppingCriterion::register_stats() {
+    m_stats_engine->register_stat<Stats::Repetitions>();
+  }
 
   auto StoppingCriterion::satisfied() -> bool {
+    if (!m_stats_engine) {
+      throw std::runtime_error("The stopping criterion was called before the stats engine was provided");
+    }
     const size_t &vec_size = m_stats_engine->get_result<Stats::Repetitions>();
     if (vec_size >= m_max_repetitions) {
       return true;
@@ -34,6 +39,11 @@ namespace Baseliner {
   // ConfidenceIntervalMedianSC
   //
 
+  void ConfidenceIntervalMedianSC::register_stats() {
+    StoppingCriterion::register_stats();
+    get_stats_engine()->register_stat<Stats::MedianConfidenceInterval>();
+  }
+
   void ConfidenceIntervalMedianSC::register_options() {
     StoppingCriterion::register_options();
     add_option("ConfidenceIntervalSC", "precision", "The aimed precision (ms)", m_precision);
@@ -49,6 +59,4 @@ namespace Baseliner {
     return m_ci_width.count() <= m_precision;
   };
 
-  BASELINER_REGISTER_STOPPING(StoppingCriterion)
-  BASELINER_REGISTER_STOPPING(ConfidenceIntervalMedianSC)
 } // namespace Baseliner

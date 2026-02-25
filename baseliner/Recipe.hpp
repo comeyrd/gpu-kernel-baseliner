@@ -4,13 +4,18 @@
 #include <string>
 #include <vector>
 namespace Baseliner {
+  struct WithPreset {
+    std::string m_name;
+    std::string m_preset;
+  };
+  ;
   struct Recipe {
     std::string m_backend;
-    std::optional<std::string> m_suite;
-    std::string m_benchmak;
-    std::string m_case;
-    std::vector<std::string> m_stats;
-    std::string m_stopping;
+    std::optional<WithPreset> m_suite;
+    WithPreset m_benchmak;
+    WithPreset m_case;
+    WithPreset m_stats;
+    WithPreset m_stopping;
   };
 
   class RecipeManager {

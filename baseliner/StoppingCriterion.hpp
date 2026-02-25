@@ -13,7 +13,11 @@ namespace Baseliner {
   class StoppingCriterion : public IOption {
   public:
     auto satisfied() -> bool;
-
+    void set_stats_engine(std::shared_ptr<Stats::StatsEngine> &engine) {
+      m_stats_engine = engine;
+      register_stats();
+    }
+    virtual void register_stats();
     void set_max_repetitions(const size_t &val) {
       m_max_repetitions = val;
     };
@@ -26,13 +30,9 @@ namespace Baseliner {
     [[nodiscard]] auto get_batch_size() const -> size_t {
       return m_batch_size;
     }
-    StoppingCriterion(std::shared_ptr<Stats::StatsEngine> engine, size_t max_repetition = DEFAULT_MAX_REPETITION,
-                      size_t batch_size = DEFAULT_BATCH_SIZE)
-        : m_stats_engine(std::move(engine)),
-          m_max_repetitions(max_repetition),
-          m_batch_size(batch_size) {
-      m_stats_engine->register_stat<Stats::Repetitions>();
-    };
+    StoppingCriterion(size_t max_repetition = DEFAULT_MAX_REPETITION, size_t batch_size = DEFAULT_BATCH_SIZE)
+        : m_max_repetitions(max_repetition),
+          m_batch_size(batch_size) {};
 
   protected:
     virtual auto criterion_satisfied() -> bool;
@@ -53,12 +53,12 @@ namespace Baseliner {
   constexpr size_t BATCH_SIZE_CI = 50;
   class ConfidenceIntervalMedianSC : public StoppingCriterion {
   public:
-    ConfidenceIntervalMedianSC(std::shared_ptr<Stats::StatsEngine> engine)
-        : StoppingCriterion(std::move(engine)) {
-      get_stats_engine()->register_stat<Stats::MedianConfidenceInterval>();
+    ConfidenceIntervalMedianSC()
+        : StoppingCriterion() {
       set_max_repetitions(MAX_REPETITION_CI);
       set_m_batch_size(BATCH_SIZE_CI);
     };
+    void register_stats() override;
 
   protected:
     void register_options() override;

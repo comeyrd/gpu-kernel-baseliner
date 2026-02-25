@@ -20,4 +20,3 @@ __global__ void computation_kernel(int *a, int *b, int *c, int N) {
 void ComputationKernel::run(std::shared_ptr<cudaStream_t> stream) {
   computation_kernel<<<m_blocks, m_threads, 0, *stream>>>(m_d_a, m_d_b, m_d_c, get_input()->m_N);
 }
-BASELINER_REGISTER_KERNEL(ComputationKernel)

@@ -47,10 +47,6 @@ namespace Baseliner {
         }
       });
     }
-    BASELINER_REGISTER_BENCHMARK(CudaBenchmark);
-    BASELINER_REGISTER_BACKEND(CudaBackend, "cuda");
-    BASELINER_REGISTER_BENCHMARK_LAMBDA(CudaBackend, build_RQ_Benchmark<CudaBackend>, "Rq_benchmark");
-
   } // namespace Backend
 
 } // namespace Baseliner

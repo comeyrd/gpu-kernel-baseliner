@@ -4,7 +4,6 @@
 #include <baseliner/Durations.hpp>
 #include <baseliner/Options.hpp>
 #include <baseliner/stats/IStats.hpp>
-#include <baseliner/stats/StatsDictionnary.hpp>
 #include <baseliner/stats/StatsType.hpp>
 #include <cmath>
 #include <cstddef>

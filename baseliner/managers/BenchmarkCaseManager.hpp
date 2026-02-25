@@ -10,15 +10,6 @@
 #define ATTRIBUTE_USED
 #endif
 namespace Baseliner {
-  class IBenchmarkCaseManager {
-  public:
-    virtual ~IBenchmarkCaseManager() = default;
-
-    virtual auto get_benchmark_with_case(const std::string &benchmark_name, const std::string &case_name)
-        -> std::function<std::shared_ptr<IBenchmark>()> = 0;
-    [[nodiscard]] virtual auto list_benchmarks() const -> std::vector<std::string> = 0;
-    [[nodiscard]] virtual auto list_cases() const -> std::vector<std::string> = 0;
-  };
 
   template <class BackendT>
   class BenchmarkCaseManager : public IBenchmarkCaseManager {

@@ -2,6 +2,7 @@
 #define BASELINER_BENCHMARK_HPP
 #include "baseliner/backend/Backend.hpp"
 #include <baseliner/Case.hpp>
+#include <baseliner/Kernel.hpp>
 #include <baseliner/Metric.hpp>
 #include <baseliner/Options.hpp>
 #include <baseliner/Result.hpp>
@@ -9,7 +10,6 @@
 
 #include <baseliner/stats/IStats.hpp>
 #include <baseliner/stats/Stats.hpp>
-#include <baseliner/stats/StatsDictionnary.hpp>
 #include <baseliner/stats/StatsEngine.hpp>
 #include <iostream>
 #include <memory>
@@ -101,8 +101,16 @@ namespace Baseliner {
     }
 
     void set_stopping_criterion(
-        std::function<std::unique_ptr<StoppingCriterion>(std::shared_ptr<Stats::StatsEngine>)> stopping_builder) {
+        const std::function<std::unique_ptr<StoppingCriterion>(std::shared_ptr<Stats::StatsEngine>)> stopping_builder) {
       m_stopping = stopping_builder(m_stats_engine);
+    }
+    void add_stats(const std::vector<std::function<void(std::shared_ptr<Stats::StatsEngine>)>> &stats_recipes) {
+      for (auto stat : stats_recipes) {
+        add_stat(stat);
+      }
+    }
+    void add_stat(std::function<void(std::shared_ptr<Stats::StatsEngine>)> &stat_recipe) {
+      stat_recipe(m_stats_engine);
     }
 
   protected:
@@ -163,71 +171,8 @@ namespace Baseliner {
       }
       return get_m_name();
     }
-    template <typename TStopping, typename... Args>
-    auto set_stopping_criterion(Args &&...args) & -> Benchmark & {
-      static_assert(std::is_base_of_v<StoppingCriterion, TStopping>,
-                    "TStopping must inherit from Baseliner::StoppingCriterion");
-      m_stopping = std::make_unique<TStopping>(m_stats_engine, std::forward<Args>(args)...);
-      return *this;
-    }
-    template <typename TStopping, typename... Args>
-    auto set_stopping_criterion(Args &&...args) && -> Benchmark {
-      this->set_stopping_criterion<TStopping>(std::forward<Args>(args)...);
-      return std::move(*this);
-    }
-
-    template <typename TKernel, typename... Args>
-    auto set_kernel(Args &&...args) & -> Benchmark & {
-      m_case = std::make_shared<KernelCase<TKernel>>(std::forward<Args>(args)...);
-      return *this;
-    }
-
-    template <typename TKernel, typename... Args>
-    auto set_kernel(Args &&...args) && -> Benchmark {
-      this->set_kernel<TKernel>(std::forward<Args>(args)...);
-      return std::move(*this);
-    }
-    template <typename TCase, typename... Args>
-    auto set_case(Args &&...args) & -> Benchmark & {
-      static_assert(std::is_base_of_v<ICase<BackendT>, TCase>,
-                    "TStopping must inherit from Baseliner::StoppingCriterion");
-      m_case = std::make_shared<TCase>(std::forward<Args>(args)...);
-      return *this;
-    }
-
-    template <typename TCase, typename... Args>
-    auto set_case(Args &&...args) && -> Benchmark {
-      this->set_case<TCase>(std::forward<Args>(args)...);
-      return std::move(*this);
-    }
-    auto set_case(std::shared_ptr<ICase<BackendT>> case_impl) & -> Benchmark & {
+    auto set_case(std::shared_ptr<ICase<BackendT>> case_impl) {
       m_case = case_impl;
-      return *this;
-    }
-
-    auto set_case(std::shared_ptr<ICase<BackendT>> case_impl) && -> Benchmark {
-      this->set_case(case_impl);
-      return std::move(*this);
-    }
-
-    template <typename TStat, typename... Args>
-    auto add_stat(Args &&...args) & -> Benchmark & {
-      static_assert(std::is_base_of_v<Stats::IStatBase, TStat>, "A Stat must inherit from Baseliner::Stats::IStatBase");
-      m_stats_engine->register_stat<TStat>(std::forward<Args>(args)...);
-      return *this;
-    }
-    template <typename TStat, typename... Args>
-    auto add_stat(Args &&...args) && -> Benchmark {
-      this->add_stat<TStat>(std::forward<Args>(args)...);
-      return std::move(*this);
-    }
-    void add_stats(std::vector<std::string> &stats_names) {
-      for (auto stat : stats_names) {
-        add_stat(stat);
-      }
-    }
-    void add_stat(std::string &statname) {
-      Stats::StatsDictionnary::instance()->add_stat_to_engine(statname, m_stats_engine);
     }
 
     auto run() -> Result override {

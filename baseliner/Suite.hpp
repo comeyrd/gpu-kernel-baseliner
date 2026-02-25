@@ -13,36 +13,42 @@
 #include <vector>
 namespace Baseliner {
 
-  class SingleAxeSuite {
+  class ISuite : public LazyOption {
   public:
-    SingleAxeSuite() = default;
-    static auto name() -> std::string {
-      return "SingleAxeSuite";
-    }
-    void set_benchmark(std::function<std::shared_ptr<IBenchmark>()> benchmark_builder) {
+    virtual auto name() -> std::string = 0;
+    void set_benchmark(const std::function<std::shared_ptr<IBenchmark>()> &benchmark_builder) {
       m_benchmark = benchmark_builder();
     }
-    void set_axe(Axe axe) {
-      m_axe = std::move(axe);
+
+  private:
+    std::shared_ptr<IBenchmark> m_benchmark;
+  };
+
+  class SingleAxeSuite : ISuite {
+  public:
+    SingleAxeSuite() = default;
+    auto name() -> std::string override {
+      return "SingleAxeSuite";
     }
     [[nodiscard]] auto run_all() -> std::vector<Result> {
-      if (m_axe.m_interface_name.empty()) {
+      if (m_axe.get_interface_name().empty()) {
         throw std::runtime_error("Error : Suite launched without axes");
       }
       std::vector<Result> results_v{};
       const OptionsMap baseMap = m_benchmark->gather_options();
       OptionsMap tempMap;
       // Checks that the Axe interface name and option exist
-      if (baseMap.find(m_axe.m_interface_name) == baseMap.end()) {
-        throw std::runtime_error("Axe error : The interface " + m_axe.m_interface_name + " does not exist");
+      if (baseMap.find(m_axe.get_interface_name()) == baseMap.end()) {
+        throw std::runtime_error("Axe error : The interface " + m_axe.get_interface_name() + " does not exist");
       }
-      if (baseMap.at(m_axe.m_interface_name).find(m_axe.m_option_name) == baseMap.at(m_axe.m_interface_name).end()) {
-        throw std::runtime_error("Axe error : No option " + m_axe.m_option_name + " in interface " +
-                                 m_axe.m_interface_name);
+      if (baseMap.at(m_axe.get_interface_name()).find(m_axe.get_option_name()) ==
+          baseMap.at(m_axe.get_interface_name()).end()) {
+        throw std::runtime_error("Axe error : No option " + m_axe.get_option_name() + " in interface " +
+                                 m_axe.get_interface_name());
       }
-      for (const std::string &axe_val : m_axe.m_values) {
+      for (const std::string &axe_val : m_axe.get_values()) {
         tempMap = baseMap;
-        tempMap[m_axe.m_interface_name][m_axe.m_option_name].m_value = axe_val;
+        tempMap[m_axe.get_interface_name()][m_axe.get_option_name()].m_value = axe_val;
         m_benchmark->propagate_options(tempMap);
         const Result result = m_benchmark->run();
         results_v.push_back(result);
@@ -51,7 +57,7 @@ namespace Baseliner {
       return results_v;
     };
     void print_result(const Result &result) {
-      if (m_axe.axe_name.empty()) {
+      if (m_axe.get_interface_name().empty()) {
         throw std::runtime_error("Error : Suite print result without axes");
       }
       std::stringstream sstream;
@@ -59,7 +65,7 @@ namespace Baseliner {
       const OptionsMap &omap = result.get_map();
 
       // 1. Get Axis Value
-      std::string axe_val = omap.at(m_axe.m_interface_name).at(m_axe.m_option_name).m_value;
+      std::string axe_val = omap.at(m_axe.get_interface_name()).at(m_axe.get_option_name()).m_value;
 
       if (m_first_result) {
         m_first_result = false;
@@ -69,14 +75,14 @@ namespace Baseliner {
         const int PADDING = 2;
 
         // Calculate Axis Width (Left Column)
-        int axe_h_len = static_cast<int>(m_axe.m_option_name.length());
+        int axe_h_len = static_cast<int>(m_axe.get_option_name().length());
         int axe_v_len = static_cast<int>(axe_val.length());
         int final_axe_width = std::max({MIN_WIDTH, axe_h_len, axe_v_len}) + PADDING;
         m_col_widths.push_back(final_axe_width);
 
         // Header for Axis
         std::stringstream header_line;
-        header_line << std::left << std::setw(final_axe_width) << m_axe.m_option_name;
+        header_line << std::left << std::setw(final_axe_width) << m_axe.get_option_name();
 
         // Calculate Metric Widths (Data Columns)
         for (const auto &metric : metrics) {
@@ -136,7 +142,7 @@ namespace Baseliner {
 
   private:
     std::shared_ptr<IBenchmark> m_benchmark;
-    Axe m_axe;
+    SingleAxe m_axe;
     bool m_first_result = true;
     std::vector<int> m_col_widths;
     std::vector<std::string> m_metric_names;
