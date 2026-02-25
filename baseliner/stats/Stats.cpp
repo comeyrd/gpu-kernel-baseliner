@@ -1,7 +1,9 @@
 #include <algorithm>
 #include <array>
 #include <baseliner/Durations.hpp>
+#include <baseliner/managers/RegisteringMacros.hpp>
 #include <baseliner/stats/Stats.hpp>
+
 #include <cmath>
 #include <cstddef>
 #include <stdexcept>
@@ -99,5 +101,16 @@ namespace Baseliner::Stats {
     add_option("WithoutOutliersStat", "InterQuartileRange", "The range at which we define an outlier",
                m_i_q_r_outlier_range);
   };
+
+  BASELINER_REGISTER_STAT(SortedExecutionTimeVector);
+  BASELINER_REGISTER_STAT(Median);
+  BASELINER_REGISTER_STAT(MedianItemTroughput);
+  BASELINER_REGISTER_STAT(FLOPThroughput);
+  BASELINER_REGISTER_STAT(Q1);
+  BASELINER_REGISTER_STAT(Q3);
+  BASELINER_REGISTER_STAT(MedianConfidenceInterval);
+  BASELINER_REGISTER_STAT(WithoutOutliers);
+  BASELINER_REGISTER_STAT(MedianAbsoluteDeviation);
+  BASELINER_REGISTER_STAT(Mean);
 
 } // namespace Baseliner::Stats

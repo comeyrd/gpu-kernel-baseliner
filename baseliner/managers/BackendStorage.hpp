@@ -8,7 +8,7 @@
 namespace Baseliner {
 
   template <typename InnerTypeT>
-  auto inject_preset(std::function<std::shared_ptr<InnerTypeT>()> &funct, const OptionsMap &preset)
+  auto inject_preset(const std::function<std::shared_ptr<InnerTypeT>()> &funct, const OptionsMap &preset)
       -> std::function<std::shared_ptr<InnerTypeT>()> {
     static_assert(std::is_base_of_v<IOption, InnerTypeT>,
                   "The type you want to inject presets on must inherit from IOption");
@@ -28,6 +28,7 @@ namespace Baseliner {
       }
       return ptr;
     };
+    return output_function;
   }
 
   class IBackendStorage {
@@ -40,8 +41,19 @@ namespace Baseliner {
                                                        const std::vector<std::string> &stats_names)
         -> std::function<std::shared_ptr<IBenchmark>()> = 0;
 
-  protected:
+    void set_name(const std::string &name) {
+      m_name = name;
+    }
+    [[nodiscard]] auto get_name() const -> std::string {
+      return m_name;
+    }
+    [[nodiscard]] virtual auto list_device_stats() const -> std::vector<std::string> = 0;
+    [[nodiscard]] virtual auto list_device_cases() const -> std::vector<std::string> = 0;
+    [[nodiscard]] virtual auto list_device_benchmarks() const -> std::vector<std::string> = 0;
     IBackendStorage() = default;
+
+  private:
+    std::string m_name;
   };
 
   template <typename BackendT>
@@ -56,18 +68,19 @@ namespace Baseliner {
                                                const std::vector<std::string> &stats_names)
         -> std::function<std::shared_ptr<IBenchmark>()> override {
       if (!m_benchmark_storage.has(benchmark_name)) {
-        throw std::runtime_error("Benchmark " + benchmark_name + " does not exist in Backend" + m_name);
+        throw std::runtime_error("Benchmark " + benchmark_name + " does not exist in Backend" + get_name());
       }
       if (!m_cases_storage.has(case_name)) {
-        throw std::runtime_error("Case " + case_name + " does not exist in Backend" + m_name);
+        throw std::runtime_error("Case " + case_name + " does not exist in Backend" + get_name());
       }
-      auto benchmark_recipe = inject_preset(m_benchmark_storage.at(benchmark_name), benchmark_preset);
-      auto case_recipe = inject_preset(m_cases_storage.at(case_name), case_preset);
+      auto benchmark_recipe =
+          inject_preset<Benchmark<BackendT>>(m_benchmark_storage.at(benchmark_name), benchmark_preset);
+      auto case_recipe = inject_preset<ICase<BackendT>>(m_cases_storage.at(case_name), case_preset);
       std::vector<std::function<void(std::shared_ptr<Stats::StatsEngine>)>> stats_recipes;
       for (auto stat : stats_names) {
         if (!m_backend_stats_storage.has(stat)) {
           throw std::runtime_error("Stat " + stat + " does not exist either in General Manager nor in Backend " +
-                                   m_name);
+                                   get_name());
         }
         stats_recipes.push_back(m_backend_stats_storage.at(stat));
       }
@@ -80,13 +93,28 @@ namespace Baseliner {
       return func;
     };
 
-  protected:
-    void set_name(const std::string &name) {
-      m_name = name;
+    void register_case(const std::string &name, const std::function<std::shared_ptr<ICase<BackendT>>()> &case_factory) {
+      m_cases_storage.insert(name, case_factory, get_name());
     }
+    void register_benchmark(const std::string &name,
+                            const std::function<std::shared_ptr<Benchmark<BackendT>>()> &bench_factory) {
+      m_benchmark_storage.insert(name, bench_factory, get_name());
+    }
+    void register_backend_stats(const std::string &name,
+                                const std::function<void(std::shared_ptr<Stats::StatsEngine>)> &stats_factory) {
+      m_backend_stats_storage.insert(name, stats_factory, get_name());
+    }
+    [[nodiscard]] auto list_device_stats() const -> std::vector<std::string> override {
+      return m_backend_stats_storage.list();
+    };
+    [[nodiscard]] auto list_device_cases() const -> std::vector<std::string> override {
+      return m_cases_storage.list();
+    };
+    [[nodiscard]] auto list_device_benchmarks() const -> std::vector<std::string> override {
+      return m_benchmark_storage.list();
+    };
 
   private:
-    std::string m_name;
     CaseStorage<BackendT> m_cases_storage;
     BenchmarkStorage<BackendT> m_benchmark_storage;
     BackendStatsStorage<BackendT> m_backend_stats_storage;

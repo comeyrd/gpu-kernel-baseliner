@@ -19,9 +19,12 @@ namespace Baseliner {
   template void serialize<Result>(std::ostream &oss, const Result &obj);
   template void serialize<MetricData>(std::ostream &oss, const MetricData &obj);
   template void serialize<Option>(std::ostream &oss, const Option &obj);
+  template void serialize<OptionsMap>(std::ostream &oss, const OptionsMap &obj);
+  template void serialize<InterfaceOptions>(std::ostream &oss, const InterfaceOptions &obj);
 
   template void serialize<std::vector<Result>>(std::ostream &oss, const std::vector<Result> &obj);
   template void serialize<std::vector<Metric>>(std::ostream &oss, const std::vector<Metric> &obj);
+  template void serialize<std::vector<Option>>(std::ostream &oss, const std::vector<Option> &obj);
 
   void to_json(json &json_obj, const Option &opt) {
     json_obj =

@@ -65,7 +65,6 @@ namespace Baseliner {
 
   private:
     auto criterion_satisfied() -> bool override;
-    bool m_remove_outliers = true;
     float m_precision =
         MEASURE_PRECISION * 2; // Cuda Event Precision = 0.0005ms, Hip Event 0.001ms, SYCL events 0.001ms also ~
     float m_relative_error_th = DEFAULT_RELATIVE_ERROR_TH;

@@ -7,6 +7,7 @@
 #include <baseliner/stats/StatsType.hpp>
 #include <cmath>
 #include <cstddef>
+#include <numeric>
 #include <string>
 #include <vector>
 namespace Baseliner::Stats {
@@ -96,6 +97,25 @@ namespace Baseliner::Stats {
     };
     [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
       return StatComputePolicy::EVERY_TICK;
+    };
+  };
+  class Mean : public IStat<Mean, float, ExecutionTimeVector> {
+  public:
+    [[nodiscard]] auto name() const -> std::string override {
+      return "mean";
+    }
+    void calculate(Mean::type &value_to_update, const typename ExecutionTimeVector::type &inputs) override {
+      double total = 0;
+      for (const auto &input : inputs) {
+        total += input.count();
+      }
+      value_to_update = static_cast<float>(total / inputs.size());
+    };
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "ms";
+    }
+    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
+      return StatComputePolicy::ON_DEMAND;
     };
   };
 

@@ -1,7 +1,7 @@
 #include <baseliner/backend/BackendStats.hpp>
 #include <baseliner/backend/cuda/CudaBackend.hpp>
+#include <baseliner/managers/RegisteringMacros.hpp>
 #include <baseliner/stats/Stats.hpp>
-
 namespace Baseliner::Stats {
 
 #ifdef BASELINER_HAS_NVML
@@ -22,5 +22,12 @@ namespace Baseliner::Stats {
   std::string ClockFrequencyVector<Backend::CudaBackend>::name() const {
     return "CudaClockFrequencyVector";
   }
+  namespace {
+    using ClockFrequency = ClockFrequency<Backend::CudaBackend>;
+    using ClockFrequencyVector = ClockFrequencyVector<Backend::CudaBackend>;
+
+    BASELINER_REGISTER_BACKEND_STATS(ClockFrequency);
+    BASELINER_REGISTER_BACKEND_STATS(ClockFrequencyVector);
+  } // namespace
 #endif
 } // namespace Baseliner::Stats

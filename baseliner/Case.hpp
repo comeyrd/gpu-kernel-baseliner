@@ -63,7 +63,7 @@ namespace Baseliner {
       }
       this->case_setup_metrics(engine);
     };
-    void update_metrics(std::shared_ptr<Stats::StatsEngine> &engine) override {
+    void update_metrics(std::shared_ptr<Stats::StatsEngine> &engine) {
       std::optional<size_t> bytes = this->number_of_bytes();
       std::optional<size_t> flops = this->number_of_floating_point_operations();
       if (m_bytes) {

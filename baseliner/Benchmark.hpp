@@ -100,9 +100,9 @@ namespace Baseliner {
       m_name = std::move(name);
     }
 
-    void set_stopping_criterion(
-        const std::function<std::unique_ptr<StoppingCriterion>(std::shared_ptr<Stats::StatsEngine>)> stopping_builder) {
-      m_stopping = stopping_builder(m_stats_engine);
+    void set_stopping_criterion(const std::function<std::unique_ptr<StoppingCriterion>()> stopping_builder) {
+      m_stopping = stopping_builder();
+      m_stopping->set_stats_engine(m_stats_engine);
     }
     void add_stats(const std::vector<std::function<void(std::shared_ptr<Stats::StatsEngine>)>> &stats_recipes) {
       for (auto stat : stats_recipes) {
@@ -202,15 +202,6 @@ namespace Baseliner {
       result.push_back_metrics(metrics);
       return result;
     }
-
-  protected:
-    void register_options_dependencies() override {
-      register_consumer(*m_stopping);
-      register_consumer(*m_stats_engine);
-      if (m_case) {
-        register_consumer(*m_case);
-      }
-    };
 
   private:
     // Kernel Types

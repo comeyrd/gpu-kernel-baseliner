@@ -15,7 +15,7 @@ namespace Baseliner {
       this->add_option("SingleAxe", "option_name", "The name of the option", m_option_name);
       this->add_option("SingleAxe", "values", "The selected values of the option", m_values);
     };
-    SingleAxe();
+    SingleAxe() = default;
     void set_interface_name(const std::string &interface_name) {
       m_interface_name = interface_name;
     }

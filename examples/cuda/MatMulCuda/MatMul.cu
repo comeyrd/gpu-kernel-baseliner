@@ -27,6 +27,7 @@
 
 // Copyright 2026, Come Eyraud.
 #include "MatMul.hpp"
+#include "baseliner/managers/RegisteringMacros.hpp"
 
 #include <vector>
 
@@ -122,3 +123,4 @@ void MatrixMulKernel::run(std::shared_ptr<cudaStream_t> stream) {
         <<<m_grid, m_threads, 0, *stream>>>(m_d_C, m_d_A, m_d_B, get_input()->m_wA, get_input()->m_wB);
   }
 }
+BASELINER_REGISTER_KERNEL(MatrixMulKernel);

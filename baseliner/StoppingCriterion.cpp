@@ -1,6 +1,7 @@
 
 #include <baseliner/Durations.hpp>
 #include <baseliner/StoppingCriterion.hpp>
+#include <baseliner/managers/RegisteringMacros.hpp>
 #include <baseliner/stats/Stats.hpp>
 #include <baseliner/stats/StatsType.hpp>
 #include <cstddef>
@@ -34,7 +35,7 @@ namespace Baseliner {
                m_batch_size);
     add_option("StoppingCriterion", "max_nb_repetition", "Maximum number of repetitions", m_max_repetitions);
   };
-
+  BASELINER_REGISTER_STOPPING_CRITERION(StoppingCriterion);
   //----------
   // ConfidenceIntervalMedianSC
   //
@@ -58,5 +59,6 @@ namespace Baseliner {
     const float_milliseconds m_ci_width = confidence_interval.high - confidence_interval.low;
     return m_ci_width.count() <= m_precision;
   };
+  BASELINER_REGISTER_STOPPING_CRITERION(ConfidenceIntervalMedianSC);
 
 } // namespace Baseliner

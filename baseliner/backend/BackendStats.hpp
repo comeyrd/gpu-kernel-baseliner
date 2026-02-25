@@ -4,8 +4,14 @@
 
 namespace Baseliner::Stats {
 
+  template <typename BackendT, typename OutputTag, typename ValueType, typename... InputTags>
+  class BackendStat : public IStat<OutputTag, ValueType, InputTags...> {
+  public:
+    using backend = BackendT;
+  };
+
   template <typename BackendT>
-  class ClockFrequency : public IStat<ClockFrequency<BackendT>, float> {
+  class ClockFrequency : public BackendStat<BackendT, ClockFrequency<BackendT>, float> {
   public:
     [[nodiscard]] auto name() const -> std::string override;
     [[nodiscard]] auto unit() const -> std::string override {
@@ -19,7 +25,7 @@ namespace Baseliner::Stats {
 
   template <typename BackendT>
   class ClockFrequencyVector
-      : public IStat<ClockFrequencyVector<BackendT>, std::vector<float>, ClockFrequency<BackendT>> {
+      : public BackendStat<BackendT, ClockFrequencyVector<BackendT>, std::vector<float>, ClockFrequency<BackendT>> {
   public:
     [[nodiscard]] auto name() const -> std::string override;
     [[nodiscard]] auto unit() const -> std::string override {

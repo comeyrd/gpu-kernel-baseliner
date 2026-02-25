@@ -9,9 +9,10 @@
 #include <memory>
 #include <sstream>
 namespace Baseliner {
+
   struct OptionPreset {
-    OptionsMap m_map;
     std::string m_description;
+    OptionsMap m_map;
   };
 
   struct StatPreset {
@@ -20,14 +21,42 @@ namespace Baseliner {
   };
   constexpr std::string_view DEFAULT_BENCHMARK = "Benchmark";
   constexpr std::string_view DEFAULT_STOPPING = "StoppingCriterion";
+  const std::string DEFAULT_PRESET = "default";
+  const std::string DEFAULT_DESCRIPTION = "Default preset ";
+
+  enum ComponentType {
+    NONE,
+    CASE,
+    BENCHMARK,
+    SUITE,
+    STOPPING,
+  };
+
+  static auto component_to_string(const ComponentType &type) -> std::string {
+    switch (type) {
+    case NONE:
+      return "";
+    case CASE:
+      return "Case";
+    case BENCHMARK:
+      return "Benchmark";
+    case SUITE:
+      return "Suite";
+    case STOPPING:
+      return "Stopping";
+    default:
+      return "";
+    }
+  }
 
   class Manager {
   public:
-    auto instance() -> Manager * {
+    static auto instance() -> Manager * {
       static Manager manager;
       return &manager;
     }
 
+    // TODO do same as in preset management ....
     auto build_recipe(const Recipe &recipe)
         -> std::variant<std::function<std::shared_ptr<IBenchmark>()>, std::function<std::shared_ptr<ISuite>()>> {
       auto backend_it = m_backends_storage.find(recipe.m_backend);
@@ -125,6 +154,90 @@ namespace Baseliner {
       return benchmark_with_stopping_and_stats;
     }
 
+    /**
+     ** list things
+     **/
+
+    auto list_cases_presets() const -> std::unordered_map<std::string, std::unordered_map<std::string, OptionPreset>> {
+      return m_case_presets;
+    }
+    auto list_benchmark_presets() const
+        -> std::unordered_map<std::string, std::unordered_map<std::string, OptionPreset>> {
+      return m_benchmark_presets;
+    }
+    auto list_suite_presets() const -> std::unordered_map<std::string, std::unordered_map<std::string, OptionPreset>> {
+      return m_suite_presets;
+    }
+    auto list_stopping_presets() const
+        -> std::unordered_map<std::string, std::unordered_map<std::string, OptionPreset>> {
+      return m_stopping_presets;
+    }
+    auto list_general_stats_presets() const -> std::unordered_map<std::string, StatPreset> {
+      return m_stats_presets;
+    }
+    auto list_backends() const -> std::unordered_map<std::string, IBackendStorage *> {
+      return m_backends_storage;
+    }
+    auto list_stats() const -> std::vector<std::string> {
+      return m_stats_storage.list();
+    }
+    /**
+     ** Registering things
+     **/
+    void register_backend(const std::string &name, IBackendStorage *backend) {
+      if (m_backends_storage.find(name) != m_backends_storage.end()) {
+        throw std::runtime_error("Baseliner Error : Two backends with the same name registered : " + name);
+      }
+      m_backends_storage[name] = backend;
+    }
+
+    void register_general_stat(const std::string &name,
+                               const std::function<void(std::shared_ptr<Stats::StatsEngine>)> &stat_factory) {
+      m_stats_storage.insert(name, stat_factory);
+    }
+    void register_suite(const std::string &name, const std::function<std::shared_ptr<ISuite>()> &suite_factory) {
+      m_suite_storage.insert(name, suite_factory);
+      add_preset(name, m_default_preset, OptionPreset{DEFAULT_DESCRIPTION, suite_factory()->gather_options()},
+                 ComponentType::SUITE);
+    }
+    void register_stopping(const std::string &name,
+                           const std::function<std::unique_ptr<StoppingCriterion>()> &stopping_factory) {
+      m_stopping_storage.insert(name, stopping_factory);
+      add_preset(name, m_default_preset, OptionPreset{DEFAULT_DESCRIPTION, stopping_factory()->gather_options()},
+                 ComponentType::STOPPING);
+    }
+
+    /**
+     ** Registring Preset
+     **/
+    void add_preset(const std::string &name, const std::string &preset_name, const OptionPreset &preset,
+                    ComponentType type) {
+      std::unordered_map<std::string, std::unordered_map<std::string, OptionPreset>> *map = nullptr;
+      switch (type) {
+      case NONE: {
+        throw std::runtime_error("add_preset called with NONE ComponentType");
+      }
+      case CASE:
+        map = &m_case_presets;
+        break;
+      case BENCHMARK:
+        map = &m_benchmark_presets;
+        break;
+      case SUITE:
+        map = &m_suite_presets;
+        break;
+      case STOPPING:
+        map = &m_stopping_presets;
+        break;
+      }
+      auto &specific = (*map)[name];
+      if (specific.find(preset_name) != specific.end() && preset_name != DEFAULT_PRESET) {
+        throw std::runtime_error("Baseliner Error : Preset " + preset_name +
+                                 " already defined for : " + component_to_string(type) + " : " + name);
+      }
+      specific[preset_name] = preset;
+    }
+
   private:
     std::unordered_map<std::string, IBackendStorage *> m_backends_storage;
     GeneralStatsStorage m_stats_storage;
@@ -137,9 +250,9 @@ namespace Baseliner {
     std::unordered_map<std::string, std::unordered_map<std::string, OptionPreset>> m_suite_presets;
     std::unordered_map<std::string, std::unordered_map<std::string, OptionPreset>> m_stopping_presets;
 
+    const std::string m_default_preset = DEFAULT_PRESET;
     // Preset for stats (just names)
-    std::unordered_map<std::string, StatPreset> m_stats_presets;
-
+    std::unordered_map<std::string, StatPreset> m_stats_presets{{"default", {"No Stats", {"Median"}}}};
     // Defaults
     std::string m_default_benchmarl{DEFAULT_BENCHMARK};
     std::string m_default_stopping{DEFAULT_STOPPING};

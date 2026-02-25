@@ -80,7 +80,7 @@ namespace Baseliner {
   using InterfaceOptions = std::unordered_map<std::string, Option>;
   using OptionsMap = std::unordered_map<std::string, InterfaceOptions>;
   namespace Options {
-    static auto have_same_schema(const OptionsMap &omap1, const OptionsMap &omap2) -> bool {
+    static inline auto have_same_schema(const OptionsMap &omap1, const OptionsMap &omap2) -> bool {
       if (omap1.size() != omap2.size()) {
         return false;
       }

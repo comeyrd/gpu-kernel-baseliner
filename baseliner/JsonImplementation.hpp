@@ -1,5 +1,5 @@
-#ifndef JSON_HANDLER_HPP
-#define JSON_HANDLER_HPP
+#ifndef JSON_MANAGER_HPP
+#define JSON_MANAGER_HPP
 #include <baseliner/Metric.hpp>
 #include <baseliner/Options.hpp>
 #include <baseliner/Result.hpp>
@@ -62,4 +62,4 @@ namespace Baseliner {
   }
 } // namespace Baseliner
 
-#endif // JSON_HANDLER_HPP
+#endif // JSON_MANAGER_HPP
