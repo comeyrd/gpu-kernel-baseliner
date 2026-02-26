@@ -1,12 +1,12 @@
 #ifndef BASELINER_BENCHMARK_HPP
 #define BASELINER_BENCHMARK_HPP
-#include "baseliner/backend/Backend.hpp"
 #include <baseliner/Case.hpp>
 #include <baseliner/Kernel.hpp>
 #include <baseliner/Metric.hpp>
 #include <baseliner/Options.hpp>
 #include <baseliner/Result.hpp>
 #include <baseliner/StoppingCriterion.hpp>
+#include <baseliner/backend/Backend.hpp>
 
 #include <baseliner/stats/IStats.hpp>
 #include <baseliner/stats/Stats.hpp>

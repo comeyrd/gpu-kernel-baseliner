@@ -1,9 +1,10 @@
 #ifndef BASELINER_BACKEND_MANAGER
 #define BASELINER_BACKEND_MANAGER
-#include "baseliner/Serializer.hpp"
-#include "baseliner/managers/BackendSpecificStorage.hpp"
 #include <baseliner/Benchmark.hpp>
 #include <baseliner/Case.hpp>
+#include <baseliner/Metadata.hpp>
+#include <baseliner/Serializer.hpp>
+#include <baseliner/managers/BackendSpecificStorage.hpp>
 
 namespace Baseliner {
 
@@ -51,6 +52,7 @@ namespace Baseliner {
     [[nodiscard]] virtual auto list_device_cases() const -> std::vector<std::string> = 0;
     [[nodiscard]] virtual auto list_device_benchmarks() const -> std::vector<std::string> = 0;
     IBackendStorage() = default;
+    virtual auto generate_backend_metadata() -> BackendMetadata = 0;
 
   private:
     std::string m_name;
@@ -92,7 +94,14 @@ namespace Baseliner {
       };
       return func;
     };
-
+    auto generate_backend_metadata() -> BackendMetadata override {
+      BackendMetadata metadata{};
+      metadata.m_name = get_name();
+      metadata.m_benchmaks = m_benchmark_storage.list();
+      metadata.m_cases = m_cases_storage.list();
+      metadata.m_stats = m_backend_stats_storage.list();
+      return metadata;
+    }
     void register_case(const std::string &name, const std::function<std::shared_ptr<ICase<BackendT>>()> &case_factory) {
       m_cases_storage.insert(name, case_factory, get_name());
     }

@@ -1,5 +1,6 @@
-#ifndef JSON_MANAGER_HPP
-#define JSON_MANAGER_HPP
+#ifndef JSON_IMPLEMENTATION_HPP
+#define JSON_IMPLEMENTATION_HPP
+#include <baseliner/Metadata.hpp>
 #include <baseliner/Metric.hpp>
 #include <baseliner/Options.hpp>
 #include <baseliner/Result.hpp>
@@ -48,6 +49,11 @@ namespace Baseliner {
   void to_json(json &json_obj, const Result &result);
   void to_json(json &json_obj, const Metric &metric);
 
+  void to_json(json &json_obj, const OptionPreset &option_preset);
+  void to_json(json &json_obj, const StatPreset &stat_preset);
+  void to_json(json &json_obj, const BackendMetadata &backend_meta);
+  void to_json(json &json_obj, const Ingredient &ingredient);
+  void to_json(json &json_obj, const Metadata &metadata);
   template <typename T>
   void to_json(json &json_obj, const ConfidenceInterval<T> &obj) {
     json_obj["high"] = obj.high;

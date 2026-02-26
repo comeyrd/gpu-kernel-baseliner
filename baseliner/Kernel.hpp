@@ -1,10 +1,10 @@
 #ifndef KERNEL_HPP
 #define KERNEL_HPP
-#include "baseliner/Case.hpp"
-#include "baseliner/stats/StatsEngine.hpp"
+#include <baseliner/Case.hpp>
 #include <baseliner/Options.hpp>
 #include <baseliner/Timer.hpp>
 #include <baseliner/backend/Backend.hpp>
+#include <baseliner/stats/StatsEngine.hpp>
 #include <memory>
 #include <optional>
 namespace Baseliner {

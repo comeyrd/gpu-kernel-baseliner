@@ -1,9 +1,9 @@
 #ifndef HIP_BACKEND_HPP
 #define HIP_BACKEND_HPP
-#include "baseliner/Kernel.hpp"
 #include "hip/hip_runtime.h"
 #include <algorithm>
 #include <baseliner/Benchmark.hpp>
+#include <baseliner/Kernel.hpp>
 #include <baseliner/backend/Backend.hpp>
 #include <iterator>
 

@@ -123,6 +123,10 @@ namespace Baseliner {
       std::cout << sstream.str();
     }
 
+    void register_options_dependencies() override {
+      this->register_consumer(m_axe);
+    };
+
   private:
     std::shared_ptr<IBenchmark> m_benchmark;
     SingleAxe m_axe;

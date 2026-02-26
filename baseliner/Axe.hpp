@@ -8,7 +8,7 @@ namespace Baseliner {
   constexpr std::string_view DEFAULT_SINGLE_AXE_INTERFACE_NAME = "Case";
   constexpr std::string_view DEFAULT_SINGLE_AXE_OPTION_NAME = "work_size";
   constexpr std::string_view DEFAULT_SINGLE_AXE_VALUES[] = {"1", "2", "3", "4", "5"}; // NOLINT
-  class SingleAxe : IOption {
+  class SingleAxe : public IOption {
   public:
     void register_options() override {
       this->add_option("SingleAxe", "interface_name", "The name of the interface the option is on", m_interface_name);

@@ -1,8 +1,8 @@
 #ifndef CUDA_BACKEND_HPP
 #define CUDA_BACKEND_HPP
-#include "baseliner/Kernel.hpp"
 #include "cuda_runtime.h"
 #include <baseliner/Benchmark.hpp>
+#include <baseliner/Kernel.hpp>
 #include <baseliner/backend/Backend.hpp>
 
 void check_cuda_error(cudaError_t error_code, const char *file, int line);                // NOLINT

@@ -41,7 +41,8 @@ namespace Baseliner {
         return std::make_shared<BenchmarkT>();
       };
       BackendStorage<typename BenchmarkT::backend>::instance()->register_benchmark(name, factory);
-      Manager::instance()->add_preset(name, DEFAULT_PRESET, {DEFAULT_DESCRIPTION, factory()->gather_options()},
+      Manager::instance()->add_preset(name, std::string(DEFAULT_PRESET),
+                                      {std::string(DEFAULT_DESCRIPTION), factory()->gather_options()},
                                       ComponentType::BENCHMARK);
     }
   };
@@ -63,7 +64,8 @@ namespace Baseliner {
     explicit CaseRegistrar(const std::string &name) {
       auto factory = []() -> std::shared_ptr<ICase<typename CaseT::backend>> { return std::make_shared<CaseT>(); };
       BackendStorage<typename CaseT::backend>::instance()->register_case(name, factory);
-      Manager::instance()->add_preset(name, DEFAULT_PRESET, {DEFAULT_DESCRIPTION, factory()->gather_options()},
+      Manager::instance()->add_preset(name, std::string(DEFAULT_PRESET),
+                                      {std::string(DEFAULT_DESCRIPTION), factory()->gather_options()},
                                       ComponentType::CASE);
     }
   };
@@ -76,7 +78,8 @@ namespace Baseliner {
         return std::make_shared<KernelCase<KernelT>>();
       };
       BackendStorage<typename KernelT::backend>::instance()->register_case(name, factory);
-      Manager::instance()->add_preset(name, DEFAULT_PRESET, {DEFAULT_DESCRIPTION, factory()->gather_options()},
+      Manager::instance()->add_preset(name, std::string(DEFAULT_PRESET),
+                                      {std::string(DEFAULT_DESCRIPTION), factory()->gather_options()},
                                       ComponentType::CASE);
     }
   };

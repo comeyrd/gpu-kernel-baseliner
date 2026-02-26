@@ -77,11 +77,14 @@ __attribute__((weak)) auto main(int argc, char **argv) -> int { // NOLINT
   std::cout << "Baseliner" << "\n";
   auto recipes = RecipeManager::get_recipes();
   std::cout << "[Baseliner] Total Registered Recipes: " << recipes.size() << "\n";
+
   std::vector<Result> results;
   if (recipes.empty()) {
     list_things(std::cout);
   }
   Manager *manager = Manager::instance();
+  metadata_to_file(manager->generate_metadata(), "metadata.json");
+
   for (auto &recipe : RecipeManager::get_recipes()) {
     auto bench_or_suite = manager->build_recipe(recipe);
     if (std::holds_alternative<std::function<std::shared_ptr<IBenchmark>()>>(bench_or_suite)) {

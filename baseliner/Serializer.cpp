@@ -1,3 +1,4 @@
+#include <baseliner/Metadata.hpp>
 #include <baseliner/Result.hpp>
 #include <baseliner/Serializer.hpp>
 #include <fstream>
@@ -29,5 +30,15 @@ namespace Baseliner {
       throw std::runtime_error("Could not open file: " + filename);
     }
     serialize(file, results);
+  }
+  void metadata_to_file(const Metadata &metadata, std::string filename) {
+    std::ifstream infile(filename);
+    const bool create_new_file = true;
+    auto file = std::ofstream(filename, std::ios::trunc);
+
+    if (!file.is_open()) {
+      throw std::runtime_error("Could not open file: " + filename);
+    }
+    serialize(file, metadata);
   }
 } // namespace Baseliner
