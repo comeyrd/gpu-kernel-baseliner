@@ -100,6 +100,9 @@ namespace Baseliner {
       m_name = std::move(name);
     }
 
+    virtual auto gather_case_options() -> OptionsMap = 0;
+    virtual void propagate_case_options(const OptionsMap &map) = 0;
+
     void set_stopping_criterion(const std::function<std::unique_ptr<StoppingCriterion>()> stopping_builder) {
       m_stopping = stopping_builder();
       m_stopping->set_stats_engine(m_stats_engine);
@@ -196,12 +199,22 @@ namespace Baseliner {
       if (!valid_run) {
         std::cout << "Warning, not able to validate Case : " << m_case->name() << '\n';
       }
-
-      Result result(this->gather_options(), m_case->name(), valid_run);
+      OptionsMap map;
+      m_case->gather_options(map);
+      m_stopping->gather_options(map);
+      this->gather_options(map);
+      Result result(map, m_case->name(), valid_run);
       std::vector<Metric> metrics = {m_stats_engine->get_metrics()};
       result.push_back_metrics(metrics);
       return result;
     }
+
+    auto gather_case_options() -> OptionsMap override {
+      return m_case->gather_options();
+    };
+    void propagate_case_options(const OptionsMap &map) override {
+      m_case->propagate_options(map);
+    };
 
   private:
     // Kernel Types

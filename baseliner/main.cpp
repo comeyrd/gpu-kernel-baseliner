@@ -84,7 +84,13 @@ __attribute__((weak)) auto main(int argc, char **argv) -> int { // NOLINT
   }
   Manager *manager = Manager::instance();
   metadata_to_file(manager->generate_metadata(), "metadata.json");
-
+  // config_to_file(manager->generate_example_config(), "config.json");
+  Config config;
+  file_to_config(config, "config.json");
+  manager->add_presets(config.m_presets);
+  for (const auto &recipe : config.m_recipes) {
+    RecipeManager::register_recipe(recipe);
+  }
   for (auto &recipe : RecipeManager::get_recipes()) {
     auto bench_or_suite = manager->build_recipe(recipe);
     if (std::holds_alternative<std::function<std::shared_ptr<IBenchmark>()>>(bench_or_suite)) {

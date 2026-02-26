@@ -17,6 +17,9 @@ namespace Baseliner {
       m_benchmark = benchmark_builder();
     }
     [[nodiscard]] virtual auto run_all() -> std::vector<Result> = 0;
+    auto get_benchmark() -> std::shared_ptr<IBenchmark> {
+      return m_benchmark;
+    }
 
   private:
     std::shared_ptr<IBenchmark> m_benchmark;

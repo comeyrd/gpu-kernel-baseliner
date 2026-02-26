@@ -6,19 +6,14 @@
 #include <vector>
 namespace Baseliner {
 
-  struct InnerOptionPreset {
+  struct InnerPreset {
     std::string m_description;
-    OptionsMap m_map;
+    std::variant<OptionsMap, std::vector<std::string>> m_patch;
   };
-  struct OptionPreset {
+  struct Preset {
     std::string m_name;
-    InnerOptionPreset m_preset;
+    InnerPreset m_preset;
   };
-  struct InnerStatPreset {
-    std::string m_description;
-    std::vector<std::string> m_stats;
-  };
-
   struct BackendMetadata {
     std::string m_name;
     std::vector<std::string> m_benchmaks;
@@ -27,12 +22,7 @@ namespace Baseliner {
   };
   struct Ingredient {
     std::string m_name;
-    std::vector<OptionPreset> m_presets;
-  };
-
-  struct StatPreset {
-    std::string m_name;
-    InnerStatPreset m_preset;
+    std::vector<Preset> m_presets;
   };
 
   struct Metadata {
@@ -42,7 +32,7 @@ namespace Baseliner {
     std::vector<Ingredient> m_stopping_criterions;
     std::vector<Ingredient> m_suites;
     std::vector<std::string> m_general_stats;
-    std::vector<StatPreset> m_stats_presets;
+    std::vector<Preset> m_stats_presets;
     std::vector<BackendMetadata> m_backends;
   };
 

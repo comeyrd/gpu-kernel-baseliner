@@ -6,7 +6,11 @@
 
 #include <iomanip>
 namespace Baseliner {
-
+  enum class TargetMap {
+    None,
+    Benchmark,
+    Case
+  };
   class SingleAxeSuite : public ISuite {
   public:
     SingleAxeSuite() = default;
@@ -14,31 +18,47 @@ namespace Baseliner {
       return "SingleAxeSuite";
     }
     [[nodiscard]] auto run_all() -> std::vector<Result> override {
-      if (m_axe.get_interface_name().empty()) {
-        throw std::runtime_error("Error : Suite launched without axes");
+      const std::string &interface_name = m_axe.get_interface_name();
+      const std::string &option_name = m_axe.get_option_name();
+
+      if (interface_name.empty()) {
+        throw std::runtime_error("Error: Suite launched without axes");
+      }
+
+      const OptionsMap baseBenchMap = get_benchmark()->gather_options();
+      const OptionsMap baseCaseMap = get_benchmark()->gather_case_options();
+
+      TargetMap target = TargetMap::None;
+      if (auto it = baseBenchMap.find(interface_name);
+          it != baseBenchMap.end() && it->second.find(option_name) != it->second.end()) {
+        target = TargetMap::Benchmark;
+      } else if (auto it = baseCaseMap.find(interface_name);
+                 it != baseCaseMap.end() && it->second.find(option_name) != it->second.end()) {
+        target = TargetMap::Case;
+      }
+      if (target == TargetMap::None) {
+        throw std::runtime_error("Axe error: No option " + option_name + " found in interface " + interface_name +
+                                 " for either bench or case setups.");
       }
       std::vector<Result> results_v{};
-      const OptionsMap baseMap = m_benchmark->gather_options();
-      OptionsMap tempMap;
-      // Checks that the Axe interface name and option exist
-      if (baseMap.find(m_axe.get_interface_name()) == baseMap.end()) {
-        throw std::runtime_error("Axe error : The interface " + m_axe.get_interface_name() + " does not exist");
-      }
-      if (baseMap.at(m_axe.get_interface_name()).find(m_axe.get_option_name()) ==
-          baseMap.at(m_axe.get_interface_name()).end()) {
-        throw std::runtime_error("Axe error : No option " + m_axe.get_option_name() + " in interface " +
-                                 m_axe.get_interface_name());
-      }
+      results_v.reserve(m_axe.get_values().size());
+
       for (const std::string &axe_val : m_axe.get_values()) {
-        tempMap = baseMap;
-        tempMap[m_axe.get_interface_name()][m_axe.get_option_name()].m_value = axe_val;
-        m_benchmark->propagate_options(tempMap);
-        const Result result = m_benchmark->run();
+        if (target == TargetMap::Benchmark) {
+          OptionsMap tempMap = baseBenchMap;
+          tempMap[interface_name][option_name].m_value = axe_val;
+          get_benchmark()->propagate_options(tempMap);
+        } else {
+          OptionsMap tempMap = baseCaseMap;
+          tempMap[interface_name][option_name].m_value = axe_val;
+          get_benchmark()->propagate_case_options(tempMap);
+        }
+        const Result result = get_benchmark()->run();
         results_v.push_back(result);
         print_result(result);
       }
       return results_v;
-    };
+    }
     void print_result(const Result &result) {
       if (m_axe.get_interface_name().empty()) {
         throw std::runtime_error("Error : Suite print result without axes");
@@ -95,7 +115,7 @@ namespace Baseliner {
         for (int w : m_col_widths)
           total_width += w;
 
-        std::cout << "Task " << name() << " | " << m_benchmark->name() << "\n";
+        std::cout << "Task " << name() << " | " << get_benchmark()->name() << "\n";
         std::cout << header_line.str() << "\n";
         std::cout << std::string(total_width, '-') << "\n";
       }
@@ -128,7 +148,6 @@ namespace Baseliner {
     };
 
   private:
-    std::shared_ptr<IBenchmark> m_benchmark;
     SingleAxe m_axe;
     bool m_first_result = true;
     std::vector<int> m_col_widths;

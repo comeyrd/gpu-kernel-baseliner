@@ -5,32 +5,8 @@
 #include <baseliner/Metadata.hpp>
 #include <baseliner/Serializer.hpp>
 #include <baseliner/managers/BackendSpecificStorage.hpp>
-
+#include <baseliner/managers/PresetInjection.hpp>
 namespace Baseliner {
-
-  template <typename InnerTypeT>
-  auto inject_preset(const std::function<std::shared_ptr<InnerTypeT>()> &funct, const OptionsMap &preset)
-      -> std::function<std::shared_ptr<InnerTypeT>()> {
-    static_assert(std::is_base_of_v<IOption, InnerTypeT>,
-                  "The type you want to inject presets on must inherit from IOption");
-    auto output_function = [funct, preset]() -> std::shared_ptr<InnerTypeT> {
-      auto ptr = funct();
-      auto options = ptr->gather_options();
-      if (Options::have_same_schema(options, preset)) {
-        ptr->propagate_options(preset);
-      } else {
-        std::stringstream string_stream{};
-        string_stream << "Error, presets should exactly match the object Option Schema \n";
-        string_stream << "The given preset : \n";
-        serialize(string_stream, preset);
-        string_stream << "\n" << "The object preset \n";
-        serialize(string_stream, options);
-        std::runtime_error(string_stream.str());
-      }
-      return ptr;
-    };
-    return output_function;
-  }
 
   class IBackendStorage {
   public:
@@ -51,6 +27,7 @@ namespace Baseliner {
     [[nodiscard]] virtual auto list_device_stats() const -> std::vector<std::string> = 0;
     [[nodiscard]] virtual auto list_device_cases() const -> std::vector<std::string> = 0;
     [[nodiscard]] virtual auto list_device_benchmarks() const -> std::vector<std::string> = 0;
+    [[nodiscard]] virtual auto has_case(const std::string &name) const -> bool = 0;
     IBackendStorage() = default;
     virtual auto generate_backend_metadata() -> BackendMetadata = 0;
 
@@ -76,8 +53,8 @@ namespace Baseliner {
         throw std::runtime_error("Case " + case_name + " does not exist in Backend" + get_name());
       }
       auto benchmark_recipe =
-          inject_preset<Benchmark<BackendT>>(m_benchmark_storage.at(benchmark_name), benchmark_preset);
-      auto case_recipe = inject_preset<ICase<BackendT>>(m_cases_storage.at(case_name), case_preset);
+          inject_shared_preset<Benchmark<BackendT>>(m_benchmark_storage.at(benchmark_name), benchmark_preset);
+      auto case_recipe = inject_shared_preset<ICase<BackendT>>(m_cases_storage.at(case_name), case_preset);
       std::vector<std::function<void(std::shared_ptr<Stats::StatsEngine>)>> stats_recipes;
       for (auto stat : stats_names) {
         if (!m_backend_stats_storage.has(stat)) {
@@ -121,6 +98,9 @@ namespace Baseliner {
     };
     [[nodiscard]] auto list_device_benchmarks() const -> std::vector<std::string> override {
       return m_benchmark_storage.list();
+    };
+    [[nodiscard]] auto has_case(const std::string &name) const -> bool override {
+      return m_cases_storage.has(name);
     };
 
   private:

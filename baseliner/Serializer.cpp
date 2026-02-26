@@ -1,3 +1,4 @@
+#include "baseliner/ConfigFile.hpp"
 #include <baseliner/Metadata.hpp>
 #include <baseliner/Result.hpp>
 #include <baseliner/Serializer.hpp>
@@ -40,5 +41,23 @@ namespace Baseliner {
       throw std::runtime_error("Could not open file: " + filename);
     }
     serialize(file, metadata);
+  }
+  void config_to_file(const Config &config, const std::string &filename) {
+    std::ifstream infile(filename);
+    const bool create_new_file = true;
+    auto file = std::ofstream(filename, std::ios::trunc);
+
+    if (!file.is_open()) {
+      throw std::runtime_error("Could not open file: " + filename);
+    }
+    serialize(file, config);
+  }
+  void file_to_config(Config &config, const std::string &filename) {
+    std::ifstream infile(filename);
+
+    if (!infile.is_open()) {
+      throw std::runtime_error("Baseliner Error: Could not open config file for reading: " + filename);
+    }
+    de_serialize(infile, config);
   }
 } // namespace Baseliner
