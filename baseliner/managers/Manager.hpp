@@ -203,29 +203,34 @@ namespace Baseliner {
     /**
      ** Registering things
      **/
+    void register_component(const std::string &name, const ComponentType &type,
+                            const std::variant<OptionsMap, std::vector<std::string>> &default_opt) {
+      if (m_implementation_to_component.find(name) != m_implementation_to_component.end()) {
+        throw std::runtime_error("Baseliner Error: The component name " + name + "  is already taken by a " +
+                                 component_to_string(m_implementation_to_component[name]));
+      }
+      m_implementation_to_component[name] = type;
+      add_preset(name, std::string(DEFAULT_PRESET), InnerPreset{std::string(DEFAULT_DESCRIPTION), default_opt}, type);
+    }
+
     void register_backend(const std::string &name, IBackendStorage *backend) {
       if (m_backends_storage.find(name) != m_backends_storage.end()) {
         throw std::runtime_error("Baseliner Error : Two backends with the same name registered : " + name);
       }
       m_backends_storage[name] = backend;
     }
-
     void register_general_stat(const std::string &name,
                                const std::function<void(std::shared_ptr<Stats::StatsEngine>)> &stat_factory) {
       m_stats_storage.insert(name, stat_factory);
     }
     void register_suite(const std::string &name, const std::function<std::shared_ptr<ISuite>()> &suite_factory) {
       m_suite_storage.insert(name, suite_factory);
-      add_preset(name, std::string(DEFAULT_PRESET),
-                 InnerPreset{std::string(DEFAULT_DESCRIPTION), suite_factory()->gather_options()},
-                 ComponentType::SUITE);
+      register_component(name, ComponentType::SUITE, suite_factory()->gather_options());
     }
     void register_stopping(const std::string &name,
                            const std::function<std::unique_ptr<StoppingCriterion>()> &stopping_factory) {
       m_stopping_storage.insert(name, stopping_factory);
-      add_preset(name, std::string(DEFAULT_PRESET),
-                 InnerPreset{std::string(DEFAULT_DESCRIPTION), stopping_factory()->gather_options()},
-                 ComponentType::STOPPING);
+      register_component(name, ComponentType::STOPPING, stopping_factory()->gather_options());
     }
 
     auto get_preset_definitions(ComponentType type) const -> std::vector<PresetDefinition> {
@@ -255,14 +260,13 @@ namespace Baseliner {
       }
       if (type == ComponentType::STAT) {
         for (const auto &[name, inner_preset] : (*map_stat)) {
-          defs.push_back(PresetDefinition{component_to_string(type), component_to_string(type), name,
-                                          inner_preset.m_description, inner_preset.m_patch});
+          defs.push_back(
+              PresetDefinition{component_to_string(type), name, inner_preset.m_description, inner_preset.m_patch});
         }
       } else {
         for (const auto &[interface_name, inner_map] : (*map)) {
           for (const auto &[name, inner_preset] : inner_map) {
-            defs.push_back(PresetDefinition{component_to_string(type), interface_name, name, inner_preset.m_description,
-                                            inner_preset.m_patch});
+            defs.push_back(PresetDefinition{interface_name, name, inner_preset.m_description, inner_preset.m_patch});
           }
         }
       }
@@ -316,46 +320,7 @@ namespace Baseliner {
     /**
      ** Registring Preset
      **/
-    void add_preset(const std::string &name, const std::string &preset_name, const InnerPreset &preset,
-                    ComponentType type) {
-      std::unordered_map<std::string, std::unordered_map<std::string, InnerPreset>> *map = nullptr;
-      std::unordered_map<std::string, InnerPreset> *map_stat = nullptr;
-      switch (type) {
-      case NONE: {
-        throw std::runtime_error("add_preset called with NONE ComponentType");
-      }
-      case CASE:
-        map = &m_case_presets;
-        break;
-      case BENCHMARK:
-        map = &m_benchmark_presets;
-        break;
-      case SUITE:
-        map = &m_suite_presets;
-        break;
-      case STOPPING:
-        map = &m_stopping_presets;
-        break;
-      case STAT:
-        map_stat = &m_stats_presets;
-        break;
-      }
 
-      std::unordered_map<std::string, InnerPreset> *specific;
-      if (type == ComponentType::STAT) {
-        specific = map_stat;
-      } else {
-        specific = &(*map)[name];
-      }
-
-      if (specific->find(preset_name) != specific->end() && preset_name != std::string(DEFAULT_PRESET)) {
-        throw std::runtime_error("Baseliner Error : Preset " + preset_name +
-                                 " already defined for : " + component_to_string(type) + " : " + name);
-
-      } else {
-        (*specific)[preset_name] = preset;
-      }
-    }
     auto generate_metadata() const -> Metadata {
       Metadata metadata{};
       for (const auto &[interface_name, map] : m_benchmark_presets) {
@@ -436,11 +401,15 @@ namespace Baseliner {
 
     void add_presets(const std::vector<PresetDefinition> &presets_definitions) {
       for (const auto &preset_def : presets_definitions) {
-        ComponentType type = string_to_component(preset_def.m_interface);
+        ComponentType type = ComponentType::NONE;
+        if (m_implementation_to_component.find(preset_def.m_implementation_name) !=
+            m_implementation_to_component.end()) {
+          type = m_implementation_to_component.at(preset_def.m_implementation_name);
+        }
 
         if (type == ComponentType::NONE) {
-          throw std::invalid_argument("Baseliner Error: Unknown interface type in config file: " +
-                                      preset_def.m_interface);
+          throw std::invalid_argument("Baseliner Error: Couldn't find Component type for implementation : " +
+                                      preset_def.m_implementation_name);
         }
 
         InnerPreset inner{preset_def.m_description, preset_def.m_patch};
@@ -456,11 +425,52 @@ namespace Baseliner {
     };
 
   private:
+    void add_preset(const std::string &name, const std::string &preset_name, const InnerPreset &preset,
+                    ComponentType type) {
+      std::unordered_map<std::string, std::unordered_map<std::string, InnerPreset>> *map = nullptr;
+      std::unordered_map<std::string, InnerPreset> *map_stat = nullptr;
+      switch (type) {
+      case NONE: {
+        throw std::runtime_error("add_preset called with NONE ComponentType");
+      }
+      case CASE:
+        map = &m_case_presets;
+        break;
+      case BENCHMARK:
+        map = &m_benchmark_presets;
+        break;
+      case SUITE:
+        map = &m_suite_presets;
+        break;
+      case STOPPING:
+        map = &m_stopping_presets;
+        break;
+      case STAT:
+        map_stat = &m_stats_presets;
+        break;
+      }
+
+      std::unordered_map<std::string, InnerPreset> *specific;
+      if (type == ComponentType::STAT) {
+        specific = map_stat;
+      } else {
+        specific = &(*map)[name];
+      }
+
+      if (specific->find(preset_name) != specific->end() && preset_name != std::string(DEFAULT_PRESET)) {
+        throw std::runtime_error("Baseliner Error : Preset " + preset_name +
+                                 " already defined for : " + component_to_string(type) + " : " + name);
+
+      } else {
+        (*specific)[preset_name] = preset;
+      }
+    }
+
     std::unordered_map<std::string, IBackendStorage *> m_backends_storage;
     GeneralStatsStorage m_stats_storage;
     SuiteStorage m_suite_storage;
     StoppingCriterionStorage m_stopping_storage;
-
+    std::unordered_map<std::string, ComponentType> m_implementation_to_component;
     // Preset Management item with IOptions
     std::unordered_map<std::string, std::unordered_map<std::string, InnerPreset>> m_case_presets;
     std::unordered_map<std::string, std::unordered_map<std::string, InnerPreset>> m_benchmark_presets;
@@ -468,8 +478,7 @@ namespace Baseliner {
     std::unordered_map<std::string, std::unordered_map<std::string, InnerPreset>> m_stopping_presets;
 
     // Preset for stats (just names)
-    std::unordered_map<std::string, InnerPreset> m_stats_presets{
-        {std::string(DEFAULT_PRESET), {"Only Median", std::vector<std::string>{"Median"}}}};
+    std::unordered_map<std::string, InnerPreset> m_stats_presets;
     // Defaults
     std::string m_default_benchmarl = std::string(DEFAULT_BENCHMARK);
     std::string m_default_stopping = std::string(DEFAULT_STOPPING);

@@ -16,6 +16,9 @@
 #define BASELINER_REGISTER_STOPPING_CRITERION(Stopping)                                                                \
   ATTRIBUTE_USED static Baseliner::StoppingRegistrar<Stopping> _registrar_##Stopping{#Stopping};
 
+#define BASELINER_REGISTER_DEFAULT_STATS(DefaultStats)                                                                 \
+  ATTRIBUTE_USED static Baseliner::StatConceptRegistrar _registrar_DefaultStat{DefaultStats};
+
 #define BASELINER_REGISTER_BENCHMARK(Benchmark)                                                                        \
   ATTRIBUTE_USED static Baseliner::BenchmarkRegistrar<Benchmark> _registrar_##Benchmark{#Benchmark};
 

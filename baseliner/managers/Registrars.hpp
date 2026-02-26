@@ -33,6 +33,14 @@ namespace Baseliner {
     }
   };
 
+  class StatConceptRegistrar {
+  public:
+    explicit StatConceptRegistrar(const std::vector<std::string> &defaults_stats) {
+      Manager::instance()->register_component(component_to_string(ComponentType::STAT), ComponentType::STAT,
+                                              defaults_stats);
+    }
+  };
+
   template <class BenchmarkT>
   class BenchmarkRegistrar {
   public:
@@ -41,9 +49,7 @@ namespace Baseliner {
         return std::make_shared<BenchmarkT>();
       };
       BackendStorage<typename BenchmarkT::backend>::instance()->register_benchmark(name, factory);
-      Manager::instance()->add_preset(name, std::string(DEFAULT_PRESET),
-                                      {std::string(DEFAULT_DESCRIPTION), factory()->gather_options()},
-                                      ComponentType::BENCHMARK);
+      Manager::instance()->register_component(name, ComponentType::BENCHMARK, factory()->gather_options());
     }
   };
 
@@ -64,9 +70,7 @@ namespace Baseliner {
     explicit CaseRegistrar(const std::string &name) {
       auto factory = []() -> std::shared_ptr<ICase<typename CaseT::backend>> { return std::make_shared<CaseT>(); };
       BackendStorage<typename CaseT::backend>::instance()->register_case(name, factory);
-      Manager::instance()->add_preset(name, std::string(DEFAULT_PRESET),
-                                      {std::string(DEFAULT_DESCRIPTION), factory()->gather_options()},
-                                      ComponentType::CASE);
+      Manager::instance()->register_component(name, ComponentType::CASE, factory()->gather_options());
     }
   };
 
@@ -78,9 +82,7 @@ namespace Baseliner {
         return std::make_shared<KernelCase<KernelT>>();
       };
       BackendStorage<typename KernelT::backend>::instance()->register_case(name, factory);
-      Manager::instance()->add_preset(name, std::string(DEFAULT_PRESET),
-                                      {std::string(DEFAULT_DESCRIPTION), factory()->gather_options()},
-                                      ComponentType::CASE);
+      Manager::instance()->register_component(name, ComponentType::CASE, factory()->gather_options());
     }
   };
 

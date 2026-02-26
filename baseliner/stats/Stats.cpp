@@ -112,5 +112,8 @@ namespace Baseliner::Stats {
   BASELINER_REGISTER_STAT(WithoutOutliers);
   BASELINER_REGISTER_STAT(MedianAbsoluteDeviation);
   BASELINER_REGISTER_STAT(Mean);
+  const std::vector<std::string> default_stats = {"Median"};
+
+  BASELINER_REGISTER_DEFAULT_STATS(default_stats);
 
 } // namespace Baseliner::Stats

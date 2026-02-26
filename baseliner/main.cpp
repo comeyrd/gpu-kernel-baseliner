@@ -28,63 +28,16 @@ static auto generate_uid() -> std::string { // NOLINT
   return stringstream.str();
 };
 
-static void list_things(std::ostream &oss) {
-  Manager *manager = Manager::instance();
-  oss << "Available Benchmarks :\n";
-  for (auto [bench, presets] : manager->list_benchmark_presets()) {
-    oss << bench << "\n";
-  }
-  oss << "Available Stopping Criterion :\n";
-  for (auto [stopping, presets] : manager->list_stopping_presets()) {
-    oss << stopping << "\n";
-  }
-  oss << "Available Suite :\n";
-  for (auto [suite, presets] : manager->list_suite_presets()) {
-    oss << suite << "\n";
-  }
-  oss << "Available Cases :\n";
-  for (auto [cases, presets] : manager->list_cases_presets()) {
-    oss << cases << "\n";
-  }
-  oss << "Available Stats Presets :\n";
-  for (auto [stats, presets] : manager->list_general_stats_presets()) {
-    oss << stats << "\n";
-  }
-  oss << "Available General Stats:\n";
-  for (auto stat : manager->list_stats()) {
-    oss << stat << "\n";
-  }
-  oss << "\n\nBackends : \n";
-  for (const auto &[name, backend] : manager->list_backends()) {
-    oss << name << "\n";
-    oss << "Cases :\n";
-    for (const auto &single_case : backend->list_device_cases()) {
-      oss << single_case << "\n";
-    }
-    oss << "Benchmark :\n";
-    for (const auto &bench : backend->list_device_benchmarks()) {
-      oss << bench << "\n";
-    }
-    oss << "Stat :\n";
-    for (const auto &stat : backend->list_device_stats()) {
-      oss << stat << "\n";
-    }
-    oss << "---------------\n";
-  }
-};
-
 __attribute__((weak)) auto main(int argc, char **argv) -> int { // NOLINT
   std::cout << "Baseliner" << "\n";
   auto recipes = RecipeManager::get_recipes();
   std::cout << "[Baseliner] Total Registered Recipes: " << recipes.size() << "\n";
 
   std::vector<Result> results;
-  if (recipes.empty()) {
-    list_things(std::cout);
-  }
+
   Manager *manager = Manager::instance();
   metadata_to_file(manager->generate_metadata(), "metadata.json");
-  // config_to_file(manager->generate_example_config(), "config.json");
+  config_to_file(manager->generate_example_config(), "default-config.json");
   Config config;
   file_to_config(config, "config.json");
   manager->add_presets(config.m_presets);

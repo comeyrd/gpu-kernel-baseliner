@@ -145,14 +145,12 @@ namespace Baseliner {
   }
 
   void to_json(json &json_obj, const PresetDefinition &preset) {
-    json_obj["interface"] = preset.m_interface;
     json_obj["implementation"] = preset.m_implementation_name;
     json_obj["preset_name"] = preset.m_preset_name;
     json_obj["description"] = preset.m_description;
     json_obj["patch"] = preset.m_patch;
   }
   void from_json(const json &json_obj, PresetDefinition &preset) {
-    json_obj.at("interface").get_to(preset.m_interface);
     json_obj.at("implementation").get_to(preset.m_implementation_name);
     json_obj.at("preset_name").get_to(preset.m_preset_name);
     if (json_obj.contains("description")) {
