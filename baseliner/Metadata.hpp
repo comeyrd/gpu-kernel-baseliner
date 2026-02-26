@@ -8,7 +8,7 @@ namespace Baseliner {
 
   struct InnerPreset {
     std::string m_description;
-    std::variant<OptionsMap, std::vector<std::string>> m_patch;
+    std::variant<OptionsMap, std::vector<std::string>> m_options;
   };
   struct Preset {
     std::string m_name;

@@ -120,7 +120,7 @@ namespace Baseliner {
       // adding notfound_stats aka Device Specific stats to nofound_stats.
       std::vector<std::string> notfound_stats;
       std::vector<std::function<void(std::shared_ptr<Stats::StatsEngine>)>> general_stats;
-      for (const auto &stat : std::get<std::vector<std::string>>(stat_preset.m_patch)) {
+      for (const auto &stat : std::get<std::vector<std::string>>(stat_preset.m_options)) {
         if (m_stats_storage.has(stat)) {
           general_stats.push_back(m_stats_storage.at(stat));
         } else {
@@ -129,15 +129,15 @@ namespace Baseliner {
       }
 
       auto benchmark_recipe = backend_storage->get_benchmark_with_case(
-          recipe.m_benchmak.m_name, std::get<OptionsMap>(benchmark_preset.m_patch), recipe.m_case.m_name,
-          std::get<OptionsMap>(case_preset.m_patch), notfound_stats);
+          recipe.m_benchmak.m_name, std::get<OptionsMap>(benchmark_preset.m_options), recipe.m_case.m_name,
+          std::get<OptionsMap>(case_preset.m_options), notfound_stats);
 
       if (!m_stopping_storage.has(recipe.m_stopping.m_name)) {
         throw std::runtime_error("Baseliner Error : Stopping " + recipe.m_stopping.m_name + " not found in Storage");
       }
       auto stopping_criterion = m_stopping_storage.at(recipe.m_stopping.m_name);
       auto stopping_criterion_w_preset =
-          inject_unique_preset<StoppingCriterion>(stopping_criterion, std::get<OptionsMap>(stopping_preset.m_patch));
+          inject_unique_preset<StoppingCriterion>(stopping_criterion, std::get<OptionsMap>(stopping_preset.m_options));
 
       auto benchmark_with_stopping_and_stats = [benchmark_recipe, stopping_criterion_w_preset,
                                                 general_stats]() -> std::shared_ptr<IBenchmark> {
@@ -163,7 +163,7 @@ namespace Baseliner {
         }
         auto suite_creator = m_suite_storage.at(suite.m_name);
         auto suite_w_preset =
-            inject_shared_preset(suite_creator, std::get<OptionsMap>(suite_preset_it->second.m_patch));
+            inject_shared_preset(suite_creator, std::get<OptionsMap>(suite_preset_it->second.m_options));
         return [suite_w_preset, benchmark_with_stopping_and_stats]() -> std::shared_ptr<ISuite> {
           auto suite_ptr = suite_w_preset();
           suite_ptr->set_benchmark(benchmark_with_stopping_and_stats);
@@ -261,12 +261,12 @@ namespace Baseliner {
       if (type == ComponentType::STAT) {
         for (const auto &[name, inner_preset] : (*map_stat)) {
           defs.push_back(
-              PresetDefinition{component_to_string(type), name, inner_preset.m_description, inner_preset.m_patch});
+              PresetDefinition{component_to_string(type), name, inner_preset.m_description, inner_preset.m_options});
         }
       } else {
         for (const auto &[interface_name, inner_map] : (*map)) {
           for (const auto &[name, inner_preset] : inner_map) {
-            defs.push_back(PresetDefinition{interface_name, name, inner_preset.m_description, inner_preset.m_patch});
+            defs.push_back(PresetDefinition{interface_name, name, inner_preset.m_description, inner_preset.m_options});
           }
         }
       }
@@ -412,7 +412,7 @@ namespace Baseliner {
                                       preset_def.m_implementation_name);
         }
 
-        InnerPreset inner{preset_def.m_description, preset_def.m_patch};
+        InnerPreset inner{preset_def.m_description, preset_def.m_options};
         try {
           add_preset(preset_def.m_implementation_name, preset_def.m_preset_name, inner, type);
         } catch (const std::exception &e) {

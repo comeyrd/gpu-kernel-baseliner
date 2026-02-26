@@ -80,7 +80,7 @@ namespace Baseliner {
   void to_json(json &json_obj, const Preset &option_preset) {
     json_obj["name"] = option_preset.m_name;
     json_obj["description"] = option_preset.m_preset.m_description;
-    json_obj["patch"] = option_preset.m_preset.m_patch;
+    json_obj["options"] = option_preset.m_preset.m_options;
   }
   void to_json(json &json_obj, const std::variant<OptionsMap, std::vector<std::string>> &option_preset) {
     if (std::holds_alternative<std::vector<std::string>>(option_preset)) {
@@ -148,7 +148,7 @@ namespace Baseliner {
     json_obj["implementation"] = preset.m_implementation_name;
     json_obj["preset_name"] = preset.m_preset_name;
     json_obj["description"] = preset.m_description;
-    json_obj["patch"] = preset.m_patch;
+    json_obj["options"] = preset.m_options;
   }
   void from_json(const json &json_obj, PresetDefinition &preset) {
     json_obj.at("implementation").get_to(preset.m_implementation_name);
@@ -158,7 +158,7 @@ namespace Baseliner {
     } else {
       preset.m_description = std::string(DEFAULT_DESCRIPTION);
     }
-    json_obj.at("patch").get_to(preset.m_patch);
+    json_obj.at("options").get_to(preset.m_options);
   }
 
   void to_json(json &json_obj, const Recipe &recipe) {
