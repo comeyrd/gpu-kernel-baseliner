@@ -3,6 +3,7 @@
 #include <baseliner/Benchmark.hpp>
 #include <baseliner/Case.hpp>
 #include <baseliner/Metadata.hpp>
+#include <baseliner/Options.hpp>
 #include <baseliner/Serializer.hpp>
 #include <baseliner/managers/BackendSpecificStorage.hpp>
 #include <baseliner/managers/PresetInjection.hpp>
@@ -30,6 +31,7 @@ namespace Baseliner {
     [[nodiscard]] virtual auto has_case(const std::string &name) const -> bool = 0;
     IBackendStorage() = default;
     virtual auto generate_backend_metadata() -> BackendMetadata = 0;
+    virtual void apply_backend_preset(const OptionsMap &option) = 0;
 
   private:
     std::string m_name;
@@ -101,6 +103,9 @@ namespace Baseliner {
     };
     [[nodiscard]] auto has_case(const std::string &name) const -> bool override {
       return m_cases_storage.has(name);
+    };
+    void apply_backend_preset(const OptionsMap &option) override {
+      BackendT::instance()->propagate_options(option);
     };
 
   private:

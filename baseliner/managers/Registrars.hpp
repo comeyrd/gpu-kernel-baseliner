@@ -59,7 +59,7 @@ namespace Baseliner {
     explicit BackendRegistrar(const std::string &name) {
       IBackendStorage *backend = BackendStorage<BackendT>::instance();
       backend->set_name(name);
-      Manager::instance()->register_backend(name, backend);
+      Manager::instance()->register_backend(name, backend, BackendT::instance()->gather_options());
       BenchmarkRegistrar<Benchmark<BackendT>> register_me("Benchmark");
     }
   };

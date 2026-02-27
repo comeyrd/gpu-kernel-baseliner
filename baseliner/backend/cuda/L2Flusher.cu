@@ -3,26 +3,22 @@ namespace Baseliner {
   namespace Backend {
 
     template <>
-    L2Flusher<CudaBackend>::L2Flusher() {
-      int dev_id{};
-      CHECK_CUDA(cudaGetDevice(&dev_id));
-      CHECK_CUDA(cudaDeviceGetAttribute(&m_buffer_size, cudaDevAttrL2CacheSize, dev_id));
-      if (m_buffer_size > 0) {
-        CHECK_CUDA(cudaMalloc(&m_l2_buffer, static_cast<std::size_t>(m_buffer_size)));
+    void L2Flusher<CudaBackend>::alloc(int device) {
+      CHECK_CUDA(cudaDeviceGetAttribute(&m_buffer_size_v[device], cudaDevAttrL2CacheSize, device));
+      if (m_buffer_size_v[device] > 0) {
+        CHECK_CUDA(cudaMalloc(&m_l2_buffer_v[device], static_cast<std::size_t>(m_buffer_size_v[device])));
       }
     }
     template <>
-    L2Flusher<CudaBackend>::~L2Flusher() {
-      if (m_l2_buffer != nullptr) {
-        CHECK_CUDA(cudaFree(m_l2_buffer));
-      }
+    void L2Flusher<CudaBackend>::free(int device) {
+      CHECK_CUDA(cudaFree(m_l2_buffer_v[device]));
     }
 
     template <>
     void L2Flusher<CudaBackend>::flush(std::shared_ptr<typename CudaBackend::stream_t> stream) {
-      if (m_l2_buffer != nullptr) {
-        CHECK_CUDA(cudaMemsetAsync(m_l2_buffer, 0, static_cast<std::size_t>(m_buffer_size), *stream));
-      }
+      int current_device = CudaBackend::instance()->get_current_device();
+      CHECK_CUDA(cudaMemsetAsync(m_l2_buffer_v[current_device], 0,
+                                 static_cast<std::size_t>(m_buffer_size_v[current_device]), *stream));
     }
   } // namespace Backend
 

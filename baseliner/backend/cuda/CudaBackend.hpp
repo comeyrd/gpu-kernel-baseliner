@@ -29,8 +29,10 @@ namespace Baseliner {
 
     protected:
     private:
-      cudaEvent_t m_start_event{};
-      cudaEvent_t m_stop_event{};
+      void alloc(int device);
+      void free(int device);
+      std::vector<cudaEvent_t> m_start_event;
+      std::vector<cudaEvent_t> m_stop_event;
     };
   } // namespace Backend
   using ICudaCase = ICase<Backend::CudaBackend>;

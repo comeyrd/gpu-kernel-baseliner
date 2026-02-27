@@ -10,7 +10,7 @@ namespace Baseliner {
   };
   ;
   struct Recipe {
-    std::string m_backend;
+    WithPreset m_backend;
     std::optional<WithPreset> m_suite;
     WithPreset m_benchmak;
     WithPreset m_case;

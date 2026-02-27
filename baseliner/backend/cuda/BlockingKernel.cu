@@ -42,56 +42,28 @@ namespace {
 
 namespace Baseliner::Backend {
   template <>
-  BlockingKernel<CudaBackend>::BlockingKernel() {
-    m_host_flag = new int;         // NOLINT
-    m_host_timeout_flag = new int; // NOLINT
-    CHECK_CUDA(cudaHostRegister(m_host_flag, sizeof(int), cudaHostRegisterMapped));
-    CHECK_CUDA(cudaHostGetDevicePointer(&m_device_flag, m_host_flag, 0));
-    CHECK_CUDA(cudaHostRegister(m_host_timeout_flag, sizeof(int), cudaHostRegisterMapped));
-    CHECK_CUDA(cudaHostGetDevicePointer(&m_device_timeout_flag, m_host_timeout_flag, 0));
+  void BlockingKernel<CudaBackend>::alloc(int device) {
+    m_host_flag_v[device] = new int;         // NOLINT
+    m_host_timeout_flag_v[device] = new int; // NOLINT
+    CHECK_CUDA(cudaHostRegister(m_host_flag_v[device], sizeof(int), cudaHostRegisterMapped));
+    CHECK_CUDA(cudaHostGetDevicePointer(&m_device_flag_v[device], m_host_flag_v[device], 0));
+    CHECK_CUDA(cudaHostRegister(m_host_timeout_flag_v[device], sizeof(int), cudaHostRegisterMapped));
+    CHECK_CUDA(cudaHostGetDevicePointer(&m_device_timeout_flag_v[device], m_host_timeout_flag_v[device], 0));
   }
   template <>
-  BlockingKernel<CudaBackend>::~BlockingKernel() {
+  void BlockingKernel<CudaBackend>::free(int device) {
     CHECK_CUDA(cudaGetLastError());
-    if (m_host_flag != nullptr) {
-      CHECK_CUDA(cudaHostUnregister(m_host_flag));
-    }
-    if (m_host_timeout_flag != nullptr) {
-      CHECK_CUDA(cudaHostUnregister(m_host_timeout_flag));
-    }
-    delete m_host_flag;
-    delete m_host_timeout_flag;
+    CHECK_CUDA(cudaHostUnregister(m_host_flag_v[device]));
+    CHECK_CUDA(cudaHostUnregister(m_host_timeout_flag_v[device]));
+    delete m_host_flag_v[device];
+    delete m_host_timeout_flag_v[device];
   }
   template <>
   void BlockingKernel<CudaBackend>::block(std::shared_ptr<cudaStream_t> stream, double timeout) {
-    *m_host_flag = 0;
-    *m_host_timeout_flag = 0;
-    block_stream<<<1, 1, 0, *stream>>>(m_device_flag, m_device_timeout_flag, timeout);
-  }
-
-  template <>
-  auto BlockingKernel<CudaBackend>::operator=(BlockingKernel<CudaBackend> &&other) noexcept
-      -> BlockingKernel<CudaBackend> & {
-    {
-      if (this != &other) {
-        if (m_host_flag != nullptr) {
-          CHECK_CUDA(cudaHostUnregister(m_host_flag));
-        }
-        if (m_host_timeout_flag != nullptr) {
-          CHECK_CUDA(cudaHostUnregister(m_host_timeout_flag));
-        }
-        delete m_host_flag;
-        delete m_host_timeout_flag;
-        m_host_flag = other.m_host_flag;
-        m_host_timeout_flag = other.m_host_timeout_flag;
-        m_device_flag = other.m_device_flag;
-        m_device_timeout_flag = other.m_device_timeout_flag;
-        other.m_device_flag = nullptr;
-        other.m_device_timeout_flag = nullptr;
-        other.m_host_flag = nullptr;
-        other.m_host_timeout_flag = nullptr;
-      }
-      return *this;
-    }
+    int current_device = CudaBackend::instance()->get_current_device();
+    *m_host_flag_v[current_device] = 0;
+    *m_host_timeout_flag_v[current_device] = 0;
+    block_stream<<<1, 1, 0, *stream>>>(m_device_flag_v[current_device], m_device_timeout_flag_v[current_device],
+                                       timeout);
   }
 } // namespace Baseliner::Backend

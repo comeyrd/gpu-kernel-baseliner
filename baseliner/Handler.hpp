@@ -26,8 +26,9 @@ namespace Baseliner {
 
   private:
     [[nodiscard]] auto run_recipe(Recipe &recipe, PresetSet &set) -> RunResult {
-      auto bench_or_suite = m_manager->build_recipe(recipe, set);
+      auto [bench_or_suite, backend_setup] = m_manager->build_recipe(recipe, set);
       RunResult result;
+      backend_setup();
       if (std::holds_alternative<std::function<std::shared_ptr<IBenchmark>()>>(bench_or_suite)) {
         result = run_benchmark(std::get<std::function<std::shared_ptr<IBenchmark>()>>(bench_or_suite));
       } else {

@@ -145,11 +145,7 @@ namespace Baseliner {
     using backend = BackendT;
     // Benchmark
     explicit Benchmark()
-        : IBenchmark(),
-          m_backend(),
-          m_stream(m_backend.create_stream()),
-          m_flusher(),
-          m_blocker() {
+        : IBenchmark() {
       m_stats_engine->register_stat<Stats::ExecutionTimeVector>();
     };
     Benchmark(Benchmark &&) noexcept = default;
@@ -179,6 +175,7 @@ namespace Baseliner {
     }
 
     auto run() -> BenchmarkResult override {
+      m_stream = BackendT::instance()->create_stream();
       check_case();
       setup_metrics();
       m_stats_engine->reset_engine();
@@ -200,6 +197,7 @@ namespace Baseliner {
         std::cout << "Warning, not able to validate Case : " << m_case->name() << '\n';
       }
       std::vector<Metric> metrics = {m_stats_engine->get_metrics()};
+      m_stream.reset();
       return build_benchmark_result(metrics);
     }
 
@@ -208,12 +206,14 @@ namespace Baseliner {
       m_case->gather_options(omap);
       m_stopping->gather_options(omap);
       this->gather_options(omap);
+      BackendT::instance()->gather_options(omap);
       return omap;
     };
     void propagate_axe_options(const OptionsMap &map) override {
       m_case->propagate_options(map);
       m_stopping->propagate_options(map);
       this->propagate_options(map);
+      BackendT::instance()->propagate_options(map);
     };
 
   private:
@@ -221,9 +221,8 @@ namespace Baseliner {
 
     // Stats registry
     // Backend specifics
-    BackendT m_backend;
-    Backend::L2Flusher<BackendT> m_flusher;
-    Backend::BlockingKernel<BackendT> m_blocker;
+    Backend::L2Flusher<BackendT> *m_flusher = Backend::L2Flusher<BackendT>::instance();
+    Backend::BlockingKernel<BackendT> *m_blocker = Backend::BlockingKernel<BackendT>::instance();
     std::shared_ptr<typename BackendT::stream_t> m_stream;
 
     std::shared_ptr<ICase<BackendT>> m_case;
@@ -257,20 +256,20 @@ namespace Baseliner {
     };
     virtual void pre_run() {
       if (get_flush_l2()) {
-        m_flusher.flush(m_stream);
+        m_flusher->flush(m_stream);
       }
       if (get_block()) {
-        m_blocker.block(m_stream, get_block_duration());
+        m_blocker->block(m_stream, get_block_duration());
       }
     };
     virtual void post_run() {
-      m_backend.get_last_error();
+      BackendT::get_last_error();
       if (get_block()) {
-        m_blocker.unblock();
+        m_blocker->unblock();
       }
     };
     virtual void post_all() {
-      m_backend.synchronize(m_stream);
+      BackendT::synchronize(m_stream);
     };
     void check_case() {
       if (!m_case) {

@@ -18,13 +18,14 @@ namespace Baseliner {
   constexpr std::string_view DEFAULT_PRESET = "default";
   constexpr std::string_view DEFAULT_DESCRIPTION = "Default preset";
 
-  enum ComponentType {
+  enum ComponentType : uint8_t {
     NONE,
     CASE,
     BENCHMARK,
     SUITE,
     STAT,
     STOPPING,
+    BACKEND
   };
 
   static auto component_to_string(const ComponentType &type) -> std::string {
@@ -72,14 +73,15 @@ namespace Baseliner {
     }
 
     // TODO do same as in preset management ....
-    auto build_recipe(const Recipe &recipe, PresetSet &pre_set)
-        -> std::variant<std::function<std::shared_ptr<IBenchmark>()>, std::function<std::shared_ptr<ISuite>()>> {
-      auto backend_it = m_backends_storage.find(recipe.m_backend);
+    auto build_recipe(const Recipe &recipe, PresetSet &pre_set) -> std::pair<
+        std::variant<std::function<std::shared_ptr<IBenchmark>()>, std::function<std::shared_ptr<ISuite>()>>,
+        std::function<void()>> {
+      auto backend_it = m_backend_presets.find(recipe.m_backend.m_name);
       auto case_it = m_case_presets.find(recipe.m_case.m_name);
       auto benchmark_it = m_benchmark_presets.find(recipe.m_benchmak.m_name);
       auto stopping_it = m_stopping_presets.find(recipe.m_stopping.m_name);
-      if (backend_it == m_backends_storage.end()) {
-        throw std::runtime_error("Baseliner Error : Backend " + recipe.m_backend + " not found");
+      if (backend_it == m_backend_presets.end()) {
+        throw std::runtime_error("Baseliner Error : Backend " + recipe.m_backend.m_name + " not found");
       }
       if (case_it == m_case_presets.end()) {
         throw std::runtime_error("Baseliner Error : Case " + recipe.m_case.m_name + " not found");
@@ -90,10 +92,15 @@ namespace Baseliner {
       if (stopping_it == m_stopping_presets.end()) {
         throw std::runtime_error("Baseliner Error : Stopping " + recipe.m_stopping.m_name + " not found");
       }
+      auto backend_preset_it = backend_it->second.find(recipe.m_backend.m_preset);
       auto case_preset_it = case_it->second.find(recipe.m_case.m_preset);
       auto benchmark_preset_it = benchmark_it->second.find(recipe.m_benchmak.m_preset);
       auto stopping_preset_it = stopping_it->second.find(recipe.m_stopping.m_preset);
       auto stat_preset_it = m_stats_presets.find(recipe.m_stats.m_preset);
+      if (backend_preset_it == backend_it->second.end()) {
+        throw std::runtime_error("Baseliner Error : Preset " + recipe.m_case.m_preset + " not found for Backend " +
+                                 recipe.m_case.m_name);
+      }
       if (case_preset_it == case_it->second.end()) {
         throw std::runtime_error("Baseliner Error : Preset " + recipe.m_case.m_preset + " not found for Case " +
                                  recipe.m_case.m_name);
@@ -117,15 +124,24 @@ namespace Baseliner {
                       stopping_preset_it->second.m_options});
       pre_set.insert({recipe.m_stats.m_name, stat_preset_it->first, stat_preset_it->second.m_description,
                       stat_preset_it->second.m_options});
-
+      pre_set.insert({recipe.m_backend.m_name, backend_preset_it->first, backend_preset_it->second.m_description,
+                      backend_preset_it->second.m_options});
       auto case_preset = case_preset_it->second;
       auto benchmark_preset = benchmark_preset_it->second;
       auto stopping_preset = stopping_preset_it->second;
       auto stat_preset = stat_preset_it->second;
+      auto backend_preset = backend_preset_it->second;
 
       // Impl exists and preset exists
-
-      auto *backend_storage = backend_it->second;
+      auto backend_storage_it = m_backends_storage.find(recipe.m_backend.m_name);
+      if (backend_storage_it == m_backends_storage.end()) {
+        throw std::runtime_error("Baseliner Error : Backend " + recipe.m_backend.m_name +
+                                 " not found in Backend Storage");
+      }
+      auto *backend_storage = backend_storage_it->second;
+      auto setup_backend = [backend_storage, backend_preset]() -> void {
+        backend_storage->apply_backend_preset(std::get<OptionsMap>(backend_preset.m_options));
+      };
       // Adding General stats to general_stats
       // adding notfound_stats aka Device Specific stats to nofound_stats.
       std::vector<std::string> notfound_stats;
@@ -176,13 +192,18 @@ namespace Baseliner {
         auto suite_creator = m_suite_storage.at(suite.m_name);
         auto suite_w_preset =
             inject_shared_preset(suite_creator, std::get<OptionsMap>(suite_preset_it->second.m_options));
-        return [suite_w_preset, benchmark_with_stopping_and_stats]() -> std::shared_ptr<ISuite> {
+        auto suite_w_everything = [suite_w_preset, benchmark_with_stopping_and_stats]() -> std::shared_ptr<ISuite> {
           auto suite_ptr = suite_w_preset();
           suite_ptr->set_benchmark(benchmark_with_stopping_and_stats);
           return suite_ptr;
         };
+        return std::make_pair<
+            std::variant<std::function<std::shared_ptr<IBenchmark>()>, std::function<std::shared_ptr<ISuite>()>>,
+            std::function<void()>>(suite_w_everything, setup_backend);
       }
-      return benchmark_with_stopping_and_stats;
+      return std::make_pair<
+          std::variant<std::function<std::shared_ptr<IBenchmark>()>, std::function<std::shared_ptr<ISuite>()>>,
+          std::function<void()>>(benchmark_with_stopping_and_stats, setup_backend);
     }
 
     /**
@@ -225,11 +246,13 @@ namespace Baseliner {
       add_preset(name, std::string(DEFAULT_PRESET), InnerPreset{std::string(DEFAULT_DESCRIPTION), default_opt}, type);
     }
 
-    void register_backend(const std::string &name, IBackendStorage *backend) {
+    void register_backend(const std::string &name, IBackendStorage *backend,
+                          const std::variant<OptionsMap, std::vector<std::string>> &default_op) {
       if (m_backends_storage.find(name) != m_backends_storage.end()) {
         throw std::runtime_error("Baseliner Error : Two backends with the same name registered : " + name);
       }
       m_backends_storage[name] = backend;
+      register_component(name, ComponentType::BACKEND, default_op);
     }
     void register_general_stat(const std::string &name,
                                const std::function<void(std::shared_ptr<Stats::StatsEngine>)> &stat_factory) {
@@ -265,6 +288,9 @@ namespace Baseliner {
         break;
       case STOPPING:
         map = &m_stopping_presets;
+        break;
+      case BACKEND:
+        map = &m_backend_presets;
         break;
       case STAT:
         map_stat = &m_stats_presets;
@@ -312,6 +338,9 @@ namespace Baseliner {
         break;
       case STOPPING:
         map = &m_stopping_presets;
+        break;
+      case BACKEND:
+        map = &m_backend_presets;
         break;
       case STAT:
         map_stat = &m_stats_presets;
@@ -390,6 +419,8 @@ namespace Baseliner {
       preset_defs.insert(preset_defs.end(), temp_preset.begin(), temp_preset.end());
       temp_preset = get_preset_definitions(ComponentType::STAT);
       preset_defs.insert(preset_defs.end(), temp_preset.begin(), temp_preset.end());
+      temp_preset = get_preset_definitions(ComponentType::BACKEND);
+      preset_defs.insert(preset_defs.end(), temp_preset.begin(), temp_preset.end());
       def_config.m_presets = preset_defs;
       std::vector<Recipe> recipes;
       Recipe default_recipe;
@@ -401,7 +432,7 @@ namespace Baseliner {
         for (const auto &[case_name, preset] : m_case_presets) {
           if (backend->has_case(case_name)) {
             Recipe inner = default_recipe;
-            inner.m_backend = backend_name;
+            inner.m_backend = {backend_name, std::string(DEFAULT_PRESET)};
             inner.m_case = {case_name, std::string(DEFAULT_PRESET)};
             recipes.push_back(inner);
           }
@@ -460,6 +491,9 @@ namespace Baseliner {
       case STAT:
         map_stat = &m_stats_presets;
         break;
+      case BACKEND:
+        map = &m_backend_presets;
+        break;
       }
 
       std::unordered_map<std::string, InnerPreset> *specific;
@@ -470,12 +504,9 @@ namespace Baseliner {
       }
 
       if (specific->find(preset_name) != specific->end() && preset_name != std::string(DEFAULT_PRESET)) {
-        throw std::runtime_error("Baseliner Error : Preset " + preset_name +
-                                 " already defined for : " + component_to_string(type) + " : " + name);
-
-      } else {
-        (*specific)[preset_name] = preset;
+        std::cerr << "Baseliner Warning : Preset " << preset_name << " overrides already defined preset\n";
       }
+      (*specific)[preset_name] = preset;
     }
 
     std::unordered_map<std::string, IBackendStorage *> m_backends_storage;
@@ -488,6 +519,7 @@ namespace Baseliner {
     std::unordered_map<std::string, std::unordered_map<std::string, InnerPreset>> m_benchmark_presets;
     std::unordered_map<std::string, std::unordered_map<std::string, InnerPreset>> m_suite_presets;
     std::unordered_map<std::string, std::unordered_map<std::string, InnerPreset>> m_stopping_presets;
+    std::unordered_map<std::string, std::unordered_map<std::string, InnerPreset>> m_backend_presets;
 
     // Preset for stats (just names)
     std::unordered_map<std::string, InnerPreset> m_stats_presets;

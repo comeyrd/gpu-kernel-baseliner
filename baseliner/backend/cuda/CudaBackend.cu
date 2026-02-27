@@ -17,8 +17,8 @@ void check_cuda_error_no_except(cudaError_t error_code, const char *file, int li
 namespace Baseliner {
   namespace Backend {
     template <>
-    void CudaBackend::set_device(int Backend) {
-      CHECK_CUDA(cudaSetDevice(Backend));
+    void CudaBackend::set_device(int device) {
+      CHECK_CUDA(cudaSetDevice(device));
     }
     template <>
     void CudaBackend::reset_device() {
@@ -29,11 +29,17 @@ namespace Baseliner {
       CHECK_CUDA(cudaStreamSynchronize(*stream));
     }
     template <>
+    auto CudaBackend::get_device_count() -> int {
+      int device_c{};
+      CHECK_CUDA(cudaGetDeviceCount(&device_c));
+      return device_c;
+    }
+    template <>
     void CudaBackend::get_last_error() {
       CHECK_CUDA(cudaGetLastError());
     }
     template <>
-    std::shared_ptr<CudaBackend::stream_t> CudaBackend::create_stream() {
+    auto CudaBackend::inner_create_stream() -> std::shared_ptr<CudaBackend::stream_t> {
       auto *stream = new CudaBackend::stream_t;
       CHECK_CUDA(cudaStreamCreate(stream));
 
