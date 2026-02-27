@@ -16,7 +16,7 @@ namespace Baseliner {
     void set_benchmark(const std::function<std::shared_ptr<IBenchmark>()> &benchmark_builder) {
       m_benchmark = benchmark_builder();
     }
-    [[nodiscard]] virtual auto run_all() -> std::vector<Result> = 0;
+    [[nodiscard]] virtual auto run_all() -> RunResult = 0;
     auto get_benchmark() -> std::shared_ptr<IBenchmark> {
       return m_benchmark;
     }

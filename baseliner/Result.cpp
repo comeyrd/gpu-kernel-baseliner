@@ -12,13 +12,13 @@
 namespace Baseliner {
   static std::atomic<uint8_t> counter{0}; // NOLINT
 
-  auto Result::current_time_string() -> std::string {
+  auto current_time_string() -> std::string {
     auto now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     std::stringstream stringstream;
     stringstream << std::put_time(std::localtime(&now), "%Y-%m-%d %H:%M:%S");
     return stringstream.str();
   };
-  auto Result::generate_uid() -> std::string {
+  auto generate_uid() -> std::string {
     using namespace std::chrono;
     auto now = duration_cast<seconds>(system_clock::now().time_since_epoch()).count();
     static std::random_device random_g;

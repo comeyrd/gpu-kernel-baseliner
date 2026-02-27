@@ -41,7 +41,7 @@ namespace Baseliner {
     explicit IBenchmark()
         : m_stats_engine(std::make_shared<Stats::StatsEngine>()) {};
     virtual auto name() -> std::string = 0;
-    virtual auto run() -> Result = 0;
+    virtual auto run() -> BenchmarkResult = 0;
 
     IBenchmark(IBenchmark &&) noexcept = default;
     auto operator=(IBenchmark &&) noexcept -> IBenchmark & = default;
@@ -100,8 +100,8 @@ namespace Baseliner {
       m_name = std::move(name);
     }
 
-    virtual auto gather_case_options() -> OptionsMap = 0;
-    virtual void propagate_case_options(const OptionsMap &map) = 0;
+    virtual auto gather_axe_options() -> OptionsMap = 0;
+    virtual void propagate_axe_options(const OptionsMap &map) = 0;
 
     void set_stopping_criterion(const std::function<std::unique_ptr<StoppingCriterion>()> stopping_builder) {
       m_stopping = stopping_builder();
@@ -178,7 +178,7 @@ namespace Baseliner {
       m_case = case_impl;
     }
 
-    auto run() -> Result override {
+    auto run() -> BenchmarkResult override {
       check_case();
       setup_metrics();
       m_stats_engine->reset_engine();
@@ -199,21 +199,21 @@ namespace Baseliner {
       if (!valid_run) {
         std::cout << "Warning, not able to validate Case : " << m_case->name() << '\n';
       }
-      OptionsMap map;
-      m_case->gather_options(map);
-      m_stopping->gather_options(map);
-      this->gather_options(map);
-      Result result(map, m_case->name(), valid_run);
       std::vector<Metric> metrics = {m_stats_engine->get_metrics()};
-      result.push_back_metrics(metrics);
-      return result;
+      return build_benchmark_result(metrics);
     }
 
-    auto gather_case_options() -> OptionsMap override {
-      return m_case->gather_options();
+    auto gather_axe_options() -> OptionsMap override {
+      OptionsMap omap;
+      m_case->gather_options(omap);
+      m_stopping->gather_options(omap);
+      this->gather_options(omap);
+      return omap;
     };
-    void propagate_case_options(const OptionsMap &map) override {
+    void propagate_axe_options(const OptionsMap &map) override {
       m_case->propagate_options(map);
+      m_stopping->propagate_options(map);
+      this->propagate_options(map);
     };
 
   private:

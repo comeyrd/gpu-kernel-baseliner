@@ -14,7 +14,7 @@ namespace Baseliner {
   void serialize(std::ostream &oss, const T &obj);
   template <typename T>
   void de_serialize(std::istream &iss, T &obj);
-  void result_to_file(const std::vector<Result> &results, std::string filename);
+  void result_to_file(const Result &results, std::string filename);
   void metadata_to_file(const Metadata &metadata, std::string filename);
   void config_to_file(const Config &config, const std::string &filename);
   void file_to_config(Config &config, const std::string &filename);

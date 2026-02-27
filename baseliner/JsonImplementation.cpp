@@ -122,13 +122,25 @@ namespace Baseliner {
   }
 
   void to_json(json &json_obj, const Result &result) {
-    json_obj["baseliner_version"] = result.get_basliner_version();
-    json_obj["git_version"] = result.get_git_version();
-    json_obj["execution_id"] = result.get_execution_uid();
-    json_obj["datetime"] = result.get_date_time();
-    json_obj["kernel_name"] = result.get_kernel_name();
-    json_obj["metrics"] = result.get_v_metrics();
-    json_obj["options"] = result.get_map();
+    json_obj["baseliner_version"] = result.m_baseliner_version;
+    json_obj["git_version"] = result.m_git_version;
+    json_obj["datetime"] = result.m_date_time;
+    json_obj["runs"] = result.m_runs;
+    json_obj["presets"] = result.m_presets;
+  }
+  void to_json(json &json_obj, const RunResult &result) {
+    json_obj["id"] = result.m_run_uuid;
+    json_obj["recipe"] = result.m_recipe;
+    json_obj["results"] = result.m_results;
+  }
+
+  void to_json(json &json_obj, const BenchmarkResult &result) {
+    if (std::holds_alternative<OptionsMap>(result.m_options)) {
+      json_obj["options"] = std::get<OptionsMap>(result.m_options);
+    } else {
+      json_obj["options"] = nullptr;
+    }
+    json_obj["stats"] = result.m_v_metrics;
   }
   void to_json(json &json_obj, const MetricData &metricData) {
     std::visit([&json_obj](auto &&arg) { json_obj = arg; }, metricData);

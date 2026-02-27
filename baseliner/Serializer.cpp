@@ -9,7 +9,7 @@
 #include <vector>
 
 namespace Baseliner {
-  void result_to_file(const std::vector<Result> &results, std::string filename) {
+  void result_to_file(const Result &results, std::string filename) {
     std::ifstream infile(filename);
     const bool create_new_file = true;
     bool file_exists = false;

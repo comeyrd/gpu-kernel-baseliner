@@ -1,5 +1,6 @@
 #ifndef BASELINER_RESULT_HPP
 #define BASELINER_RESULT_HPP
+#include "baseliner/ConfigFile.hpp"
 #include <baseliner/GIT_VERSION.hpp>
 #include <baseliner/Metric.hpp>
 #include <baseliner/Options.hpp>
@@ -7,11 +8,41 @@
 #include <iterator>
 #include <string>
 #include <utility>
+#include <variant>
 #include <vector>
 namespace Baseliner {
-  class Result {
+
+  auto generate_uid() -> std::string;
+  auto current_time_string() -> std::string;
+  struct BenchmarkResult {
+    std::variant<OptionsMap, std::monostate> m_options;
+    std::vector<Metric> m_v_metrics;
+  };
+  inline static auto build_benchmark_result(std::vector<Metric> &metrics_vector) -> BenchmarkResult {
+    return BenchmarkResult{std::monostate(), std::move(metrics_vector)};
+  };
+  struct RunResult {
+    Recipe m_recipe;
+    std::string m_run_uuid;
+    std::vector<BenchmarkResult> m_results;
+  };
+  inline static auto build_run_result(std::vector<BenchmarkResult> &results) -> RunResult {
+    return RunResult{{}, generate_uid(), std::move(results)};
+  }
+  struct Result {
+    std::string m_baseliner_version;
+    std::string m_git_version;
+    std::string m_date_time;
+
+    std::vector<PresetDefinition> m_presets;
+    std::vector<RunResult> m_runs;
+  };
+  inline static auto build_result() -> Result {
+    return Result{std::string(Version::string), BASELINER_GIT_VERSION, current_time_string(), {}, {}};
+  }
+  class Result2 {
   public:
-    explicit Result(OptionsMap omap, std::string kernel_name, bool valid)
+    explicit Result2(OptionsMap omap, std::string kernel_name, bool valid)
         : m_map(std::move(omap)),
           m_kernel_name(std::move(kernel_name)),
           m_git_version(BASELINER_GIT_VERSION),
@@ -58,7 +89,7 @@ namespace Baseliner {
     std::string m_baseliner_version;
     std::vector<Metric> m_v_metrics;
     bool m_valid{};
-    explicit Result() = default;
+    explicit Result2() = default;
     static auto current_time_string() -> std::string;
     static auto generate_uid() -> std::string;
   };

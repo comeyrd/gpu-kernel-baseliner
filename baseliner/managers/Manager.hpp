@@ -9,6 +9,7 @@
 #include <baseliner/managers/GeneralStorage.hpp>
 #include <functional>
 #include <memory>
+#include <set>
 #include <sstream>
 namespace Baseliner {
 
@@ -71,7 +72,7 @@ namespace Baseliner {
     }
 
     // TODO do same as in preset management ....
-    auto build_recipe(const Recipe &recipe)
+    auto build_recipe(const Recipe &recipe, PresetSet &pre_set)
         -> std::variant<std::function<std::shared_ptr<IBenchmark>()>, std::function<std::shared_ptr<ISuite>()>> {
       auto backend_it = m_backends_storage.find(recipe.m_backend);
       auto case_it = m_case_presets.find(recipe.m_case.m_name);
@@ -108,6 +109,15 @@ namespace Baseliner {
       if (stat_preset_it == m_stats_presets.end()) {
         throw std::runtime_error("Baseliner Error : Preset " + recipe.m_stats.m_preset + " not found for Stat");
       }
+      pre_set.insert({recipe.m_case.m_name, case_preset_it->first, case_preset_it->second.m_description,
+                      case_preset_it->second.m_options});
+      pre_set.insert({recipe.m_benchmak.m_name, benchmark_preset_it->first, benchmark_preset_it->second.m_description,
+                      benchmark_preset_it->second.m_options});
+      pre_set.insert({recipe.m_stopping.m_name, stopping_preset_it->first, stopping_preset_it->second.m_description,
+                      stopping_preset_it->second.m_options});
+      pre_set.insert({recipe.m_stats.m_name, stat_preset_it->first, stat_preset_it->second.m_description,
+                      stat_preset_it->second.m_options});
+
       auto case_preset = case_preset_it->second;
       auto benchmark_preset = benchmark_preset_it->second;
       auto stopping_preset = stopping_preset_it->second;
@@ -161,6 +171,8 @@ namespace Baseliner {
         if (!m_suite_storage.has(suite.m_name)) {
           throw std::runtime_error("Baseliner Error : Suite " + suite.m_name + " not found in Storage");
         }
+        pre_set.insert({suite.m_name, suite_preset_it->first, suite_preset_it->second.m_description,
+                        suite_preset_it->second.m_options});
         auto suite_creator = m_suite_storage.at(suite.m_name);
         auto suite_w_preset =
             inject_shared_preset(suite_creator, std::get<OptionsMap>(suite_preset_it->second.m_options));

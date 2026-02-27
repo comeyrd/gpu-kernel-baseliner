@@ -20,6 +20,11 @@ namespace Baseliner {
 
   class RecipeManager {
   public:
+    static void register_recipes(const std::vector<Recipe> &recipes) {
+      for (const auto &recipe : recipes) {
+        inner_get_recipes().push_back(recipe);
+      }
+    }
     static void register_recipe(const Recipe &recipe) {
       inner_get_recipes().push_back(recipe);
     }
