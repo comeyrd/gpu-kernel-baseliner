@@ -1,10 +1,10 @@
-#include "baseliner/managers/Manager.hpp"
 #include <baseliner/JsonImplementation.hpp>
 #include <baseliner/Metadata.hpp>
 #include <baseliner/Metric.hpp>
 #include <baseliner/Options.hpp>
 #include <baseliner/Result.hpp>
 #include <baseliner/Serializer.hpp>
+#include <baseliner/managers/Manager.hpp>
 #include <iomanip>
 #include <ostream>
 #include <variant>

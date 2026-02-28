@@ -8,6 +8,17 @@
 #include <variant>
 #include <vector>
 namespace Baseliner::Conversion {
+  inline static std::string trim_before_after_whitespace(const std::string &thestring) {
+    const std::string whitespace = " \t\n\r\f\v";
+    size_t start = thestring.find_first_not_of(whitespace);
+    std::string rsult{};
+    if (start != std::string::npos) {
+      // Extract strictly the substring between the first and last non-whitespace characters
+      size_t end = thestring.find_last_not_of(whitespace);
+      rsult = thestring.substr(start, end - start + 1);
+    }
+    return rsult;
+  }
   template <typename T>
   auto baseliner_from_string(const std::string &val) -> T;
   template <typename T>
@@ -33,8 +44,7 @@ namespace Baseliner::Conversion {
     std::stringstream sstream(string_v);
     std::string item;
     while (std::getline(sstream, item, ',')) {
-      // Trim whitespace/quotes if necessary
-      result.push_back(baseliner_from_string<T>(item));
+      result.push_back(baseliner_from_string<T>(trim_before_after_whitespace(item)));
     }
     return result;
   }

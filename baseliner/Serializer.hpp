@@ -1,6 +1,6 @@
 #ifndef BASELINER_SERIALIZER_HPP
 #define BASELINER_SERIALIZER_HPP
-#include "baseliner/ConfigFile.hpp"
+#include <baseliner/ConfigFile.hpp>
 #include <baseliner/Metadata.hpp>
 #include <baseliner/Result.hpp>
 #include <istream>

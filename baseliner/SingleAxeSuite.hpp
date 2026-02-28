@@ -37,7 +37,7 @@ namespace Baseliner {
       }
       std::vector<BenchmarkResult> results_v{};
       results_v.reserve(m_axe.get_values().size());
-
+      bool first = true;
       for (const std::string &axe_val : m_axe.get_values()) {
         OptionsMap patch_option;
         patch_option[interface_name][option_name].m_value = axe_val;
@@ -46,6 +46,10 @@ namespace Baseliner {
         BenchmarkResult result = get_benchmark()->run();
         result.m_options = patch_option;
         results_v.push_back(result);
+        print_benchmark_result(std::cout, result, first);
+        if (first) {
+          first = false;
+        }
       }
       return build_run_result(results_v);
     }

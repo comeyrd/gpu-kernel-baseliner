@@ -1,4 +1,4 @@
-#include "baseliner/ConfigFile.hpp"
+#include <baseliner/ConfigFile.hpp>
 #include <baseliner/Metadata.hpp>
 #include <baseliner/Result.hpp>
 #include <baseliner/Serializer.hpp>

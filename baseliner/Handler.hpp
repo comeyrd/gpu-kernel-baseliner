@@ -1,9 +1,9 @@
 #ifndef BASELINER_HANDLER_HPP
 #define BASELINER_HANDLER_HPP
-#include "baseliner/Benchmark.hpp"
-#include "baseliner/Result.hpp"
-#include "baseliner/Suite.hpp"
-#include "baseliner/managers/Manager.hpp"
+#include <baseliner/Benchmark.hpp>
+#include <baseliner/Result.hpp>
+#include <baseliner/Suite.hpp>
+#include <baseliner/managers/Manager.hpp>
 #include <functional>
 #include <variant>
 namespace Baseliner {
@@ -29,6 +29,7 @@ namespace Baseliner {
       auto [bench_or_suite, backend_setup] = m_manager->build_recipe(recipe, set);
       RunResult result;
       backend_setup();
+      print_recipe(std::cout, recipe);
       if (std::holds_alternative<std::function<std::shared_ptr<IBenchmark>()>>(bench_or_suite)) {
         result = run_benchmark(std::get<std::function<std::shared_ptr<IBenchmark>()>>(bench_or_suite));
       } else {
@@ -41,6 +42,7 @@ namespace Baseliner {
     [[nodiscard]] static auto run_benchmark(const std::function<std::shared_ptr<IBenchmark>()> &bench) -> RunResult {
       BenchmarkResult bench_result = bench()->run();
       bench_result.m_options = std::monostate();
+      print_benchmark_result(std::cout, bench_result, false);
       std::vector<BenchmarkResult> results{bench_result};
       return build_run_result(results);
     }
