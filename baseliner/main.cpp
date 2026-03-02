@@ -131,7 +131,7 @@ __attribute__((weak)) auto main(int argc, char **argv) -> int { // NOLINT
     } else if (generate_parser.is_used("--saved-config-file")) {
       Config saved_config;
       saved_config.m_baseliner_version = Version::string();
-      saved_config.m_presets = manager->get_default_presets();
+      saved_config.m_presets = manager->get_all_preset_definitions();
       saved_config.m_recipes = RecipeManager::get_recipes();
       auto config_file = generate_parser.get<std::string>("--saved-config-file");
       config_to_file(saved_config, config_file);
