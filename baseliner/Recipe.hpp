@@ -5,6 +5,7 @@
 #include <ios>
 #include <optional>
 #include <string>
+#include <variant>
 #include <vector>
 namespace Baseliner {
   struct WithPreset {
@@ -22,6 +23,14 @@ namespace Baseliner {
     WithPreset m_stats;
     WithPreset m_stopping;
   };
+
+  inline auto create_recipe(const WithPreset &backend, const WithPreset &case_preset,
+                            const std::optional<WithPreset> &suite = {},
+                            const WithPreset &benchmark = w_default_preset(std::string(DEFAULT_BENCHMARK)),
+                            const WithPreset &stats = w_default_preset(std::string(DEFAULT_STAT)),
+                            const WithPreset &stopping = w_default_preset(std::string(DEFAULT_STOPPING))) -> Recipe {
+    return Recipe{backend, suite, benchmark, case_preset, stats, stopping};
+  }
 
   class RecipeManager {
   public:

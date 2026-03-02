@@ -96,10 +96,10 @@ namespace Baseliner {
 
   class PresetRegistrar {
   public:
-    explicit PresetRegistrar(PresetDefinition &preset) {
+    explicit PresetRegistrar(const PresetDefinition &preset) {
       Manager::instance()->add_presets({preset});
     };
-    explicit PresetRegistrar(std::vector<PresetDefinition> &presets) {
+    explicit PresetRegistrar(const std::vector<PresetDefinition> &presets) {
       Manager::instance()->add_presets(presets);
     };
   };

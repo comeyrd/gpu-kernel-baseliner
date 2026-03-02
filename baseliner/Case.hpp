@@ -10,7 +10,7 @@
 #include <optional>
 namespace Baseliner {
   constexpr int DEFAULT_SEED = 333;
-  constexpr size_t DEFAULT_WORK_SIZE = 1;
+  constexpr size_t DEFAULT_WORK_SIZE = 10;
   class IBaseCase : public IOption {
   public:
     void register_options() override {
