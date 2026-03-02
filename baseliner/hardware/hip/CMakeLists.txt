@@ -5,7 +5,7 @@ target_sources(baseliner PRIVATE
     HipStats.hip
     Timer.hip)
 
-if(BASELINER_HAS_NVML)
+if(BASELINER_HAS_AMDSMI)
     target_link_libraries(baseliner PUBLIC AMD::amdsmi)
     target_sources(baseliner PRIVATE AmdSmiUtils.hip)
 endif()
