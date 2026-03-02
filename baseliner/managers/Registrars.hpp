@@ -94,6 +94,15 @@ namespace Baseliner {
     }
   };
 
+  class PresetRegistrar {
+  public:
+    explicit PresetRegistrar(PresetDefinition &preset) {
+      Manager::instance()->add_presets({preset});
+    };
+    explicit PresetRegistrar(std::vector<PresetDefinition> &presets) {
+      Manager::instance()->add_presets(presets);
+    };
+  };
 } // namespace Baseliner
 
 #endif // BASELINER_REGISTRARS_HPP

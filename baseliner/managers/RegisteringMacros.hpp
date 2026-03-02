@@ -33,4 +33,5 @@
 #define BASELINER_REGISTER_BACKEND_STATS(Stat)                                                                         \
   ATTRIBUTE_USED static Baseliner::BackendStatRegistrar<Stat> _registrar_##Stat{#Stat};
 
+#define BASELINER_REGISTER_PRESET(preset) ATTRIBUTE_USED static Baseliner::PresetRegistrar _registrar_##preset{preset};
 #endif // BASELINER_REGISTERING_MACROS_HPP
