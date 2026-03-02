@@ -54,8 +54,8 @@ namespace Baseliner {
     using backend = B;
     virtual void setup(std::shared_ptr<typename backend::stream_t> stream) = 0;
     virtual void reset_kernel(std::shared_ptr<typename backend::stream_t> stream) = 0;
-    virtual void setup_metrics(std::shared_ptr<Stats::StatsEngine> &engine) {};
-    virtual void update_metrics(std::shared_ptr<Stats::StatsEngine> &engine) {};
+    virtual void setup_metrics(std::shared_ptr<Stats::StatsEngine> &engine) {};  // NOLINT
+    virtual void update_metrics(std::shared_ptr<Stats::StatsEngine> &engine) {}; // NOLINT
     virtual void run(std::shared_ptr<typename backend::stream_t> stream) = 0;
     virtual void teardown(std::shared_ptr<typename backend::stream_t> stream, Output &output) = 0;
     virtual auto name() -> std::string = 0;

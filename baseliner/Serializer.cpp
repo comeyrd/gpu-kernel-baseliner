@@ -32,6 +32,13 @@ namespace Baseliner {
     }
     serialize(file, results);
   }
+  void file_to_result(Result &result, const std::string filename) {
+    std::ifstream infile(filename);
+    if (!infile.is_open()) {
+      throw std::runtime_error("Baseliner Error: Could not open config file for reading: " + filename);
+    }
+    de_serialize(infile, result);
+  }
   void metadata_to_file(const Metadata &metadata, std::string filename) {
     std::ifstream infile(filename);
     const bool create_new_file = true;

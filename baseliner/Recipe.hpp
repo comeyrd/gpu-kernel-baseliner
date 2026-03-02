@@ -11,7 +11,9 @@ namespace Baseliner {
     std::string m_name;
     std::string m_preset;
   };
-  ;
+  inline auto w_default_preset(const std::string &name) -> WithPreset {
+    return WithPreset{name, std::string(DEFAULT_PRESET)};
+  }
   struct Recipe {
     WithPreset m_backend;
     std::optional<WithPreset> m_suite;
@@ -59,7 +61,7 @@ namespace Baseliner {
   }
   inline static void print_recipe(std::ostream &oss, const Recipe &recipe) {
     int label_size = 25;
-    oss << "\n\n_________________________\n";
+    oss << "\n_________________________\n";
     oss << "Executing Recipe :\n";
     print_with_preset(oss, recipe.m_backend, "Backend", label_size);
     print_with_preset(oss, recipe.m_case, "Case", label_size);
@@ -69,7 +71,9 @@ namespace Baseliner {
     if (recipe.m_stopping.m_name != DEFAULT_STOPPING) {
       print_with_preset(oss, recipe.m_stopping, "StoppingCriterion", label_size);
     }
-    print_with_preset(oss, recipe.m_stats, "StoppingCriterion", label_size);
+    if (recipe.m_stats.m_name != DEFAULT_STAT) {
+      print_with_preset(oss, recipe.m_stats, "Stats", label_size);
+    }
     if (recipe.m_suite.has_value()) {
       auto val = recipe.m_suite.value();
       print_with_preset(oss, val, "Suite", label_size);

@@ -56,6 +56,7 @@ namespace Baseliner {
   template void de_serialize<std::vector<PresetDefinition>>(std::istream &iss, std::vector<PresetDefinition> &obj);
   template void de_serialize<std::variant<OptionsMap, std::vector<std::string>>>(
       std::istream &iss, std::variant<OptionsMap, std::vector<std::string>> &obj);
+  template void de_serialize<Result>(std::istream &oss, Result &obj);
 
   void to_json(json &json_obj, const Option &opt) {
     json_obj =
@@ -128,10 +129,21 @@ namespace Baseliner {
     json_obj["runs"] = result.m_runs;
     json_obj["presets"] = result.m_presets;
   }
+  void from_json(const json &json_obj, Result &result) {
+    json_obj.at("baseliner_version").get_to(result.m_baseliner_version);
+    json_obj.at("git_version").get_to(result.m_git_version);
+    json_obj.at("datetime").get_to(result.m_date_time);
+    json_obj.at("runs").get_to(result.m_runs);
+    json_obj.at("presets").get_to(result.m_presets);
+  }
   void to_json(json &json_obj, const RunResult &result) {
     json_obj["id"] = result.m_run_uuid;
     json_obj["recipe"] = result.m_recipe;
     json_obj["results"] = result.m_results;
+  }
+  void from_json(const json &json_obj, RunResult &result) {
+    json_obj.at("id").get_to(result.m_run_uuid);
+    json_obj.at("recipe").get_to(result.m_recipe);
   }
 
   void to_json(json &json_obj, const BenchmarkResult &result) {

@@ -36,8 +36,7 @@ namespace Baseliner {
   class StatConceptRegistrar {
   public:
     explicit StatConceptRegistrar(const std::vector<std::string> &defaults_stats) {
-      Manager::instance()->register_component(component_to_string(ComponentType::STAT), ComponentType::STAT,
-                                              defaults_stats);
+      Manager::instance()->register_component(std::string(DEFAULT_STAT), ComponentType::STAT, defaults_stats);
     }
   };
 

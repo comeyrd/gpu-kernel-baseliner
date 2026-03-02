@@ -8,7 +8,7 @@
 #include <random>
 #include <string>
 #include <vector>
-constexpr int DEFAULT_N = 5000;
+constexpr int DEFAULT_N = 125000;
 
 class ComputationInput : public Baseliner::IInput {
 public:
@@ -31,6 +31,14 @@ public:
     m_N = m_base_N * get_work_size();
     m_a_host = std::vector<int>(m_N);
     m_b_host = std::vector<int>(m_N);
+  }
+  auto number_of_floating_point_operations() -> std::optional<size_t> override {
+    return 151ULL * m_N;
+  }
+  auto number_of_bytes() -> std::optional<size_t> override {
+    size_t bytesA = sizeof(int) * m_N;
+    size_t bytesB = sizeof(int) * m_N;
+    return bytesA + bytesB;
   }
 
   int m_base_N = DEFAULT_N;

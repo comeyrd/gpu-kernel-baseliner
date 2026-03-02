@@ -43,7 +43,7 @@ namespace Baseliner {
     std::vector<RunResult> m_runs;
   };
   inline static auto build_result() -> Result {
-    return Result{std::string(Version::string), BASELINER_GIT_VERSION, current_time_string(), {}, {}};
+    return Result{Version::string(), BASELINER_GIT_VERSION, current_time_string(), {}, {}};
   }
 
   template <typename T>

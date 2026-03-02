@@ -159,6 +159,28 @@ namespace Baseliner {
      ** list things
      **/
 
+    // returns 0 -> case 1->backend
+    // TODO cleanup
+    auto list_cases_backend() const -> std::vector<std::pair<std::string, std::string>> {
+      std::vector<std::pair<std::string, std::string>> vec_pair;
+      for (const auto &[case_name, presets] : m_case_presets) {
+        for (const auto &[backend_name, backend] : m_backends_storage) {
+          if (backend->has_case(case_name)) {
+            vec_pair.emplace_back(std::make_pair(case_name, backend_name));
+          }
+        }
+      }
+      return vec_pair;
+    }
+    auto get_backend_impl_for_case(const std::string &case_name) const -> std::vector<std::string> {
+      std::vector<std::string> available_backends;
+      for (const auto &[backend_name, backend] : m_backends_storage) {
+        if (backend->has_case(case_name)) {
+          available_backends.push_back(backend_name);
+        }
+      }
+      return available_backends;
+    }
     auto list_cases_presets() const -> std::unordered_map<std::string, std::unordered_map<std::string, InnerPreset>> {
       return m_case_presets;
     }
@@ -217,7 +239,8 @@ namespace Baseliner {
       register_component(name, ComponentType::STOPPING, stopping_factory()->gather_options());
     }
 
-    auto get_preset_definitions(ComponentType type) const -> std::vector<PresetDefinition> {
+    auto get_preset_definitions(ComponentType type, std::string preset_name = "") const
+        -> std::vector<PresetDefinition> {
       const std::unordered_map<std::string, std::unordered_map<std::string, InnerPreset>> *map = nullptr;
       const std::unordered_map<std::string, InnerPreset> *map_stat = nullptr;
       std::vector<PresetDefinition> defs;
@@ -247,18 +270,24 @@ namespace Baseliner {
       }
       if (type == ComponentType::STAT) {
         for (const auto &[name, inner_preset] : (*map_stat)) {
-          defs.push_back(
-              PresetDefinition{component_to_string(type), name, inner_preset.m_description, inner_preset.m_options});
+          if (preset_name == "" || preset_name == name) {
+            defs.push_back(
+                PresetDefinition{component_to_string(type), name, inner_preset.m_description, inner_preset.m_options});
+          }
         }
       } else {
         for (const auto &[interface_name, inner_map] : (*map)) {
           for (const auto &[name, inner_preset] : inner_map) {
-            defs.push_back(PresetDefinition{interface_name, name, inner_preset.m_description, inner_preset.m_options});
+            if (preset_name == "" || preset_name == name) {
+              defs.push_back(
+                  PresetDefinition{interface_name, name, inner_preset.m_description, inner_preset.m_options});
+            }
           }
         }
       }
       return defs;
     }
+
     auto all_presets_size() const -> size_t {
       size_t total_size = 0;
       total_size += presets_size(ComponentType::BENCHMARK);
@@ -352,25 +381,10 @@ namespace Baseliner {
       return metadata;
     };
 
-    auto generate_example_config() const -> Config {
+    auto generate_default_config() const -> Config {
       Config def_config;
-      def_config.m_baseliner_version = Version::string;
-      std::vector<PresetDefinition> preset_defs;
-      preset_defs.reserve(all_presets_size());
-      std::vector<PresetDefinition> temp_preset;
-      temp_preset = get_preset_definitions(ComponentType::BENCHMARK);
-      preset_defs.insert(preset_defs.end(), temp_preset.begin(), temp_preset.end());
-      temp_preset = get_preset_definitions(ComponentType::CASE);
-      preset_defs.insert(preset_defs.end(), temp_preset.begin(), temp_preset.end());
-      temp_preset = get_preset_definitions(ComponentType::SUITE);
-      preset_defs.insert(preset_defs.end(), temp_preset.begin(), temp_preset.end());
-      temp_preset = get_preset_definitions(ComponentType::STOPPING);
-      preset_defs.insert(preset_defs.end(), temp_preset.begin(), temp_preset.end());
-      temp_preset = get_preset_definitions(ComponentType::STAT);
-      preset_defs.insert(preset_defs.end(), temp_preset.begin(), temp_preset.end());
-      temp_preset = get_preset_definitions(ComponentType::BACKEND);
-      preset_defs.insert(preset_defs.end(), temp_preset.begin(), temp_preset.end());
-      def_config.m_presets = preset_defs;
+      def_config.m_baseliner_version = Version::string();
+      std::vector<PresetDefinition> preset_defs = get_default_presets();
       std::vector<Recipe> recipes;
       Recipe default_recipe;
       default_recipe.m_benchmak = {std::string(DEFAULT_BENCHMARK), std::string(DEFAULT_PRESET)};
@@ -389,6 +403,30 @@ namespace Baseliner {
       }
       def_config.m_recipes = recipes;
       return def_config;
+    };
+
+    auto get_all_preset_definitions(std::string preset_name = "") const -> std::vector<PresetDefinition> {
+      std::vector<PresetDefinition> preset_defs;
+      preset_defs.reserve(all_presets_size());
+      std::vector<PresetDefinition> temp_preset;
+      temp_preset = get_preset_definitions(ComponentType::BENCHMARK, preset_name);
+      preset_defs.insert(preset_defs.end(), temp_preset.begin(), temp_preset.end());
+      temp_preset = get_preset_definitions(ComponentType::CASE, preset_name);
+      preset_defs.insert(preset_defs.end(), temp_preset.begin(), temp_preset.end());
+      temp_preset = get_preset_definitions(ComponentType::SUITE, preset_name);
+      preset_defs.insert(preset_defs.end(), temp_preset.begin(), temp_preset.end());
+      temp_preset = get_preset_definitions(ComponentType::STOPPING, preset_name);
+      preset_defs.insert(preset_defs.end(), temp_preset.begin(), temp_preset.end());
+      temp_preset = get_preset_definitions(ComponentType::STAT, preset_name);
+      preset_defs.insert(preset_defs.end(), temp_preset.begin(), temp_preset.end());
+      temp_preset = get_preset_definitions(ComponentType::BACKEND, preset_name);
+      preset_defs.insert(preset_defs.end(), temp_preset.begin(), temp_preset.end());
+      preset_defs.shrink_to_fit();
+      return preset_defs;
+    };
+
+    auto get_default_presets() const -> std::vector<PresetDefinition> {
+      return get_all_preset_definitions(std::string(DEFAULT_PRESET));
     };
 
     void add_presets(const std::vector<PresetDefinition> &presets_definitions) {

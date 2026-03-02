@@ -2,15 +2,9 @@
 #define BASELINER_RQ_HPP
 #include <baseliner/Axe.hpp>
 #include <baseliner/Benchmark.hpp>
-#include <baseliner/managers/BenchmarkCaseManager.hpp>
-#include <baseliner/managers/SuiteManager.hpp>
+
 namespace Baseliner {
-  template <typename BackendT>
-  auto build_RQ_Benchmark() -> std::shared_ptr<Benchmark<BackendT>> {
-    auto bench = std::make_shared<Benchmark<BackendT>>();
-    bench->set_flush_l2(true);
-    bench->set_block(false);
-    return bench;
-  }
+  auto get_rq_presets() -> std::vector<PresetDefinition>;
+  auto get_rq_recipes(const std::string &case_name, const std::string &backend_name) -> std::vector<Recipe>;
 } // namespace Baseliner
 #endif // BASELINER_RQ_HPP

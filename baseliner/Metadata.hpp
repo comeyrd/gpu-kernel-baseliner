@@ -26,7 +26,7 @@ namespace Baseliner {
   };
 
   struct Metadata {
-    std::string baseliner_version = std::string(Version::string);
+    std::string baseliner_version = Version::string();
     std::vector<Ingredient> m_benchmarks;
     std::vector<Ingredient> m_cases;
     std::vector<Ingredient> m_stopping_criterions;

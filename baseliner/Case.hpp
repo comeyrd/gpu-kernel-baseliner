@@ -55,11 +55,13 @@ namespace Baseliner {
       std::optional<size_t> flops = this->number_of_floating_point_operations();
       if (bytes.has_value()) {
         engine->register_metric<Stats::ByteNumbers>(bytes.value());
+        engine->register_stat<Stats::MedianDataTroughput>();
         m_bytes = true;
       }
       if (flops.has_value()) {
         engine->register_metric<Stats::FLOPCount>(flops.value());
-        m_bytes = true;
+        engine->register_stat<Stats::MedianFLOPThroughput>();
+        m_flops = true;
       }
       this->case_setup_metrics(engine);
     };

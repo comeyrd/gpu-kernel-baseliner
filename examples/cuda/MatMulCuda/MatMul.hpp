@@ -78,12 +78,25 @@ public:
     m_h_A.resize(m_size_A);
     m_h_B.resize(m_size_B);
   }
+  auto number_of_floating_point_operations() -> std::optional<size_t> override {
+    size_t flops = 2ULL * m_hA * m_wA * m_wB;
+    return flops;
+  }
 
-  // Default dimensions based on the original main() example
-  int m_wA_base = 320; // NOLINT 5 * 2 * 32
-  int m_hA_base = 320; // NOLINT
-  int m_wB_base = 640; // NOLINT 5 * 4 * 32
-  int m_hB_base = 320; // NOLINT
+  auto number_of_bytes() -> std::optional<size_t> override {
+    size_t elements_A = m_hA * m_wA;
+    size_t elements_B = m_hB * m_wB;
+    size_t elements_C = m_hA * m_wB;
+    size_t total_elements = elements_A + elements_B + elements_C;
+    size_t total_bytes = total_elements * sizeof(float);
+    return total_bytes;
+  }
+
+  // Dimensions to achieve 32MFLOPs
+  int m_wA_base = 256; // NOLINT
+  int m_hA_base = 256; // NOLINT
+  int m_wB_base = 256; // NOLINT 5 * 4 * 32
+  int m_hB_base = 256; // NOLINT
 
   int m_wA, m_hA, m_wB, m_hB;
   int m_size_A, m_size_B;

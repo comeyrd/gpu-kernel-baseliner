@@ -1,6 +1,8 @@
 #ifndef BASELINER_HANDLER_HPP
 #define BASELINER_HANDLER_HPP
 #include <baseliner/Benchmark.hpp>
+#include <baseliner/ConfigFile.hpp>
+#include <baseliner/Recipe.hpp>
 #include <baseliner/Result.hpp>
 #include <baseliner/Suite.hpp>
 #include <baseliner/managers/Manager.hpp>
@@ -22,6 +24,19 @@ namespace Baseliner {
       preset_defs.insert(preset_defs.end(), set.begin(), set.end());
       result.m_presets = preset_defs;
       return result;
+    }
+    [[nodiscard]] auto run_config(Config &config) -> Result {
+      m_manager->add_presets(config.m_presets);
+      return run_recipes(config.m_recipes);
+    }
+    [[nodiscard]] auto replay_result(Result &result) -> Result {
+      m_manager->add_presets(result.m_presets);
+      std::vector<Recipe> recipes;
+      recipes.reserve(result.m_runs.size());
+      for (auto &runs : result.m_runs) {
+        recipes.push_back(runs.m_recipe);
+      }
+      return run_recipes(recipes);
     }
 
   private:

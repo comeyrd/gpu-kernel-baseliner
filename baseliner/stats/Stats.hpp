@@ -156,11 +156,11 @@ namespace Baseliner::Stats {
     };
   };
 
-  class MedianItemTroughput : public IStat<MedianItemTroughput, float, Median, ByteNumbers> {
+  class MedianDataTroughput : public IStat<MedianDataTroughput, float, Median, ByteNumbers> {
     [[nodiscard]] auto name() const -> std::string override {
       return "MedianThroughput";
     }
-    void calculate(MedianItemTroughput::type &value_to_update, const typename Median::type &median,
+    void calculate(MedianDataTroughput::type &value_to_update, const typename Median::type &median,
                    const typename ByteNumbers::type &nb_bytes) override {
       auto bytes = static_cast<double>(nb_bytes);
       auto seconds = static_cast<double>(median);
@@ -178,11 +178,11 @@ namespace Baseliner::Stats {
       return StatComputePolicy::ON_DEMAND;
     };
   };
-  class FLOPThroughput : public IStat<FLOPThroughput, float, Median, FLOPCount> {
+  class MedianFLOPThroughput : public IStat<MedianFLOPThroughput, float, Median, FLOPCount> {
     [[nodiscard]] auto name() const -> std::string override {
       return "FLOPThroughput";
     }
-    void calculate(FLOPThroughput::type &value_to_update, const typename Median::type &median,
+    void calculate(MedianFLOPThroughput::type &value_to_update, const typename Median::type &median,
                    const typename FLOPCount::type &nb_flops) override {
       auto flops = static_cast<double>(nb_flops);
       auto miliseconds = static_cast<double>(median);

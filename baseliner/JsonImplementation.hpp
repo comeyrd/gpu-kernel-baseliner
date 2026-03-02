@@ -48,11 +48,13 @@ namespace Baseliner {
   void from_json(const json &json_obj, Option &opt);
 
   void to_json(json &json_obj, const Result &result);
+  void from_json(const json &json_obj, Result &result);
+
   void to_json(json &json_obj, const Metric &metric);
 
   void to_json(json &json_obj, const BenchmarkResult &result);
   void to_json(json &json_obj, const RunResult &result);
-
+  void from_json(const json &json_obj, RunResult &result);
   void to_json(json &json_obj, const Preset &option_preset);
 
   void to_json(json &json_obj, const BackendMetadata &backend_meta);
