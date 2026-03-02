@@ -107,6 +107,17 @@ __attribute__((weak)) auto main(int argc, char **argv) -> int { // NOLINT
         }
       }
     } else {
+      std::vector<Recipe> recipes = RecipeManager::get_recipes();
+      size_t nb_recipes = recipes.size();
+      if (nb_recipes > 0) {
+        std::cout << "Running  " << recipes.size() << " saved Recipes" << "\n";
+        auto result = handler.run_recipes(recipes);
+        const std::string filename = "run-" + generate_uid() + ".json";
+        result_to_file(result, filename);
+        std::cout << "Result saved to " << filename << "\n";
+      } else {
+        std::cout << "No saved recipe...\n";
+      }
     }
   } else if (program.is_subcommand_used("gen")) {
     if (generate_parser.is_used("--metadata")) {
