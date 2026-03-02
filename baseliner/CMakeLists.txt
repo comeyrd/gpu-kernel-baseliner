@@ -22,4 +22,4 @@ target_include_directories(baseliner PUBLIC
     # B. When installed
     $<INSTALL_INTERFACE:include> 
 )
-add_subdirectory(backend)
+add_subdirectory(hardware)

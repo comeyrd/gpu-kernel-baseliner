@@ -3,7 +3,7 @@
 #include <baseliner/Case.hpp>
 #include <baseliner/Options.hpp>
 #include <baseliner/Timer.hpp>
-#include <baseliner/backend/Backend.hpp>
+#include <baseliner/hardware/Backend.hpp>
 #include <baseliner/stats/StatsEngine.hpp>
 #include <memory>
 #include <optional>

@@ -1,6 +1,6 @@
-#include <baseliner/backend/hip/HipBackend.hpp>
+#include <baseliner/hardware/hip/HipBackend.hpp>
 namespace Baseliner {
-  namespace Backend {
+  namespace Hardware {
 
     template <>
     void L2Flusher<HipBackend>::alloc(int device) {
@@ -18,8 +18,8 @@ namespace Baseliner {
     void L2Flusher<HipBackend>::flush(std::shared_ptr<typename HipBackend::stream_t> stream) {
       int current_device = HipBackend::instance()->get_current_device();
       CHECK_HIP(hipMemsetAsync(m_l2_buffer_v[current_device], 0,
-                                 static_cast<std::size_t>(m_buffer_size_v[current_device]), *stream));
+                               static_cast<std::size_t>(m_buffer_size_v[current_device]), *stream));
     }
-  } // namespace Backend
+  } // namespace Hardware
 
 } // namespace Baseliner

@@ -1,6 +1,6 @@
-#include <baseliner/backend/cuda/CudaBackend.hpp>
+#include <baseliner/hardware/cuda/CudaBackend.hpp>
 namespace Baseliner {
-  namespace Backend {
+  namespace Hardware {
 
     template <>
     void L2Flusher<CudaBackend>::alloc(int device) {
@@ -20,6 +20,6 @@ namespace Baseliner {
       CHECK_CUDA(cudaMemsetAsync(m_l2_buffer_v[current_device], 0,
                                  static_cast<std::size_t>(m_buffer_size_v[current_device]), *stream));
     }
-  } // namespace Backend
+  } // namespace Hardware
 
 } // namespace Baseliner

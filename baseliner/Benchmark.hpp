@@ -6,7 +6,7 @@
 #include <baseliner/Options.hpp>
 #include <baseliner/Result.hpp>
 #include <baseliner/StoppingCriterion.hpp>
-#include <baseliner/backend/Backend.hpp>
+#include <baseliner/hardware/Backend.hpp>
 
 #include <baseliner/stats/IStats.hpp>
 #include <baseliner/stats/Stats.hpp>
@@ -220,9 +220,9 @@ namespace Baseliner {
     // Kernel Types
 
     // Stats registry
-    // Backend specifics
-    Backend::L2Flusher<BackendT> *m_flusher = Backend::L2Flusher<BackendT>::instance();
-    Backend::BlockingKernel<BackendT> *m_blocker = Backend::BlockingKernel<BackendT>::instance();
+    // Hardware specifics
+    Hardware::L2Flusher<BackendT> *m_flusher = Hardware::L2Flusher<BackendT>::instance();
+    Hardware::BlockingKernel<BackendT> *m_blocker = Hardware::BlockingKernel<BackendT>::instance();
     std::shared_ptr<typename BackendT::stream_t> m_stream;
 
     std::shared_ptr<ICase<BackendT>> m_case;

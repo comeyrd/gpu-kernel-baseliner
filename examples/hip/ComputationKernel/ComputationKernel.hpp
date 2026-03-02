@@ -2,7 +2,7 @@
 #define COMPUTATION_HPP
 #include <baseliner/Kernel.hpp>
 #include <baseliner/Options.hpp>
-#include <baseliner/backend/hip/HipBackend.hpp>
+#include <baseliner/hardware/hip/HipBackend.hpp>
 #include <memory>
 #include <ostream>
 #include <random>

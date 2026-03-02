@@ -1,6 +1,6 @@
+#include <baseliner/hardware/BackendStats.hpp>
+#include <baseliner/hardware/hip/HipBackend.hpp>
 #include <baseliner/managers/RegisteringMacros.hpp>
-#include <baseliner/backend/BackendStats.hpp>
-#include <baseliner/backend/hip/HipBackend.hpp>
 namespace Baseliner::Stats {
 #ifdef BASELINER_HAS_AMDSMI
   constexpr size_t KHZ_TO_HZ = 1000;
@@ -8,11 +8,11 @@ namespace Baseliner::Stats {
   constexpr size_t GHZ_TO_MHZ = 1000;
 #include "amd_smi/amdsmi.h"
   template <>
-  std::string ClockFrequency<Backend::HipBackend>::name() const {
+  std::string ClockFrequency<Hardware::HipBackend>::name() const {
     return "HipClockFrequency";
   }
   template <>
-  void ClockFrequency<Backend::HipBackend>::calculate(ClockFrequency<Backend::HipBackend>::type &value_to_update) {
+  void ClockFrequency<Hardware::HipBackend>::calculate(ClockFrequency<Hardware::HipBackend>::type &value_to_update) {
     AmdSmiManager *manager = AmdSmiManager::ensure_init();
 
     amdsmi_processor_handle handle = manager->get_current_device();
@@ -21,12 +21,12 @@ namespace Baseliner::Stats {
     value_to_update = static_cast<float>(info.frequency[info.current]) / (GHZ_TO_MHZ * MHZ_TO_KHZ * KHZ_TO_HZ);
   }
   template <>
-  std::string ClockFrequencyVector<Backend::HipBackend>::name() const {
+  std::string ClockFrequencyVector<Hardware::HipBackend>::name() const {
     return "HipClockFrequencyVector";
   }
   namespace {
-    using ClockFrequency = ClockFrequency<Backend::HipBackend>;
-    using ClockFrequencyVector = ClockFrequencyVector<Backend::HipBackend>;
+    using ClockFrequency = ClockFrequency<Hardware::HipBackend>;
+    using ClockFrequencyVector = ClockFrequencyVector<Hardware::HipBackend>;
 
     BASELINER_REGISTER_BACKEND_STATS(ClockFrequency);
     BASELINER_REGISTER_BACKEND_STATS(ClockFrequencyVector);

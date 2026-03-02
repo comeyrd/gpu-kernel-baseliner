@@ -1,4 +1,4 @@
-#include <baseliner/backend/cuda/CudaBackend.hpp>
+#include <baseliner/hardware/cuda/CudaBackend.hpp>
 #include <baseliner/managers/RegisteringMacros.hpp>
 void check_cuda_error(cudaError_t error_code, const char *file, int line) {
   if (error_code != cudaSuccess) {
@@ -15,7 +15,7 @@ void check_cuda_error_no_except(cudaError_t error_code, const char *file, int li
   }
 }
 namespace Baseliner {
-  namespace Backend {
+  namespace Hardware {
     template <>
     void CudaBackend::set_device(int device) {
       CHECK_CUDA(cudaSetDevice(device));
@@ -51,6 +51,6 @@ namespace Baseliner {
       });
     }
     BASELINER_REGISTER_BACKEND("cuda", CudaBackend);
-  } // namespace Backend
+  } // namespace Hardware
 
 } // namespace Baseliner

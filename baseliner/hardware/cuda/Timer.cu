@@ -1,5 +1,5 @@
-#include <baseliner/backend/cuda/CudaBackend.hpp>
-namespace Baseliner::Backend {
+#include <baseliner/hardware/cuda/CudaBackend.hpp>
+namespace Baseliner::Hardware {
 
   GpuTimer<CudaBackend>::GpuTimer() {
     int current_device = CudaBackend::instance()->get_current_device();
@@ -46,4 +46,4 @@ namespace Baseliner::Backend {
     return float_milliseconds(result);
   };
 
-} // namespace Baseliner::Backend
+} // namespace Baseliner::Hardware

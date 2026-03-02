@@ -1,5 +1,5 @@
-#include <baseliner/backend/hip/HipBackend.hpp>
-namespace Baseliner::Backend {
+#include <baseliner/hardware/hip/HipBackend.hpp>
+namespace Baseliner::Hardware {
 
   GpuTimer<HipBackend>::GpuTimer() {
     int current_device = HipBackend::instance()->get_current_device();
@@ -46,4 +46,4 @@ namespace Baseliner::Backend {
     return float_milliseconds(result);
   };
 
-} // namespace Baseliner::Backend
+} // namespace Baseliner::Hardware

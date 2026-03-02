@@ -3,7 +3,7 @@
 #include "hip/hip_runtime.h"
 #include <baseliner/Benchmark.hpp>
 #include <baseliner/Kernel.hpp>
-#include <baseliner/backend/Backend.hpp>
+#include <baseliner/hardware/Backend.hpp>
 
 void check_hip_error(hipError_t error_code, const char *file, int line);                // NOLINT
 void check_hip_error_no_except(hipError_t error_code, const char *file, int line);      // NOLINT
@@ -11,7 +11,7 @@ void check_hip_error_no_except(hipError_t error_code, const char *file, int line
 #define CHECK_HIP_NO_EXCEPT(error) check_hip_error_no_except(error, __FILE__, __LINE__) // NOLINT
 
 namespace Baseliner {
-  namespace Backend {
+  namespace Hardware {
     using HipBackend = Backend<hipStream_t>;
     template <>
     class GpuTimer<HipBackend> {
@@ -34,12 +34,12 @@ namespace Baseliner {
       std::vector<hipEvent_t> m_start_event;
       std::vector<hipEvent_t> m_stop_event;
     };
-  } // namespace Backend
-  using IHipCase = ICase<Backend::HipBackend>;
-  using HipBenchmark = Benchmark<Backend::HipBackend>;
+  } // namespace Hardware
+  using IHipCase = ICase<Hardware::HipBackend>;
+  using HipBenchmark = Benchmark<Hardware::HipBackend>;
 
   template <typename Input, typename Output>
-  using IHipKernel = IKernel<Backend::HipBackend, Input, Output>;
+  using IHipKernel = IKernel<Hardware::HipBackend, Input, Output>;
 } // namespace Baseliner
 
 #ifdef BASELINER_HAS_AMDSMI

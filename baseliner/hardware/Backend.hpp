@@ -5,7 +5,7 @@
 #include <baseliner/Timer.hpp>
 #include <iostream>
 #include <memory>
-namespace Baseliner::Backend {
+namespace Baseliner::Hardware {
   template <typename BackendT>
   class L2Flusher;
 
@@ -177,6 +177,6 @@ namespace Baseliner::Backend {
 
   protected:
   };
-} // namespace Baseliner::Backend
+} // namespace Baseliner::Hardware
 
 #endif // BACKEND_HPP

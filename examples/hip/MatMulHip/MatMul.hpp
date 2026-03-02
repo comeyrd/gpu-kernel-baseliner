@@ -33,7 +33,7 @@
 
 #include <baseliner/Kernel.hpp>
 #include <baseliner/Options.hpp>
-#include <baseliner/backend/hip/HipBackend.hpp>
+#include <baseliner/hardware/hip/HipBackend.hpp>
 #include <cstddef>
 #include <iostream>
 #include <memory>

@@ -1,4 +1,3 @@
-#include "hip/hip_runtime.h"
 /*
  *  Copyright 2021 NVIDIA Corporation
  *
@@ -19,7 +18,7 @@
 
 // Copyright 2026, Come Eyraud.
 
-#include <baseliner/backend/hip/HipBackend.hpp>
+#include <baseliner/hardware/cuda/CudaBackend.hpp>
 #include <cstdio>
 #include <cstdlib>
 namespace {
@@ -41,30 +40,30 @@ namespace {
   }
 } // namespace
 
-namespace Baseliner::Backend {
+namespace Baseliner::Hardware {
   template <>
-  void BlockingKernel<HipBackend>::alloc(int device) {
+  void BlockingKernel<CudaBackend>::alloc(int device) {
     m_host_flag_v[device] = new int;         // NOLINT
     m_host_timeout_flag_v[device] = new int; // NOLINT
-    CHECK_HIP(hipHostRegister(m_host_flag_v[device], sizeof(int), hipHostRegisterMapped));
-    CHECK_HIP(hipHostGetDevicePointer((void **)&m_device_flag_v[device], m_host_flag_v[device], 0));
-    CHECK_HIP(hipHostRegister(m_host_timeout_flag_v[device], sizeof(int), hipHostRegisterMapped));
-    CHECK_HIP(hipHostGetDevicePointer((void **)&m_device_timeout_flag_v[device], m_host_timeout_flag_v[device], 0));
+    CHECK_CUDA(cudaHostRegister(m_host_flag_v[device], sizeof(int), cudaHostRegisterMapped));
+    CHECK_CUDA(cudaHostGetDevicePointer(&m_device_flag_v[device], m_host_flag_v[device], 0));
+    CHECK_CUDA(cudaHostRegister(m_host_timeout_flag_v[device], sizeof(int), cudaHostRegisterMapped));
+    CHECK_CUDA(cudaHostGetDevicePointer(&m_device_timeout_flag_v[device], m_host_timeout_flag_v[device], 0));
   }
   template <>
-  void BlockingKernel<HipBackend>::free(int device) {
-    CHECK_HIP(hipGetLastError());
-    CHECK_HIP(hipHostUnregister(m_host_flag_v[device]));
-    CHECK_HIP(hipHostUnregister(m_host_timeout_flag_v[device]));
+  void BlockingKernel<CudaBackend>::free(int device) {
+    CHECK_CUDA(cudaGetLastError());
+    CHECK_CUDA(cudaHostUnregister(m_host_flag_v[device]));
+    CHECK_CUDA(cudaHostUnregister(m_host_timeout_flag_v[device]));
     delete m_host_flag_v[device];
     delete m_host_timeout_flag_v[device];
   }
   template <>
-  void BlockingKernel<HipBackend>::block(std::shared_ptr<hipStream_t> stream, double timeout) {
-    int current_device = HipBackend::instance()->get_current_device();
+  void BlockingKernel<CudaBackend>::block(std::shared_ptr<cudaStream_t> stream, double timeout) {
+    int current_device = CudaBackend::instance()->get_current_device();
     *m_host_flag_v[current_device] = 0;
     *m_host_timeout_flag_v[current_device] = 0;
     block_stream<<<1, 1, 0, *stream>>>(m_device_flag_v[current_device], m_device_timeout_flag_v[current_device],
                                        timeout);
   }
-} // namespace Baseliner::Backend
+} // namespace Baseliner::Hardware

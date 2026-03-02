@@ -3,7 +3,7 @@
 #include <baseliner/Options.hpp>
 
 #include <baseliner/Timer.hpp>
-#include <baseliner/backend/Backend.hpp>
+#include <baseliner/hardware/Backend.hpp>
 #include <baseliner/stats/Stats.hpp>
 #include <baseliner/stats/StatsEngine.hpp>
 #include <memory>
@@ -36,10 +36,9 @@ namespace Baseliner {
   };
 
   template <typename BackendT>
-  class ICase : public Backend::GpuTimer<BackendT>, public IBaseCase {
+  class ICase : public Hardware::GpuTimer<BackendT>, public IBaseCase {
   public:
     using backend = BackendT;
-    using Backend::GpuTimer<BackendT>::time_elapsed;
     ICase() = default;
     ~ICase() override = default;
     virtual auto name() -> std::string = 0;

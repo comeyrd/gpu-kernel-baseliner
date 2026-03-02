@@ -2,7 +2,7 @@
 #define COMPUTATION_HPP
 #include <baseliner/Kernel.hpp>
 #include <baseliner/Options.hpp>
-#include <baseliner/backend/cuda/CudaBackend.hpp>
+#include <baseliner/hardware/cuda/CudaBackend.hpp>
 #include <memory>
 #include <ostream>
 #include <random>

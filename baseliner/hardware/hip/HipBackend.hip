@@ -1,4 +1,4 @@
-#include <baseliner/backend/hip/HipBackend.hpp>
+#include <baseliner/hardware/hip/HipBackend.hpp>
 #include <baseliner/managers/RegisteringMacros.hpp>
 void check_hip_error(hipError_t error_code, const char *file, int line) {
   if (error_code != hipSuccess) {
@@ -15,7 +15,7 @@ void check_hip_error_no_except(hipError_t error_code, const char *file, int line
   }
 }
 namespace Baseliner {
-  namespace Backend {
+  namespace Hardware {
     template <>
     void HipBackend::set_device(int device) {
       CHECK_HIP(hipSetDevice(device));
@@ -51,6 +51,6 @@ namespace Baseliner {
       });
     }
     BASELINER_REGISTER_BACKEND("hip", HipBackend);
-  } // namespace Backend
+  } // namespace Hardware
 
 } // namespace Baseliner

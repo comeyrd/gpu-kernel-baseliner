@@ -1,4 +1,4 @@
-#include <baseliner/backend/cuda/CudaBackend.hpp>
+#include <baseliner/hardware/cuda/CudaBackend.hpp>
 #include <iostream>
 #include <nvml.h>
 #include <string>

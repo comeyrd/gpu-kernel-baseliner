@@ -3,7 +3,7 @@
 #include "cuda_runtime.h"
 #include <baseliner/Benchmark.hpp>
 #include <baseliner/Kernel.hpp>
-#include <baseliner/backend/Backend.hpp>
+#include <baseliner/hardware/Backend.hpp>
 
 void check_cuda_error(cudaError_t error_code, const char *file, int line);                // NOLINT
 void check_cuda_error_no_except(cudaError_t error_code, const char *file, int line);      // NOLINT
@@ -11,7 +11,7 @@ void check_cuda_error_no_except(cudaError_t error_code, const char *file, int li
 #define CHECK_CUDA_NO_EXCEPT(error) check_cuda_error_no_except(error, __FILE__, __LINE__) // NOLINT
 
 namespace Baseliner {
-  namespace Backend {
+  namespace Hardware {
     using CudaBackend = Backend<cudaStream_t>;
     template <>
     class GpuTimer<CudaBackend> {
@@ -34,12 +34,12 @@ namespace Baseliner {
       std::vector<cudaEvent_t> m_start_event;
       std::vector<cudaEvent_t> m_stop_event;
     };
-  } // namespace Backend
-  using ICudaCase = ICase<Backend::CudaBackend>;
-  using CudaBenchmark = Benchmark<Backend::CudaBackend>;
+  } // namespace Hardware
+  using ICudaCase = ICase<Hardware::CudaBackend>;
+  using CudaBenchmark = Benchmark<Hardware::CudaBackend>;
 
   template <typename Input, typename Output>
-  using ICudaKernel = IKernel<Backend::CudaBackend, Input, Output>;
+  using ICudaKernel = IKernel<Hardware::CudaBackend, Input, Output>;
 } // namespace Baseliner
 
 #ifdef BASELINER_HAS_NVML
