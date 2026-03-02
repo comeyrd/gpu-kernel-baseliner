@@ -90,6 +90,7 @@ namespace Baseliner {
     oss << "\n";
   }
 
-#define BASELINER_REGISTER_RECIPE(Recipe) ATTRIBUTE_USED static Baseliner::RecipeRegistrar _registrar_##Recipe{Recipe};
+#define BASELINER_REGISTER_RECIPE(Recipe)                                                                              \
+  ATTRIBUTE_USED static Baseliner::RecipeRegistrar _registrar_##Recipe##__LINE__{Recipe};
 } // namespace Baseliner
 #endif //

@@ -8,30 +8,34 @@
 #endif
 
 #define BASELINER_REGISTER_STAT(Stat)                                                                                  \
-  ATTRIBUTE_USED static Baseliner::GeneralStatRegistrar<Stat> _registrar_##Stat{#Stat};
+  ATTRIBUTE_USED static Baseliner::GeneralStatRegistrar<Stat> _registrar_##Stat##__LINE__{#Stat};
 
 #define BASELINER_REGISTER_SUITE(Suite)                                                                                \
-  ATTRIBUTE_USED static Baseliner::SuiteRegistrar<Suite> _registrar_##Suite{#Suite};
+  ATTRIBUTE_USED static Baseliner::SuiteRegistrar<Suite> _registrar_##Suite##__LINE__{#Suite};
 
 #define BASELINER_REGISTER_STOPPING_CRITERION(Stopping)                                                                \
-  ATTRIBUTE_USED static Baseliner::StoppingRegistrar<Stopping> _registrar_##Stopping{#Stopping};
+  ATTRIBUTE_USED static Baseliner::StoppingRegistrar<Stopping> _registrar_##Stopping##__LINE__{#Stopping};
 
 #define BASELINER_REGISTER_DEFAULT_STATS(DefaultStats)                                                                 \
-  ATTRIBUTE_USED static Baseliner::StatConceptRegistrar _registrar_DefaultStat{DefaultStats};
+  ATTRIBUTE_USED static Baseliner::StatConceptRegistrar _registrar_DefaultStat##__LINE__{DefaultStats};
 
 #define BASELINER_REGISTER_BENCHMARK(Benchmark)                                                                        \
-  ATTRIBUTE_USED static Baseliner::BenchmarkRegistrar<Benchmark> _registrar_##Benchmark{#Benchmark};
+  ATTRIBUTE_USED static Baseliner::BenchmarkRegistrar<Benchmark> _registrar_##Benchmark##__LINE__{#Benchmark};
 
 #define BASELINER_REGISTER_BACKEND(name, Backend)                                                                      \
-  ATTRIBUTE_USED static Baseliner::BackendRegistrar<Backend> _registrar_##Backend{name};
+  ATTRIBUTE_USED static Baseliner::BackendRegistrar<Backend> _registrar_##Backend##__LINE__{name};
 
-#define BASELINER_REGISTER_CASE(Case) ATTRIBUTE_USED static Baseliner::CaseRegistrar<Case> _registrar_##Case{#Case};
+#define BASELINER_REGISTER_CASE(Case)                                                                                  \
+  ATTRIBUTE_USED static Baseliner::CaseRegistrar<Case> _registrar_##Case##__LINE__{#Case};
+#define BASELINER_REGISTER_CASE_NAME(Case, name)                                                                       \
+  ATTRIBUTE_USED static Baseliner::CaseRegistrar<Case> _registrar_##Case##__LINE__{name};
 
 #define BASELINER_REGISTER_KERNEL(Kernel)                                                                              \
-  ATTRIBUTE_USED static Baseliner::KernelRegistrar<Kernel> _registrar_##Kernel{#Kernel};
+  ATTRIBUTE_USED static Baseliner::KernelRegistrar<Kernel> _registrar_##Kernel##__LINE__{#Kernel};
 
 #define BASELINER_REGISTER_BACKEND_STATS(Stat)                                                                         \
-  ATTRIBUTE_USED static Baseliner::BackendStatRegistrar<Stat> _registrar_##Stat{#Stat};
+  ATTRIBUTE_USED static Baseliner::BackendStatRegistrar<Stat> _registrar_##Stat##__LINE__{#Stat};
 
-#define BASELINER_REGISTER_PRESET(preset) ATTRIBUTE_USED static Baseliner::PresetRegistrar _registrar_##preset{preset};
+#define BASELINER_REGISTER_PRESET(preset)                                                                              \
+  ATTRIBUTE_USED static Baseliner::PresetRegistrar _registrar_##preset##__LINE__{preset};
 #endif // BASELINER_REGISTERING_MACROS_HPP
