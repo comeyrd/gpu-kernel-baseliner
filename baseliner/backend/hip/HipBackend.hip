@@ -1,4 +1,5 @@
 #include <baseliner/backend/hip/HipBackend.hpp>
+#include <baseliner/managers/RegisteringMacros.hpp>
 void check_hip_error(hipError_t error_code, const char *file, int line) {
   if (error_code != hipSuccess) {
     std::string msg = std::string("HIP Error : ") + hipGetErrorString(error_code) + std::string(" in : ") + file +
@@ -16,8 +17,8 @@ void check_hip_error_no_except(hipError_t error_code, const char *file, int line
 namespace Baseliner {
   namespace Backend {
     template <>
-    void HipBackend::set_device(int Backend) {
-      CHECK_HIP(hipSetDevice(Backend));
+    void HipBackend::set_device(int device) {
+      CHECK_HIP(hipSetDevice(device));
     }
     template <>
     void HipBackend::reset_device() {
@@ -28,11 +29,17 @@ namespace Baseliner {
       CHECK_HIP(hipStreamSynchronize(*stream));
     }
     template <>
+    auto HipBackend::get_device_count() -> int {
+      int device_c{};
+      CHECK_HIP(hipGetDeviceCount(&device_c));
+      return device_c;
+    }
+    template <>
     void HipBackend::get_last_error() {
       CHECK_HIP(hipGetLastError());
     }
     template <>
-    std::shared_ptr<HipBackend::stream_t> HipBackend::create_stream() {
+    auto HipBackend::inner_create_stream() -> std::shared_ptr<HipBackend::stream_t> {
       auto *stream = new HipBackend::stream_t;
       CHECK_HIP(hipStreamCreate(stream));
 
@@ -43,6 +50,7 @@ namespace Baseliner {
         }
       });
     }
+    BASELINER_REGISTER_BACKEND("hip", HipBackend);
   } // namespace Backend
 
 } // namespace Baseliner

@@ -66,7 +66,7 @@ public:
 
   void allocate() override {
     // Apply work_size multiplier to the height of A to increase workload
-    m_wA = m_wA_base * get_work_size();
+    m_wA = m_wA_base;
     m_hA = m_hA_base * get_work_size();
 
     // Inner dimensions must match
@@ -79,16 +79,29 @@ public:
     m_h_A.resize(m_size_A);
     m_h_B.resize(m_size_B);
   }
+  auto number_of_floating_point_operations() -> std::optional<size_t> override {
+    size_t flops = 2ULL * m_hA * m_wA * m_wB;
+    return flops;
+  }
 
-  // Default dimensions based on the original main() example
-  int m_wA_base = 320; // NOLINT 5 * 2 * 32
-  int m_hA_base = 320; // NOLINT
-  int m_wB_base = 640; // NOLINT 5 * 4 * 32
-  int m_hB_base = 320; // NOLINT
+  auto number_of_bytes() -> std::optional<size_t> override {
+    size_t elements_A = m_hA * m_wA;
+    size_t elements_B = m_hB * m_wB;
+    size_t elements_C = m_hA * m_wB;
+    size_t total_elements = elements_A + elements_B + elements_C;
+    size_t total_bytes = total_elements * sizeof(float);
+    return total_bytes;
+  }
+
+  // Dimensions to achieve 32MFLOPs
+  int m_wA_base = 256; // NOLINT
+  int m_hA_base = 256; // NOLINT
+  int m_wB_base = 256; // NOLINT 5 * 4 * 32
+  int m_hB_base = 256; // NOLINT
 
   int m_wA, m_hA, m_wB, m_hB;
   int m_size_A, m_size_B;
-  int m_block_size = 32;
+  int m_block_size = 16;
 
   std::vector<float> m_h_A;
   std::vector<float> m_h_B;
@@ -141,8 +154,6 @@ public:
   auto name() -> std::string override {
     return "MatrixMulKernel";
   };
-  void setup_metrics(std::shared_ptr<Baseliner::Stats::StatsEngine> &engine) override;
-  void update_metrics(std::shared_ptr<Baseliner::Stats::StatsEngine> &engine) override;
 
   void setup(std::shared_ptr<hipStream_t> stream) override {
     size_t mem_size_A = get_input()->m_size_A * sizeof(float);

@@ -1,3 +1,4 @@
+#include <baseliner/managers/RegisteringMacros.hpp>
 #include <baseliner/backend/BackendStats.hpp>
 #include <baseliner/backend/hip/HipBackend.hpp>
 namespace Baseliner::Stats {
@@ -23,5 +24,12 @@ namespace Baseliner::Stats {
   std::string ClockFrequencyVector<Backend::HipBackend>::name() const {
     return "HipClockFrequencyVector";
   }
+  namespace {
+    using ClockFrequency = ClockFrequency<Backend::HipBackend>;
+    using ClockFrequencyVector = ClockFrequencyVector<Backend::HipBackend>;
+
+    BASELINER_REGISTER_BACKEND_STATS(ClockFrequency);
+    BASELINER_REGISTER_BACKEND_STATS(ClockFrequencyVector);
+  } // namespace
 #endif
 } // namespace Baseliner::Stats

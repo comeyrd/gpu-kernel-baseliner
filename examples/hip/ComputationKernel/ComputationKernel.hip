@@ -1,5 +1,6 @@
 #include "hip/hip_runtime.h"
 #include "ComputationKernel.hpp"
+#include <baseliner/managers/RegisteringMacros.hpp>
 #include <vector>
 
 __global__ void computation_kernel(int *a, int *b, int *c, int N) {
@@ -20,3 +21,4 @@ __global__ void computation_kernel(int *a, int *b, int *c, int N) {
 void ComputationKernel::run(std::shared_ptr<hipStream_t> stream) {
   computation_kernel<<<m_blocks, m_threads, 0, *stream>>>(m_d_a, m_d_b, m_d_c, get_input()->m_N);
 }
+BASELINER_REGISTER_KERNEL(ComputationKernel);

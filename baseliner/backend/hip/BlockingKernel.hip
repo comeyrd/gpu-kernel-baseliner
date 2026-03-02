@@ -29,70 +29,42 @@ namespace {
     const long long timeout_cycles = use_timeout ? static_cast<long long>(timeout * 1e9) : 0;
 
     auto current_clock = clock64();
-    while (!(*flag) && (!use_timeout || (current_clock - start_clock) < timeout_cycles)) {
+    while (((*flag) == 0) && (!use_timeout || (current_clock - start_clock) < timeout_cycles)) {
       current_clock = clock64();
     }
 
     if (use_timeout && (current_clock - start_clock) >= timeout_cycles) {
       *timeout_flag = 1;
-      __threadfence_system(); // Ensure timeout flag visibility on host.
-      printf("\n Deadlock detected\n");
+      __threadfence_system();           // Ensure timeout flag visibility on host.
+      printf("\n Deadlock detected\n"); // NOLINT
     }
   }
 } // namespace
 
 namespace Baseliner::Backend {
   template <>
-  BlockingKernel<HipBackend>::BlockingKernel() {
-    m_host_flag = new int;         // NOLINT
-    m_host_timeout_flag = new int; // NOLINT
-    CHECK_HIP(hipHostRegister(m_host_flag, sizeof(int), hipHostRegisterMapped));
-    CHECK_HIP(hipHostGetDevicePointer((void **)&m_device_flag, m_host_flag, 0));
-    CHECK_HIP(hipHostRegister(m_host_timeout_flag, sizeof(int), hipHostRegisterMapped));
-    CHECK_HIP(hipHostGetDevicePointer((void **)&m_device_timeout_flag, m_host_timeout_flag, 0));
+  void BlockingKernel<HipBackend>::alloc(int device) {
+    m_host_flag_v[device] = new int;         // NOLINT
+    m_host_timeout_flag_v[device] = new int; // NOLINT
+    CHECK_HIP(hipHostRegister(m_host_flag_v[device], sizeof(int), hipHostRegisterMapped));
+    CHECK_HIP(hipHostGetDevicePointer((void **)&m_device_flag_v[device], m_host_flag_v[device], 0));
+    CHECK_HIP(hipHostRegister(m_host_timeout_flag_v[device], sizeof(int), hipHostRegisterMapped));
+    CHECK_HIP(hipHostGetDevicePointer((void **)&m_device_timeout_flag_v[device], m_host_timeout_flag_v[device], 0));
   }
   template <>
-  BlockingKernel<HipBackend>::~BlockingKernel() {
+  void BlockingKernel<HipBackend>::free(int device) {
     CHECK_HIP(hipGetLastError());
-    if (m_host_flag != nullptr) {
-      CHECK_HIP(hipHostUnregister(m_host_flag));
-    }
-    if (m_host_timeout_flag != nullptr) {
-      CHECK_HIP(hipHostUnregister(m_host_timeout_flag));
-    }
-    delete m_host_flag;
-    delete m_host_timeout_flag;
+    CHECK_HIP(hipHostUnregister(m_host_flag_v[device]));
+    CHECK_HIP(hipHostUnregister(m_host_timeout_flag_v[device]));
+    delete m_host_flag_v[device];
+    delete m_host_timeout_flag_v[device];
   }
   template <>
   void BlockingKernel<HipBackend>::block(std::shared_ptr<hipStream_t> stream, double timeout) {
-    *m_host_flag = 0;
-    *m_host_timeout_flag = 0;
-    block_stream<<<1, 1, 0, *stream>>>(m_device_flag, m_device_timeout_flag, timeout);
-  }
-
-  template <>
-  auto BlockingKernel<HipBackend>::operator=(BlockingKernel<HipBackend> &&other) noexcept
-      -> BlockingKernel<HipBackend> & {
-    {
-      if (this != &other) {
-        if (m_host_flag != nullptr) {
-          CHECK_HIP(hipHostUnregister(m_host_flag));
-        }
-        if (m_host_timeout_flag != nullptr) {
-          CHECK_HIP(hipHostUnregister(m_host_timeout_flag));
-        }
-        delete m_host_flag;
-        delete m_host_timeout_flag;
-        m_host_flag = other.m_host_flag;
-        m_host_timeout_flag = other.m_host_timeout_flag;
-        m_device_flag = other.m_device_flag;
-        m_device_timeout_flag = other.m_device_timeout_flag;
-        other.m_device_flag = nullptr;
-        other.m_device_timeout_flag = nullptr;
-        other.m_host_flag = nullptr;
-        other.m_host_timeout_flag = nullptr;
-      }
-      return *this;
-    }
+    int current_device = HipBackend::instance()->get_current_device();
+    *m_host_flag_v[current_device] = 0;
+    *m_host_timeout_flag_v[current_device] = 0;
+    block_stream<<<1, 1, 0, *stream>>>(m_device_flag_v[current_device], m_device_timeout_flag_v[current_device],
+                                       timeout);
   }
 } // namespace Baseliner::Backend

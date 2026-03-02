@@ -1,11 +1,9 @@
 #ifndef HIP_BACKEND_HPP
 #define HIP_BACKEND_HPP
 #include "hip/hip_runtime.h"
-#include <algorithm>
 #include <baseliner/Benchmark.hpp>
 #include <baseliner/Kernel.hpp>
 #include <baseliner/backend/Backend.hpp>
-#include <iterator>
 
 void check_hip_error(hipError_t error_code, const char *file, int line);                // NOLINT
 void check_hip_error_no_except(hipError_t error_code, const char *file, int line);      // NOLINT
@@ -31,8 +29,10 @@ namespace Baseliner {
 
     protected:
     private:
-      hipEvent_t m_start_event{};
-      hipEvent_t m_stop_event{};
+      void alloc(int device);
+      void free(int device);
+      std::vector<hipEvent_t> m_start_event;
+      std::vector<hipEvent_t> m_stop_event;
     };
   } // namespace Backend
   using IHipCase = ICase<Backend::HipBackend>;
