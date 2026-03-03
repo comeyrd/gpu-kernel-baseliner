@@ -27,7 +27,7 @@ namespace Baseliner {
         std::function<void()>> {
       auto backend_it = m_backend_presets.find(recipe.m_backend.m_name);
       auto case_it = m_case_presets.find(recipe.m_case.m_name);
-      auto benchmark_it = m_benchmark_presets.find(recipe.m_benchmak.m_name);
+      auto benchmark_it = m_benchmark_presets.find(recipe.m_benchmark.m_name);
       auto stopping_it = m_stopping_presets.find(recipe.m_stopping.m_name);
       if (backend_it == m_backend_presets.end()) {
         throw std::runtime_error("Baseliner Error : Backend " + recipe.m_backend.m_name + " not found");
@@ -36,14 +36,14 @@ namespace Baseliner {
         throw std::runtime_error("Baseliner Error : Case " + recipe.m_case.m_name + " not found");
       }
       if (benchmark_it == m_benchmark_presets.end()) {
-        throw std::runtime_error("Baseliner Error : Case " + recipe.m_benchmak.m_name + " not found");
+        throw std::runtime_error("Baseliner Error : Case " + recipe.m_benchmark.m_name + " not found");
       }
       if (stopping_it == m_stopping_presets.end()) {
         throw std::runtime_error("Baseliner Error : Stopping " + recipe.m_stopping.m_name + " not found");
       }
       auto backend_preset_it = backend_it->second.find(recipe.m_backend.m_preset);
       auto case_preset_it = case_it->second.find(recipe.m_case.m_preset);
-      auto benchmark_preset_it = benchmark_it->second.find(recipe.m_benchmak.m_preset);
+      auto benchmark_preset_it = benchmark_it->second.find(recipe.m_benchmark.m_preset);
       auto stopping_preset_it = stopping_it->second.find(recipe.m_stopping.m_preset);
       auto stat_preset_it = m_stats_presets.find(recipe.m_stats.m_preset);
       if (backend_preset_it == backend_it->second.end()) {
@@ -55,8 +55,8 @@ namespace Baseliner {
                                  recipe.m_case.m_name);
       }
       if (benchmark_preset_it == benchmark_it->second.end()) {
-        throw std::runtime_error("Baseliner Error : Preset " + recipe.m_benchmak.m_preset +
-                                 " not found for Benchmark " + recipe.m_benchmak.m_name);
+        throw std::runtime_error("Baseliner Error : Preset " + recipe.m_benchmark.m_preset +
+                                 " not found for Benchmark " + recipe.m_benchmark.m_name);
       }
       if (stopping_preset_it == stopping_it->second.end()) {
         throw std::runtime_error("Baseliner Error : Preset " + recipe.m_stopping.m_preset + " not found for Stopping " +
@@ -67,7 +67,7 @@ namespace Baseliner {
       }
       pre_set.insert({recipe.m_case.m_name, case_preset_it->first, case_preset_it->second.m_description,
                       case_preset_it->second.m_options});
-      pre_set.insert({recipe.m_benchmak.m_name, benchmark_preset_it->first, benchmark_preset_it->second.m_description,
+      pre_set.insert({recipe.m_benchmark.m_name, benchmark_preset_it->first, benchmark_preset_it->second.m_description,
                       benchmark_preset_it->second.m_options});
       pre_set.insert({recipe.m_stopping.m_name, stopping_preset_it->first, stopping_preset_it->second.m_description,
                       stopping_preset_it->second.m_options});
@@ -104,7 +104,7 @@ namespace Baseliner {
       }
 
       auto benchmark_recipe = backend_storage->get_benchmark_with_case(
-          recipe.m_benchmak.m_name, std::get<OptionsMap>(benchmark_preset.m_options), recipe.m_case.m_name,
+          recipe.m_benchmark.m_name, std::get<OptionsMap>(benchmark_preset.m_options), recipe.m_case.m_name,
           std::get<OptionsMap>(case_preset.m_options), notfound_stats);
 
       if (!m_stopping_storage.has(recipe.m_stopping.m_name)) {
@@ -387,7 +387,7 @@ namespace Baseliner {
       std::vector<PresetDefinition> preset_defs = get_default_presets();
       std::vector<Recipe> recipes;
       Recipe default_recipe;
-      default_recipe.m_benchmak = {std::string(DEFAULT_BENCHMARK), std::string(DEFAULT_PRESET)};
+      default_recipe.m_benchmark = {std::string(DEFAULT_BENCHMARK), std::string(DEFAULT_PRESET)};
       default_recipe.m_stopping = {std::string(DEFAULT_STOPPING), std::string(DEFAULT_PRESET)};
       default_recipe.m_stats = {std::string(component_to_string(ComponentType::STAT)), std::string(DEFAULT_PRESET)};
 

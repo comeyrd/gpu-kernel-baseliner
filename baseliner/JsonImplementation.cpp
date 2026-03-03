@@ -103,7 +103,7 @@ namespace Baseliner {
 
   void to_json(json &json_obj, const BackendMetadata &backend_meta) {
     json_obj["name"] = backend_meta.m_name;
-    json_obj["benchmarks"] = backend_meta.m_benchmaks;
+    json_obj["benchmarks"] = backend_meta.m_benchmarks;
     json_obj["cases"] = backend_meta.m_cases;
     json_obj["stats"] = backend_meta.m_stats;
   }
@@ -187,7 +187,7 @@ namespace Baseliner {
 
   void to_json(json &json_obj, const Recipe &recipe) {
     json_obj["backend"] = recipe.m_backend;
-    json_obj["benchmark"] = recipe.m_benchmak;
+    json_obj["benchmark"] = recipe.m_benchmark;
     json_obj["case"] = recipe.m_case;
     json_obj["stats"] = recipe.m_stats;
     json_obj["stopping_criterion"] = recipe.m_stopping;
@@ -199,9 +199,9 @@ namespace Baseliner {
     json_obj.at("backend").get_to(recipe.m_backend);
     json_obj.at("case").get_to(recipe.m_case);
     if (json_obj.contains("benchmark")) {
-      json_obj.at("benchmark").get_to(recipe.m_benchmak);
+      json_obj.at("benchmark").get_to(recipe.m_benchmark);
     } else {
-      recipe.m_benchmak = {std::string(DEFAULT_BENCHMARK), std::string(DEFAULT_PRESET)};
+      recipe.m_benchmark = {std::string(DEFAULT_BENCHMARK), std::string(DEFAULT_PRESET)};
     }
     if (json_obj.contains("stats")) {
       json_obj.at("stats").get_to(recipe.m_stats);

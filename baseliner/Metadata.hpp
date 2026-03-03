@@ -16,7 +16,7 @@ namespace Baseliner {
   };
   struct BackendMetadata {
     std::string m_name;
-    std::vector<std::string> m_benchmaks;
+    std::vector<std::string> m_benchmarks;
     std::vector<std::string> m_cases;
     std::vector<std::string> m_stats;
   };

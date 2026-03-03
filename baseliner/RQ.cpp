@@ -84,7 +84,7 @@ namespace Baseliner {
     baserecipe.m_backend = w_default_preset(backend_name);
     baserecipe.m_case = w_default_preset(case_name);
     baserecipe.m_stopping = w_default_preset("StoppingCriterion");
-    baserecipe.m_benchmak = w_default_preset("Benchmark");
+    baserecipe.m_benchmark = w_default_preset("Benchmark");
     baserecipe.m_stats = w_default_preset("Stat");
     for (const std::string_view &research_q : ResearchQuestions::all_rq_names) {
       Recipe temp_recipe = baserecipe;

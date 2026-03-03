@@ -18,7 +18,7 @@ namespace Baseliner {
   struct Recipe {
     WithPreset m_backend;
     std::optional<WithPreset> m_suite;
-    WithPreset m_benchmak;
+    WithPreset m_benchmark;
     WithPreset m_case;
     WithPreset m_stats;
     WithPreset m_stopping;
@@ -74,13 +74,13 @@ namespace Baseliner {
     oss << "Executing Recipe :\n";
     print_with_preset(oss, recipe.m_backend, "Backend", label_size);
     print_with_preset(oss, recipe.m_case, "Case", label_size);
-    if (recipe.m_benchmak.m_name != DEFAULT_BENCHMARK) {
-      print_with_preset(oss, recipe.m_benchmak, "Benchmark", label_size);
+    if (recipe.m_benchmark.m_name != DEFAULT_BENCHMARK || recipe.m_benchmark.m_preset != DEFAULT_PRESET) {
+      print_with_preset(oss, recipe.m_benchmark, "Benchmark", label_size);
     }
-    if (recipe.m_stopping.m_name != DEFAULT_STOPPING) {
+    if (recipe.m_stopping.m_name != DEFAULT_STOPPING || recipe.m_stopping.m_preset != DEFAULT_PRESET) {
       print_with_preset(oss, recipe.m_stopping, "StoppingCriterion", label_size);
     }
-    if (recipe.m_stats.m_name != DEFAULT_STAT) {
+    if (recipe.m_stats.m_name != DEFAULT_STAT || recipe.m_stats.m_preset != DEFAULT_PRESET) {
       print_with_preset(oss, recipe.m_stats, "Stats", label_size);
     }
     if (recipe.m_suite.has_value()) {

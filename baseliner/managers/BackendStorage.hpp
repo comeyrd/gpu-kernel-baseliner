@@ -76,7 +76,7 @@ namespace Baseliner {
     auto generate_backend_metadata() -> BackendMetadata override {
       BackendMetadata metadata{};
       metadata.m_name = get_name();
-      metadata.m_benchmaks = m_benchmark_storage.list();
+      metadata.m_benchmarks = m_benchmark_storage.list();
       metadata.m_cases = m_cases_storage.list();
       metadata.m_stats = m_backend_stats_storage.list();
       return metadata;
