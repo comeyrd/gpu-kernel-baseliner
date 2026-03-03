@@ -1,6 +1,7 @@
 #ifndef BASELINER_SINGLE_AXE_SUITE_HPP
 #define BASELINER_SINGLE_AXE_SUITE_HPP
 #include <baseliner/Axe.hpp>
+#include <baseliner/State.hpp>
 #include <baseliner/Suite.hpp>
 #include <baseliner/managers/RegisteringMacros.hpp>
 
@@ -49,6 +50,9 @@ namespace Baseliner {
         print_benchmark_result(std::cout, result, first);
         if (first) {
           first = false;
+        }
+        if (ExecutionController::exit_requested()) {
+          break;
         }
       }
       return build_run_result(results_v);

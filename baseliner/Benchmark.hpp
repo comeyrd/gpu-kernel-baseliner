@@ -5,6 +5,7 @@
 #include <baseliner/Metric.hpp>
 #include <baseliner/Options.hpp>
 #include <baseliner/Result.hpp>
+#include <baseliner/State.hpp>
 #include <baseliner/StoppingCriterion.hpp>
 #include <baseliner/hardware/Backend.hpp>
 
@@ -183,6 +184,9 @@ namespace Baseliner {
       update_metrics();
       pre_all();
       while (!m_stopping->satisfied()) {
+        if (ExecutionController::exit_requested()) {
+          break;
+        }
         m_case->reset_case(m_stream);
         pre_run();
         m_case->timed_run(m_stream);

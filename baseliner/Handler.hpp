@@ -4,6 +4,7 @@
 #include <baseliner/ConfigFile.hpp>
 #include <baseliner/Recipe.hpp>
 #include <baseliner/Result.hpp>
+#include <baseliner/State.hpp>
 #include <baseliner/Suite.hpp>
 #include <baseliner/managers/Manager.hpp>
 #include <functional>
@@ -14,10 +15,13 @@ namespace Baseliner {
   public:
     Handler() = default;
 
-    [[nodiscard]] auto run_recipes(std::vector<Recipe> &recipes) -> Result {
+    [[nodiscard]] static auto run_recipes(std::vector<Recipe> &recipes) -> Result {
       Result result = build_result();
       PresetSet set;
       for (auto &recipe : recipes) {
+        if (ExecutionController::exit_requested()) {
+          break;
+        }
         result.m_runs.push_back(run_recipe(recipe, set));
       }
       std::vector<PresetDefinition> preset_defs;
@@ -25,12 +29,12 @@ namespace Baseliner {
       result.m_presets = preset_defs;
       return result;
     }
-    [[nodiscard]] auto run_config(Config &config) -> Result {
-      m_manager->add_presets(config.m_presets);
+    [[nodiscard]] static auto run_config(Config &config) -> Result {
+      Manager::instance()->add_presets(config.m_presets);
       return run_recipes(config.m_recipes);
     }
-    [[nodiscard]] auto replay_result(Result &result) -> Result {
-      m_manager->add_presets(result.m_presets);
+    [[nodiscard]] static auto replay_result(Result &result) -> Result {
+      Manager::instance()->add_presets(result.m_presets);
       std::vector<Recipe> recipes;
       recipes.reserve(result.m_runs.size());
       for (auto &runs : result.m_runs) {
@@ -40,8 +44,8 @@ namespace Baseliner {
     }
 
   private:
-    [[nodiscard]] auto run_recipe(Recipe &recipe, PresetSet &set) -> RunResult {
-      auto [bench_or_suite, backend_setup] = m_manager->build_recipe(recipe, set);
+    [[nodiscard]] static auto run_recipe(Recipe &recipe, PresetSet &set) -> RunResult {
+      auto [bench_or_suite, backend_setup] = Manager::instance()->build_recipe(recipe, set);
       RunResult result;
       backend_setup();
       print_recipe(std::cout, recipe);
@@ -64,7 +68,6 @@ namespace Baseliner {
     static auto run_suite(const std::function<std::shared_ptr<ISuite>()> &suite) -> RunResult {
       return suite()->run_all();
     }
-    Manager *m_manager = Manager::instance();
   };
 
 } // namespace Baseliner

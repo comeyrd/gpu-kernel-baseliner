@@ -1,14 +1,17 @@
 
 #include <argparse/argparse.hpp>
+#include <atomic>
 #include <baseliner/Handler.hpp>
 #include <baseliner/RQ.hpp>
 #include <baseliner/Recipe.hpp>
 #include <baseliner/Result.hpp>
 #include <baseliner/Serializer.hpp>
+#include <baseliner/State.hpp>
 #include <baseliner/Suite.hpp>
 #include <baseliner/Version.hpp>
 #include <baseliner/managers/Manager.hpp>
 #include <chrono>
+#include <csignal>
 #include <iomanip>
 #include <iostream>
 #include <random>
@@ -18,6 +21,7 @@
 using namespace Baseliner;
 
 __attribute__((weak)) auto main(int argc, char **argv) -> int { // NOLINT
+  std::signal(SIGINT, ExecutionControllerSignalHandler);
   argparse::ArgumentParser program("Baseliner", Version::string(), argparse::default_arguments::all);
   argparse::ArgumentParser run_parser("run");
   run_parser.add_description("Runs the saved recipes");
@@ -76,10 +80,13 @@ __attribute__((weak)) auto main(int argc, char **argv) -> int { // NOLINT
     if (run_parser.is_used("--config-files")) {
       auto config_files = run_parser.get<std::vector<std::string>>("--config-files");
       for (auto &config : config_files) {
+        if (ExecutionController::exit_requested()) {
+          break;
+        }
         std::cout << "Runnning config : " << config << "...\n";
         Config parsed_config;
         file_to_config(parsed_config, config);
-        Result result = handler.run_config(parsed_config);
+        Result result = Handler::run_config(parsed_config);
         const std::string filename = "result-" + generate_uid() + ".json";
         result_to_file(result, filename);
         std::cout << "Result saved to " << filename << "\n";
@@ -87,10 +94,13 @@ __attribute__((weak)) auto main(int argc, char **argv) -> int { // NOLINT
     } else if (run_parser.is_used("--replay-runs")) {
       auto replay_files = run_parser.get<std::vector<std::string>>("--replay-runs");
       for (auto &replay : replay_files) {
+        if (ExecutionController::exit_requested()) {
+          break;
+        }
         Result parsed_result;
         std::cout << "Replaying result : " << replay << "...\n";
         file_to_result(parsed_result, replay);
-        Result result = handler.replay_result(parsed_result);
+        Result result = Handler::replay_result(parsed_result);
         const std::string filename = "replay-" + generate_uid() + ".json";
         result_to_file(result, filename);
         std::cout << "Result saved to " << filename << "\n";
@@ -111,10 +121,13 @@ __attribute__((weak)) auto main(int argc, char **argv) -> int { // NOLINT
             recipes.insert(recipes.end(), temp_recipe.begin(), temp_recipe.end());
           }
           std::cout << "Runnning research questions for case " << single_case << "\n";
-          Result result = handler.run_recipes(recipes);
+          Result result = Handler::run_recipes(recipes);
           const std::string filename = "rq-" + single_case + generate_uid() + ".json";
           result_to_file(result, filename);
           std::cout << "Result saved to " << filename << "\n";
+          if (ExecutionController::exit_requested()) {
+            break;
+          }
         }
       }
     } else {
@@ -122,7 +135,7 @@ __attribute__((weak)) auto main(int argc, char **argv) -> int { // NOLINT
       size_t nb_recipes = recipes.size();
       if (nb_recipes > 0) {
         std::cout << "Running  " << recipes.size() << " saved Recipes" << "\n";
-        auto result = handler.run_recipes(recipes);
+        auto result = Handler::run_recipes(recipes);
         const std::string filename = "run-" + generate_uid() + ".json";
         result_to_file(result, filename);
         std::cout << "Result saved to " << filename << "\n";
@@ -151,18 +164,5 @@ __attribute__((weak)) auto main(int argc, char **argv) -> int { // NOLINT
   } else {
     std::cout << program << "\n";
   }
-  /*
-  Config config;
-  file_to_config(config, "config.json");
-  manager->add_presets(config.m_presets);
-  RecipeManager::register_recipes(config.m_recipes);
-  Handler handler;
-  std::vector<Recipe> recipes = RecipeManager::get_recipes();
-  std::cout << "[Baseliner] Total Registered Recipes: " << recipes.size() << "\n";
-
-  Result result = handler.run_recipes(recipes);
-  const std::string filename = generate_uid() + ".json";
-  result_to_file(result, filename);
-  */
   return 0;
 };
