@@ -145,8 +145,12 @@ namespace Baseliner::Stats {
       return "median";
     }
     void calculate(Median::type &value_to_update, const typename SortedExecutionTimeVector::type &inputs) override {
-      const auto middle = static_cast<size_t>(std::floor(inputs.size() / 2));
-      value_to_update = inputs[middle].count();
+      if (!inputs.empty()) {
+        const auto middle = static_cast<size_t>(std::floor(inputs.size() / 2));
+        value_to_update = inputs[middle].count();
+      } else {
+        value_to_update = 0;
+      }
     };
     [[nodiscard]] auto unit() const -> std::string override {
       return "ms";
@@ -210,8 +214,12 @@ namespace Baseliner::Stats {
       return "ms";
     }
     void calculate(Q1::type &value_to_update, const typename SortedExecutionTimeVector::type &inputs) override {
-      const auto quarter = static_cast<size_t>(std::floor(inputs.size() / 4));
-      value_to_update = inputs[quarter].count();
+      if (!inputs.empty()) {
+        const auto quarter = static_cast<size_t>(std::floor(inputs.size() / 4));
+        value_to_update = inputs[quarter].count();
+      } else {
+        value_to_update = 0;
+      }
     };
     [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
       return StatComputePolicy::ON_DEMAND;
@@ -226,8 +234,12 @@ namespace Baseliner::Stats {
       return "ms";
     }
     void calculate(Q3::type &value_to_update, const typename SortedExecutionTimeVector::type &inputs) override {
-      const auto three_quarter = static_cast<size_t>(std::floor(3 * inputs.size() / 4));
-      value_to_update = inputs[three_quarter].count();
+      if (!inputs.empty()) {
+        const auto three_quarter = static_cast<size_t>(std::floor(3 * inputs.size() / 4));
+        value_to_update = inputs[three_quarter].count();
+      } else {
+        value_to_update = 0;
+      }
     };
     [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
       return StatComputePolicy::ON_DEMAND;
@@ -249,8 +261,12 @@ namespace Baseliner::Stats {
   public:
     void calculate(MedianConfidenceInterval::type &value_to_update,
                    const typename SortedExecutionTimeVector::type &inputs) override {
-      const ConfidenceInterval<size_t> bounds = get_confidence_interval(inputs.size());
-      value_to_update = {inputs[bounds.high - 1], inputs[bounds.low - 1]};
+      if (!inputs.empty()) {
+        const ConfidenceInterval<size_t> bounds = get_confidence_interval(inputs.size());
+        value_to_update = {inputs[bounds.high - 1], inputs[bounds.low - 1]};
+      } else {
+        value_to_update = MedianConfidenceInterval::type{};
+      }
     };
     [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
       return StatComputePolicy::ON_DEMAND;
@@ -284,17 +300,18 @@ namespace Baseliner::Stats {
     void calculate(std::vector<float_milliseconds> &value_to_update,
                    const typename SortedExecutionTimeVector::type &sorted_vec, const typename Q1::type &Q1_,
                    const typename Q3::type &Q3_) override {
+      if (sorted_vec.size() > 0) {
+        const float InterQuartileRange = Q3_ - Q1_;
 
-      const float InterQuartileRange = Q3_ - Q1_;
+        auto lower_fence = static_cast<float_milliseconds>(Q1_ - (IQR_OUTLIER_RANGE * InterQuartileRange));
+        auto upper_fence = static_cast<float_milliseconds>(Q3_ + (IQR_OUTLIER_RANGE * InterQuartileRange));
 
-      auto lower_fence = static_cast<float_milliseconds>(Q1_ - (IQR_OUTLIER_RANGE * InterQuartileRange));
-      auto upper_fence = static_cast<float_milliseconds>(Q3_ + (IQR_OUTLIER_RANGE * InterQuartileRange));
+        auto it_start = std::lower_bound(sorted_vec.begin(), sorted_vec.end(), lower_fence);
 
-      auto it_start = std::lower_bound(sorted_vec.begin(), sorted_vec.end(), lower_fence);
+        auto it_end = std::upper_bound(it_start, sorted_vec.end(), upper_fence);
 
-      auto it_end = std::upper_bound(it_start, sorted_vec.end(), upper_fence);
-
-      value_to_update = std::vector<float_milliseconds>(it_start, it_end);
+        value_to_update = std::vector<float_milliseconds>(it_start, it_end);
+      }
     }
     [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
       return StatComputePolicy::ON_DEMAND;
@@ -320,14 +337,16 @@ namespace Baseliner::Stats {
     };
     void calculate(float &value_to_update, const typename SortedExecutionTimeVector::type &sorted_vec,
                    const typename Median::type &median) override {
-      std::vector<float> deviations;
-      deviations.reserve(sorted_vec.size());
-      for (const auto &item : sorted_vec) {
-        deviations.push_back(std::abs(item.count() - median));
+      if (sorted_vec.size() > 0) {
+        std::vector<float> deviations;
+        deviations.reserve(sorted_vec.size());
+        for (const auto &item : sorted_vec) {
+          deviations.push_back(std::abs(item.count() - median));
+        }
+        std::sort(deviations.begin(), deviations.end());
+        const auto middle = static_cast<size_t>(std::floor(sorted_vec.size() / 2));
+        value_to_update = deviations[middle];
       }
-      std::sort(deviations.begin(), deviations.end());
-      const auto middle = static_cast<size_t>(std::floor(sorted_vec.size() / 2));
-      value_to_update = deviations[middle];
     }
   };
 
