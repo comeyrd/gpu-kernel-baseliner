@@ -1,6 +1,7 @@
 #ifndef OPTIONS_HPP
 #define OPTIONS_HPP
 #include <baseliner/Conversions.hpp>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <unordered_map>
@@ -93,6 +94,22 @@ namespace Baseliner {
         if (interface_opt.size() != interface_opt_omap2.size()) {
           return false;
         }
+        for (const auto &[option_name, _] : interface_opt) {
+          if (interface_opt_omap2.find(option_name) == interface_opt_omap2.end()) {
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+    // True if small_subset is a subset of base_map
+    static inline auto is_subset(const OptionsMap &base_map, const OptionsMap &small_subset) -> bool {
+      for (const auto &[interface_name, interface_opt] : small_subset) {
+        auto omap2_interface_it = base_map.find(interface_name);
+        if (omap2_interface_it == base_map.end()) {
+          return false;
+        }
+        const auto &interface_opt_omap2 = omap2_interface_it->second;
         for (const auto &[option_name, _] : interface_opt) {
           if (interface_opt_omap2.find(option_name) == interface_opt_omap2.end()) {
             return false;

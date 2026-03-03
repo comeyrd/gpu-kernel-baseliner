@@ -13,7 +13,7 @@ namespace Baseliner {
     auto output_function = [funct, preset]() -> std::shared_ptr<InnerTypeT> {
       auto ptr = funct();
       auto options = ptr->gather_options();
-      if (Options::have_same_schema(options, preset)) {
+      if (Options::is_subset(options, preset)) {
         ptr->propagate_options(preset);
       } else {
         std::stringstream string_stream{};
@@ -22,7 +22,7 @@ namespace Baseliner {
         serialize(string_stream, preset);
         string_stream << "\n" << "The object preset \n";
         serialize(string_stream, options);
-        std::runtime_error(string_stream.str());
+        throw std::runtime_error(string_stream.str());
       }
       return ptr;
     };
@@ -36,7 +36,7 @@ namespace Baseliner {
     auto output_function = [funct, preset]() -> std::unique_ptr<InnerTypeT> {
       auto ptr = funct();
       auto options = ptr->gather_options();
-      if (Options::have_same_schema(options, preset)) {
+      if (Options::is_subset(options, preset)) {
         ptr->propagate_options(preset);
       } else {
         std::stringstream string_stream{};
@@ -45,7 +45,7 @@ namespace Baseliner {
         serialize(string_stream, preset);
         string_stream << "\n" << "The object preset \n";
         serialize(string_stream, options);
-        std::runtime_error(string_stream.str());
+        throw std::runtime_error(string_stream.str());
       }
       return ptr;
     };
