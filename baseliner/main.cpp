@@ -69,7 +69,7 @@ __attribute__((weak)) auto main(int argc, char **argv) -> int { // NOLINT
         Config parsed_config;
         file_to_config(parsed_config, config);
         Result result = handler.run_config(parsed_config);
-        const std::string filename = "result-" + config + generate_uid() + ".json";
+        const std::string filename = "result-" + generate_uid() + ".json";
         result_to_file(result, filename);
         std::cout << "Result saved to " << filename << "\n";
       }
@@ -80,7 +80,7 @@ __attribute__((weak)) auto main(int argc, char **argv) -> int { // NOLINT
         std::cout << "Replaying result : " << replay << "...\n";
         file_to_result(parsed_result, replay);
         Result result = handler.replay_result(parsed_result);
-        const std::string filename = "replay-" + replay + generate_uid() + ".json";
+        const std::string filename = "replay-" + generate_uid() + ".json";
         result_to_file(result, filename);
         std::cout << "Result saved to " << filename << "\n";
       }
