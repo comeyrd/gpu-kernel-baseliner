@@ -402,6 +402,7 @@ namespace Baseliner {
         }
       }
       def_config.m_recipes = recipes;
+      def_config.m_presets = preset_defs;
       return def_config;
     };
 
