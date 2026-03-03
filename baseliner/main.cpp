@@ -31,6 +31,9 @@ __attribute__((weak)) auto main(int argc, char **argv) -> int { // NOLINT
   run_group.add_argument("--research-questions", "-rq")
       .nargs(argparse::nargs_pattern::at_least_one)
       .help("Running the research questions on given Cases");
+  run_parser.add_argument("--load-preset-from-config-file", "--load-preset")
+      .help("Load presets into baseliner with a config file (will ignore any recipes defined inside)")
+      .nargs(1);
   program.add_subparser(run_parser);
 
   argparse::ArgumentParser generate_parser("gen");
@@ -62,6 +65,14 @@ __attribute__((weak)) auto main(int argc, char **argv) -> int { // NOLINT
   Manager *manager = Manager::instance();
   if (program.is_subcommand_used("run")) {
     auto handler = Handler();
+
+    if (run_parser.is_used("--load-preset")) {
+      auto preset_cf = run_parser.get<std::string>("--load-preset");
+      Config preset_config;
+      file_to_config(preset_config, preset_cf);
+      Manager::instance()->add_presets(preset_config.m_presets);
+    }
+
     if (run_parser.is_used("--config-files")) {
       auto config_files = run_parser.get<std::vector<std::string>>("--config-files");
       for (auto &config : config_files) {
