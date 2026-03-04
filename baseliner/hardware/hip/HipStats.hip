@@ -8,10 +8,6 @@ namespace Baseliner::Stats {
   constexpr size_t GHZ_TO_MHZ = 1000;
 #include "amd_smi/amdsmi.h"
   template <>
-  std::string ClockFrequency<Hardware::HipBackend>::name() const {
-    return "HipClockFrequency";
-  }
-  template <>
   void ClockFrequency<Hardware::HipBackend>::calculate(ClockFrequency<Hardware::HipBackend>::type &value_to_update) {
     AmdSmiManager *manager = AmdSmiManager::ensure_init();
 
@@ -19,10 +15,6 @@ namespace Baseliner::Stats {
     amdsmi_frequencies_t info;
     CHECK_AMDSMI(amdsmi_get_clk_freq(handle, amdsmi_clk_type_t::AMDSMI_CLK_TYPE_SYS, &info));
     value_to_update = static_cast<float>(info.frequency[info.current]) / (GHZ_TO_MHZ * MHZ_TO_KHZ * KHZ_TO_HZ);
-  }
-  template <>
-  std::string ClockFrequencyVector<Hardware::HipBackend>::name() const {
-    return "HipClockFrequencyVector";
   }
   namespace {
     using ClockFrequency = ClockFrequency<Hardware::HipBackend>;
