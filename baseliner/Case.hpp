@@ -62,6 +62,9 @@ namespace Baseliner {
         engine->register_stat<Stats::MedianFLOPThroughput>();
         m_flops = true;
       }
+      if (m_bytes && m_flops) {
+        engine->register_stat<Stats::ArithmeticIntensity>();
+      }
       this->case_setup_metrics(engine);
     };
     void update_metrics(std::shared_ptr<Stats::StatsEngine> &engine) {

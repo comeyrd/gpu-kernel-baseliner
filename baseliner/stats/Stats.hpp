@@ -20,27 +20,52 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto unit() const -> std::string override {
       return "ms";
     }
+    [[nodiscard]] auto saving_policy() -> MetricSavingPolicy override {
+      return MetricSavingPolicy::DISCARD;
+    }
   };
   // For throughput calculations
   class ByteNumbers : public Imetric<ByteNumbers, size_t> {
   public:
     using Imetric<ByteNumbers, size_t>::Imetric; // Needs this for defaults
     [[nodiscard]] auto name() const -> std::string override {
-      return "number_of_bytes_per_kernel";
+      return "memory_usage";
     }
     [[nodiscard]] auto unit() const -> std::string override {
-      return "";
+      return "bytes";
+    }
+    [[nodiscard]] auto saving_policy() -> MetricSavingPolicy override {
+      return MetricSavingPolicy::SAVE;
     }
   };
   class FLOPCount : public Imetric<FLOPCount, size_t> {
   public:
     using Imetric<FLOPCount, size_t>::Imetric; // Needs this for defaults
     [[nodiscard]] auto name() const -> std::string override {
-      return "FloatingPointOperation_per_kernel";
+      return "arithmetic_usage";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "Flops";
+    }
+    [[nodiscard]] auto saving_policy() -> MetricSavingPolicy override {
+      return MetricSavingPolicy::SAVE;
+    }
+  };
+  class ArithmeticIntensity : public IStat<ArithmeticIntensity, float, ByteNumbers, FLOPCount> {
+
+    void calculate(ArithmeticIntensity::type &value_to_update, const typename ByteNumbers::type &byte,
+                   const typename FLOPCount::type &flops) override {
+      value_to_update = static_cast<float>(static_cast<double>(flops) / static_cast<double>(byte));
+    }
+    [[nodiscard]] auto name() const -> std::string override {
+      return "arithmetic_intensity";
     }
     [[nodiscard]] auto unit() const -> std::string override {
       return "";
     }
+    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
+      return StatComputePolicy::ON_DEMAND;
+    };
   };
   class SetupTime : public Imetric<SetupTime, float_milliseconds> {
   public:
@@ -49,6 +74,9 @@ namespace Baseliner::Stats {
     }
     [[nodiscard]] auto unit() const -> std::string override {
       return "ms";
+    }
+    [[nodiscard]] auto saving_policy() -> MetricSavingPolicy override {
+      return MetricSavingPolicy::SAVE;
     }
   };
   class TeardownTime : public Imetric<TeardownTime, float_milliseconds> {
@@ -59,6 +87,9 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto unit() const -> std::string override {
       return "ms";
     }
+    [[nodiscard]] auto saving_policy() -> MetricSavingPolicy override {
+      return MetricSavingPolicy::SAVE;
+    }
   };
   class WarmupTime : public Imetric<WarmupTime, float_milliseconds> {
   public:
@@ -68,11 +99,14 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto unit() const -> std::string override {
       return "ms";
     }
+    [[nodiscard]] auto saving_policy() -> MetricSavingPolicy override {
+      return MetricSavingPolicy::SAVE;
+    }
   };
   class Repetitions : public IStat<Repetitions, size_t> {
   public:
     [[nodiscard]] auto name() const -> std::string override {
-      return "Repetitions";
+      return "repetitions";
     }
     [[nodiscard]] auto unit() const -> std::string override {
       return "";
@@ -162,7 +196,7 @@ namespace Baseliner::Stats {
 
   class MedianDataTroughput : public IStat<MedianDataTroughput, float, Median, ByteNumbers> {
     [[nodiscard]] auto name() const -> std::string override {
-      return "MedianThroughput";
+      return "memory_bandwidth";
     }
     void calculate(MedianDataTroughput::type &value_to_update, const typename Median::type &median,
                    const typename ByteNumbers::type &nb_bytes) override {
@@ -184,7 +218,7 @@ namespace Baseliner::Stats {
   };
   class MedianFLOPThroughput : public IStat<MedianFLOPThroughput, float, Median, FLOPCount> {
     [[nodiscard]] auto name() const -> std::string override {
-      return "FLOPThroughput";
+      return "arithmetic_bandwidth";
     }
     void calculate(MedianFLOPThroughput::type &value_to_update, const typename Median::type &median,
                    const typename FLOPCount::type &nb_flops) override {

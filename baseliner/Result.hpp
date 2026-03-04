@@ -96,19 +96,19 @@ namespace Baseliner {
       first_ss << std::left;
       int count = 0;
       for (const auto &[name, tuple] : ordered_options) {
-        first_ss << std::setw(colsizes[count]) << name << " | ";
+        first_ss << std::setw(colsizes[count]) << name << "|";
         count++;
       }
       for (const auto &metric : result.m_v_metrics) {
         if (!std::visit(IsVectorVisitor{}, metric.m_data)) {
-          std::string inside_str = metric.m_name + " (" + metric.m_unit + ") ";
+          std::string inside_str = metric.m_name + "(" + metric.m_unit + ")";
           int temp_size = inside_str.size();
           if (temp_size > min_col_size) {
             colsizes.push_back(temp_size);
           } else {
             colsizes.push_back(min_col_size);
           }
-          first_ss << std::setw(colsizes[count]) << inside_str << " | ";
+          first_ss << std::setw(colsizes[count]) << inside_str << "|";
           count++;
         }
       }
@@ -116,6 +116,11 @@ namespace Baseliner {
     if (first) {
       oss << first_ss.str();
       oss << "\n";
+      for (auto size : colsizes) {
+        oss << std::setfill('-') << std::setw(size) << "" << "+";
+      }
+      oss << "\n";
+      oss << std::setfill(' ');
     }
 
     // Affichage des valeurs de la ligne courante
@@ -123,13 +128,14 @@ namespace Baseliner {
     int count = 0;
     for (const auto &[interface_name, interface_options] : ordered_options) {
       oss << std::left << std::fixed << std::setprecision(6) << std::setw(colsizes[count]) << interface_options.m_value
-          << " | ";
+          << "|";
       count++;
     }
 
     for (const auto &metric : result.m_v_metrics) {
       if (!std::visit(IsVectorVisitor{}, metric.m_data)) {
-        oss << std::setw(colsizes[count]) << Conversion::baseliner_to_string(metric.m_data) << " | ";
+        oss << std::setw(colsizes[count]) << (Conversion::baseliner_to_string(metric.m_data) + " " + metric.m_unit)
+            << "|";
         count++;
       }
     }

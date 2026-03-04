@@ -13,6 +13,10 @@ namespace Baseliner::Stats {
     EVERY_TICK,
     ON_DEMAND
   };
+  enum MetricSavingPolicy : char {
+    SAVE,
+    DISCARD
+  };
 
   class IStatBase : public LazyOption {
   public:
@@ -95,7 +99,7 @@ namespace Baseliner::Stats {
     [[nodiscard]] virtual auto output() const -> std::type_index = 0;
     [[nodiscard]] virtual auto get_value(const StatsRegistry &reg) const -> MetricData = 0;
     virtual void set_default(StatsRegistry &reg) = 0;
-
+    [[nodiscard]] virtual auto saving_policy() -> MetricSavingPolicy = 0;
     virtual ~IMetricBase() = default;
   };
   template <typename OutputTag, typename ValueType>
