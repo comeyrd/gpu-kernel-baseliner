@@ -97,6 +97,7 @@ namespace Baseliner {
     [[nodiscard]] auto get_m_name() const -> std::string {
       return m_name;
     }
+    [[nodiscard]] virtual auto get_device_info() const -> Hardware::DeviceInfo = 0;
     void set_m_name(std::string name) {
       m_name = std::move(name);
     }
@@ -174,6 +175,9 @@ namespace Baseliner {
     auto set_case(std::shared_ptr<ICase<BackendT>> case_impl) {
       m_case = case_impl;
     }
+    [[nodiscard]] auto get_device_info() const -> Hardware::DeviceInfo override {
+      return backend::instance()->get_device_info();
+    };
 
     auto run() -> BenchmarkResult override {
       m_stream = BackendT::instance()->create_stream();

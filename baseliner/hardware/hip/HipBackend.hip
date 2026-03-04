@@ -35,6 +35,12 @@ namespace Baseliner {
       return device_c;
     }
     template <>
+    auto HipBackend::get_device_info() -> DeviceInfo {
+      hipDeviceProp_t prop;
+      CHECK_HIP(hipGetDeviceProperties(&prop, this->get_current_device()));
+      return DeviceInfo{prop.name};
+    }
+    template <>
     void HipBackend::get_last_error() {
       CHECK_HIP(hipGetLastError());
     }

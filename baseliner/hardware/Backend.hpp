@@ -6,6 +6,9 @@
 #include <iostream>
 #include <memory>
 namespace Baseliner::Hardware {
+  struct DeviceInfo {
+    std::string name;
+  };
   template <typename BackendT>
   class L2Flusher;
 
@@ -43,6 +46,7 @@ namespace Baseliner::Hardware {
       }
       Backend<S>::set_device(m_device);
     };
+    auto get_device_info() -> DeviceInfo;
     auto get_current_device() -> int {
       this->set_device();
       return m_device;

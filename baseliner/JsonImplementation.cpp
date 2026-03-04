@@ -136,8 +136,15 @@ namespace Baseliner {
     json_obj.at("runs").get_to(result.m_runs);
     json_obj.at("presets").get_to(result.m_presets);
   }
+  namespace Hardware {
+    void to_json(json &json_obj, const DeviceInfo &device) {
+      json_obj["name"] = device.name;
+    }
+  } // namespace Hardware
+
   void to_json(json &json_obj, const RunResult &result) {
     json_obj["id"] = result.m_run_uuid;
+    json_obj["device"] = result.m_device;
     json_obj["recipe"] = result.m_recipe;
     json_obj["results"] = result.m_results;
   }

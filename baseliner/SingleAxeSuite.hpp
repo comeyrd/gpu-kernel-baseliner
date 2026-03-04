@@ -55,7 +55,7 @@ namespace Baseliner {
           break;
         }
       }
-      return build_run_result(results_v);
+      return build_run_result(results_v, get_benchmark()->get_device_info());
     }
     void print_result(const Result &result) {
       /*

@@ -59,11 +59,12 @@ namespace Baseliner {
     };
 
     [[nodiscard]] static auto run_benchmark(const std::function<std::shared_ptr<IBenchmark>()> &bench) -> RunResult {
-      BenchmarkResult bench_result = bench()->run();
+      auto bench_ptr = bench();
+      BenchmarkResult bench_result = bench_ptr->run();
       bench_result.m_options = std::monostate();
       print_benchmark_result(std::cout, bench_result, false);
       std::vector<BenchmarkResult> results{bench_result};
-      return build_run_result(results);
+      return build_run_result(results, bench_ptr->get_device_info());
     }
     static auto run_suite(const std::function<std::shared_ptr<ISuite>()> &suite) -> RunResult {
       return suite()->run_all();

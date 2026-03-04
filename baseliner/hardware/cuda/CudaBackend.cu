@@ -29,6 +29,12 @@ namespace Baseliner {
       CHECK_CUDA(cudaStreamSynchronize(*stream));
     }
     template <>
+    auto CudaBackend::get_device_info() -> DeviceInfo {
+      cudaDeviceProp prop;
+      CHECK_CUDA(cudaGetDeviceProperties(&prop, this->get_current_device()));
+      return DeviceInfo{prop.name};
+    }
+    template <>
     auto CudaBackend::get_device_count() -> int {
       int device_c{};
       CHECK_CUDA(cudaGetDeviceCount(&device_c));

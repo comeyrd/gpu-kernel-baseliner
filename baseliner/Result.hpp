@@ -5,6 +5,7 @@
 #include <baseliner/Metric.hpp>
 #include <baseliner/Options.hpp>
 #include <baseliner/Version.hpp>
+#include <baseliner/hardware/Backend.hpp>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
@@ -30,10 +31,12 @@ namespace Baseliner {
   struct RunResult {
     Recipe m_recipe;
     std::string m_run_uuid;
+    Hardware::DeviceInfo m_device;
     std::vector<BenchmarkResult> m_results;
   };
-  inline static auto build_run_result(std::vector<BenchmarkResult> &results) -> RunResult {
-    return RunResult{{}, generate_uid(), std::move(results)};
+  inline static auto build_run_result(std::vector<BenchmarkResult> &results, const Hardware::DeviceInfo &device_info)
+      -> RunResult {
+    return RunResult{{}, generate_uid(), device_info, std::move(results)};
   }
   struct Result {
     std::string m_baseliner_version;
