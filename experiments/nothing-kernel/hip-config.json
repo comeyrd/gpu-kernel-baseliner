@@ -1,0 +1,127 @@
+{
+  "baseliner_version": "0.8.0",
+  "presets": [
+    {
+      "implementation": "SingleAxeSuite",
+      "preset_name": "buffer-copy",
+      "options": {
+        "SingleAxe": {
+          "values": "[1, 10, 100,500 ,1000,5000,1000000]",
+          "option_name": "nb_bytes",
+          "interface_name": "NothingKernel"
+        }
+      }
+    },
+    {
+      "implementation": "Benchmark",
+      "preset_name": "block",
+      "options": {
+        "Benchmark": {
+          "block": "1"
+        }
+      }
+    },
+
+    {
+      "implementation": "NothingKernel",
+      "preset_name": "no-async",
+      "options": {
+        "NothingKernel": {
+          "async_memcpy": "0"
+        }
+      }
+    },
+    {
+      "implementation": "NothingKernel",
+      "preset_name": "async",
+      "options": {
+        "NothingKernel": {
+          "async_memcpy": "1"
+        }
+      }
+    },
+    {
+      "implementation": "hip",
+      "preset_name": "default",
+      "options": {
+        "Backend": {
+          "device": "0"
+        }
+      }
+    },
+    {
+      "implementation": "Stat",
+      "preset_name": "default",
+      "description": "Default preset",
+      "options": ["Median", "Q1", "Q3"]
+    }
+  ],
+  "recipes": [
+    {
+      "backend": "hip",
+      "benchmark": { "name": "Benchmark", "preset": "block" },
+      "case": { "name": "NothingKernel", "preset": "no-async" },
+      "suite": { "name": "SingleAxeSuite", "preset": "buffer-copy" }
+    },
+    {
+      "backend": "hip",
+      "case": { "name": "NothingKernel", "preset": "async" },
+      "suite": { "name": "SingleAxeSuite", "preset": "buffer-copy" }
+    },
+    {
+      "backend": "hip",
+      "case": { "name": "NothingKernel", "preset": "no-async" },
+      "suite": { "name": "SingleAxeSuite", "preset": "buffer-copy" }
+    },
+    {
+      "backend": "hip",
+      "benchmark": { "name": "Benchmark", "preset": "block" },
+      "case": { "name": "NothingKernel", "preset": "async" },
+      "suite": { "name": "SingleAxeSuite", "preset": "buffer-copy" }
+    },
+    {
+      "backend": "hip",
+      "benchmark": { "name": "Benchmark", "preset": "block" },
+      "case": { "name": "NothingKernel", "preset": "no-async" },
+      "suite": { "name": "SingleAxeSuite", "preset": "buffer-copy" }
+    },
+    {
+      "backend": "hip",
+      "case": { "name": "NothingKernel", "preset": "async" },
+      "suite": { "name": "SingleAxeSuite", "preset": "buffer-copy" }
+    },
+    {
+      "backend": "hip",
+      "case": { "name": "NothingKernel", "preset": "no-async" },
+      "suite": { "name": "SingleAxeSuite", "preset": "buffer-copy" }
+    },
+    {
+      "backend": "hip",
+      "benchmark": { "name": "Benchmark", "preset": "block" },
+      "case": { "name": "NothingKernel", "preset": "async" },
+      "suite": { "name": "SingleAxeSuite", "preset": "buffer-copy" }
+    },
+    {
+      "backend": "hip",
+      "benchmark": { "name": "Benchmark", "preset": "block" },
+      "case": { "name": "NothingKernel", "preset": "no-async" },
+      "suite": { "name": "SingleAxeSuite", "preset": "buffer-copy" }
+    },
+    {
+      "backend": "hip",
+      "case": { "name": "NothingKernel", "preset": "async" },
+      "suite": { "name": "SingleAxeSuite", "preset": "buffer-copy" }
+    },
+    {
+      "backend": "hip",
+      "case": { "name": "NothingKernel", "preset": "no-async" },
+      "suite": { "name": "SingleAxeSuite", "preset": "buffer-copy" }
+    },
+    {
+      "backend": "hip",
+      "benchmark": { "name": "Benchmark", "preset": "block" },
+      "case": { "name": "NothingKernel", "preset": "async" },
+      "suite": { "name": "SingleAxeSuite", "preset": "buffer-copy" }
+    }
+  ]
+}
