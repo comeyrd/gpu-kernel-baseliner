@@ -1,36 +1,15 @@
 {
   "baseliner_version": "0.9.0",
   "presets": [
-    {
-      "implementation": "SingleAxeSuite",
-      "preset_name": "buffer-copy",
-      "options": {
-        "SingleAxe": {
-          "values": "[1, 10, 100,500 ,1000,5000,1000000]",
-          "option_name": "nb_bytes",
-          "interface_name": "NothingKernel"
-        }
-      }
-    },
-    {
-      "implementation": "Benchmark",
-      "preset_name": "block",
-      "options": {
-        "Benchmark": {
-          "block": "1"
-        }
-      }
-    },
-
-    {
-      "implementation": "NothingKernel",
-      "preset_name": "no-async",
-      "options": {
-        "NothingKernel": {
-          "async_memcpy": "0"
-        }
-      }
-    },
+  {
+   "implementation": "StoppingCriterion",
+   "preset_name": "default",
+   "options": {
+    "StoppingCriterion": {
+     "max_nb_repetition": "100",
+     "batch_size": "1"
+    }
+   }},
     {
       "implementation": "NothingKernel",
       "preset_name": "async",
@@ -41,11 +20,11 @@
       }
     },
     {
-      "implementation": "cuda",
+      "implementation": "hip",
       "preset_name": "default",
       "options": {
         "Backend": {
-          "device": "2"
+          "device": "0"
         }
       }
     },
@@ -58,23 +37,23 @@
   ],
   "recipes": [
     {
-      "backend": "cuda",
+      "backend": "hip",
       "benchmark": { "name": "Benchmark", "preset": "block" },
       "case": { "name": "NothingKernel", "preset": "no-async" },
       "suite": { "name": "SingleAxeSuite", "preset": "buffer-copy" }
     },
     {
-      "backend": "cuda",
+      "backend": "hip",
       "case": { "name": "NothingKernel", "preset": "async" },
       "suite": { "name": "SingleAxeSuite", "preset": "buffer-copy" }
     },
     {
-      "backend": "cuda",
+      "backend": "hip",
       "case": { "name": "NothingKernel", "preset": "no-async" },
       "suite": { "name": "SingleAxeSuite", "preset": "buffer-copy" }
     },
     {
-      "backend": "cuda",
+      "backend": "hip",
       "benchmark": { "name": "Benchmark", "preset": "block" },
       "case": { "name": "NothingKernel", "preset": "async" },
       "suite": { "name": "SingleAxeSuite", "preset": "buffer-copy" }
