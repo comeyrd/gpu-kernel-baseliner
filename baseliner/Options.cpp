@@ -2,6 +2,28 @@
 #include <iostream>
 #include <stdexcept>
 namespace Baseliner {
+  namespace OptionBindings {
+
+    void IOptionBinding::set_sweep_hint(SweepHint hint) {
+      m_sweep_hint = hint;
+    };
+    [[nodiscard]] auto IOptionBinding::get_sweep_hint() const -> const std::optional<SweepHint> & {
+      return m_sweep_hint;
+    };
+    [[nodiscard]] auto IOptionBinding::is_sweepable() const -> bool {
+      return m_sweep_hint.has_value();
+    };
+    [[nodiscard]] auto IOptionBinding::get_name() const -> std::string {
+      return m_name;
+    };
+    [[nodiscard]] auto IOptionBinding::get_interface_name() const -> std::string {
+      return m_interface_name;
+    };
+    [[nodiscard]] auto IOptionBinding::get_description() const -> std::string {
+      return m_description;
+    };
+  } // namespace OptionBindings
+
   // IOption
   // Apply the options to its own parameters
   void IOption::propagate_options(const OptionsMap &optionsMap) { // TODO OPTIMIZE
@@ -43,6 +65,69 @@ namespace Baseliner {
     this->gather_options(map);
     return map;
   };
+
+  void IOption::gather_sweep_hints(SweepHintMap &hintmaps) {
+    ensure_initialized();
+    for (const auto &binding : m_options_bindings) {
+      auto sweephint = binding->get_sweep_hint();
+      if (sweephint.has_value()) {
+        hintmaps[binding->get_interface_name()][binding->get_name()] = sweephint.value();
+      }
+    }
+    for (IOption *consumer : m_consumers) {
+      consumer->gather_sweep_hints(hintmaps);
+    }
+  };
+  auto IOption::gather_sweep_hints() -> SweepHintMap {
+    SweepHintMap map;
+    this->gather_sweep_hints(map);
+    return map;
+  };
+  void IOption::update_sweep_hint(const SweepHintMap &hintmaps) {
+    ensure_initialized();
+    for (const auto &[interface_name, options] : hintmaps) {
+      for (const auto &[option_name, sweepHint] : options) {
+        for (auto &binding : m_options_bindings) {
+          if (binding->get_name() == option_name && binding->get_interface_name() == interface_name) {
+            binding->set_sweep_hint(sweepHint);
+          }
+        }
+      }
+    }
+    on_update();
+    for (IOption *consumer : m_consumers) {
+      consumer->update_sweep_hint(hintmaps);
+    }
+  };
+  auto IOption::generate_sweep_values_for(const std::string &interface, const std::string &option)
+      -> std::vector<std::string> {
+    std::vector<std::string> result = {};
+    ensure_initialized();
+    for (auto &binding : m_options_bindings) {
+      if (binding->get_name() == option && binding->get_interface_name() == interface) {
+        auto temp = binding->generate_sweep_values();
+        if (!temp.empty()) {
+          if (!result.empty()) {
+            std::cerr << "Option Error : Two bindings have responded to generate sweep values" << interface << "."
+                      << option << ", keeping the last one \n";
+          }
+          result = temp;
+        }
+      }
+    }
+    for (IOption *consumer : m_consumers) {
+      auto temp = consumer->generate_sweep_values_for(interface, option);
+      if (!temp.empty()) {
+        if (!result.empty()) {
+          std::cerr << "Option Error : Two bindings have responded to generate sweep values" << interface << "."
+                    << option << ", keeping the last one \n";
+        }
+        result = temp;
+      }
+    }
+    return result;
+  };
+
   // Ensure that his own options are registered
   void IOption::ensure_initialized() {
     if (!m_init_ended) {

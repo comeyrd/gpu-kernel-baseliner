@@ -1,8 +1,10 @@
 #ifndef OPTIONS_HPP
 #define OPTIONS_HPP
+#include <baseliner/AxeSweeping.hpp>
 #include <baseliner/Conversions.hpp>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -12,6 +14,23 @@ namespace Baseliner {
   // The OptionBinding Namespace is here to take care of the serialization and de-serialization of options
   // So that new options can propagate without having to write the code.
   namespace OptionBindings {
+    template <typename T>
+    inline auto sweep_hint_to_typed(const SweepHint &hint) -> TypedSweepHint<T> {
+      TypedSweepHint<T> typed{};
+      typed.m_policy = hint.m_policy;
+      if (typed.m_policy == SweepPolicy::Enumerated) {
+        typed.m_enumerated = Conversion::baseliner_from_string<T>(hint.m_enumerated);
+        return typed;
+      }
+      if (hint.m_step.empty()) {
+        typed.m_step = {};
+      } else {
+        typed.m_step = Conversion::baseliner_from_string<T>(hint.m_step);
+      }
+      typed.m_max = Conversion::baseliner_from_string<T>(hint.m_max);
+      typed.m_min = Conversion::baseliner_from_string<T>(hint.m_min);
+      return typed;
+    };
     class IOptionBinding {
     public:
       IOptionBinding(std::string interface_name, std::string name, std::string description)
@@ -21,21 +40,22 @@ namespace Baseliner {
       virtual ~IOptionBinding() = default;
       virtual void update_value(const std::string &val) = 0;
       [[nodiscard]] virtual auto get_value() const -> std::string = 0;
-      [[nodiscard]] auto get_name() const -> std::string {
-        return m_name;
-      };
-      [[nodiscard]] auto get_interface_name() const -> std::string {
-        return m_interface_name;
-      };
-      [[nodiscard]] auto get_description() const -> std::string {
-        return m_description;
-      };
+      [[nodiscard]] auto get_name() const -> std::string;
+      [[nodiscard]] auto get_interface_name() const -> std::string;
+      [[nodiscard]] auto get_description() const -> std::string;
+
+      void set_sweep_hint(SweepHint hint);
+      [[nodiscard]] auto get_sweep_hint() const -> const std::optional<SweepHint> &;
+      [[nodiscard]] auto is_sweepable() const -> bool;
+      [[nodiscard]] virtual auto generate_sweep_values() const -> std::vector<std::string> = 0;
 
     private:
       std::string m_interface_name;
       std::string m_name;
       std::string m_description;
+      std::optional<SweepHint> m_sweep_hint;
     };
+
     template <typename T>
     class OptionBinding : public IOptionBinding {
     public:
@@ -48,28 +68,30 @@ namespace Baseliner {
       [[nodiscard]] auto get_value() const -> std::string override {
         return Conversion::baseliner_to_string(*m_val_ptr);
       };
+      auto sweep(SweepPolicy policy, const std::string &min, const std::string &max, const std::string &step = "")
+          -> OptionBinding<T> & {
+        set_sweep_hint(SweepHint{policy, min, max, step, {}});
+        return *this;
+      }
+      auto sweep(const std::vector<std::string> &values) -> OptionBinding<T> & {
+        set_sweep_hint(SweepHint{SweepPolicy::Enumerated, "", "", "", values});
+        return *this;
+      }
+
+      [[nodiscard]] auto generate_sweep_values() const -> std::vector<std::string> override {
+        if (this->is_sweepable()) {
+          SweepHint hint = this->get_sweep_hint().value();
+          if (hint.m_policy == SweepPolicy::Enumerated) {
+            return hint.m_enumerated;
+          }
+          return Conversion::baseliner_to_string<T>(Sweep::generate_sweep_values(sweep_hint_to_typed<T>(hint)));
+        }
+        throw std::runtime_error("Sweeping Error : Trying to sweep on option : " + get_interface_name() + "." +
+                                 get_name() + " but no sweep policy was defined or given");
+      };
 
     private:
       T *m_val_ptr;
-    };
-    template <typename T>
-    class OptionBinding<std::vector<T>> : public IOptionBinding {
-    public:
-      OptionBinding(const std::string &interface_name, const std::string &name, const std::string &description,
-                    std::vector<T> &var)
-          : IOptionBinding(interface_name, name, description),
-            m_val_ptr(&var) {};
-
-      void update_value(const std::string &val) override {
-        *m_val_ptr = Conversion::baseliner_vector_from_string<T>(val);
-      };
-
-      [[nodiscard]] auto get_value() const -> std::string override {
-        return Conversion::baseliner_to_string(*m_val_ptr);
-      };
-
-    private:
-      std::vector<T> *m_val_ptr;
     };
   } // namespace OptionBindings
 
@@ -80,6 +102,7 @@ namespace Baseliner {
 
   using InterfaceOptions = std::unordered_map<std::string, Option>;
   using OptionsMap = std::unordered_map<std::string, InterfaceOptions>;
+  using SweepHintMap = std::unordered_map<std::string, std::unordered_map<std::string, SweepHint>>;
   namespace Options {
     static inline auto have_same_schema(const OptionsMap &omap1, const OptionsMap &omap2) -> bool {
       if (omap1.size() != omap2.size()) {
@@ -132,6 +155,12 @@ namespace Baseliner {
     void gather_options(OptionsMap &opts);
     auto gather_options() -> OptionsMap;
     void propagate_options(const OptionsMap &optionsMap);
+
+    void gather_sweep_hints(SweepHintMap &hintmaps);
+    auto gather_sweep_hints() -> SweepHintMap;
+    void update_sweep_hint(const SweepHintMap &hintmaps);
+    auto generate_sweep_values_for(const std::string &interface, const std::string &option) -> std::vector<std::string>;
+
     virtual ~IOption() = default;
     IOption() = default;
 
@@ -169,12 +198,15 @@ namespace Baseliner {
     void register_consumer(IOption &consumer);
     virtual void on_update() {};
     template <typename T>
-    void add_option(const std::string &interface, const std::string &name, const std::string &description,
-                    T &variable) {
+    auto add_option(const std::string &interface, const std::string &name, const std::string &description, T &variable)
+        -> OptionBindings::OptionBinding<T> & {
       if (m_init_phase) {
-        m_options_bindings.push_back(
-            std::make_unique<OptionBindings::OptionBinding<T>>(interface, name, description, variable));
+        auto binding = std::make_unique<OptionBindings::OptionBinding<T>>(interface, name, description, variable);
+        auto &ref = *binding;
+        m_options_bindings.push_back(std::move(binding));
+        return ref;
       }
+      throw std::runtime_error("add_option called outside register_options()");
     }
 
   private:

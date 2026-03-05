@@ -8,7 +8,7 @@
 #include <variant>
 #include <vector>
 namespace Baseliner::Conversion {
-  inline static std::string trim_before_after_whitespace(const std::string &thestring) {
+  inline static auto trim_before_after_whitespace(const std::string &thestring) -> std::string {
     const std::string whitespace = " \t\n\r\f\v";
     size_t start = thestring.find_first_not_of(whitespace);
     std::string rsult{};
@@ -24,6 +24,23 @@ namespace Baseliner::Conversion {
   template <typename T>
   auto baseliner_to_string(const T &val) -> std::string;
 
+  template <typename T>
+  auto baseliner_from_string(const std::vector<std::string> &val) -> std::vector<T> {
+    std::vector<T> vec;
+    for (const auto &str : val) {
+      vec.push_back(baseliner_from_string<T>(str));
+    }
+    return vec;
+  };
+  template <typename T>
+  auto baseliner_to_string(const std::vector<T> &val) -> std::vector<std::string> {
+    std::vector<std::string> vec;
+    for (const auto &scal : val) {
+      vec.push_back(baseliner_to_string<T>(scal));
+    }
+    return vec;
+  };
+
   inline auto bool_to_string(bool value) -> std::string {
     return std::to_string(static_cast<int>(value));
   };
@@ -31,36 +48,6 @@ namespace Baseliner::Conversion {
     const int i_value = std::stoi(value);
     return (i_value != 0);
   };
-  template <typename T>
-  auto baseliner_vector_from_string(const std::string &val) -> std::vector<T> {
-    std::vector<T> result;
-    std::string string_v = val;
-    if (string_v.front() == '[') {
-      string_v.erase(0, 1);
-    }
-    if (string_v.back() == ']') {
-      string_v.pop_back();
-    }
-    std::stringstream sstream(string_v);
-    std::string item;
-    while (std::getline(sstream, item, ',')) {
-      result.push_back(baseliner_from_string<T>(trim_before_after_whitespace(item)));
-    }
-    return result;
-  }
-  template <typename T>
-  inline auto baseliner_to_string(const std::vector<T> &val) -> std::string {
-    if (val.empty()) {
-      return "[]";
-    }
-    std::ostringstream oss;
-    oss << "[";
-    for (size_t i = 0; i < val.size(); ++i) {
-      oss << baseliner_to_string<T>(val[i]) << (i == val.size() - 1 ? "" : ", ");
-    }
-    oss << "]";
-    return oss.str();
-  }
 
   // To string
   template <>
