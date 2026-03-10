@@ -1,7 +1,8 @@
 #ifndef BASELINER_REGISTRARS_HPP
 #define BASELINER_REGISTRARS_HPP
 #include <baseliner/managers/BackendStorage.hpp>
-#include <baseliner/managers/Manager.hpp>
+#include <baseliner/managers/StorageManager.hpp>
+
 #include <memory>
 namespace Baseliner {
 
@@ -11,16 +12,8 @@ namespace Baseliner {
   class GeneralStatRegistrar {
   public:
     explicit GeneralStatRegistrar(const std::string &name) {
-      Manager::instance()->register_general_stat(
+      StorageManager::instance()->register_general_stat(
           name, [](std::shared_ptr<Stats::StatsEngine> engine) { engine->register_stat<StatT>(); });
-    }
-  };
-
-  template <class SuiteT>
-  class SuiteRegistrar {
-  public:
-    explicit SuiteRegistrar(const std::string &name) {
-      Manager::instance()->register_suite(name, []() -> std::shared_ptr<ISuite> { return std::make_shared<SuiteT>(); });
     }
   };
 
@@ -28,7 +21,7 @@ namespace Baseliner {
   class StoppingRegistrar {
   public:
     explicit StoppingRegistrar(const std::string &name) {
-      Manager::instance()->register_stopping(
+      StorageManager::instance()->register_stopping(
           name, []() -> std::unique_ptr<StoppingCriterion> { return std::make_unique<StoppingT>(); });
     }
   };
@@ -36,7 +29,8 @@ namespace Baseliner {
   class StatConceptRegistrar {
   public:
     explicit StatConceptRegistrar(const std::vector<std::string> &defaults_stats) {
-      Manager::instance()->register_component(std::string(DEFAULT_STAT), ComponentType::STAT, defaults_stats);
+      StorageManager::instance()->register_stat_preset(
+          std::string(DEFAULT_PRESET), StatsPreset{std::string(DEFAULT_DESCRIPTION), defaults_stats, {}});
     }
   };
 
@@ -48,7 +42,7 @@ namespace Baseliner {
         return std::make_shared<BenchmarkT>();
       };
       BackendStorage<typename BenchmarkT::backend>::instance()->register_benchmark(name, factory);
-      Manager::instance()->register_component(name, ComponentType::BENCHMARK, factory()->gather_options());
+      StorageManager::instance()->register_component(name, ComponentType::BENCHMARK, factory()->gather_options());
     }
   };
 
@@ -58,7 +52,7 @@ namespace Baseliner {
     explicit BackendRegistrar(const std::string &name) {
       IBackendStorage *backend = BackendStorage<BackendT>::instance();
       backend->set_name(name);
-      Manager::instance()->register_backend(name, backend, BackendT::instance()->gather_options());
+      StorageManager::instance()->register_backend(name, backend, BackendT::instance()->gather_options());
       BenchmarkRegistrar<Benchmark<BackendT>> register_me("Benchmark");
     }
   };
@@ -69,7 +63,7 @@ namespace Baseliner {
     explicit CaseRegistrar(const std::string &name) {
       auto factory = []() -> std::shared_ptr<ICase<typename CaseT::backend>> { return std::make_shared<CaseT>(); };
       BackendStorage<typename CaseT::backend>::instance()->register_case(name, factory);
-      Manager::instance()->register_component(name, ComponentType::CASE, factory()->gather_options());
+      StorageManager::instance()->register_component(name, ComponentType::CASE, factory()->gather_options());
     }
   };
 
@@ -81,7 +75,7 @@ namespace Baseliner {
         return std::make_shared<KernelCase<KernelT>>();
       };
       BackendStorage<typename KernelT::backend>::instance()->register_case(name, factory);
-      Manager::instance()->register_component(name, ComponentType::CASE, factory()->gather_options());
+      StorageManager::instance()->register_component(name, ComponentType::CASE, factory()->gather_options());
     }
   };
 
@@ -94,15 +88,6 @@ namespace Baseliner {
     }
   };
 
-  class PresetRegistrar {
-  public:
-    explicit PresetRegistrar(const PresetDefinition &preset) {
-      Manager::instance()->add_presets({preset});
-    };
-    explicit PresetRegistrar(const std::vector<PresetDefinition> &presets) {
-      Manager::instance()->add_presets(presets);
-    };
-  };
 } // namespace Baseliner
 
 #endif // BASELINER_REGISTRARS_HPP

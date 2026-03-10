@@ -4,11 +4,10 @@
 #include <baseliner/Kernel.hpp>
 #include <baseliner/Metric.hpp>
 #include <baseliner/Options.hpp>
-#include <baseliner/Result.hpp>
+#include <baseliner/Output.hpp>
 #include <baseliner/State.hpp>
 #include <baseliner/StoppingCriterion.hpp>
 #include <baseliner/hardware/Backend.hpp>
-
 #include <baseliner/stats/IStats.hpp>
 #include <baseliner/stats/Stats.hpp>
 #include <baseliner/stats/StatsEngine.hpp>
@@ -97,7 +96,7 @@ namespace Baseliner {
     [[nodiscard]] auto get_m_name() const -> std::string {
       return m_name;
     }
-    [[nodiscard]] virtual auto get_device_info() const -> Hardware::DeviceInfo = 0;
+    [[nodiscard]] virtual auto get_device_info() const -> Hardware::HardwareInfo = 0;
     void set_m_name(std::string name) {
       m_name = std::move(name);
     }
@@ -175,7 +174,7 @@ namespace Baseliner {
     auto set_case(std::shared_ptr<ICase<BackendT>> case_impl) {
       m_case = case_impl;
     }
-    [[nodiscard]] auto get_device_info() const -> Hardware::DeviceInfo override {
+    [[nodiscard]] auto get_device_info() const -> Hardware::HardwareInfo override {
       return backend::instance()->get_device_info();
     };
 
@@ -206,7 +205,7 @@ namespace Baseliner {
       }
       std::vector<Metric> metrics = {m_stats_engine->get_metrics()};
       m_stream.reset();
-      return build_benchmark_result(metrics);
+      return BenchmarkResult{{}, metrics};
     }
 
     auto gather_axe_options() -> OptionsMap override {

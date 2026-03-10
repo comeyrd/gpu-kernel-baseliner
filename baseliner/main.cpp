@@ -4,7 +4,7 @@
 #include <baseliner/Handler.hpp>
 #include <baseliner/RQ.hpp>
 #include <baseliner/Recipe.hpp>
-#include <baseliner/Result.hpp>
+
 #include <baseliner/Serializer.hpp>
 #include <baseliner/State.hpp>
 #include <baseliner/Suite.hpp>

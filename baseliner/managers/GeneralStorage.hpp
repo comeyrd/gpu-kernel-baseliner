@@ -1,13 +1,12 @@
 #ifndef BASELINER_GENERAL_STORAGE_HPP
 #define BASELINER_GENERAL_STORAGE_HPP
-#include <baseliner/Suite.hpp>
+#include <baseliner/managers/Factories.hpp>
 #include <baseliner/stats/StatsEngine.hpp>
 #include <functional>
 #include <memory>
 #include <string>
 #include <unordered_map>
 namespace Baseliner {
-
   class GeneralStatsStorage {
   public:
     [[nodiscard]] auto has(const std::string &name) const -> bool {
@@ -16,11 +15,11 @@ namespace Baseliner {
     /**
      *  throws std::out_of_range If the benchmark is not in the storage, use has_benchmark to check beforehand.
      */
-    [[nodiscard]] auto at(const std::string &name) const -> std::function<void(std::shared_ptr<Stats::StatsEngine>)> {
+    [[nodiscard]] auto at(const std::string &name) const -> StatsFactory {
       return m_stats_map.at(name);
     };
 
-    void insert(const std::string &name, const std::function<void(std::shared_ptr<Stats::StatsEngine>)> &stat_func) {
+    void insert(const std::string &name, const StatsFactory &stat_func) {
       if (has(name)) {
         throw std::runtime_error("Stat : " + name + " already registered");
       }
@@ -38,31 +37,8 @@ namespace Baseliner {
     }
 
   private:
-    std::unordered_map<std::string, std::function<void(std::shared_ptr<Stats::StatsEngine>)>> m_stats_map;
+    std::unordered_map<std::string, StatsFactory> m_stats_map;
   };
-  class SuiteStorage {
-  public:
-    [[nodiscard]] auto has(const std::string &name) const -> bool {
-      return m_storage_map.find(name) != m_storage_map.end();
-    }
-    /**
-     *  throws std::out_of_range If the benchmark is not in the storage, use has_benchmark to check beforehand.
-     */
-    [[nodiscard]] auto at(const std::string &name) const -> std::function<std::shared_ptr<ISuite>()> {
-      return m_storage_map.at(name);
-    };
-    void insert(const std::string &name, const std::function<std::shared_ptr<ISuite>()> &suite_func) {
-      if (has(name)) {
-        throw std::runtime_error("Suite : " + name + " already registered");
-      }
-      m_storage_map[name] = suite_func;
-    }
-    SuiteStorage() = default;
-
-  private:
-    std::unordered_map<std::string, std::function<std::shared_ptr<ISuite>()>> m_storage_map;
-  };
-
   class StoppingCriterionStorage {
   public:
     [[nodiscard]] auto has(const std::string &name) const -> bool {
@@ -71,10 +47,10 @@ namespace Baseliner {
     /**
      *  throws std::out_of_range If the benchmark is not in the storage, use has_benchmark to check beforehand.
      */
-    [[nodiscard]] auto at(const std::string &name) const -> std::function<std::unique_ptr<StoppingCriterion>()> {
+    [[nodiscard]] auto at(const std::string &name) const -> StoppingCriterionFactory {
       return m_storage_stopping.at(name);
     };
-    void insert(const std::string &name, const std::function<std::unique_ptr<StoppingCriterion>()> &stopping_func) {
+    void insert(const std::string &name, const StoppingCriterionFactory &stopping_func) {
       if (has(name)) {
         throw std::runtime_error("Suite : " + name + " already registered");
       }
@@ -83,7 +59,7 @@ namespace Baseliner {
     StoppingCriterionStorage() = default;
 
   private:
-    std::unordered_map<std::string, std::function<std::unique_ptr<StoppingCriterion>()>> m_storage_stopping;
+    std::unordered_map<std::string, StoppingCriterionFactory> m_storage_stopping;
   };
 } // namespace Baseliner
 #endif // BASELINER_GENERAL_STORAGE_HPP

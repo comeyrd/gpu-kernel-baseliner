@@ -2,7 +2,7 @@
 #include <baseliner/Metadata.hpp>
 #include <baseliner/Metric.hpp>
 #include <baseliner/Options.hpp>
-#include <baseliner/Result.hpp>
+
 #include <baseliner/Serializer.hpp>
 #include <baseliner/managers/Manager.hpp>
 #include <iomanip>
@@ -137,7 +137,7 @@ namespace Baseliner {
     json_obj.at("presets").get_to(result.m_presets);
   }
   namespace Hardware {
-    void to_json(json &json_obj, const DeviceInfo &device) {
+    void to_json(json &json_obj, const HardwareInfo &device) {
       json_obj["name"] = device.name;
     }
   } // namespace Hardware

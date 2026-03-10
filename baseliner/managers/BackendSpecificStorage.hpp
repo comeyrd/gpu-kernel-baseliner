@@ -2,6 +2,7 @@
 #define BASELINER_BACKEND_SPECIFIC_STORAGE_HPP
 #include <baseliner/Benchmark.hpp>
 #include <baseliner/Case.hpp>
+#include <baseliner/managers/Factories.hpp>
 #include <baseliner/stats/StatsEngine.hpp>
 #include <functional>
 #include <memory>
@@ -19,11 +20,10 @@ namespace Baseliner {
     /**
      *  throws std::out_of_range If the case is not in the storage, use has_case to check beforehand.
      */
-    [[nodiscard]] auto at(const std::string &name) const -> std::function<std::shared_ptr<ICase<BackendT>>()> {
+    [[nodiscard]] auto at(const std::string &name) const -> CaseFactory<BackendT> {
       return m_cases_map.at(name);
     };
-    void insert(const std::string &name, const std::function<std::shared_ptr<ICase<BackendT>>()> &case_factory,
-                const std::string &backend_name) {
+    void insert(const std::string &name, const CaseFactory<BackendT> &case_factory, const std::string &backend_name) {
       if (has(name)) {
         throw std::runtime_error("Backend Specific Case : " + name + " already registered for backend" + backend_name);
       }
@@ -40,7 +40,7 @@ namespace Baseliner {
     }
 
   private:
-    std::unordered_map<std::string, std::function<std::shared_ptr<ICase<BackendT>>()>> m_cases_map;
+    std::unordered_map<std::string, CaseFactory<BackendT>> m_cases_map;
   };
 
   template <typename BackendT>
@@ -52,10 +52,10 @@ namespace Baseliner {
     /**
      *  throws std::out_of_range If the benchmark is not in the storage, use has to check beforehand.
      */
-    [[nodiscard]] auto at(const std::string &name) const -> std::function<std::shared_ptr<Benchmark<BackendT>>()> {
+    [[nodiscard]] auto at(const std::string &name) const -> BenchmarkFactory<BackendT> {
       return m_benchmarks_map.at(name);
     };
-    void insert(const std::string &name, const std::function<std::shared_ptr<Benchmark<BackendT>>()> &backend_factory,
+    void insert(const std::string &name, const BenchmarkFactory<BackendT> &backend_factory,
                 const std::string &backend_name) {
       if (has(name)) {
         throw std::runtime_error("Backend Specific Benchmark : " + name + " already registered for backend" +
@@ -75,7 +75,7 @@ namespace Baseliner {
     }
 
   private:
-    std::unordered_map<std::string, std::function<std::shared_ptr<Benchmark<BackendT>>()>> m_benchmarks_map;
+    std::unordered_map<std::string, BenchmarkFactory<BackendT>> m_benchmarks_map;
   };
 
   template <typename BackendT>
@@ -87,11 +87,10 @@ namespace Baseliner {
     /**
      *  throws std::out_of_range If the benchmark is not in the storage, use has_benchmark to check beforehand.
      */
-    [[nodiscard]] auto at(const std::string &name) const -> std::function<void(std::shared_ptr<Stats::StatsEngine>)> {
+    [[nodiscard]] auto at(const std::string &name) const -> StatsFactory {
       return m_stats_map.at(name);
     };
-    void insert(const std::string &name, const std::function<void(std::shared_ptr<Stats::StatsEngine>)> &stat_factory,
-                const std::string &backend_name) {
+    void insert(const std::string &name, const StatsFactory &stat_factory, const std::string &backend_name) {
       if (has(name)) {
         throw std::runtime_error("Backend Specific Stat : " + name + " already registered for backend" + backend_name);
       }
@@ -109,7 +108,7 @@ namespace Baseliner {
     }
 
   private:
-    std::unordered_map<std::string, std::function<void(std::shared_ptr<Stats::StatsEngine>)>> m_stats_map;
+    std::unordered_map<std::string, StatsFactory> m_stats_map;
   };
 } // namespace Baseliner
 #endif // BASELINER_BACKEND_SPECIFIC_STORAGE_HPP

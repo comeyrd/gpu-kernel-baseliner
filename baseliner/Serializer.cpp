@@ -1,6 +1,6 @@
 #include <baseliner/ConfigFile.hpp>
 #include <baseliner/Metadata.hpp>
-#include <baseliner/Result.hpp>
+
 #include <baseliner/Serializer.hpp>
 #include <fstream>
 #include <iostream>

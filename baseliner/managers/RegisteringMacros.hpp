@@ -10,9 +10,6 @@
 #define BASELINER_REGISTER_STAT(Stat)                                                                                  \
   ATTRIBUTE_USED static Baseliner::GeneralStatRegistrar<Stat> _registrar_##Stat##__LINE__{#Stat};
 
-#define BASELINER_REGISTER_SUITE(Suite)                                                                                \
-  ATTRIBUTE_USED static Baseliner::SuiteRegistrar<Suite> _registrar_##Suite##__LINE__{#Suite};
-
 #define BASELINER_REGISTER_STOPPING_CRITERION(Stopping)                                                                \
   ATTRIBUTE_USED static Baseliner::StoppingRegistrar<Stopping> _registrar_##Stopping##__LINE__{#Stopping};
 
@@ -36,6 +33,4 @@
 #define BASELINER_REGISTER_BACKEND_STATS(Stat)                                                                         \
   ATTRIBUTE_USED static Baseliner::BackendStatRegistrar<Stat> _registrar_##Stat##__LINE__{#Stat};
 
-#define BASELINER_REGISTER_PRESET(preset)                                                                              \
-  ATTRIBUTE_USED static Baseliner::PresetRegistrar _registrar_##preset##__LINE__{preset};
 #endif // BASELINER_REGISTERING_MACROS_HPP

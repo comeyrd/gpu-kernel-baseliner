@@ -7,6 +7,10 @@
 #include <vector>
 
 namespace Baseliner {
+  enum class SweepStrategy : char {
+    Grid,
+    Paired
+  };
 
   enum class SweepPolicy : char {
     PowersOfTwo,
@@ -29,6 +33,16 @@ namespace Baseliner {
     T m_max;
     T m_step;
     std::vector<T> m_enumerated;
+  };
+
+  struct SweepAxis {
+    std::string m_interface;
+    std::string m_option;
+    SweepHint m_hint;
+  };
+  struct SweepSpec {
+    SweepStrategy m_strategy;
+    std::vector<SweepAxis> m_axes;
   };
 
   namespace Sweep {

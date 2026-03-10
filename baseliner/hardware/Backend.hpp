@@ -6,7 +6,7 @@
 #include <iostream>
 #include <memory>
 namespace Baseliner::Hardware {
-  struct DeviceInfo {
+  struct HardwareInfo {
     std::string name;
   };
   template <typename BackendT>
@@ -46,7 +46,7 @@ namespace Baseliner::Hardware {
       }
       Backend<S>::set_device(m_device);
     };
-    auto get_device_info() -> DeviceInfo;
+    auto get_device_info() -> HardwareInfo;
     auto get_current_device() -> int {
       this->set_device();
       return m_device;

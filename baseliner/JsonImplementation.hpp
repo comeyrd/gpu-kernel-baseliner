@@ -4,7 +4,7 @@
 #include <baseliner/Metadata.hpp>
 #include <baseliner/Metric.hpp>
 #include <baseliner/Options.hpp>
-#include <baseliner/Result.hpp>
+
 #include <baseliner/hardware/Backend.hpp>
 #include <baseliner/stats/StatsType.hpp>
 #include <iomanip>
@@ -53,7 +53,7 @@ namespace Baseliner {
 
   void to_json(json &json_obj, const Metric &metric);
   namespace Hardware {
-    void to_json(json &json_obj, const DeviceInfo &device);
+    void to_json(json &json_obj, const HardwareInfo &device);
   }
 
   void to_json(json &json_obj, const BenchmarkResult &result);

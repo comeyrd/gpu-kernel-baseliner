@@ -3,7 +3,7 @@
 #include <baseliner/Benchmark.hpp>
 #include <baseliner/ConfigFile.hpp>
 #include <baseliner/Recipe.hpp>
-#include <baseliner/Result.hpp>
+
 #include <baseliner/State.hpp>
 #include <baseliner/Suite.hpp>
 #include <baseliner/managers/Manager.hpp>

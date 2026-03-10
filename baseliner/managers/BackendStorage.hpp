@@ -6,6 +6,7 @@
 #include <baseliner/Options.hpp>
 #include <baseliner/Serializer.hpp>
 #include <baseliner/managers/BackendSpecificStorage.hpp>
+#include <baseliner/managers/Factories.hpp>
 #include <baseliner/managers/PresetInjection.hpp>
 namespace Baseliner {
 
@@ -17,7 +18,7 @@ namespace Baseliner {
                                                        const OptionsMap &benchmark_preset, const std::string &case_name,
                                                        const OptionsMap &case_preset,
                                                        const std::vector<std::string> &stats_names)
-        -> std::function<std::shared_ptr<IBenchmark>()> = 0;
+        -> IBenchmarkFactory = 0;
 
     void set_name(const std::string &name) {
       m_name = name;
@@ -47,7 +48,7 @@ namespace Baseliner {
     [[nodiscard]] auto get_benchmark_with_case(const std::string &benchmark_name, const OptionsMap &benchmark_preset,
                                                const std::string &case_name, const OptionsMap &case_preset,
                                                const std::vector<std::string> &stats_names)
-        -> std::function<std::shared_ptr<IBenchmark>()> override {
+        -> IBenchmarkFactory override {
       if (!m_benchmark_storage.has(benchmark_name)) {
         throw std::runtime_error("Benchmark " + benchmark_name + " does not exist in Backend" + get_name());
       }
@@ -57,7 +58,7 @@ namespace Baseliner {
       auto benchmark_recipe =
           inject_shared_preset<Benchmark<BackendT>>(m_benchmark_storage.at(benchmark_name), benchmark_preset);
       auto case_recipe = inject_shared_preset<ICase<BackendT>>(m_cases_storage.at(case_name), case_preset);
-      std::vector<std::function<void(std::shared_ptr<Stats::StatsEngine>)>> stats_recipes;
+      std::vector<StatsFactory> stats_recipes;
       for (auto stat : stats_names) {
         if (!m_backend_stats_storage.has(stat)) {
           throw std::runtime_error("Stat " + stat + " does not exist either in General Manager nor in Backend " +
@@ -81,15 +82,13 @@ namespace Baseliner {
       metadata.m_stats = m_backend_stats_storage.list();
       return metadata;
     }
-    void register_case(const std::string &name, const std::function<std::shared_ptr<ICase<BackendT>>()> &case_factory) {
+    void register_case(const std::string &name, const CaseFactory<BackendT> &case_factory) {
       m_cases_storage.insert(name, case_factory, get_name());
     }
-    void register_benchmark(const std::string &name,
-                            const std::function<std::shared_ptr<Benchmark<BackendT>>()> &bench_factory) {
+    void register_benchmark(const std::string &name, const BenchmarkFactory<BackendT> &bench_factory) {
       m_benchmark_storage.insert(name, bench_factory, get_name());
     }
-    void register_backend_stats(const std::string &name,
-                                const std::function<void(std::shared_ptr<Stats::StatsEngine>)> &stats_factory) {
+    void register_backend_stats(const std::string &name, const StatsFactory &stats_factory) {
       m_backend_stats_storage.insert(name, stats_factory, get_name());
     }
     [[nodiscard]] auto list_device_stats() const -> std::vector<std::string> override {

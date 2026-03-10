@@ -11,7 +11,6 @@
 #include <typeindex>
 #include <unordered_set>
 #include <vector>
-
 namespace Baseliner::Stats {
   struct TypeIndexArgs {
     std::type_index type_ix;
