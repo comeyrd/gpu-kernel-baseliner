@@ -15,5 +15,10 @@ namespace Baseliner {
   using StoppingCriterionFactory = std::function<std::unique_ptr<StoppingCriterion>()>;
   using StatsFactory = std::function<void(std::shared_ptr<Stats::StatsEngine>)>;
 
+  using BackendSetup = std::function<void()>;
+
+  using ComponentList = std::vector<std::pair<std::string, ComponentType>>;
+  using ComponentPresetList = std::vector<std::pair<std::string, ComponentPreset>>;
+  using StatsPresetList = std::vector<std::pair<std::string, StatsPreset>>;
 } // namespace Baseliner
 #endif // BASELINER_FACTORIES_HPP

@@ -16,7 +16,7 @@ namespace Baseliner {
 
   auto StoppingCriterion::satisfied() -> bool {
     if (!m_stats_engine) {
-      throw std::runtime_error("The stopping criterion was called before the stats engine was provided");
+      throw Errors::empty_stat_engine_stopping();
     }
     const size_t &vec_size = m_stats_engine->get_result<Stats::Repetitions>();
     if (vec_size >= m_max_repetitions) {

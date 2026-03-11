@@ -38,6 +38,9 @@ namespace Baseliner {
       }
       return vecstr;
     }
+    [[nodiscard]] auto size() const -> size_t {
+      return m_cases_map.size();
+    }
 
   private:
     std::unordered_map<std::string, CaseFactory<BackendT>> m_cases_map;
@@ -73,6 +76,9 @@ namespace Baseliner {
       }
       return vecstr;
     }
+    [[nodiscard]] auto size() const -> size_t {
+      return m_benchmarks_map.size();
+    }
 
   private:
     std::unordered_map<std::string, BenchmarkFactory<BackendT>> m_benchmarks_map;
@@ -105,6 +111,9 @@ namespace Baseliner {
         vecstr.push_back(name);
       }
       return vecstr;
+    }
+    [[nodiscard]] auto size() const -> size_t {
+      return m_stats_map.size();
     }
 
   private:

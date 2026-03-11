@@ -1,6 +1,5 @@
 #ifndef BASELINER_SERIALIZER_HPP
 #define BASELINER_SERIALIZER_HPP
-#include <baseliner/Metadata.hpp>
 
 #include <istream>
 #include <ostream>

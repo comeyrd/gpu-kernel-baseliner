@@ -1,8 +1,8 @@
 #ifndef BASELINER_BACKEND_MANAGER
 #define BASELINER_BACKEND_MANAGER
+#include "baseliner/Error.hpp"
 #include <baseliner/Benchmark.hpp>
 #include <baseliner/Case.hpp>
-#include <baseliner/Metadata.hpp>
 #include <baseliner/Options.hpp>
 #include <baseliner/Serializer.hpp>
 #include <baseliner/managers/BackendSpecificStorage.hpp>
@@ -14,10 +14,7 @@ namespace Baseliner {
   public:
     virtual ~IBackendStorage() = default;
 
-    [[nodiscard]] virtual auto get_benchmark_with_case(const std::string &benchmark_name,
-                                                       const OptionsMap &benchmark_preset, const std::string &case_name,
-                                                       const OptionsMap &case_preset,
-                                                       const std::vector<std::string> &stats_names)
+    [[nodiscard]] virtual auto get_benchmark_with_case(const std::string &benchmark_name, const std::string &case_name)
         -> IBenchmarkFactory = 0;
 
     void set_name(const std::string &name) {
@@ -29,10 +26,13 @@ namespace Baseliner {
     [[nodiscard]] virtual auto list_device_stats() const -> std::vector<std::string> = 0;
     [[nodiscard]] virtual auto list_device_cases() const -> std::vector<std::string> = 0;
     [[nodiscard]] virtual auto list_device_benchmarks() const -> std::vector<std::string> = 0;
+    [[nodiscard]] virtual auto list_components() -> ComponentList = 0;
     [[nodiscard]] virtual auto has_case(const std::string &name) const -> bool = 0;
+    [[nodiscard]] virtual auto has_benchmark(const std::string &name) const -> bool = 0;
+    [[nodiscard]] virtual auto has_stat(const std::string &name) const -> bool = 0;
     IBackendStorage() = default;
-    virtual auto generate_backend_metadata() -> BackendMetadata = 0;
     virtual void apply_backend_preset(const OptionsMap &option) = 0;
+    [[nodiscard]] virtual auto get_backend_setup(const OptionsMap &option) -> BackendSetup = 0;
 
   private:
     std::string m_name;
@@ -45,43 +45,24 @@ namespace Baseliner {
       static BackendStorage<BackendT> manager;
       return &manager;
     }
-    [[nodiscard]] auto get_benchmark_with_case(const std::string &benchmark_name, const OptionsMap &benchmark_preset,
-                                               const std::string &case_name, const OptionsMap &case_preset,
-                                               const std::vector<std::string> &stats_names)
+    [[nodiscard]] auto get_benchmark_with_case(const std::string &benchmark_name, const std::string &case_name)
         -> IBenchmarkFactory override {
       if (!m_benchmark_storage.has(benchmark_name)) {
-        throw std::runtime_error("Benchmark " + benchmark_name + " does not exist in Backend" + get_name());
+        throw Errors::not_found_in_backend(component_to_string(ComponentType::BENCHMARK), benchmark_name,
+                                           this->get_name());
       }
       if (!m_cases_storage.has(case_name)) {
-        throw std::runtime_error("Case " + case_name + " does not exist in Backend" + get_name());
+        throw Errors::not_found_in_backend(component_to_string(ComponentType::CASE), case_name, this->get_name());
       }
-      auto benchmark_recipe =
-          inject_shared_preset<Benchmark<BackendT>>(m_benchmark_storage.at(benchmark_name), benchmark_preset);
-      auto case_recipe = inject_shared_preset<ICase<BackendT>>(m_cases_storage.at(case_name), case_preset);
-      std::vector<StatsFactory> stats_recipes;
-      for (auto stat : stats_names) {
-        if (!m_backend_stats_storage.has(stat)) {
-          throw std::runtime_error("Stat " + stat + " does not exist either in General Manager nor in Backend " +
-                                   get_name());
-        }
-        stats_recipes.push_back(m_backend_stats_storage.at(stat));
-      }
-      auto func = [benchmark_recipe, case_recipe, stats_recipes]() -> std::shared_ptr<IBenchmark> {
-        auto bench = benchmark_recipe();
+      auto benchmark_recipe = m_benchmark_storage.at(benchmark_name);
+      auto case_recipe = m_cases_storage.at(case_name);
+      auto func = [benchmark_recipe, case_recipe]() -> std::shared_ptr<IBenchmark> {
+        std::shared_ptr<Benchmark<BackendT>> bench = benchmark_recipe();
         bench->set_case(case_recipe());
-        bench->add_stats(stats_recipes);
         return bench;
       };
       return func;
     };
-    auto generate_backend_metadata() -> BackendMetadata override {
-      BackendMetadata metadata{};
-      metadata.m_name = get_name();
-      metadata.m_benchmarks = m_benchmark_storage.list();
-      metadata.m_cases = m_cases_storage.list();
-      metadata.m_stats = m_backend_stats_storage.list();
-      return metadata;
-    }
     void register_case(const std::string &name, const CaseFactory<BackendT> &case_factory) {
       m_cases_storage.insert(name, case_factory, get_name());
     }
@@ -100,24 +81,47 @@ namespace Baseliner {
     [[nodiscard]] auto list_device_benchmarks() const -> std::vector<std::string> override {
       return m_benchmark_storage.list();
     };
+    [[nodiscard]] auto list_components() -> ComponentList override {
+      ComponentType component_case = ComponentType::CASE;
+      std::vector<std::pair<std::string, ComponentType>> result;
+      result.reserve(m_cases_storage.size());
+      for (const auto &str : list_device_cases()) {
+        result.emplace_back(str, component_case);
+      }
+      ComponentType component_benchmark = ComponentType::BENCHMARK;
+      result.reserve(result.size() + m_benchmark_storage.size());
+      for (const auto &str : list_device_benchmarks()) {
+        result.emplace_back(str, component_benchmark);
+      }
+      return result;
+    };
+
     [[nodiscard]] auto has_case(const std::string &name) const -> bool override {
       return m_cases_storage.has(name);
     };
-    void apply_backend_preset(const OptionsMap &option) override {
-      auto *ptr = BackendT::instance();
-      auto opt = ptr->gather_options();
-      if (Options::is_subset(opt, option)) {
-        ptr->propagate_options(option);
-      } else {
-        std::stringstream string_stream{};
-        string_stream << "Error, presets should exactly match the object Option Schema \n";
-        string_stream << "The given preset : \n";
-        serialize(string_stream, option);
-        string_stream << "\n" << "The object preset \n";
-        serialize(string_stream, opt);
-        throw std::runtime_error(string_stream.str());
-      }
+    [[nodiscard]] auto has_benchmark(const std::string &name) const -> bool override {
+      return m_benchmark_storage.has(name);
     };
+    [[nodiscard]] auto has_stat(const std::string &name) const -> bool override {
+      return m_backend_stats_storage.has(name);
+    };
+    [[nodiscard]] auto get_backend_setup(const OptionsMap &option) -> BackendSetup override {
+      BackendT *ptr = BackendT::instance();
+      return [ptr, option]() {
+        auto opt = ptr->gather_options();
+        if (Options::is_subset(opt, option)) {
+          ptr->propagate_options(option);
+        } else {
+          std::stringstream string_stream{};
+          string_stream << "Error, presets should exactly match the object Option Schema \n";
+          string_stream << "The given preset : \n";
+          serialize(string_stream, option);
+          string_stream << "\n" << "The object preset \n";
+          serialize(string_stream, opt);
+          throw std::runtime_error(string_stream.str());
+        }
+      };
+    }
 
   private:
     CaseStorage<BackendT> m_cases_storage;

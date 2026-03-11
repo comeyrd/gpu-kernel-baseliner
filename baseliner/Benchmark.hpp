@@ -1,5 +1,6 @@
 #ifndef BASELINER_BENCHMARK_HPP
 #define BASELINER_BENCHMARK_HPP
+#include "baseliner/Error.hpp"
 #include <baseliner/Case.hpp>
 #include <baseliner/Kernel.hpp>
 #include <baseliner/Metric.hpp>
@@ -103,6 +104,9 @@ namespace Baseliner {
 
     virtual auto gather_axe_options() -> OptionsMap = 0;
     virtual void propagate_axe_options(const OptionsMap &map) = 0;
+
+    virtual void propagate_case_options(const OptionsMap &map) = 0;
+    virtual auto gather_case_options() -> OptionsMap = 0;
 
     void set_stopping_criterion(const std::function<std::unique_ptr<StoppingCriterion>()> stopping_builder) {
       m_stopping = stopping_builder();
@@ -223,6 +227,13 @@ namespace Baseliner {
       BackendT::instance()->propagate_options(map);
     };
 
+    void propagate_case_options(const OptionsMap &map) override {
+      m_case->propagate_options(map);
+    };
+    auto gather_case_options() -> OptionsMap override {
+      return m_case->gather_options();
+    };
+
   private:
     // Kernel Types
 
@@ -280,7 +291,7 @@ namespace Baseliner {
     };
     void check_case() {
       if (!m_case) {
-        throw std::runtime_error("Benchmark Error : Launching benchmark with an empty case");
+        throw Errors::empty_case_benchmark();
       }
     }
   };

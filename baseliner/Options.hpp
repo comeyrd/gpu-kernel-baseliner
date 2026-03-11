@@ -1,5 +1,6 @@
 #ifndef OPTIONS_HPP
 #define OPTIONS_HPP
+#include "baseliner/Error.hpp"
 #include <baseliner/AxeSweeping.hpp>
 #include <baseliner/Conversions.hpp>
 #include <iostream>
@@ -86,8 +87,7 @@ namespace Baseliner {
           }
           return Conversion::baseliner_to_string<T>(Sweep::generate_sweep_values(sweep_hint_to_typed<T>(hint)));
         }
-        throw std::runtime_error("Sweeping Error : Trying to sweep on option : " + get_interface_name() + "." +
-                                 get_name() + " but no sweep policy was defined or given");
+        throw Errors::sweeping_error(get_interface_name(), get_name());
       };
 
     private:
@@ -206,7 +206,7 @@ namespace Baseliner {
         m_options_bindings.push_back(std::move(binding));
         return ref;
       }
-      throw std::runtime_error("add_option called outside register_options()");
+      throw Errors::adding_option_outside_register_option();
     }
 
   private:
