@@ -30,7 +30,7 @@ namespace Baseliner {
   public:
     explicit StatConceptRegistrar(const std::vector<std::string> &defaults_stats) {
       StorageManager::instance()->register_stat_preset(
-          std::string(DEFAULT_PRESET), StatsPreset{std::string(DEFAULT_DESCRIPTION), defaults_stats, {}});
+          std::string(DEFAULT_STAT), StatsPreset{std::string(DEFAULT_DESCRIPTION), defaults_stats, {}});
     }
   };
 

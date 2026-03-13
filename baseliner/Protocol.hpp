@@ -14,6 +14,9 @@ namespace Baseliner {
 
   struct RecipeComponent {
     std::string m_impl;
+    std::optional<std::string> m_preset;
+  };
+  struct RecipeStat {
     std::string m_preset;
   };
 
@@ -21,14 +24,14 @@ namespace Baseliner {
     std::string m_description;
     std::optional<RecipeComponent> m_benchmark;
     std::optional<RecipeComponent> m_stopping;
-    std::optional<RecipeComponent> m_stats;
+    std::optional<RecipeStat> m_stats;
     std::optional<SweepSpec> m_sweep;
   };
 
   struct CampaignOverrides {
     std::optional<RecipeComponent> m_benchmark;
     std::optional<RecipeComponent> m_stopping;
-    std::optional<RecipeComponent> m_stats;
+    std::optional<RecipeStat> m_stats;
   };
 
   struct Campaign {

@@ -5,10 +5,9 @@
 #include <string>
 namespace Baseliner {
 
-  constexpr std::string_view DEFAULT_BENCHMARK = "Benchmark";
-  constexpr std::string_view DEFAULT_STOPPING = "StoppingCriterion";
   constexpr std::string_view DEFAULT_PRESET = "default";
   constexpr std::string_view DEFAULT_DESCRIPTION = "Default preset";
+  constexpr std::string_view DEFAULT_STAT = DEFAULT_PRESET;
 
   enum ComponentType : uint8_t {
     NONE,

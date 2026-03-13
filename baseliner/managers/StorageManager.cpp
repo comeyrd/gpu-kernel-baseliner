@@ -41,25 +41,25 @@ namespace Baseliner {
   /*
    * Getting factories
    */
-  auto StorageManager::get_stopping_criterion_factory(const std::string &name) -> StoppingCriterionFactory {
+  auto StorageManager::get_stopping_criterion_factory(const std::string &name) const -> StoppingCriterionFactory {
     if (m_stopping_storage.has(name)) {
       return m_stopping_storage.at(name);
     }
     throw Errors::not_found(component_to_string(ComponentType::STOPPING), name);
   }
   auto StorageManager::get_benchmark_case_factory(const std::string &backend_name, const std::string &benchmark_name,
-                                                  const std::string &case_name) -> IBenchmarkFactory {
+                                                  const std::string &case_name) const -> IBenchmarkFactory {
     IBackendStorage *storage = get_backend_storage(backend_name);
     return storage->get_benchmark_with_case(benchmark_name, case_name);
   }
-  auto StorageManager::get_stats_factories(const std::string &name) -> StatsFactory {
+  auto StorageManager::get_stats_factories(const std::string &name) const -> StatsFactory {
     if (m_stats_storage.has(name)) {
       return m_stats_storage.at(name);
     }
     throw Errors::stat_not_found(name);
   }
 
-  auto StorageManager::get_backend_stats_factories(const std::string &backend, const std::string &name)
+  auto StorageManager::get_backend_stats_factories(const std::string &backend, const std::string &name) const
       -> StatsFactory {
     IBackendStorage *storage = get_backend_storage(backend);
     if (storage->has_stat(name)) {
@@ -68,34 +68,35 @@ namespace Baseliner {
     throw Errors::stat_not_found_backend(name, backend);
   };
 
-  auto StorageManager::get_backend_setup(const std::string &name, const OptionsMap &omap) -> BackendSetup {
+  auto StorageManager::get_backend_setup(const std::string &name, const OptionsMap &omap) const -> BackendSetup {
     IBackendStorage *storage = get_backend_storage(name);
     return storage->get_backend_setup(omap);
   }
 
-  auto StorageManager::get_backend_storage(const std::string &name) -> IBackendStorage * {
+  auto StorageManager::get_backend_storage(const std::string &name) const -> IBackendStorage * {
     if (m_backends_storage.find(name) != m_backends_storage.end()) {
-      return m_backends_storage[name];
+      return m_backends_storage.at(name);
     }
     throw Errors::not_found(component_to_string(ComponentType::BACKEND), name);
   };
 
-  auto StorageManager::get_component_preset(const RecipeComponent &component) -> ComponentPreset {
-    check_component_preset(component.m_impl, component.m_preset);
-    return m_component_presets[component.m_impl][component.m_preset];
+  auto StorageManager::get_component_preset(const std::string &impl, const std::string &preset) const
+      -> ComponentPreset {
+    check_component_preset(impl, preset);
+    return m_component_presets.at(impl).at(preset);
   };
 
-  auto StorageManager::get_stats_preset(const std::string &name) -> StatsPreset {
+  auto StorageManager::get_stats_preset(const std::string &name) const -> StatsPreset {
     if (m_stats_presets.find(name) != m_stats_presets.end()) {
-      return m_stats_presets[name];
+      return m_stats_presets.at(name);
     }
     throw Errors::stat_not_found(name);
   };
 
-  auto StorageManager::list_components() -> ComponentList {
+  auto StorageManager::list_components() const -> ComponentList {
     return {m_components.begin(), m_components.end()};
   };
-  auto StorageManager::list_stats() -> std::vector<std::string> {
+  auto StorageManager::list_stats() const -> std::vector<std::string> {
     std::vector<std::string> keys;
     keys.reserve(m_stats_presets.size());
     for (const auto &[key, _] : m_stats_presets) {
@@ -103,7 +104,7 @@ namespace Baseliner {
     }
     return keys;
   };
-  auto StorageManager::list_backends() -> std::vector<std::string> {
+  auto StorageManager::list_backends() const -> std::vector<std::string> {
     std::vector<std::string> keys;
     keys.reserve(m_backends_storage.size());
     for (const auto &[key, _] : m_backends_storage) {
@@ -111,33 +112,33 @@ namespace Baseliner {
     }
     return keys;
   };
-  auto StorageManager::list_backend_components(std::string &backend) -> ComponentList {
+  auto StorageManager::list_backend_components(std::string &backend) const -> ComponentList {
     IBackendStorage *storage = get_backend_storage(backend);
     return storage->list_components();
   };
-  auto StorageManager::list_backend_stats(std::string &backend) -> std::vector<std::string> {
+  auto StorageManager::list_backend_stats(std::string &backend) const -> std::vector<std::string> {
     IBackendStorage *storage = get_backend_storage(backend);
     return storage->list_device_stats();
   };
 
-  auto StorageManager::list_component_presets(const std::string &component_name) -> ComponentPresetList {
+  auto StorageManager::list_component_presets(const std::string &component_name) const -> ComponentPresetList {
     check_component(component_name);
-    return {m_component_presets[component_name].begin(), m_component_presets[component_name].end()};
+    return {m_component_presets.at(component_name).begin(), m_component_presets.at(component_name).end()};
   };
-  auto StorageManager::list_stat_presets() -> StatsPresetList {
+  auto StorageManager::list_stat_presets() const -> StatsPresetList {
     return {m_stats_presets.begin(), m_stats_presets.end()};
   };
-  void StorageManager::check_component(const std::string &name) {
+  void StorageManager::check_component(const std::string &name) const {
     if (m_components.find(name) == m_components.end()) {
       throw Errors::not_found("Component", name);
     }
     if (m_component_presets.find(name) == m_component_presets.end()) {
-      throw Errors::not_found_in(component_to_string(m_components[name]), name, "Presets");
+      throw Errors::not_found_in(component_to_string(m_components.at(name)), name, "Presets");
     }
   };
-  void StorageManager::check_component_preset(const std::string &component, const std::string &preset) {
+  void StorageManager::check_component_preset(const std::string &component, const std::string &preset) const {
     check_component(component);
-    auto &impl_preset = m_component_presets[component];
+    const auto &impl_preset = m_component_presets.at(component);
     if (impl_preset.find(preset) == impl_preset.end()) {
       throw Errors::not_found_in("Preset", preset, component);
     }

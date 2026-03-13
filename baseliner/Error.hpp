@@ -8,6 +8,7 @@ namespace Baseliner {
 
   enum class ErrorCode {
     NotFound,
+    BackendCaseBenchmarkNotFound,
     ComponentAlreadyExist,
     BenchmarkError,
     OptionsError,
@@ -25,6 +26,8 @@ namespace Baseliner {
       return "OptionsError";
     case ErrorCode::StoppingCriterionError:
       return "StoppingCriterionError";
+    case ErrorCode::BackendCaseBenchmarkNotFound:
+      return "BackendCaseBenchmarkNotFound";
     }
     return "Unknown";
   }
@@ -67,6 +70,10 @@ namespace Baseliner {
     inline auto not_found_in_backend(const std::string &kind, const std::string &name, const std::string &backend)
         -> Error {
       return {ErrorCode::NotFound, kind + " '" + name + "' not found in Backend " + backend};
+    }
+    inline auto case_benchmark_not_found_in_backend(const std::string &kind, const std::string &name,
+                                                    const std::string &backend) -> Error {
+      return {ErrorCode::BackendCaseBenchmarkNotFound, kind + " '" + name + "' not found in Backend " + backend};
     }
     inline auto component_already_exists(const std::string &name, const std::string &kind) -> Error {
       return {ErrorCode::ComponentAlreadyExist,

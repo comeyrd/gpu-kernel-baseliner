@@ -17,10 +17,10 @@ namespace Baseliner {
     std::string m_preset;
     OptionsMap m_options;
   };
-  struct PlannedSweep {
-    std::string m_interface;
-    std::string m_option;
-    std::vector<std::string> m_values;
+  struct PlannedStat {
+    std::string m_preset;
+    std::vector<std::string> m_stats;
+    OptionsMap m_options;
   };
 
   struct Plan {
@@ -30,8 +30,9 @@ namespace Baseliner {
     PlannedComponent m_backend;
     PlannedComponent m_benchmark;
     PlannedComponent m_stopping;
-    PlannedComponent m_stats;
-    std::optional<PlannedSweep> m_sweep;
+    PlannedStat m_stats;
+    std::optional<SweepSpec> m_sweep;
+    OnIncompatible m_on_incompatible;
   };
 
   struct RunReport {

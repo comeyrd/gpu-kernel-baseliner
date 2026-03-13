@@ -11,8 +11,8 @@ namespace Baseliner {
       return "Benchmark";
     case STOPPING:
       return "StoppingCriterion";
-    default:
-      return "";
+    case BACKEND:
+      return "Backend";
     }
   }
   static auto string_to_component(const std::string_view &str) -> ComponentType {
@@ -24,6 +24,9 @@ namespace Baseliner {
     }
     if (str == "StoppingCriterion") {
       return STOPPING;
+    }
+    if (str == "Backend") {
+      return BACKEND;
     }
     return NONE;
   }

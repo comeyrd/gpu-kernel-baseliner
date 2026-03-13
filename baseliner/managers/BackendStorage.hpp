@@ -14,8 +14,8 @@ namespace Baseliner {
   public:
     virtual ~IBackendStorage() = default;
 
-    [[nodiscard]] virtual auto get_benchmark_with_case(const std::string &benchmark_name, const std::string &case_name)
-        -> IBenchmarkFactory = 0;
+    [[nodiscard]] virtual auto get_benchmark_with_case(const std::string &benchmark_name,
+                                                       const std::string &case_name) const -> IBenchmarkFactory = 0;
 
     void set_name(const std::string &name) {
       m_name = name;
@@ -45,14 +45,15 @@ namespace Baseliner {
       static BackendStorage<BackendT> manager;
       return &manager;
     }
-    [[nodiscard]] auto get_benchmark_with_case(const std::string &benchmark_name, const std::string &case_name)
+    [[nodiscard]] auto get_benchmark_with_case(const std::string &benchmark_name, const std::string &case_name) const
         -> IBenchmarkFactory override {
       if (!m_benchmark_storage.has(benchmark_name)) {
-        throw Errors::not_found_in_backend(component_to_string(ComponentType::BENCHMARK), benchmark_name,
-                                           this->get_name());
+        throw Errors::case_benchmark_not_found_in_backend(component_to_string(ComponentType::BENCHMARK), benchmark_name,
+                                                          this->get_name());
       }
       if (!m_cases_storage.has(case_name)) {
-        throw Errors::not_found_in_backend(component_to_string(ComponentType::CASE), case_name, this->get_name());
+        throw Errors::case_benchmark_not_found_in_backend(component_to_string(ComponentType::CASE), case_name,
+                                                          this->get_name());
       }
       auto benchmark_recipe = m_benchmark_storage.at(benchmark_name);
       auto case_recipe = m_cases_storage.at(case_name);

@@ -141,6 +141,14 @@ namespace Baseliner {
       }
       return true;
     }
+    // Returns a new OptionsMap with all the values of "overrides" and the values from "base" which overrides misses.
+    auto merge(const OptionsMap &base, const OptionsMap &overrides) -> OptionsMap {
+      OptionsMap result = base;
+      for (const auto &[key, value] : overrides) {
+        result[key] = value;
+      }
+      return result;
+    }
   } // namespace Options
 
   // TODO Setup checks so there is not a cyclic depedency between OptionConsumer
