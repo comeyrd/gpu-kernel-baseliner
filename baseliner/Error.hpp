@@ -1,6 +1,9 @@
 #ifndef BASELINER_ERROR_HPP
 #define BASELINER_ERROR_HPP
+#include "baseliner/OptionTypes.hpp"
+#include "baseliner/Serializer.hpp"
 #include <cstring>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 
@@ -13,6 +16,7 @@ namespace Baseliner {
     BenchmarkError,
     OptionsError,
     StoppingCriterionError,
+    PresetError,
   };
   inline auto error_code_to_string(ErrorCode code) -> std::string {
     switch (code) {
@@ -28,6 +32,8 @@ namespace Baseliner {
       return "StoppingCriterionError";
     case ErrorCode::BackendCaseBenchmarkNotFound:
       return "BackendCaseBenchmarkNotFound";
+    case ErrorCode::PresetError:
+      return "PresetError";
     }
     return "Unknown";
   }
@@ -67,6 +73,9 @@ namespace Baseliner {
     inline auto stat_not_found_backend(const std::string &name, const std::string &backend) -> Error {
       return {ErrorCode::NotFound, "Stat '" + name + "' not found in Backend " + backend};
     }
+    inline auto stat_not_found_either_general_or_backend(const std::string &name, const std::string &backend) -> Error {
+      return {ErrorCode::NotFound, "Stat '" + name + "' not found neither in General Stats nor in Backend " + backend};
+    }
     inline auto not_found_in_backend(const std::string &kind, const std::string &name, const std::string &backend)
         -> Error {
       return {ErrorCode::NotFound, kind + " '" + name + "' not found in Backend " + backend};
@@ -92,6 +101,15 @@ namespace Baseliner {
     inline auto empty_stat_engine_stopping() -> Error {
       return {ErrorCode::StoppingCriterionError,
               "The stopping criterion was called before the stats engine was provided"};
+    }
+    inline auto preset_not_subset_of(const OptionsMap &must_be_subset, const OptionsMap &original) -> Error {
+      std::stringstream string_stream{};
+      string_stream << "the given preset should be a subset of the object Option Schema \n";
+      string_stream << "The given preset : \n";
+      serialize(string_stream, must_be_subset);
+      string_stream << "\n" << "The object preset \n";
+      serialize(string_stream, original);
+      return {ErrorCode::PresetError, string_stream.str()};
     }
 
   } // namespace Errors

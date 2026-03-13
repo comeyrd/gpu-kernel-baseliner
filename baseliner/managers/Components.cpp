@@ -1,7 +1,7 @@
 #include <baseliner/managers/Components.hpp>
 #include <string>
 namespace Baseliner {
-  static auto component_to_string(const ComponentType &type) -> std::string {
+  auto component_to_string(const ComponentType &type) -> std::string {
     switch (type) {
     case NONE:
       return "";
@@ -15,7 +15,7 @@ namespace Baseliner {
       return "Backend";
     }
   }
-  static auto string_to_component(const std::string_view &str) -> ComponentType {
+  auto string_to_component(const std::string_view &str) -> ComponentType {
     if (str == "Case") {
       return CASE;
     }

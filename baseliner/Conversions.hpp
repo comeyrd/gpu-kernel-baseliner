@@ -8,7 +8,7 @@
 #include <variant>
 #include <vector>
 namespace Baseliner::Conversion {
-  inline static auto trim_before_after_whitespace(const std::string &thestring) -> std::string {
+  inline auto trim_before_after_whitespace(const std::string &thestring) -> std::string {
     const std::string whitespace = " \t\n\r\f\v";
     size_t start = thestring.find_first_not_of(whitespace);
     std::string rsult{};

@@ -1,13 +1,11 @@
 #ifndef BASELINER_OUTPUT_HPP
 #define BASELINER_OUTPUT_HPP
 #include <baseliner/Metric.hpp>
-#include <baseliner/Options.hpp>
 #include <baseliner/Protocol.hpp>
 #include <baseliner/hardware/Backend.hpp>
 #include <string>
 #include <vector>
 namespace Baseliner {
-
   struct BenchmarkResult {
     OptionsMap m_sweep_point; // Interface → option → value
     std::vector<Metric> m_measurements;

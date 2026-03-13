@@ -52,20 +52,61 @@ namespace Baseliner {
     IBackendStorage *storage = get_backend_storage(backend_name);
     return storage->get_benchmark_with_case(benchmark_name, case_name);
   }
-  auto StorageManager::get_stats_factories(const std::string &name) const -> StatsFactory {
-    if (m_stats_storage.has(name)) {
-      return m_stats_storage.at(name);
+  auto StorageManager::get_stats_factory(const std::string &name) const -> StatsFactory {
+    std::optional<StatsFactory> fact = get_stats_factory_noexcept(name);
+    if (fact.has_value()) {
+      return fact.value();
     }
     throw Errors::stat_not_found(name);
   }
 
-  auto StorageManager::get_backend_stats_factories(const std::string &backend, const std::string &name) const
+  auto StorageManager::get_backend_stats_factory(const std::string &backend, const std::string &name) const
       -> StatsFactory {
+    std::optional<StatsFactory> fact = get_backend_stats_factory_noexcept(backend, name);
+    if (fact.has_value()) {
+      return fact.value();
+    }
+    throw Errors::stat_not_found_backend(name, backend);
+  };
+  auto StorageManager::get_stats_factory_noexcept(const std::string &name) const -> std::optional<StatsFactory> {
+    if (m_stats_storage.has(name)) {
+      return m_stats_storage.at(name);
+    }
+    return {};
+  }
+
+  auto StorageManager::get_backend_stats_factory_noexcept(const std::string &backend, const std::string &name) const
+      -> std::optional<StatsFactory> {
     IBackendStorage *storage = get_backend_storage(backend);
     if (storage->has_stat(name)) {
       return m_stats_storage.at(name);
     }
-    throw Errors::stat_not_found_backend(name, backend);
+    return {};
+  };
+  [[nodiscard]] auto StorageManager::get_combined_stats_factories(const std::string &backend,
+                                                                  const std::vector<std::string> &stat_names) const
+      -> StatsFactory {
+    IBackendStorage *storage = get_backend_storage(backend);
+    std::vector<StatsFactory> stat_factories;
+    stat_factories.reserve(stat_names.size());
+    for (const auto &name : stat_names) {
+      std::optional<StatsFactory> fact = get_stats_factory_noexcept(name);
+      if (fact.has_value()) {
+        stat_factories.push_back(fact.value());
+      } else {
+        std::optional<StatsFactory> backend_fact = get_backend_stats_factory_noexcept(backend, name);
+        if (backend_fact.has_value()) {
+          stat_factories.push_back(backend_fact.value());
+        } else {
+          throw Errors::stat_not_found_either_general_or_backend(name, backend);
+        }
+      }
+    }
+    return [stat_factories](std::shared_ptr<Stats::StatsEngine> engine) -> void {
+      for (const auto &fact : stat_factories) {
+        fact(engine);
+      }
+    };
   };
 
   auto StorageManager::get_backend_setup(const std::string &name, const OptionsMap &omap) const -> BackendSetup {

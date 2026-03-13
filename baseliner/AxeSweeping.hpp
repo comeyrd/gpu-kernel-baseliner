@@ -3,7 +3,7 @@
 
 #include <stdexcept>
 #include <string>
-#include <type_traits>
+#include <unordered_map>
 #include <vector>
 
 namespace Baseliner {
@@ -44,6 +44,7 @@ namespace Baseliner {
     SweepStrategy m_strategy;
     std::vector<SweepAxis> m_axes;
   };
+  using SweepHintMap = std::unordered_map<std::string, std::unordered_map<std::string, SweepHint>>;
 
   namespace Sweep {
     namespace Detail {

@@ -28,8 +28,8 @@ namespace Baseliner {
     OptionsMap m_stat_options;
   };
 
-  static auto component_to_string(const ComponentType &type) -> std::string;
-  static auto string_to_component(const std::string_view &str) -> ComponentType;
+  auto component_to_string(const ComponentType &type) -> std::string;
+  auto string_to_component(const std::string_view &str) -> ComponentType;
 
 } // namespace Baseliner
 #endif // BASELINER_COMPONENT_HPP

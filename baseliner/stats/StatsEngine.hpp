@@ -148,6 +148,10 @@ namespace Baseliner::Stats {
       set_default();
     };
 
+    void set_options(const OptionsMap &omap) {
+      m_stat_options = omap;
+    }
+
   private:
     template <typename... Ts>
     void expand_and_register(std::tuple<Ts...> * /*unused*/) {
@@ -221,6 +225,7 @@ namespace Baseliner::Stats {
 
     std::unordered_map<std::type_index, IStatBase *> m_on_demand_stats;
     std::unordered_map<IMetricBase *, std::vector<IStatBase *>> m_metric_to_stats;
+    OptionsMap m_stat_options;
     bool m_is_built = false;
     void ensure_build();
     void build_execution_plan();

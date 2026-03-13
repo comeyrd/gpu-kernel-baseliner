@@ -1,8 +1,10 @@
 add_library(baseliner SHARED)
 add_library(baseliner::baseliner ALIAS baseliner)
-set(sources JsonImplementation.cpp  Result.cpp stats/Stats.cpp SingleAxeSuite.cpp StoppingCriterion.cpp Serializer.cpp main.cpp  stats/StatsEngine.cpp Options.cpp RQ.cpp )
+set(sources JsonImplementation.cpp Options.cpp Planner.cpp RQ.cpp Serializer.cpp StoppingCriterion.cpp main.cpp  )
 target_sources(baseliner PRIVATE ${sources})
 #JSON
+
+
 include(FetchContent)
 FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz)
 FetchContent_MakeAvailable(json)
@@ -23,3 +25,5 @@ target_include_directories(baseliner PUBLIC
     $<INSTALL_INTERFACE:include> 
 )
 add_subdirectory(hardware)
+add_subdirectory(stats)
+add_subdirectory(managers)

@@ -76,7 +76,7 @@ namespace Baseliner::Planner {
     const StorageManager &m_storage_manager;
   };
 
-  static auto plan(const Protocol &protocol, const StorageManager &storage_manager) -> std::vector<Plan> {
+  auto plan(const Protocol &protocol, const StorageManager &storage_manager) -> std::vector<Plan> {
     std::vector<Plan> plan_vector{};
     PresetCascader cascader(protocol.m_presets, protocol.m_stats_presets, storage_manager);
     for (const Campaign &current_campaign : protocol.m_campaigns) {

@@ -1,6 +1,7 @@
 #ifndef OPTIONS_HPP
 #define OPTIONS_HPP
 #include "baseliner/Error.hpp"
+#include "baseliner/OptionTypes.hpp"
 #include <baseliner/AxeSweeping.hpp>
 #include <baseliner/Conversions.hpp>
 #include <iostream>
@@ -95,14 +96,6 @@ namespace Baseliner {
     };
   } // namespace OptionBindings
 
-  struct Option {
-    std::string m_description;
-    std::string m_value;
-  };
-
-  using InterfaceOptions = std::unordered_map<std::string, Option>;
-  using OptionsMap = std::unordered_map<std::string, InterfaceOptions>;
-  using SweepHintMap = std::unordered_map<std::string, std::unordered_map<std::string, SweepHint>>;
   namespace Options {
     static inline auto have_same_schema(const OptionsMap &omap1, const OptionsMap &omap2) -> bool {
       if (omap1.size() != omap2.size()) {

@@ -1,6 +1,7 @@
 #ifndef BASELINER_BENCHMARK_HPP
 #define BASELINER_BENCHMARK_HPP
 #include "baseliner/Error.hpp"
+#include "baseliner/OptionTypes.hpp"
 #include <baseliner/Case.hpp>
 #include <baseliner/Kernel.hpp>
 #include <baseliner/Metric.hpp>
@@ -22,13 +23,13 @@
 inline static const std::string_view DEFAULT_BENCHMARK_NAME = "Benchmark";
 
 #define BASELINER_BENCHMARK_SETTER(name, type)                                                                         \
-  auto set_##name(type value) &->Benchmark & {                                                                         \
+  auto set_##name(type value) & -> Benchmark & {                                                                       \
     this->set_m_##name(value); /* or call an internal logic function */                                                \
     return *this;                                                                                                      \
   }                                                                                                                    \
                                                                                                                        \
   /* The R-value version: calls the one above and moves *this */                                                       \
-  auto set_##name(type value) &&->Benchmark {                                                                          \
+  auto set_##name(type value) && -> Benchmark {                                                                        \
     this->set_m_##name(value); /* Calls the & version */                                                               \
     return std::move(*this);                                                                                           \
   }
@@ -121,6 +122,13 @@ namespace Baseliner {
       stat_recipe(m_stats_engine);
     }
 
+    void set_stat_options(const OptionsMap &omap) {
+      stats_options = omap;
+    }
+    [[nodiscard]] auto get_stat_options() const -> OptionsMap {
+      return stats_options;
+    }
+
   protected:
     void register_options() override {
       add_option("Benchmark", "block", "Using a blocking kernel", m_block);
@@ -141,6 +149,7 @@ namespace Baseliner {
     bool m_time_setup = false;
     bool m_time_teardown = false;
     bool m_first = true;
+    OptionsMap stats_options;
     std::string m_name{DEFAULT_BENCHMARK_NAME};
   };
 
@@ -263,6 +272,7 @@ namespace Baseliner {
         if (m_case) {
           m_case->setup_metrics(m_stats_engine);
         }
+        m_stats_engine->set_options(get_stat_options());
         set_first(false);
       }
     }

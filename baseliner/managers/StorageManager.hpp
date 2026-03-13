@@ -37,32 +37,39 @@ namespace Baseliner {
     /*
      * Getting factories
      */
-    auto get_stopping_criterion_factory(const std::string &name) const -> StoppingCriterionFactory;
-    auto get_benchmark_case_factory(const std::string &backend_name, const std::string &benchmark_name,
-                                    const std::string &case_name) const -> IBenchmarkFactory;
-    auto get_stats_factories(const std::string &name) const -> StatsFactory;
-    auto get_backend_stats_factories(const std::string &backend, const std::string &name) const -> StatsFactory;
-    auto get_backend_setup(const std::string &name, const OptionsMap &omap) const -> BackendSetup;
+    [[nodiscard]] auto get_stopping_criterion_factory(const std::string &name) const -> StoppingCriterionFactory;
+    [[nodiscard]] auto get_benchmark_case_factory(const std::string &backend_name, const std::string &benchmark_name,
+                                                  const std::string &case_name) const -> IBenchmarkFactory;
+    [[nodiscard]] auto get_stats_factory(const std::string &name) const -> StatsFactory;
+    [[nodiscard]] auto get_backend_stats_factory(const std::string &backend, const std::string &name) const
+        -> StatsFactory;
+    [[nodiscard]] auto get_stats_factory_noexcept(const std::string &name) const -> std::optional<StatsFactory>;
+    [[nodiscard]] auto get_backend_stats_factory_noexcept(const std::string &backend, const std::string &name) const
+        -> std::optional<StatsFactory>;
+    [[nodiscard]] auto get_backend_setup(const std::string &name, const OptionsMap &omap) const -> BackendSetup;
+    [[nodiscard]] auto get_combined_stats_factories(const std::string &backend,
+                                                    const std::vector<std::string> &stat_names) const -> StatsFactory;
     /*
      * Getting preset
      */
-    auto get_component_preset(const std::string &impl, const std::string &preset) const -> ComponentPreset;
-    auto get_stats_preset(const std::string &name) const -> StatsPreset;
+    [[nodiscard]] auto get_component_preset(const std::string &impl, const std::string &preset) const
+        -> ComponentPreset;
+    [[nodiscard]] auto get_stats_preset(const std::string &name) const -> StatsPreset;
 
     /*
      * Listing in storage
      */
-    auto list_components() const -> ComponentList;
-    auto list_stats() const -> std::vector<std::string>;
-    auto list_backends() const -> std::vector<std::string>;
-    auto list_backend_components(std::string &backend) const -> ComponentList;
-    auto list_backend_stats(std::string &backend) const -> std::vector<std::string>;
+    [[nodiscard]] auto list_components() const -> ComponentList;
+    [[nodiscard]] auto list_stats() const -> std::vector<std::string>;
+    [[nodiscard]] auto list_backends() const -> std::vector<std::string>;
+    [[nodiscard]] auto list_backend_components(std::string &backend) const -> ComponentList;
+    [[nodiscard]] auto list_backend_stats(std::string &backend) const -> std::vector<std::string>;
 
     /*
      * Listing presets
      */
-    auto list_component_presets(const std::string &component_name) const -> ComponentPresetList;
-    auto list_stat_presets() const -> StatsPresetList;
+    [[nodiscard]] auto list_component_presets(const std::string &component_name) const -> ComponentPresetList;
+    [[nodiscard]] auto list_stat_presets() const -> StatsPresetList;
 
   private:
     /*
