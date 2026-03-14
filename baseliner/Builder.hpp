@@ -6,8 +6,8 @@
 namespace Baseliner::Builder {
 
   struct Execution {
-    std::function<std::shared_ptr<IBenchmark>()> m_benchmark_factory;
-    std::function<void()> m_backend_setup;
+    IBenchmarkFactory m_benchmark_factory;
+    BackendSetup m_backend_setup;
   };
 
   auto build(const Plan &plan, const StorageManager &registry) -> Execution;

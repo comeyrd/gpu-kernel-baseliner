@@ -20,6 +20,7 @@ namespace Baseliner::Builder {
     built_execution.m_benchmark_factory = [benchmark_factory, stopping_factory]() -> std::shared_ptr<IBenchmark> {
       std::shared_ptr<IBenchmark> bench = benchmark_factory();
       bench->set_stopping_criterion(stopping_factory);
+      return bench;
     };
     built_execution.m_backend_setup = registry.get_backend_setup(plan.m_backend.m_impl, plan.m_backend.m_options);
 
