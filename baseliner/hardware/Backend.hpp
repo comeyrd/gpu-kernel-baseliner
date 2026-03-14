@@ -39,10 +39,7 @@ namespace Baseliner::Hardware {
     static void get_last_error();
     void set_device() {
       if (m_device >= Backend<S>::get_device_count()) {
-        throw std::runtime_error("Baseliner Error : Trying to set the device to " +
-                                 Conversion::baseliner_to_string(m_device) + " but there is only " +
-                                 Conversion::baseliner_to_string(Backend<S>::get_device_count()) +
-                                 " devices available");
+        throw hardware_illegal_device_setting(m_device, Backend<S>::get_device_count());
       }
       Backend<S>::set_device(m_device);
     };

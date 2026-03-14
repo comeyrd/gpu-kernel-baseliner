@@ -17,7 +17,7 @@ namespace Baseliner {
       file_exists = true;
     }
     if (file_exists && create_new_file) {
-      std::cout << filename << " already exists, but headers doesnt match. Writing in " << filename << ".new";
+      std::cout << filename << " already exists, Writing in " << filename << ".new";
       filename = filename + ".new";
     }
     std::ofstream file;
@@ -28,14 +28,14 @@ namespace Baseliner {
     }
 
     if (!file.is_open()) {
-      throw std::runtime_error("Could not open file: " + filename);
+      throw Errors::file_write_error(filename);
     }
     serialize(file, results);
   }
   void file_to_result(Result &result, const std::string filename) {
     std::ifstream infile(filename);
     if (!infile.is_open()) {
-      throw std::runtime_error("Baseliner Error: Could not open config file for reading: " + filename);
+      throw Errors::file_read_error(filename);
     }
     de_serialize(infile, result);
   }
@@ -45,7 +45,7 @@ namespace Baseliner {
     auto file = std::ofstream(filename, std::ios::trunc);
 
     if (!file.is_open()) {
-      throw std::runtime_error("Could not open file: " + filename);
+      throw Errors::file_write_error(filename);
     }
     serialize(file, metadata);
   }
@@ -55,7 +55,7 @@ namespace Baseliner {
     auto file = std::ofstream(filename, std::ios::trunc);
 
     if (!file.is_open()) {
-      throw std::runtime_error("Could not open file: " + filename);
+      throw Errors::file_write_error(filename);
     }
     serialize(file, config);
   }
@@ -63,7 +63,7 @@ namespace Baseliner {
     std::ifstream infile(filename);
 
     if (!infile.is_open()) {
-      throw std::runtime_error("Baseliner Error: Could not open config file for reading: " + filename);
+      throw Errors::file_read_error(filename);
     }
     de_serialize(infile, config);
   }

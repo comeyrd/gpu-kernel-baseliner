@@ -69,11 +69,10 @@ namespace Baseliner::Stats {
       }
       if (!(reg.has<InputTags>() && ...)) {
         std::stringstream sstream;
-        sstream << "Error in stat compute graph, one of inputs : ";
         bool first = true;
         ((sstream << (first ? "" : ", ") << typeid(InputTags).name(), first = false), ...);
-        sstream << "are not yet computed by needed by " << typeid(OutputTag).name();
-        throw std::runtime_error(sstream.str());
+
+        throw Errors::stat_dependencies_not_yet_computed(sstream.str(), typeid(OutputTag).name());
       }
       calculate(reg.get_mutable<OutputTag>(), reg.get<InputTags>()...);
     };

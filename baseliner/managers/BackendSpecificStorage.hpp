@@ -25,7 +25,7 @@ namespace Baseliner {
     };
     void insert(const std::string &name, const CaseFactory<BackendT> &case_factory, const std::string &backend_name) {
       if (has(name)) {
-        throw std::runtime_error("Backend Specific Case : " + name + " already registered for backend" + backend_name);
+        throw Errors::already_exist_in_backend(component_to_string(CASE), name, backend_name);
       }
       m_cases_map[name] = case_factory;
     }
@@ -61,8 +61,7 @@ namespace Baseliner {
     void insert(const std::string &name, const BenchmarkFactory<BackendT> &backend_factory,
                 const std::string &backend_name) {
       if (has(name)) {
-        throw std::runtime_error("Backend Specific Benchmark : " + name + " already registered for backend" +
-                                 backend_name);
+        throw Errors::already_exist_in_backend(component_to_string(BENCHMARK), name, backend_name);
       }
       m_benchmarks_map[name] = backend_factory;
     }
@@ -98,7 +97,7 @@ namespace Baseliner {
     };
     void insert(const std::string &name, const StatsFactory &stat_factory, const std::string &backend_name) {
       if (has(name)) {
-        throw std::runtime_error("Backend Specific Stat : " + name + " already registered for backend" + backend_name);
+        throw Errors::already_exist_in_backend("Stat", name, backend_name);
       }
       m_stats_map[name] = stat_factory;
     }

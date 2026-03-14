@@ -113,13 +113,7 @@ namespace Baseliner {
         if (Options::is_subset(opt, option)) {
           ptr->propagate_options(option);
         } else {
-          std::stringstream string_stream{};
-          string_stream << "Error, presets should exactly match the object Option Schema \n";
-          string_stream << "The given preset : \n";
-          serialize(string_stream, option);
-          string_stream << "\n" << "The object preset \n";
-          serialize(string_stream, opt);
-          throw std::runtime_error(string_stream.str());
+          throw Errors::preset_not_subset_of(option, opt);
         }
       };
     }

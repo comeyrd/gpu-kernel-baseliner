@@ -35,7 +35,7 @@ namespace Baseliner::Stats {
     template <typename StatType, typename... Args>
     void register_stat(Args &&...args) {
       if (m_is_built) {
-        throw std::runtime_error("Trying to register a metric after the Engine is built");
+        throw Errors::register_after_engine_built("Stat", typeid(StatType).name());
       }
       static_assert(std::is_base_of_v<IStatBase, StatType>, "Must derive from IStatBase");
 
@@ -54,7 +54,7 @@ namespace Baseliner::Stats {
     template <typename MetricType, typename... Args>
     void register_metric(Args &&...args) {
       if (m_is_built) {
-        throw std::runtime_error("Trying to register a metric after the Engine is built");
+        throw Errors::register_after_engine_built("metric", typeid(MetricType).name());
       }
       static_assert(std::is_base_of_v<IMetricBase, MetricType>, "Registered type must derive from IMetricBase");
       auto iterator = m_registered_types.find({std::type_index(typeid(MetricType)), false});
@@ -104,8 +104,7 @@ namespace Baseliner::Stats {
         return m_registry.get<StatType>();
       }
       std::ostringstream oss;
-      oss << "StatsEngine error in get_result(): " << typeid(StatType).name() << " Stat is not registered";
-      throw std::runtime_error(oss.str());
+      throw Errors::accessing_un_registered_thing("Stat", typeid(StatType).name());
     };
 
     void compute_stats();

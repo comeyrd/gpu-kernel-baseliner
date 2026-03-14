@@ -43,10 +43,7 @@ namespace Baseliner::Stats {
   auto MedianConfidenceInterval::get_z_score() const -> double {
     const float clamped_confidence = std::clamp(m_confidence, 0.0F, 1.0F);
     auto index = static_cast<size_t>(std::floor(clamped_confidence * ONE_HUNDRED_PERCENT));
-    if (index >= 0 && index < ONE_HUNDRED_PERCENT) {
-      return MEDIAN_Z_SCORES.at(index);
-    }
-    throw std::runtime_error("Unreachable code");
+    return MEDIAN_Z_SCORES.at(index);
   }
 
   auto MedianConfidenceInterval::n_cr(size_t sample_size, size_t prob_increment) -> double {

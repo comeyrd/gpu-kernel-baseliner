@@ -1,16 +1,14 @@
+#include <baseliner/Error.hpp>
 #include <baseliner/hardware/hip/HipBackend.hpp>
 #include <baseliner/managers/RegisteringMacros.hpp>
 void check_hip_error(hipError_t error_code, const char *file, int line) {
   if (error_code != hipSuccess) {
-    std::string msg = std::string("HIP Error : ") + hipGetErrorString(error_code) + std::string(" in : ") + file +
-                      std::string(" line ") + std::to_string(line);
-    throw std::runtime_error(msg);
+    throw Baseliner::Errors::hardware_error("HIP", hipGetErrorString(error_code), file, line);
   }
 }
 void check_hip_error_no_except(hipError_t error_code, const char *file, int line) {
   if (error_code != hipSuccess) {
-    std::string msg = std::string("HIP Error : ") + hipGetErrorString(error_code) + std::string(" in : ") + file +
-                      std::string(" line ") + std::to_string(line);
+    auto msg = Baseliner::Errors::hardware_error_noexcept("HIP", hipGetErrorString(error_code), file, line);
     std::cerr << msg << std::endl;
   }
 }

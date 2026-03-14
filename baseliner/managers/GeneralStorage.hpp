@@ -21,7 +21,7 @@ namespace Baseliner {
 
     void insert(const std::string &name, const StatsFactory &stat_func) {
       if (has(name)) {
-        throw std::runtime_error("Stat : " + name + " already registered");
+        throw Errors::already_exist("Stat", name);
       }
       m_stats_map[name] = stat_func;
     }
@@ -52,7 +52,7 @@ namespace Baseliner {
     };
     void insert(const std::string &name, const StoppingCriterionFactory &stopping_func) {
       if (has(name)) {
-        throw std::runtime_error("Suite : " + name + " already registered");
+        throw Errors::already_exist(component_to_string(STOPPING), name);
       }
       m_storage_stopping[name] = stopping_func;
     }

@@ -12,18 +12,21 @@ namespace Baseliner {
   enum class ErrorCode {
     NotFound,
     BackendCaseBenchmarkNotFound,
-    ComponentAlreadyExist,
+    AlreadyExists,
     BenchmarkError,
     OptionsError,
     StoppingCriterionError,
     PresetError,
+    FileError,
+    HardwareError,
+    StatsEngineError,
   };
   inline auto error_code_to_string(ErrorCode code) -> std::string {
     switch (code) {
     case ErrorCode::NotFound:
       return "NotFound";
-    case ErrorCode::ComponentAlreadyExist:
-      return "ComponentAlreadyExist";
+    case ErrorCode::AlreadyExists:
+      return "AlreadyExists";
     case ErrorCode::BenchmarkError:
       return "BenchmarkError";
     case ErrorCode::OptionsError:
@@ -34,6 +37,12 @@ namespace Baseliner {
       return "BackendCaseBenchmarkNotFound";
     case ErrorCode::PresetError:
       return "PresetError";
+    case ErrorCode::FileError:
+      return "FileError";
+    case ErrorCode::HardwareError:
+      return "HardwareError";
+    case ErrorCode::StatsEngineError:
+      return "StatsEngineError";
     }
     return "Unknown";
   }
@@ -85,8 +94,14 @@ namespace Baseliner {
       return {ErrorCode::BackendCaseBenchmarkNotFound, kind + " '" + name + "' not found in Backend " + backend};
     }
     inline auto component_already_exists(const std::string &name, const std::string &kind) -> Error {
-      return {ErrorCode::ComponentAlreadyExist,
-              "The component " + name + " is already taken by a" + kind + "component"};
+      return {ErrorCode::AlreadyExists, "The component " + name + " is already taken by a" + kind + "component"};
+    }
+    inline auto already_exist_in_backend(const std::string &kind, const std::string &name, const std::string &backend)
+        -> Error {
+      return {ErrorCode::AlreadyExists, kind + " '" + name + "' already exists in backend : " + backend};
+    }
+    inline auto already_exist(const std::string &kind, const std::string &name) -> Error {
+      return {ErrorCode::AlreadyExists, kind + " '" + name + "' already "};
     }
     inline auto empty_case_benchmark() -> Error {
       return {ErrorCode::BenchmarkError, "Trying to run a benchmarking without a case set up"};
@@ -103,13 +118,53 @@ namespace Baseliner {
               "The stopping criterion was called before the stats engine was provided"};
     }
     inline auto preset_not_subset_of(const OptionsMap &must_be_subset, const OptionsMap &original) -> Error {
-      std::stringstream string_stream{};
+      std::ostringstream string_stream{};
       string_stream << "the given preset should be a subset of the object Option Schema \n";
       string_stream << "The given preset : \n";
       serialize(string_stream, must_be_subset);
       string_stream << "\n" << "The object preset \n";
       serialize(string_stream, original);
       return {ErrorCode::PresetError, string_stream.str()};
+    }
+    inline auto file_read_error(const std::string &filename) -> Error {
+      return {ErrorCode::FileError, "Could not open file -" + filename + "- for reading"};
+    }
+    inline auto file_write_error(const std::string &filename) -> Error {
+      return {ErrorCode::FileError, "Could not open file -" + filename + "- for writing"};
+    }
+    inline auto hardware_illegal_device_setting(int device, int device_count) -> Error {
+      std::ostringstream string_stream{};
+      string_stream << "Trying to set the device to " << device << " but there is only " << device_count
+                    << " devices available";
+      return {ErrorCode::HardwareError, string_stream.str()};
+    }
+
+    inline auto hardware_error_noexcept(const std::string &hardware, const std::string &error_code,
+                                        const std::string &file, const std::string &line) -> std::string {
+      std::ostringstream string_stream{};
+      string_stream << hardware << " " << error_code << " in : " << file << " line " << line;
+      return string_stream.str();
+    }
+    inline auto hardware_error(const std::string &hardware, const std::string &error_code, const std::string &file,
+                               const std::string &line) -> Error {
+      std::string error_str = hardware_error_noexcept(hardware, error_code, file, line);
+      return {ErrorCode::HardwareError, error_str};
+    }
+    inline auto stat_dependencies_not_yet_computed(const std::string &inputs, const std::string &name) -> Error {
+      std::ostringstream sstream;
+      sstream << "Error in stat compute graph, one of inputs : ";
+      sstream << inputs;
+      sstream << " are not yet computed by needed by " << name;
+      return {ErrorCode::StatsEngineError, sstream.str()};
+    }
+    inline auto circular_dependency_stat_engine() -> Error {
+      return {ErrorCode::StatsEngineError, "Circular depedency detected in metrics graph"};
+    }
+    inline auto register_after_engine_built(const std::string &kind, const std::string &name) -> Error {
+      return {ErrorCode::StatsEngineError, "Trying to register " + kind + " : " + name + " after the Engine is built"};
+    }
+    inline auto accessing_un_registered_thing(const std::string &kind, const std::string &name) -> Error {
+      return {ErrorCode::StatsEngineError, "Trying to access " + kind + " : " + name + " but is not registered"};
     }
 
   } // namespace Errors

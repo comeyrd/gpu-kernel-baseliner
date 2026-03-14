@@ -36,15 +36,13 @@ namespace Baseliner::Stats {
       return;
     }
     if (current_status == NodeStatus::Visiting) {
-      throw std::runtime_error("Circular dependency detected in metrics graph!");
+      throw Errors::circular_dependency_stat_engine(); // TODO explainable error
     }
 
-    // 2. Mark as currently visiting (on the recursion stack)
     current_status = NodeStatus::Visiting;
 
     std::unordered_set<std::type_index> flattened_deps;
 
-    // 3. Process dependencies
     if (producer_to_dep.count(current) > 0) {
       // We copy the immediate dependencies because we will be
       // overwriting producer_to_dep[current] later.
@@ -63,7 +61,7 @@ namespace Baseliner::Stats {
       }
     }
 
-    // 4. Update the map with the flattened results and mark as Resolved
+    // Update the map with the flattened results and mark as Resolved
     producer_to_dep[current] = std::move(flattened_deps);
     current_status = NodeStatus::Resolved;
   }
