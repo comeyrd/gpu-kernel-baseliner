@@ -43,7 +43,6 @@ namespace Baseliner {
     explicit IBenchmark()
         : m_stats_engine(std::make_shared<Stats::StatsEngine>()) {};
     virtual auto name() -> std::string = 0;
-    virtual auto run() -> BenchmarkResult = 0;
 
     IBenchmark(IBenchmark &&) noexcept = default;
     auto operator=(IBenchmark &&) noexcept -> IBenchmark & = default;
@@ -98,7 +97,7 @@ namespace Baseliner {
     [[nodiscard]] auto get_m_name() const -> std::string {
       return m_name;
     }
-    [[nodiscard]] virtual auto get_device_info() const -> Hardware::HardwareInfo = 0;
+    [[nodiscard]] virtual auto get_hardware_info() const -> Hardware::HardwareInfo = 0;
     void set_m_name(std::string name) {
       m_name = std::move(name);
     }
@@ -128,6 +127,15 @@ namespace Baseliner {
     [[nodiscard]] auto get_stat_options() const -> OptionsMap {
       return stats_options;
     }
+    [[nodiscard]] auto get_sweep_spec() const -> std::optional<SweepSpec> {
+      return m_sweep_spec;
+    }
+    void set_sweep_spec(const std::optional<SweepSpec> &spec) {
+      m_sweep_spec = spec;
+    }
+    void set_backend_options(const OptionsMap &omap) {
+      m_backend_options = omap;
+    }
 
   protected:
     void register_options() override {
@@ -138,8 +146,20 @@ namespace Baseliner {
       add_option("Benchmark", "timed_setup", "Time the setup", m_time_setup);
       add_option("Benchmark", "timed_teardown", "Time the teardown", m_time_teardown);
     }
-    std::unique_ptr<StoppingCriterion> m_stopping;
-    std::shared_ptr<Stats::StatsEngine> m_stats_engine;
+
+    auto get_stopping() -> StoppingCriterion * {
+      return m_stopping.get();
+    }
+    auto get_stats_engine() -> Stats::StatsEngine * {
+      return m_stats_engine.get();
+    }
+    auto get_stats_engine_shared() -> std::shared_ptr<Stats::StatsEngine> {
+      return m_stats_engine;
+    }
+
+    auto get_backend_options() -> OptionsMap {
+      return m_backend_options;
+    }
 
   private:
     bool m_warmup = true;
@@ -151,6 +171,10 @@ namespace Baseliner {
     bool m_first = true;
     OptionsMap stats_options;
     std::string m_name{DEFAULT_BENCHMARK_NAME};
+    std::unique_ptr<StoppingCriterion> m_stopping;
+    std::shared_ptr<Stats::StatsEngine> m_stats_engine;
+    std::optional<SweepSpec> m_sweep_spec;
+    OptionsMap m_backend_options;
   };
 
   template <typename BackendT>
@@ -160,7 +184,7 @@ namespace Baseliner {
     // Benchmark
     explicit Benchmark()
         : IBenchmark() {
-      m_stats_engine->register_stat<Stats::ExecutionTimeVector>();
+      get_stats_engine()->template register_stat<Stats::ExecutionTimeVector>();
     };
     Benchmark(Benchmark &&) noexcept = default;
     auto operator=(Benchmark &&) noexcept -> Benchmark & = default;
@@ -187,19 +211,24 @@ namespace Baseliner {
     auto set_case(std::shared_ptr<ICase<BackendT>> case_impl) {
       m_case = case_impl;
     }
-    [[nodiscard]] auto get_device_info() const -> Hardware::HardwareInfo override {
+    [[nodiscard]] auto get_hardware_info() const -> Hardware::HardwareInfo override {
       return backend::instance()->get_device_info();
     };
 
-    auto run() -> BenchmarkResult override {
+    auto run_benchmark() -> RunReport {
+      RunReport report;
+    }
+
+    auto single_run() -> SingleRunReport {
+      BackendT::propagate_option(get_backend_options());
       m_stream = BackendT::instance()->create_stream();
       check_case();
       setup_metrics();
-      m_stats_engine->reset_engine();
+      get_stats_engine()->reset_engine();
       m_case->setup(m_stream);
       update_metrics();
       pre_all();
-      while (!m_stopping->satisfied()) {
+      while (!get_stopping()->satisfied()) {
         if (ExecutionController::exit_requested()) {
           break;
         }
@@ -207,8 +236,8 @@ namespace Baseliner {
         pre_run();
         m_case->timed_run(m_stream);
         post_run();
-        m_stats_engine->update_values<Stats::ExecutionTime>(m_case->time_elapsed());
-        m_stats_engine->compute_stats();
+        get_stats_engine()->template update_values<Stats::ExecutionTime>(m_case->time_elapsed());
+        get_stats_engine()->compute_stats();
       }
       post_all();
       m_case->teardown(m_stream);
@@ -216,22 +245,22 @@ namespace Baseliner {
       if (!valid_run) {
         std::cout << "Warning, not able to validate Case : " << m_case->name() << '\n';
       }
-      std::vector<Metric> metrics = {m_stats_engine->get_metrics()};
+      std::vector<Metric> metrics = {get_stats_engine()->get_metrics()};
       m_stream.reset();
-      return BenchmarkResult{{}, metrics};
+      return SingleRunReport{{}, metrics};
     }
 
     auto gather_axe_options() -> OptionsMap override {
       OptionsMap omap;
       m_case->gather_options(omap);
-      m_stopping->gather_options(omap);
+      get_stopping()->gather_options(omap);
       this->gather_options(omap);
       BackendT::instance()->gather_options(omap);
       return omap;
     };
     void propagate_axe_options(const OptionsMap &map) override {
       m_case->propagate_options(map);
-      m_stopping->propagate_options(map);
+      get_stopping()->propagate_options(map);
       this->propagate_options(map);
       BackendT::instance()->propagate_options(map);
     };
@@ -255,31 +284,31 @@ namespace Baseliner {
     std::shared_ptr<ICase<BackendT>> m_case;
     virtual void update_metrics() {
       if (m_case) {
-        m_case->update_metrics(m_stats_engine);
+        m_case->update_metrics(get_stats_engine_shared());
       }
     }
     virtual void setup_metrics() {
       if (get_first()) {
         if (get_warmup()) {
-          m_stats_engine->register_metric<Stats::WarmupTime>();
+          get_stats_engine()->template register_metric<Stats::WarmupTime>();
         }
         if (get_timed_setup()) {
-          m_stats_engine->register_metric<Stats::SetupTime>();
+          get_stats_engine()->template register_metric<Stats::SetupTime>();
         }
         if (get_timed_teardown()) {
-          m_stats_engine->register_metric<Stats::TeardownTime>();
+          get_stats_engine()->template register_metric<Stats::TeardownTime>();
         }
         if (m_case) {
-          m_case->setup_metrics(m_stats_engine);
+          m_case->setup_metrics(get_stats_engine_shared());
         }
-        m_stats_engine->set_options(get_stat_options());
+        get_stats_engine()->set_options(get_stat_options());
         set_first(false);
       }
     }
     virtual void pre_all() {
       if (get_warmup()) {
         m_case->timed_run(m_stream);
-        m_stats_engine->update_values<Stats::WarmupTime>(m_case->time_elapsed());
+        get_stats_engine()->template update_values<Stats::WarmupTime>(m_case->time_elapsed());
       }
     };
     virtual void pre_run() {

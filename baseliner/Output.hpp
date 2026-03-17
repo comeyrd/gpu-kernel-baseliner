@@ -6,10 +6,7 @@
 #include <string>
 #include <vector>
 namespace Baseliner {
-  struct BenchmarkResult {
-    OptionsMap m_sweep_point; // Interface → option → value
-    std::vector<Metric> m_measurements;
-  };
+
   struct PlannedComponent {
     std::string m_impl;
     std::string m_preset;
@@ -32,13 +29,18 @@ namespace Baseliner {
     std::optional<SweepSpec> m_sweep;
     OnIncompatible m_on_incompatible;
   };
-
-  struct RunReport {
-    Plan m_plan;
-    std::vector<BenchmarkResult> m_results;
+  struct SingleRunReport {
+    OptionsMap m_sweep_point; // Interface → option → value
+    std::vector<Metric> m_measurements;
+  };
+  struct BenchmarkReport {
+    std::vector<SingleRunReport> m_results;
     Hardware::HardwareInfo m_hardware;
   };
-
+  struct RunReport {
+    Plan m_plan;
+    BenchmarkReport m_benchmark_report;
+  };
   struct Report {
     std::string m_baseliner_version;
     std::string m_git_version;

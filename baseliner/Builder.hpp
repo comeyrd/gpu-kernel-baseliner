@@ -3,14 +3,11 @@
 #include <baseliner/Benchmark.hpp>
 #include <baseliner/managers/StorageManager.hpp>
 #include <functional>
-namespace Baseliner::Builder {
+namespace Baseliner {
+  namespace Builder {
 
-  struct Execution {
-    IBenchmarkFactory m_benchmark_factory;
-    BackendSetup m_backend_setup;
-  };
+    auto build(const Plan &plan, const StorageManager &registry) -> IBenchmarkFactory;
 
-  auto build(const Plan &plan, const StorageManager &registry) -> Execution;
-
-} // namespace Baseliner::Builder
+  } // namespace Builder
+} // namespace Baseliner
 #endif // BASELINER_BUILDER_HPP

@@ -1,6 +1,6 @@
 add_library(baseliner SHARED)
 add_library(baseliner::baseliner ALIAS baseliner)
-set(sources JsonImplementation.cpp Options.cpp Planner.cpp RQ.cpp Serializer.cpp StoppingCriterion.cpp main.cpp  )
+set(sources JsonImplementation.cpp Options.cpp Planner.cpp RQ.cpp Serializer.cpp StoppingCriterion.cpp main.cpp Builder.cpp )
 target_sources(baseliner PRIVATE ${sources})
 #JSON
 

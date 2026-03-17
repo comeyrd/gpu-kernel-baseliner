@@ -109,11 +109,6 @@ namespace Baseliner {
     };
   };
 
-  auto StorageManager::get_backend_setup(const std::string &name, const OptionsMap &omap) const -> BackendSetup {
-    IBackendStorage *storage = get_backend_storage(name);
-    return storage->get_backend_setup(omap);
-  }
-
   auto StorageManager::get_backend_storage(const std::string &name) const -> IBackendStorage * {
     if (m_backends_storage.find(name) != m_backends_storage.end()) {
       return m_backends_storage.at(name);

@@ -32,7 +32,6 @@ namespace Baseliner {
     [[nodiscard]] virtual auto has_stat(const std::string &name) const -> bool = 0;
     IBackendStorage() = default;
     virtual void apply_backend_preset(const OptionsMap &option) = 0;
-    [[nodiscard]] virtual auto get_backend_setup(const OptionsMap &option) -> BackendSetup = 0;
 
   private:
     std::string m_name;
@@ -106,17 +105,6 @@ namespace Baseliner {
     [[nodiscard]] auto has_stat(const std::string &name) const -> bool override {
       return m_backend_stats_storage.has(name);
     };
-    [[nodiscard]] auto get_backend_setup(const OptionsMap &option) -> BackendSetup override {
-      BackendT *ptr = BackendT::instance();
-      return [ptr, option]() {
-        auto opt = ptr->gather_options();
-        if (Options::is_subset(opt, option)) {
-          ptr->propagate_options(option);
-        } else {
-          throw Errors::preset_not_subset_of(option, opt);
-        }
-      };
-    }
 
   private:
     CaseStorage<BackendT> m_cases_storage;

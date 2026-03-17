@@ -46,7 +46,6 @@ namespace Baseliner {
     [[nodiscard]] auto get_stats_factory_noexcept(const std::string &name) const -> std::optional<StatsFactory>;
     [[nodiscard]] auto get_backend_stats_factory_noexcept(const std::string &backend, const std::string &name) const
         -> std::optional<StatsFactory>;
-    [[nodiscard]] auto get_backend_setup(const std::string &name, const OptionsMap &omap) const -> BackendSetup;
     [[nodiscard]] auto get_combined_stats_factories(const std::string &backend,
                                                     const std::vector<std::string> &stat_names) const -> StatsFactory;
     /*

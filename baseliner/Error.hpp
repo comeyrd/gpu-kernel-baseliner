@@ -20,6 +20,7 @@ namespace Baseliner {
     FileError,
     HardwareError,
     StatsEngineError,
+    NotImplemented,
   };
   inline auto error_code_to_string(ErrorCode code) -> std::string {
     switch (code) {
@@ -43,6 +44,8 @@ namespace Baseliner {
       return "HardwareError";
     case ErrorCode::StatsEngineError:
       return "StatsEngineError";
+    case ErrorCode::NotImplemented:
+      return "NotImplemented";
     }
     return "Unknown";
   }
@@ -165,6 +168,9 @@ namespace Baseliner {
     }
     inline auto accessing_un_registered_thing(const std::string &kind, const std::string &name) -> Error {
       return {ErrorCode::StatsEngineError, "Trying to access " + kind + " : " + name + " but is not registered"};
+    }
+    inline auto not_implemented(const std::string &name) -> Error {
+      return {ErrorCode::StatsEngineError, name + " is currently not implemented."};
     }
 
   } // namespace Errors

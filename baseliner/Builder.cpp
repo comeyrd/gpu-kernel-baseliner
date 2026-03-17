@@ -4,7 +4,7 @@
 #include <functional>
 namespace Baseliner::Builder {
 
-  auto build(const Plan &plan, const StorageManager &registry) -> Execution {
+  auto build(const Plan &plan, const StorageManager &registry) -> IBenchmarkFactory {
 
     IBenchmarkFactory benchmark_factory =
         registry.get_benchmark_case_factory(plan.m_backend.m_impl, plan.m_benchmark.m_impl, plan.m_case.m_impl);
@@ -16,15 +16,14 @@ namespace Baseliner::Builder {
     benchmark_factory =
         inject_option(benchmark_factory, plan.m_benchmark.m_options, plan.m_case.m_options, plan.m_stats.m_options);
 
-    Execution built_execution;
-    built_execution.m_benchmark_factory = [benchmark_factory, stopping_factory]() -> std::shared_ptr<IBenchmark> {
+    IBenchmarkFactory final_factory = [benchmark_factory, stopping_factory, plan]() -> std::shared_ptr<IBenchmark> {
       std::shared_ptr<IBenchmark> bench = benchmark_factory();
       bench->set_stopping_criterion(stopping_factory);
+      bench->set_sweep_spec(plan.m_sweep);
+      bench->set_backend_options(plan.m_backend.m_options);
       return bench;
     };
-    built_execution.m_backend_setup = registry.get_backend_setup(plan.m_backend.m_impl, plan.m_backend.m_options);
-
-    return built_execution;
+    return final_factory;
   };
 
 } // namespace Baseliner::Builder

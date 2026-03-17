@@ -1,6 +1,7 @@
 #ifndef BASELINER_AXE_SWEEPING_HPP
 #define BASELINER_AXE_SWEEPING_HPP
 
+#include <baseliner/OptionTypes.hpp>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -8,8 +9,7 @@
 
 namespace Baseliner {
   enum class SweepStrategy : char {
-    Grid,
-    Paired
+    Carthesian
   };
 
   enum class SweepPolicy : char {
