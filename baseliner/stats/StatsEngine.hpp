@@ -133,10 +133,10 @@ namespace Baseliner::Stats {
 
     void register_options_dependencies() override {
       for (auto &stat : m_stats) {
-        register_consumer(*stat);
+        register_consumer(stat.get());
       }
       for (auto &metric : m_metrics) {
-        register_consumer(*metric);
+        register_consumer(metric.get());
       }
     };
 

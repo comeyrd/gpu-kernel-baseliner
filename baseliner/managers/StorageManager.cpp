@@ -32,7 +32,7 @@ namespace Baseliner {
   }
   void StorageManager::register_stopping(const std::string &name, const StoppingCriterionFactory &stopping_factory) {
     m_stopping_storage.insert(name, stopping_factory);
-    register_component(name, ComponentType::STOPPING, stopping_factory()->gather_options());
+    register_component(name, ComponentType::STOPPING, stopping_factory()->get_options());
   }
   void StorageManager::register_general_stat(const std::string &name, const StatsFactory &stat_factory) {
     m_stats_storage.insert(name, stat_factory);

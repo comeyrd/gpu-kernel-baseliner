@@ -9,6 +9,7 @@
 #include <optional>
 #include <string>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
 
@@ -46,7 +47,7 @@ namespace Baseliner {
       [[nodiscard]] auto get_interface_name() const -> std::string;
       [[nodiscard]] auto get_description() const -> std::string;
 
-      void set_sweep_hint(SweepHint hint);
+      void set_sweep_hint(const SweepHint &hint);
       [[nodiscard]] auto get_sweep_hint() const -> const std::optional<SweepHint> &;
       [[nodiscard]] auto is_sweepable() const -> bool;
       [[nodiscard]] virtual auto generate_sweep_values() const -> std::vector<std::string> = 0;
@@ -145,7 +146,7 @@ namespace Baseliner {
   } // namespace Options
 
   // TODO Setup checks so there is not a cyclic depedency between OptionConsumer
-  // TODO that will make gather_options or propagate_option infinite recursive calls
+  // TODO that will make get_options or propagate_option infinite recursive calls
   // This has a small impact on object footprint, but it could have even less if we want everything to be an option,
   // even if they don't give option atm
   // We would store a unique_ptr to a struct with all the members (the vectors etc) and then if a class REALLY uses
@@ -153,14 +154,27 @@ namespace Baseliner {
   // and the memory usefull ?
   class IOption {
   public:
-    void gather_options(OptionsMap &opts);
-    auto gather_options() -> OptionsMap;
-    void propagate_options(const OptionsMap &optionsMap);
+    auto get_options() -> OptionsMap;
+    void get_options(OptionsMap &omap);
 
-    void gather_sweep_hints(SweepHintMap &hintmaps);
-    auto gather_sweep_hints() -> SweepHintMap;
-    void update_sweep_hint(const SweepHintMap &hintmaps);
-    auto generate_sweep_values_for(const std::string &interface, const std::string &option) -> std::vector<std::string>;
+    auto get_sweep_hints() -> SweepHintMap;
+    void get_sweep_hints(SweepHintMap &hintmap);
+
+    auto get_depedencies_options() -> OptionsMap;
+    void get_depedencies_options(OptionsMap &omap);
+
+    auto get_depedencies_sweep_hints() -> SweepHintMap;
+    void get_depedencies_sweep_hints(SweepHintMap &hintmap);
+
+    void apply_options(const OptionsMap &omap);
+    void apply_depedencies_options(const OptionsMap &omap);
+
+    void update_sweep_hints(const SweepHintMap &hintmaps);
+    void update_depedency_sweep_hints(const SweepHintMap &hintmaps);
+
+    [[nodiscard]] auto resolve_sweep_axis(const std::vector<SweepAxis> &sweep_axis_vector) -> std::vector<ResolvedAxis>;
+    [[nodiscard]] auto resolve_depedency_sweep_axis(const std::vector<SweepAxis> &sweep_axis_vector)
+        -> std::vector<ResolvedAxis>;
 
     virtual ~IOption() = default;
     IOption() = default;
@@ -193,10 +207,18 @@ namespace Baseliner {
     }
 
   protected:
+    void get_depedencies_options(OptionsMap &omap, std::unordered_set<IOption *> &visited);
+    void get_depedencies_sweep_hints(SweepHintMap &hintmap, std::unordered_set<IOption *> &visited);
+    void apply_depedencies_options(const OptionsMap &omap, std::unordered_set<IOption *> &visited);
+    void update_depedency_sweep_hints(const SweepHintMap &hintmaps, std::unordered_set<IOption *> &visited);
+    [[nodiscard]] auto resolve_depedency_sweep_axis(const std::vector<SweepAxis> &sweep_axis_vector,
+                                                    std::unordered_set<IOption *> &visited)
+        -> std::vector<ResolvedAxis>;
+
     virtual void register_options() = 0;
     virtual void register_options_dependencies() {};
 
-    void register_consumer(IOption &consumer);
+    void register_consumer(IOption *consumer);
     virtual void on_update() {};
     template <typename T>
     auto add_option(const std::string &interface, const std::string &name, const std::string &description, T &variable)

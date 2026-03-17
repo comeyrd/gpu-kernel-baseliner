@@ -30,7 +30,7 @@ namespace Baseliner {
     OnIncompatible m_on_incompatible;
   };
   struct SingleRunReport {
-    OptionsMap m_sweep_point; // Interface → option → value
+    std::optional<OptionsMap> m_sweep_point; // Interface → option → value
     std::vector<Metric> m_measurements;
   };
   struct BenchmarkReport {

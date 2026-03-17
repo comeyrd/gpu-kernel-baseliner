@@ -97,18 +97,13 @@ namespace Baseliner {
     [[nodiscard]] auto get_m_name() const -> std::string {
       return m_name;
     }
-    [[nodiscard]] virtual auto get_hardware_info() const -> Hardware::HardwareInfo = 0;
     void set_m_name(std::string name) {
       m_name = std::move(name);
     }
 
-    virtual auto gather_axe_options() -> OptionsMap = 0;
-    virtual void propagate_axe_options(const OptionsMap &map) = 0;
+    virtual auto get_case_options() -> OptionsMap = 0;
 
-    virtual void propagate_case_options(const OptionsMap &map) = 0;
-    virtual auto gather_case_options() -> OptionsMap = 0;
-
-    void set_stopping_criterion(const std::function<std::unique_ptr<StoppingCriterion>()> stopping_builder) {
+    void set_stopping_criterion(const std::function<std::unique_ptr<StoppingCriterion>()> &stopping_builder) {
       m_stopping = stopping_builder();
       m_stopping->set_stats_engine(m_stats_engine);
     }
@@ -147,6 +142,12 @@ namespace Baseliner {
       add_option("Benchmark", "timed_teardown", "Time the teardown", m_time_teardown);
     }
 
+    auto get_stopping_no_except() -> std::optional<StoppingCriterion *> {
+      if (m_stopping) {
+        return m_stopping.get();
+      }
+      return {};
+    }
     auto get_stopping() -> StoppingCriterion * {
       return m_stopping.get();
     }
@@ -160,6 +161,8 @@ namespace Baseliner {
     auto get_backend_options() -> OptionsMap {
       return m_backend_options;
     }
+
+    [[nodiscard]] virtual auto single_run(const std::optional<OptionsMap> &sweep_point) -> SingleRunReport = 0;
 
   private:
     bool m_warmup = true;
@@ -211,18 +214,43 @@ namespace Baseliner {
     auto set_case(std::shared_ptr<ICase<BackendT>> case_impl) {
       m_case = case_impl;
     }
-    [[nodiscard]] auto get_hardware_info() const -> Hardware::HardwareInfo override {
-      return backend::instance()->get_device_info();
+    auto run_benchmark() -> BenchmarkReport {
+      BenchmarkReport report;
+      BackendT::instance()->apply_options(get_backend_options());
+      for (const std::optional<OptionsMap> &sweep_point : this->generate_sweep_points()) {
+        report.m_results.push_back(this->single_run(sweep_point));
+      }
+      report.m_hardware = this->get_hardware_info();
+      return report;
+    }
+    auto get_case_options() -> OptionsMap override {
+      return m_case->get_options();
     };
 
-    auto run_benchmark() -> RunReport {
-      RunReport report;
+  protected:
+    auto generate_sweep_points() -> std::vector<OptionsMap> {
+      if (!get_sweep_spec().has_value()) {
+        return {{}};
+      }
+      SweepSpec spec = get_sweep_spec().value();
+      auto resolved_axis = this->resolve_depedency_sweep_axis(spec.m_axes);
+      return Sweep::get_sweep_points(spec.m_strategy, resolved_axis);
+    }
+    void register_options_dependencies() override {
+      if (m_case.has_value()) {
+        this->register_consumer(*m_case);
+      }
+      if (get_stopping_no_except().has_value()) {
+        this->register_consumer(get_stopping());
+      }
+      this->register_consumer(BackendT::instance());
+      this->register_consumer(get_stats_engine());
     }
 
-    auto single_run() -> SingleRunReport {
-      BackendT::propagate_option(get_backend_options());
+    [[nodiscard]] auto single_run(const std::optional<OptionsMap> &sweep_point) -> SingleRunReport override {
+      this->apply_sweep_point(sweep_point);
       m_stream = BackendT::instance()->create_stream();
-      check_case();
+      check_components();
       setup_metrics();
       get_stats_engine()->reset_engine();
       m_case->setup(m_stream);
@@ -247,30 +275,8 @@ namespace Baseliner {
       }
       std::vector<Metric> metrics = {get_stats_engine()->get_metrics()};
       m_stream.reset();
-      return SingleRunReport{{}, metrics};
+      return SingleRunReport{sweep_point, metrics};
     }
-
-    auto gather_axe_options() -> OptionsMap override {
-      OptionsMap omap;
-      m_case->gather_options(omap);
-      get_stopping()->gather_options(omap);
-      this->gather_options(omap);
-      BackendT::instance()->gather_options(omap);
-      return omap;
-    };
-    void propagate_axe_options(const OptionsMap &map) override {
-      m_case->propagate_options(map);
-      get_stopping()->propagate_options(map);
-      this->propagate_options(map);
-      BackendT::instance()->propagate_options(map);
-    };
-
-    void propagate_case_options(const OptionsMap &map) override {
-      m_case->propagate_options(map);
-    };
-    auto gather_case_options() -> OptionsMap override {
-      return m_case->gather_options();
-    };
 
   private:
     // Kernel Types
@@ -282,6 +288,10 @@ namespace Baseliner {
     std::shared_ptr<typename BackendT::stream_t> m_stream;
 
     std::shared_ptr<ICase<BackendT>> m_case;
+
+    [[nodiscard]] auto get_hardware_info() const -> Hardware::HardwareInfo {
+      return backend::instance()->get_device_info();
+    };
     virtual void update_metrics() {
       if (m_case) {
         m_case->update_metrics(get_stats_engine_shared());
@@ -328,9 +338,12 @@ namespace Baseliner {
     virtual void post_all() {
       BackendT::synchronize(m_stream);
     };
-    void check_case() {
+    void check_components() {
       if (!m_case) {
         throw Errors::empty_case_benchmark();
+      }
+      if (!get_stopping_no_except().has_value()) {
+        throw Errors::empty_stopping_benchmark();
       }
     }
   };

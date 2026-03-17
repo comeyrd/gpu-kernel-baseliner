@@ -40,6 +40,12 @@ namespace Baseliner {
     std::string m_option;
     SweepHint m_hint;
   };
+
+  struct ResolvedAxis {
+    std::string m_interface;
+    std::string m_option;
+    std::vector<std::string> value;
+  };
   struct SweepSpec {
     SweepStrategy m_strategy;
     std::vector<SweepAxis> m_axes;
@@ -47,6 +53,7 @@ namespace Baseliner {
   using SweepHintMap = std::unordered_map<std::string, std::unordered_map<std::string, SweepHint>>;
 
   namespace Sweep {
+
     namespace Detail {
 
       template <typename T>
@@ -80,6 +87,37 @@ namespace Baseliner {
     template <typename T>
     auto generate_sweep_values(const TypedSweepHint<T> &typed) -> std::vector<T> {
       return Detail::Sweeper<T>::generate(typed);
+    }
+
+    auto get_sweep_points(const SweepStrategy &strategy, const std::vector<ResolvedAxis> &axes)
+        -> std::vector<OptionsMap> {
+
+      if (axes.empty()) {
+        return {};
+      }
+
+      std::vector<OptionsMap> result = {{}}; // Start with one empty map
+
+      switch (strategy) {
+      case SweepStrategy::Carthesian: {
+        for (const ResolvedAxis &axis : axes) {
+          std::vector<OptionsMap> next;
+
+          for (const OptionsMap &existing : result) {
+            for (const std::string &val : axis.value) {
+              OptionsMap entry = existing; // copy current combination
+              entry[axis.m_interface][axis.m_option] = Option{"", val};
+              next.push_back(std::move(entry));
+            }
+          }
+
+          result = std::move(next);
+        }
+        break;
+      }
+      }
+
+      return result;
     }
   } // namespace Sweep
 } // namespace Baseliner

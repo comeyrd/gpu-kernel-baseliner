@@ -12,15 +12,15 @@ namespace Baseliner {
 
     auto output_function = [funct, benchmark_preset, case_preset, stat_options]() -> std::shared_ptr<IBenchmark> {
       auto ptr = funct();
-      auto benchmark_options = ptr->gather_options();
+      auto benchmark_options = ptr->get_options();
       if (Options::is_subset(benchmark_options, benchmark_preset)) {
-        ptr->propagate_options(benchmark_preset);
+        ptr->apply_options(benchmark_preset);
       } else {
         throw Errors::preset_not_subset_of(benchmark_preset, benchmark_options);
       }
-      auto case_options = ptr->gather_case_options();
+      auto case_options = ptr->get_case_options();
       if (Options::is_subset(case_options, case_preset)) {
-        ptr->propagate_case_options(case_preset);
+        ptr->apply_options(case_preset);
       } else {
         throw Errors::preset_not_subset_of(case_preset, case_options);
       }
@@ -36,9 +36,9 @@ namespace Baseliner {
                   "The type you want to inject presets on must inherit from IOption");
     auto output_function = [funct, preset]() -> std::unique_ptr<StoppingCriterion> {
       auto ptr = funct();
-      auto options = ptr->gather_options();
+      auto options = ptr->get_options();
       if (Options::is_subset(options, preset)) {
-        ptr->propagate_options(preset);
+        ptr->apply_options(preset);
       } else {
         throw Errors::preset_not_subset_of(preset, options);
       }

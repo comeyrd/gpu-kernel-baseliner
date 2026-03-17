@@ -14,7 +14,7 @@ namespace Baseliner::Stats {
       build_execution_plan();
       m_is_built = true;
       set_default();
-      propagate_options(m_stat_options);
+      this->apply_options(m_stat_options);
     }
   };
   // TODO Simplify

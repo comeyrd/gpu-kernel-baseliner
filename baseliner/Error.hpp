@@ -1,5 +1,6 @@
 #ifndef BASELINER_ERROR_HPP
 #define BASELINER_ERROR_HPP
+#include "baseliner/AxeSweeping.hpp"
 #include "baseliner/OptionTypes.hpp"
 #include "baseliner/Serializer.hpp"
 #include <cstring>
@@ -107,10 +108,23 @@ namespace Baseliner {
       return {ErrorCode::AlreadyExists, kind + " '" + name + "' already "};
     }
     inline auto empty_case_benchmark() -> Error {
-      return {ErrorCode::BenchmarkError, "Trying to run a benchmarking without a case set up"};
+      return {ErrorCode::BenchmarkError, "Trying to run a Benchmark without a case set up"};
+    }
+    inline auto empty_stopping_benchmark() -> Error {
+      return {ErrorCode::BenchmarkError, "Trying to run a Benchmark without a Stopping Criterion set up"};
     }
     inline auto adding_option_outside_register_option() -> Error {
       return {ErrorCode::OptionsError, "add_options() was called outside register_options()"};
+    }
+    inline auto recursive_consumer_options(const std::string &type) -> Error {
+      return {ErrorCode::OptionsError, "Recursive call chain found in options consumer relationship on " + type};
+    }
+    inline auto self_consumer(const std::string &type) -> Error {
+      return {ErrorCode::OptionsError, "An Option consumer self registered as a depedency consumer: " + type};
+    }
+    inline auto multiple_axis_responder(const ResolvedAxis &axis) -> Error {
+      return {ErrorCode::OptionsError, "Multiple consumers responded for axis resolving for this axis :" +
+                                           axis.m_interface + "." + axis.m_option};
     }
     inline auto sweeping_error(const std::string &interface_name, const std::string &option_name) -> Error {
       return {ErrorCode::OptionsError, "Sweeping Error : Trying to sweep on option : " + interface_name + "." +

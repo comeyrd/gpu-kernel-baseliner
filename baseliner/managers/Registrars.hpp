@@ -42,7 +42,7 @@ namespace Baseliner {
         return std::make_shared<BenchmarkT>();
       };
       BackendStorage<typename BenchmarkT::backend>::instance()->register_benchmark(name, factory);
-      StorageManager::instance()->register_component(name, ComponentType::BENCHMARK, factory()->gather_options());
+      StorageManager::instance()->register_component(name, ComponentType::BENCHMARK, factory()->get_options());
     }
   };
 
@@ -52,7 +52,7 @@ namespace Baseliner {
     explicit BackendRegistrar(const std::string &name) {
       IBackendStorage *backend = BackendStorage<BackendT>::instance();
       backend->set_name(name);
-      StorageManager::instance()->register_backend(name, backend, BackendT::instance()->gather_options());
+      StorageManager::instance()->register_backend(name, backend, BackendT::instance()->get_options());
       BenchmarkRegistrar<Benchmark<BackendT>> register_me("Benchmark");
     }
   };
@@ -63,7 +63,7 @@ namespace Baseliner {
     explicit CaseRegistrar(const std::string &name) {
       auto factory = []() -> std::shared_ptr<ICase<typename CaseT::backend>> { return std::make_shared<CaseT>(); };
       BackendStorage<typename CaseT::backend>::instance()->register_case(name, factory);
-      StorageManager::instance()->register_component(name, ComponentType::CASE, factory()->gather_options());
+      StorageManager::instance()->register_component(name, ComponentType::CASE, factory()->get_options());
     }
   };
 
@@ -75,7 +75,7 @@ namespace Baseliner {
         return std::make_shared<KernelCase<KernelT>>();
       };
       BackendStorage<typename KernelT::backend>::instance()->register_case(name, factory);
-      StorageManager::instance()->register_component(name, ComponentType::CASE, factory()->gather_options());
+      StorageManager::instance()->register_component(name, ComponentType::CASE, factory()->get_options());
     }
   };
 
