@@ -51,6 +51,7 @@ namespace Baseliner {
     auto operator=(const IBenchmark &) -> IBenchmark & = delete;
 
     ~IBenchmark() override = default;
+    virtual auto run_benchmark() -> BenchmarkReport = 0;
 
     void set_m_warmup(bool warmup) {
       m_warmup = warmup;
@@ -214,7 +215,7 @@ namespace Baseliner {
     auto set_case(std::shared_ptr<ICase<BackendT>> case_impl) {
       m_case = case_impl;
     }
-    auto run_benchmark() -> BenchmarkReport {
+    auto run_benchmark() -> BenchmarkReport override {
       BenchmarkReport report;
       BackendT::instance()->apply_options(get_backend_options());
       for (const std::optional<OptionsMap> &sweep_point : this->generate_sweep_points()) {

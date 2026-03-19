@@ -2,12 +2,11 @@
 #define BASELINER_BUILDER_HPP
 #include <baseliner/Benchmark.hpp>
 #include <baseliner/managers/StorageManager.hpp>
-#include <functional>
-namespace Baseliner {
-  namespace Builder {
 
-    auto build(const Plan &plan, const StorageManager &registry) -> IBenchmarkFactory;
+namespace Baseliner::Builder {
 
-  } // namespace Builder
-} // namespace Baseliner
+  auto build(const Plan &plan, const StorageManager *registry) -> IBenchmarkFactory;
+
+} // namespace Baseliner::Builder
+
 #endif // BASELINER_BUILDER_HPP

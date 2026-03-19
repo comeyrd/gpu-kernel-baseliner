@@ -10,7 +10,7 @@ namespace Baseliner::Planner {
   public:
     explicit PresetCascader(
         const std::unordered_map<std::string, std::unordered_map<std::string, ComponentPreset>> &component_presets,
-        const std::unordered_map<std::string, StatsPreset> &stats_presets, const StorageManager &storage_manager)
+        const std::unordered_map<std::string, StatsPreset> &stats_presets, const StorageManager *storage_manager)
         : m_component_presets(component_presets),
           m_stats_presets(stats_presets),
           m_storage_manager(storage_manager) {};
@@ -39,7 +39,7 @@ namespace Baseliner::Planner {
       }
       try {
         const OptionsMap temp_omap =
-            m_storage_manager.get_component_preset(wanted_component.m_impl, current_preset).m_options;
+            m_storage_manager->get_component_preset(wanted_component.m_impl, current_preset).m_options;
         found_omap = Options::merge(temp_omap, found_omap);
       } catch (const Error &e) {
         if (found_omap.empty()) {
@@ -54,7 +54,7 @@ namespace Baseliner::Planner {
         found_preset = m_stats_presets.at(wanted_stat.m_preset);
       }
       try {
-        const OptionsMap temp_omap = m_storage_manager.get_stats_preset(wanted_stat.m_preset).m_stat_options;
+        const OptionsMap temp_omap = m_storage_manager->get_stats_preset(wanted_stat.m_preset).m_stat_options;
         found_preset.m_stat_options = Options::merge(temp_omap, found_preset.m_stat_options);
       } catch (const Error &e) {
         if (found_preset.m_stat_names.empty()) {
@@ -73,10 +73,10 @@ namespace Baseliner::Planner {
   private:
     const std::unordered_map<std::string, std::unordered_map<std::string, ComponentPreset>> &m_component_presets;
     const std::unordered_map<std::string, StatsPreset> &m_stats_presets;
-    const StorageManager &m_storage_manager;
+    const StorageManager *m_storage_manager;
   };
 
-  auto plan(const Protocol &protocol, const StorageManager &storage_manager) -> std::vector<Plan> {
+  auto plan(const Protocol &protocol, const StorageManager *storage_manager) -> std::vector<Plan> {
     std::vector<Plan> plan_vector{};
     PresetCascader cascader(protocol.m_presets, protocol.m_stats_presets, storage_manager);
     for (const Campaign &current_campaign : protocol.m_campaigns) {

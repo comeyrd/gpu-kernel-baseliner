@@ -2,7 +2,6 @@
 #define BASELINER_ERROR_HPP
 #include "baseliner/AxeSweeping.hpp"
 #include "baseliner/OptionTypes.hpp"
-#include "baseliner/Serializer.hpp"
 #include <cstring>
 #include <sstream>
 #include <stdexcept>
@@ -138,9 +137,10 @@ namespace Baseliner {
       std::ostringstream string_stream{};
       string_stream << "the given preset should be a subset of the object Option Schema \n";
       string_stream << "The given preset : \n";
-      serialize(string_stream, must_be_subset);
+      string_stream << "TODO : FIX SERIALIZATION";
+      // serialize(string_stream, must_be_subset);
       string_stream << "\n" << "The object preset \n";
-      serialize(string_stream, original);
+      // serialize(string_stream, original);
       return {ErrorCode::PresetError, string_stream.str()};
     }
     inline auto file_read_error(const std::string &filename) -> Error {
