@@ -2,7 +2,7 @@
 #define BASELINER_OPTION_TYPES
 #include <string>
 #include <unordered_map>
-namespace {
+namespace Baseliner {
   struct Option {
     std::string m_description;
     std::string m_value;
@@ -10,6 +10,6 @@ namespace {
 
   using InterfaceOptions = std::unordered_map<std::string, Option>;
   using OptionsMap = std::unordered_map<std::string, InterfaceOptions>;
-} // namespace
+} // namespace Baseliner
 
 #endif // BASELINER_OPTION_TYPES
