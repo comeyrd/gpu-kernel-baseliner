@@ -1,6 +1,5 @@
 #ifndef BASELINER_AXE_SWEEPING_HPP
 #define BASELINER_AXE_SWEEPING_HPP
-
 #include <baseliner/OptionTypes.hpp>
 #include <stdexcept>
 #include <string>
@@ -89,7 +88,7 @@ namespace Baseliner {
       return Detail::Sweeper<T>::generate(typed);
     }
 
-    auto get_sweep_points(const SweepStrategy &strategy, const std::vector<ResolvedAxis> &axes)
+    inline auto get_sweep_points(const SweepStrategy &strategy, const std::vector<ResolvedAxis> &axes)
         -> std::vector<OptionsMap> {
 
       if (axes.empty()) {

@@ -157,13 +157,13 @@ namespace Baseliner {
     }
 
     inline auto hardware_error_noexcept(const std::string &hardware, const std::string &error_code,
-                                        const std::string &file, const std::string &line) -> std::string {
+                                        const std::string &file, int line) -> std::string {
       std::ostringstream string_stream{};
       string_stream << hardware << " " << error_code << " in : " << file << " line " << line;
       return string_stream.str();
     }
     inline auto hardware_error(const std::string &hardware, const std::string &error_code, const std::string &file,
-                               const std::string &line) -> Error {
+                               int line) -> Error {
       std::string error_str = hardware_error_noexcept(hardware, error_code, file, line);
       return {ErrorCode::HardwareError, error_str};
     }

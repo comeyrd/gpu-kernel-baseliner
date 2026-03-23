@@ -106,7 +106,7 @@ namespace Baseliner {
       return true;
     }
     void register_options_dependencies() override {
-      this->register_consumer(*m_input);
+      this->register_consumer(m_input.get());
     }
     auto name() -> std::string override {
       return m_kernel->name();

@@ -152,7 +152,7 @@ namespace Baseliner {
       for (auto &binding : m_options_bindings) {
         if (binding->get_name() == axis.m_option && binding->get_interface_name() == axis.m_interface) {
           binding->set_sweep_hint(axis.m_hint);
-          resolved.emplace_back(axis.m_option, axis.m_interface, binding->generate_sweep_values());
+          resolved.push_back(ResolvedAxis{axis.m_option, axis.m_interface, binding->generate_sweep_values()});
         }
       }
     }

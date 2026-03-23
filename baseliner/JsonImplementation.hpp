@@ -65,13 +65,19 @@ namespace Baseliner {
   }
   void to_json(json &json_obj, const Option &opt);
   void from_json(const json &json_obj, Option &opt);
-  void from_json(const json &json_obj, HardwareInfo &device);
+  void from_json(const json &json_obj, Hardware::HardwareInfo &device);
   // Output
   void to_json(json &json_obj, const PlannedComponent &component);
   void from_json(const json &json_obj, PlannedComponent &component);
 
   void to_json(json &json_obj, const PlannedStat &stat);
   void from_json(const json &json_obj, PlannedStat &stat);
+
+  void to_json(json &json_obj, const StatsPreset &preset);
+  void from_json(const json &json_obj, StatsPreset &preset);
+
+  void to_json(json &json_obj, const ComponentPreset &preset);
+  void from_json(const json &json_obj, ComponentPreset &preset);
 
   void to_json(json &json_obj, const Plan &plan);
   void from_json(const json &json_obj, Plan &plan);

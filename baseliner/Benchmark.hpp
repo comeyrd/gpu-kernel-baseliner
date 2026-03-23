@@ -23,13 +23,13 @@
 inline static const std::string_view DEFAULT_BENCHMARK_NAME = "Benchmark";
 
 #define BASELINER_BENCHMARK_SETTER(name, type)                                                                         \
-  auto set_##name(type value) & -> Benchmark & {                                                                       \
+  auto set_##name(type value) &->Benchmark & {                                                                         \
     this->set_m_##name(value); /* or call an internal logic function */                                                \
     return *this;                                                                                                      \
   }                                                                                                                    \
                                                                                                                        \
   /* The R-value version: calls the one above and moves *this */                                                       \
-  auto set_##name(type value) && -> Benchmark {                                                                        \
+  auto set_##name(type value) &&->Benchmark {                                                                          \
     this->set_m_##name(value); /* Calls the & version */                                                               \
     return std::move(*this);                                                                                           \
   }
@@ -238,8 +238,8 @@ namespace Baseliner {
       return Sweep::get_sweep_points(spec.m_strategy, resolved_axis);
     }
     void register_options_dependencies() override {
-      if (m_case.has_value()) {
-        this->register_consumer(*m_case);
+      if (m_case) {
+        this->register_consumer(m_case.get());
       }
       if (get_stopping_no_except().has_value()) {
         this->register_consumer(get_stopping());
@@ -293,6 +293,11 @@ namespace Baseliner {
     [[nodiscard]] auto get_hardware_info() const -> Hardware::HardwareInfo {
       return backend::instance()->get_device_info();
     };
+    void apply_sweep_point(const std::optional<OptionsMap> &point) {
+      if (point.has_value()) {
+        this->apply_depedencies_options(point.value());
+      }
+    }
     virtual void update_metrics() {
       if (m_case) {
         m_case->update_metrics(get_stats_engine_shared());

@@ -86,7 +86,6 @@ namespace Baseliner {
   [[nodiscard]] auto StorageManager::get_combined_stats_factories(const std::string &backend,
                                                                   const std::vector<std::string> &stat_names) const
       -> StatsFactory {
-    IBackendStorage *storage = get_backend_storage(backend);
     std::vector<StatsFactory> stat_factories;
     stat_factories.reserve(stat_names.size());
     for (const auto &name : stat_names) {

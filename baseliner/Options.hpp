@@ -120,7 +120,7 @@ namespace Baseliner {
       return true;
     }
     // True if small_subset is a subset of base_map
-    static inline auto is_subset(const OptionsMap &base_map, const OptionsMap &small_subset) -> bool {
+    inline auto is_subset(const OptionsMap &base_map, const OptionsMap &small_subset) -> bool {
       for (const auto &[interface_name, interface_opt] : small_subset) {
         auto omap2_interface_it = base_map.find(interface_name);
         if (omap2_interface_it == base_map.end()) {
@@ -136,7 +136,7 @@ namespace Baseliner {
       return true;
     }
     // Returns a new OptionsMap with all the values of "overrides" and the values from "base" which overrides misses.
-    auto merge(const OptionsMap &base, const OptionsMap &overrides) -> OptionsMap {
+    inline auto merge(const OptionsMap &base, const OptionsMap &overrides) -> OptionsMap {
       OptionsMap result = base;
       for (const auto &[key, value] : overrides) {
         result[key] = value;

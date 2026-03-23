@@ -49,7 +49,7 @@ namespace Baseliner {
     virtual void run_case(std::shared_ptr<typename BackendT::stream_t> stream) = 0;
     virtual void teardown(std::shared_ptr<typename BackendT::stream_t> stream) = 0;
     virtual auto validate_case() -> bool = 0;
-    void setup_metrics(std::shared_ptr<Stats::StatsEngine> &engine) {
+    void setup_metrics(std::shared_ptr<Stats::StatsEngine> engine) {
       std::optional<size_t> bytes = this->number_of_bytes();
       std::optional<size_t> flops = this->number_of_floating_point_operations();
       if (bytes.has_value()) {
@@ -67,7 +67,7 @@ namespace Baseliner {
       }
       this->case_setup_metrics(engine);
     };
-    void update_metrics(std::shared_ptr<Stats::StatsEngine> &engine) {
+    void update_metrics(std::shared_ptr<Stats::StatsEngine> engine) {
       std::optional<size_t> bytes = this->number_of_bytes();
       std::optional<size_t> flops = this->number_of_floating_point_operations();
       if (m_bytes) {

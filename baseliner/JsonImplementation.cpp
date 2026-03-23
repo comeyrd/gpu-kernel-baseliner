@@ -26,9 +26,14 @@ namespace Baseliner {
   template void serialize<Option>(std::ostream &oss, const Option &obj);
   template void serialize<OptionsMap>(std::ostream &oss, const OptionsMap &obj);
   template void serialize<InterfaceOptions>(std::ostream &oss, const InterfaceOptions &obj);
+  template void serialize<Protocol>(std::ostream &oss, const Protocol &obj);
+  template void serialize<Report>(std::ostream &oss, const Report &obj);
 
   template void serialize<std::vector<Metric>>(std::ostream &oss, const std::vector<Metric> &obj);
   template void serialize<std::vector<Option>>(std::ostream &oss, const std::vector<Option> &obj);
+
+  template void de_serialize<Protocol>(std::istream &iss, Protocol &obj);
+  template void de_serialize<Report>(std::istream &iss, Report &obj);
 
   void to_json(json &json_obj, const Option &opt) {
     json_obj =
@@ -309,6 +314,26 @@ namespace Baseliner {
     json_obj.at("backends").get_to(campaign.m_backends);
     json_obj.at("overrides").get_to(campaign.m_overrides);
     json_obj.at("on_incompatible").get_to(campaign.m_on_incompatible);
+  }
+
+  void to_json(json &json_obj, const StatsPreset &preset) {
+    json_obj["description"] = preset.m_description;
+    json_obj["stat_names"] = preset.m_stat_names;
+    json_obj["stat_options"] = preset.m_stat_options;
+  }
+  void from_json(const json &json_obj, StatsPreset &preset) {
+    json_obj.at("description").get_to(preset.m_description);
+    json_obj.at("stat_names").get_to(preset.m_stat_names);
+    json_obj.at("stat_options").get_to(preset.m_stat_options);
+  }
+
+  void to_json(json &json_obj, const ComponentPreset &preset) {
+    json_obj["description"] = preset.m_description;
+    json_obj["options"] = preset.m_options;
+  }
+  void from_json(const json &json_obj, ComponentPreset &preset) {
+    json_obj.at("description").get_to(preset.m_description);
+    json_obj.at("options").get_to(preset.m_options);
   }
 
   void to_json(json &json_obj, const Protocol &protocol) {

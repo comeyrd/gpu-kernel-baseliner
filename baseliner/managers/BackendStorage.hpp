@@ -31,7 +31,6 @@ namespace Baseliner {
     [[nodiscard]] virtual auto has_benchmark(const std::string &name) const -> bool = 0;
     [[nodiscard]] virtual auto has_stat(const std::string &name) const -> bool = 0;
     IBackendStorage() = default;
-    virtual void apply_backend_preset(const OptionsMap &option) = 0;
 
   private:
     std::string m_name;
