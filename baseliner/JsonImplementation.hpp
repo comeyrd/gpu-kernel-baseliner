@@ -48,7 +48,7 @@ namespace Baseliner {
                                                })
 
   NLOHMANN_JSON_SERIALIZE_ENUM(SweepStrategy, {
-                                                  {SweepStrategy::Carthesian, "carthesian"},
+                                                  {SweepStrategy::FullGrid, "full_grid"},
                                               })
 
   NLOHMANN_JSON_SERIALIZE_ENUM(SweepPolicy, {

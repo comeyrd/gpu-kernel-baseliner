@@ -5,7 +5,7 @@
 #include <iostream>
 namespace Baseliner {
 
-  enum class StopState {
+  enum class StopState : char {
     Running,
     StopRequested,
     HardExitPending
@@ -21,7 +21,7 @@ namespace Baseliner {
       StopState current = m_state.load();
       if (current == StopState::Running) {
         m_state.store(StopState::StopRequested);
-        std::cout << "\n[Baseliner] Stopping requested. Finishing current task...\n" << std::flush;
+        std::cout << "\n[Baseliner] Stop requested. Finishing current task...\n" << std::flush;
       } else if (current == StopState::StopRequested) {
         m_state.store(StopState::HardExitPending);
         std::cout << "\n[Baseliner] Stopping in progress. Press Ctrl+C again to hard exit.\n" << std::flush;

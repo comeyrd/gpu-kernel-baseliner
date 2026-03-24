@@ -1,6 +1,7 @@
 #ifndef BASELINER_AXE_SWEEPING_HPP
 #define BASELINER_AXE_SWEEPING_HPP
 #include <baseliner/OptionTypes.hpp>
+#include <iostream>
 #include <optional>
 #include <stdexcept>
 #include <string>
@@ -9,7 +10,7 @@
 
 namespace Baseliner {
   enum class SweepStrategy : char {
-    Carthesian
+    FullGrid
   };
 
   enum class SweepPolicy : char {
@@ -82,6 +83,19 @@ namespace Baseliner {
           return result;
         }
       };
+
+      template <>
+      struct Sweeper<bool> {
+        static auto generate(const TypedSweepHint<bool> &hint) -> std::vector<bool> {
+          if (hint.m_policy == SweepPolicy::Enumerated) {
+            return hint.m_enumerated;
+          }
+          if (hint.m_min == hint.m_max) {
+            return {hint.m_min};
+          }
+          return {false, true};
+        }
+      };
     } // namespace Detail
 
     template <typename T>
@@ -99,7 +113,7 @@ namespace Baseliner {
       std::vector<OptionsMap> result = {{}}; // Start with one empty map
 
       switch (strategy) {
-      case SweepStrategy::Carthesian: {
+      case SweepStrategy::FullGrid: {
         for (const ResolvedAxis &axis : axes) {
           std::vector<OptionsMap> next;
 

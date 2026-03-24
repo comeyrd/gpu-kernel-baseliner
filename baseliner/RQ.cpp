@@ -1,96 +1,124 @@
-#include <baseliner/Axe.hpp>
-#include <baseliner/ConfigFile.hpp>
-#include <baseliner/Recipe.hpp>
+#include "baseliner/Version.hpp"
+#include <baseliner/RQ.hpp>
 #include <string>
 #include <vector>
 
 namespace Baseliner {
-  namespace ResearchQuestions {
+  namespace RQs {
+    auto work_size(RQSize size) -> SweepHint {
+      switch (size) {
+      case RQSize::Small:
+        return SweepHint{SweepPolicy::PowersOfTwo, "1", "128", "", {}};
+      case RQSize::Medium:
+        return SweepHint{SweepPolicy::PowersOfTwo, "1", "2048", "", {}};
+      case RQSize::Large:
+        return SweepHint{SweepPolicy::LinearRange, "1", "4096", "1000", {}};
+      }
+    }
 
-    const auto rq1 = []() -> PresetDefinition {
-      SingleAxe axe;
-      axe.set_interface_name("Case");
-      axe.set_option_name("seed");
-      axe.set_values({"123", "4444", "2133"});
-      PresetDefinition preset;
-      preset.m_preset_name = "RQ1";
-      preset.m_implementation_name = "SingleAxeSuite";
-      preset.m_description = "Does different input values impact kernel execution times ?";
-      preset.m_options = axe.gather_options();
-      return preset;
-    };
-    const auto rq2 = []() -> PresetDefinition {
-      SingleAxe axe;
-      axe.set_interface_name("Case");
-      axe.set_option_name("work_size");
-      axe.set_values({"1", "2", "4", "8", "16", "32", "64", "128", "256", "512"});
-      PresetDefinition preset;
-      preset.m_preset_name = "RQ2";
-      preset.m_implementation_name = "SingleAxeSuite";
-      preset.m_description = "What impact has the work size on the kernel execution time ?";
-      preset.m_options = axe.gather_options();
-      return preset;
-    };
-    const auto rq3 = []() -> PresetDefinition {
-      SingleAxe axe;
-      axe.set_interface_name("Benchmark");
-      axe.set_option_name("flush");
-      axe.set_values({"0", "1"});
-      PresetDefinition preset;
-      preset.m_preset_name = "RQ3";
-      preset.m_implementation_name = "SingleAxeSuite";
-      preset.m_description = "How does flushing the L2 cache impact the kernel execution time";
-      preset.m_options = axe.gather_options();
-      return preset;
-    };
-    const auto rq4 = []() -> PresetDefinition {
-      SingleAxe axe;
-      axe.set_interface_name("Benchmark");
-      axe.set_option_name("block");
-      axe.set_values({"0", "1"});
-      axe.gather_options();
-      PresetDefinition preset;
-      preset.m_preset_name = "RQ4";
-      preset.m_implementation_name = "SingleAxeSuite";
-      preset.m_description = "What impact has the enqueing or not of kernels on it's execution time ?";
-      preset.m_options = axe.gather_options();
-      return preset;
-    };
-    const auto rq5 = []() -> PresetDefinition {
-      SingleAxe axe;
-      axe.set_interface_name("Benchmark");
-      axe.set_option_name("warmup");
-      axe.set_values({"0", "1"});
-      PresetDefinition preset;
-      preset.m_preset_name = "RQ5";
-      preset.m_implementation_name = "SingleAxeSuite";
-      preset.m_description = "How does warmups impact the kernel execution time ?";
-      preset.m_options = axe.gather_options();
-      return preset;
-    };
-    const static PresetDefinition all_rq[5] = {rq1(), rq2(), rq3(), rq4(), rq5()};
-    const static std::string_view all_rq_names[5] = {"RQ1", "RQ2", "RQ3", "RQ4", "RQ5"};
-  } // namespace ResearchQuestions
-  auto get_rq_presets() -> std::vector<PresetDefinition> {
-    std::vector<PresetDefinition> presets;
-    for (const auto &preset : ResearchQuestions::all_rq) {
-      presets.push_back(preset);
+    auto make_rq1(RQSize size) -> Recipe {
+      SweepHint seed_hint;
+      switch (size) {
+      case RQSize::Small:
+        seed_hint = SweepHint{SweepPolicy::LinearRange, "0", "10", "1", {}};
+        break;
+      case RQSize::Medium:
+        seed_hint = SweepHint{SweepPolicy::LinearRange, "0", "100", "10", {}};
+        break;
+      case RQSize::Large:
+        seed_hint = SweepHint{SweepPolicy::LinearRange, "0", "1000", "100", {}};
+        break;
+      }
+      SweepHint work_size_hint = work_size(size);
+
+      return Recipe{"Does different input values impact kernel execution times?",
+                    {},
+                    {},
+                    {},
+                    SweepSpec{SweepStrategy::FullGrid,
+                              {SweepAxis{"Case", "seed", seed_hint}, SweepAxis{"Case", "work_size", work_size_hint}}}};
     }
-    return presets;
-  }
-  auto get_rq_recipes(const std::string &case_name, const std::string &backend_name) -> std::vector<Recipe> {
-    std::vector<Recipe> recipes;
-    Recipe baserecipe;
-    baserecipe.m_backend = w_default_preset(backend_name);
-    baserecipe.m_case = w_default_preset(case_name);
-    baserecipe.m_stopping = w_default_preset("StoppingCriterion");
-    baserecipe.m_benchmark = w_default_preset("Benchmark");
-    baserecipe.m_stats = w_default_preset("Stat");
-    for (const std::string_view &research_q : ResearchQuestions::all_rq_names) {
-      Recipe temp_recipe = baserecipe;
-      temp_recipe.m_suite = WithPreset{"SingleAxeSuite", std::string(research_q)};
-      recipes.push_back(temp_recipe);
+
+    auto make_rq2(RQSize size) -> Recipe {
+      SweepHint work_size_hint;
+      switch (size) {
+      case RQSize::Small:
+        work_size_hint = SweepHint{SweepPolicy::PowersOfTwo, "1", "128", "", {}};
+        break;
+      case RQSize::Medium:
+        work_size_hint = SweepHint{SweepPolicy::PowersOfTwo, "1", "2048", "", {}};
+        break;
+      case RQSize::Large:
+        work_size_hint = SweepHint{SweepPolicy::LinearRange, "1", "4096", "250", {}};
+        break;
+      }
+      return Recipe{"What impact has the work size on the kernel execution time?",
+                    {},
+                    {},
+                    {},
+                    SweepSpec{SweepStrategy::FullGrid, {SweepAxis{"Case", "work_size", work_size_hint}}}};
     }
-    return recipes;
+
+    auto make_rq3(RQSize size) -> Recipe {
+      SweepHint work_size_hint = work_size(size);
+
+      return Recipe{"How does flushing the L2 cache impact kernel execution time?",
+                    {},
+                    {},
+                    {},
+                    SweepSpec{SweepStrategy::FullGrid,
+                              {SweepAxis{"Benchmark", "flush", SweepHint{SweepPolicy::LinearRange, "0", "1", "1", {}}},
+                               SweepAxis{"Case", "work_size", work_size_hint}}}};
+    }
+
+    auto make_rq4(RQSize size) -> Recipe {
+      SweepHint work_size_hint = work_size(size);
+
+      return Recipe{"What impact has enqueuing or not of kernels on execution time?",
+                    {},
+                    {},
+                    {},
+                    SweepSpec{SweepStrategy::FullGrid,
+                              {SweepAxis{"Benchmark", "block", SweepHint{SweepPolicy::LinearRange, "0", "1", "1", {}}},
+                               SweepAxis{"Case", "work_size", work_size_hint}}}};
+    }
+
+    auto make_rq5(RQSize size) -> Recipe {
+      SweepHint work_size_hint = work_size(size);
+
+      return Recipe{"How do warmups impact the kernel execution time?",
+                    {},
+                    {},
+                    {},
+                    SweepSpec{SweepStrategy::FullGrid,
+                              {SweepAxis{"Benchmark", "warmup", SweepHint{SweepPolicy::LinearRange, "0", "1", "1", {}}},
+                               SweepAxis{"Case", "work_size", work_size_hint}}}};
+    }
+
+  } // namespace RQs
+  auto rq_recipes(RQSize size) -> std::unordered_map<std::string, Recipe> {
+    return {
+        {"RQ1", RQs::make_rq1(size)}, {"RQ2", RQs::make_rq2(size)}, {"RQ3", RQs::make_rq3(size)},
+        {"RQ4", RQs::make_rq4(size)}, {"RQ5", RQs::make_rq5(size)},
+    };
   }
+  auto rq_protocol(RQSize size, std::vector<RecipeComponent> &cases, std::vector<RecipeComponent> &backends)
+      -> Protocol {
+    Protocol protocol;
+    protocol.m_baseliner_version = Version::string();
+    protocol.m_recipes = rq_recipes(size);
+    Campaign base_campaign;
+    base_campaign.m_backends = backends;
+    base_campaign.m_cases = cases;
+    base_campaign.m_on_incompatible = OnIncompatible::Skip;
+
+    for (const auto &[name, _] : protocol.m_recipes) {
+      Campaign temp = base_campaign;
+      temp.m_name = name;
+      temp.m_recipe = name;
+      protocol.m_campaigns.push_back(temp);
+    }
+    return protocol;
+  }
+
 } // namespace Baseliner

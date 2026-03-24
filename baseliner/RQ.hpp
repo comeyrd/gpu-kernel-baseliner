@@ -1,10 +1,18 @@
 #ifndef BASELINER_RQ_HPP
 #define BASELINER_RQ_HPP
-#include <baseliner/Axe.hpp>
+#include <baseliner/AxeSweeping.hpp>
 #include <baseliner/Benchmark.hpp>
 
 namespace Baseliner {
-  auto get_rq_presets() -> std::vector<PresetDefinition>;
-  auto get_rq_recipes(const std::string &case_name, const std::string &backend_name) -> std::vector<Recipe>;
+
+  enum class RQSize {
+    Small,
+    Medium,
+    Large
+  };
+
+  auto rq_recipes(RQSize size) -> std::unordered_map<std::string, Recipe>;
+  auto rq_protocol(RQSize size, std::vector<RecipeComponent> &cases, std::vector<RecipeComponent> &backends)
+      -> Protocol;
 } // namespace Baseliner
 #endif // BASELINER_RQ_HPP
