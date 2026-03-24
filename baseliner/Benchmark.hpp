@@ -1,6 +1,7 @@
 #ifndef BASELINER_BENCHMARK_HPP
 #define BASELINER_BENCHMARK_HPP
 #include "baseliner/Error.hpp"
+#include "baseliner/IPrinter.hpp"
 #include "baseliner/OptionTypes.hpp"
 #include <baseliner/Case.hpp>
 #include <baseliner/Kernel.hpp>
@@ -132,6 +133,9 @@ namespace Baseliner {
     void set_backend_options(const OptionsMap &omap) {
       m_backend_options = omap;
     }
+    void set_printer(std::shared_ptr<IBenchmarkPrinter> printer) {
+      m_printer = printer;
+    }
 
   protected:
     void register_options() override {
@@ -163,6 +167,11 @@ namespace Baseliner {
       return m_backend_options;
     }
 
+    void print_callback(const SingleRunReport &report) {
+      if (m_printer) {
+        m_printer->consume_single_run_report(report);
+      }
+    }
     [[nodiscard]] virtual auto single_run(const std::optional<OptionsMap> &sweep_point) -> SingleRunReport = 0;
 
   private:
@@ -179,6 +188,7 @@ namespace Baseliner {
     std::shared_ptr<Stats::StatsEngine> m_stats_engine;
     std::optional<SweepSpec> m_sweep_spec;
     OptionsMap m_backend_options;
+    std::shared_ptr<IBenchmarkPrinter> m_printer;
   };
 
   template <typename BackendT>
@@ -218,10 +228,12 @@ namespace Baseliner {
     auto run_benchmark() -> BenchmarkReport override {
       BenchmarkReport report;
       BackendT::instance()->apply_options(get_backend_options());
-      for (const std::optional<OptionsMap> &sweep_point : this->generate_sweep_points()) {
-        report.m_results.push_back(this->single_run(sweep_point));
-      }
       report.m_hardware = this->get_hardware_info();
+      auto sweeppoints = this->generate_sweep_points();
+      for (const std::optional<OptionsMap> &sweep_point : sweeppoints) {
+        report.m_results.push_back(this->single_run(sweep_point));
+        print_callback(report.m_results.back());
+      }
       return report;
     }
     auto get_case_options() -> OptionsMap override {

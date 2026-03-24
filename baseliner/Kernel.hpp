@@ -28,8 +28,9 @@ namespace Baseliner {
     ~IInput() override = default;
     IInput() = default;
 
-  private:
     virtual void allocate() = 0;
+
+  private:
   };
   template <typename Input>
   class IOutput : public MoveOnly {
@@ -80,6 +81,7 @@ namespace Baseliner {
         : m_input(std::make_shared<typename Kernel::Input>()),
           m_kernel(std::make_unique<Kernel>(m_input)) {};
     void setup(std::shared_ptr<typename BackendT::stream_t> stream) override {
+      m_input->allocate();
       m_input->generate_random();
       m_kernel->setup(stream);
     };

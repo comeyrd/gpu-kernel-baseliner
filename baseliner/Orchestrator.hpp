@@ -1,5 +1,6 @@
 #ifndef BASELINER_ORCHESTRATOR_HPP
 #define BASELINER_ORCHESTRATOR_HPP
+#include "baseliner/CliHelper.hpp"
 #include "baseliner/Output.hpp"
 #include "baseliner/Version.hpp"
 #include <baseliner/Builder.hpp>
@@ -15,8 +16,12 @@ namespace Baseliner {
     };
 
     inline auto run_plan(const Plan &plan, StorageManager *storage_manager = StorageManager::instance()) -> RunReport {
+      std::shared_ptr<Cli::CliPrinter> printer = std::make_shared<Cli::CliPrinter>();
       IBenchmarkFactory bench_factory = Builder::build(plan, storage_manager);
-      BenchmarkReport bench_report = bench_factory()->run_benchmark();
+      printer->print_plan(plan);
+      std::shared_ptr<IBenchmark> bench = bench_factory();
+      bench->set_printer(printer);
+      BenchmarkReport bench_report = bench->run_benchmark();
       return {plan, bench_report};
     };
 
@@ -59,7 +64,7 @@ namespace Baseliner {
       for (const auto &backend : backends) {
         backends_components.push_back({backend, {}});
       }
-      Protocol protocol = rq_protocol(RQSize::Small, case_components, backends_components);
+      Protocol protocol = rq_protocol(RQSize::Medium, case_components, backends_components);
       return run_protocol(protocol);
     };
 

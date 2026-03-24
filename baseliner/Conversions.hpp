@@ -151,9 +151,10 @@ namespace Baseliner::Conversion {
   }
 
   template <typename... Types>
-  inline auto baseliner_to_string(const std::variant<Types...> &val) -> std::string {
+  inline auto baseliner_to_string(const std::variant<Types...> &val)
+      -> std::variant<std::string, std::vector<std::string>> {
     return std::visit(
-        [](auto &&arg) -> std::string {
+        [](auto &&arg) -> std::variant<std::string, std::vector<std::string>> {
           using T = std::decay_t<decltype(arg)>;
           if constexpr (std::is_same_v<T, std::monostate>) {
             return "null";
@@ -163,6 +164,7 @@ namespace Baseliner::Conversion {
         },
         val);
   }
+
 } // namespace Baseliner::Conversion
 
 #endif // BASELINER_CONVERSION_HPP

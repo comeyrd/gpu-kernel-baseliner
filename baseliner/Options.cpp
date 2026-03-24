@@ -95,6 +95,7 @@ namespace Baseliner {
   };
 
   void IOption::apply_options(const OptionsMap &omap) {
+    this->ensure_initialized();
     for (auto &binding : m_options_bindings) {
       if (omap.find(binding->get_interface_name()) != omap.end()) {
         auto intermediary = omap.at(binding->get_interface_name());
@@ -120,6 +121,7 @@ namespace Baseliner {
     }
   }
   void IOption::update_sweep_hints(const SweepHintMap &hintmaps) {
+    this->ensure_initialized();
     for (auto &binding : m_options_bindings) {
       if (hintmaps.find(binding->get_interface_name()) != hintmaps.end()) {
         auto intermediary = hintmaps.at(binding->get_interface_name());
@@ -154,7 +156,7 @@ namespace Baseliner {
           if (axis.m_hint.has_value()) {
             binding->set_sweep_hint(axis.m_hint.value());
           }
-          resolved.push_back(ResolvedAxis{axis.m_option, axis.m_interface, binding->generate_sweep_values()});
+          resolved.push_back(ResolvedAxis{axis.m_interface, axis.m_option, binding->generate_sweep_values()});
         }
       }
     }
