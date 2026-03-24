@@ -1,19 +1,13 @@
 
 #include <argparse/argparse.hpp>
-#include <atomic>
 #include <baseliner/Orchestrator.hpp>
 #include <baseliner/Output.hpp>
 #include <baseliner/Protocol.hpp>
 #include <baseliner/Serializer.hpp>
 #include <baseliner/State.hpp>
 #include <baseliner/Version.hpp>
-#include <chrono>
 #include <csignal>
-#include <iomanip>
 #include <iostream>
-#include <random>
-#include <sstream>
-#include <utility>
 #include <vector>
 using namespace Baseliner;
 
@@ -104,27 +98,27 @@ __attribute__((weak)) int main(int argc, char **argv) { // NOLINT
       to_file(report, filename);
       std::cout << "Report saved to " << filename << "\n";
     }
+  }
 
-    // TODO fix the generating part
-    //  else if (program.is_subcommand_used("gen")) {
-    //    if (generate_parser.is_used("--metadata")) {
-    //      auto metadata_file = generate_parser.get<std::string>("--metadata");
-    //      metadata_to_file(manager->generate_metadata(), metadata_file);
-    //      std::cout << "Metadata file successfully saved to " << metadata_file << "\n";
-    //    } else if (generate_parser.is_used("--default-protocol-file")) {
-    //      auto protocol_file = generate_parser.get<std::string>("--default-protocol-file");
-    //      protocol_to_file(manager->generate_default_protocol(), protocol_file);
-    //      std::cout << "Default protocol file successfully saved to " << protocol_file << "\n";
-    //    } else if (generate_parser.is_used("--saved-protocol-file")) {
-    //      Protocol saved_protocol;
-    //      saved_protocol.m_baseliner_version = Version::string();
-    //      saved_protocol.m_presets = manager->get_all_preset_definitions();
-    //      saved_protocol.m_recipes = RecipeManager::get_recipes();
-    //      auto protocol_file = generate_parser.get<std::string>("--saved-protocol-file");
-    //      protocol_to_file(saved_protocol, protocol_file);
-    //      std::cout << "Saved protocol file successfully saved to " << protocol_file << "\n";
-    //    }
-
+  else if (program.is_subcommand_used("gen")) {
+    if (generate_parser.is_used("--metadata")) {
+      throw Errors::not_implemented("Metadata generation is not implemented");
+    } else if (generate_parser.is_used("--default-protocol-file")) {
+      Protocol protocol = Orchestrator::get_default_protocol();
+      to_file(protocol, "default-protocol.json");
+    }
+    /*else if (generate_parser.is_used("--saved-protocol-file")) {
+      Protocol saved_protocol;
+      saved_protocol.m_baseliner_version = Version::string();
+      saved_protocol.m_presets = manager->get_all_preset_definitions();
+      saved_protocol.m_recipes = RecipeManager::get_recipes();
+      auto protocol_file = generate_parser.get<std::string>("--saved-protocol-file");
+      protocol_to_file(saved_protocol, protocol_file);
+      std::cout << "Saved protocol file successfully saved to " << protocol_file << "\n";
+    }*/
+    else {
+      std::cout << program << "\n";
+    }
   } else {
     std::cout << program << "\n";
   }

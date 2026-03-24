@@ -58,6 +58,7 @@ namespace Baseliner {
     /*
      * Listing in storage
      */
+    [[nodiscard]] auto list_components(ComponentType type) -> std::vector<std::string>;
     [[nodiscard]] auto list_components() const -> ComponentList;
     [[nodiscard]] auto list_stats() const -> std::vector<std::string>;
     [[nodiscard]] auto list_backends() const -> std::vector<std::string>;
@@ -69,6 +70,13 @@ namespace Baseliner {
      */
     [[nodiscard]] auto list_component_presets(const std::string &component_name) const -> ComponentPresetList;
     [[nodiscard]] auto list_stat_presets() const -> StatsPresetList;
+
+    /*
+     * Retreiving everything
+     */
+    [[nodiscard]] auto get_all_component_presets()
+        -> std::unordered_map<std::string, std::unordered_map<std::string, ComponentPreset>>;
+    [[nodiscard]] auto get_all_stats_presets() -> std::unordered_map<std::string, StatsPreset>;
 
   private:
     /*

@@ -131,6 +131,18 @@ namespace Baseliner {
   auto StorageManager::list_components() const -> ComponentList {
     return {m_components.begin(), m_components.end()};
   };
+  auto StorageManager::list_components(ComponentType wanted_type) -> std::vector<std::string> {
+    std::vector<std::string> impl;
+    impl.reserve(m_components.size());
+    for (const auto &[name, type] : m_components) {
+      if (type == wanted_type) {
+        impl.push_back(name);
+      }
+    }
+    impl.shrink_to_fit();
+    return impl;
+  }
+
   auto StorageManager::list_stats() const -> std::vector<std::string> {
     std::vector<std::string> keys;
     keys.reserve(m_stats_presets.size());
@@ -177,6 +189,14 @@ namespace Baseliner {
     if (impl_preset.find(preset) == impl_preset.end()) {
       throw Errors::not_found_in("Preset", preset, component);
     }
+  }
+
+  auto StorageManager::get_all_component_presets()
+      -> std::unordered_map<std::string, std::unordered_map<std::string, ComponentPreset>> {
+    return m_component_presets;
+  }
+  auto StorageManager::get_all_stats_presets() -> std::unordered_map<std::string, StatsPreset> {
+    return m_stats_presets;
   }
 
 } // namespace Baseliner

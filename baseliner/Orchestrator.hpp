@@ -79,6 +79,34 @@ namespace Baseliner {
       }
       return reports;
     };
+    inline auto get_default_protocol() -> Protocol {
+      Protocol protocol;
+      auto *storage_manager = StorageManager::instance();
+      protocol.m_baseliner_version = Version::string();
+      protocol.m_presets = storage_manager->get_all_component_presets();
+      protocol.m_stats_presets = storage_manager->get_all_stats_presets();
+      Recipe def_recipe;
+      def_recipe.m_stats = RecipeStat{"default"};
+      def_recipe.m_benchmark = RecipeComponent{"Benchmark", "default"};
+      def_recipe.m_stopping = RecipeComponent{"StoppingCriterion", "default"};
+      def_recipe.m_sweep =
+          SweepSpec{SweepStrategy::FullGrid,
+                    {SweepAxis{"Case", "work_size", SweepHint{SweepPolicy::PowersOfTwo, "1", "1024", "1", {}}}}};
+      def_recipe.m_description = "Default Recipe";
+      protocol.m_recipes["default"] = def_recipe;
+      Campaign default_campaign;
+      default_campaign.m_name = "default";
+      default_campaign.m_recipe = "default";
+      for (const auto &backend : storage_manager->list_backends()) {
+        default_campaign.m_backends.push_back({backend, "default"});
+      }
+      for (const auto &cases : storage_manager->list_components(ComponentType::CASE)) {
+        default_campaign.m_cases.push_back({cases, "default"});
+      }
+      default_campaign.m_on_incompatible = OnIncompatible::Skip;
+      protocol.m_campaigns.push_back(default_campaign);
+      return protocol;
+    }
   }; // namespace Orchestrator
 
 } // namespace Baseliner
