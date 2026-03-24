@@ -1,6 +1,7 @@
 #ifndef BASELINER_AXE_SWEEPING_HPP
 #define BASELINER_AXE_SWEEPING_HPP
 #include <baseliner/OptionTypes.hpp>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -37,7 +38,7 @@ namespace Baseliner {
   struct SweepAxis {
     std::string m_interface;
     std::string m_option;
-    SweepHint m_hint;
+    std::optional<SweepHint> m_hint;
   };
 
   struct ResolvedAxis {

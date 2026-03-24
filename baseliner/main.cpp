@@ -87,7 +87,7 @@ __attribute__((weak)) int main(int argc, char **argv) { // NOLINT
         Report report = Orchestrator::run_protocol(parsed_protocol);
         // TODO fix generate_uid
         //  const std::string filename = "result-" + generate_uid() + ".json";
-        const std::string filename = "result-.json ";
+        const std::string filename = "result.json";
         to_file(report, filename);
         std::cout << "Report saved to " << filename << "\n";
       }

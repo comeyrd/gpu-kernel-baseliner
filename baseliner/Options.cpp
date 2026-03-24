@@ -148,10 +148,12 @@ namespace Baseliner {
 
   auto IOption::resolve_sweep_axis(const std::vector<SweepAxis> &sweep_axis_vector) -> std::vector<ResolvedAxis> {
     std::vector<ResolvedAxis> resolved;
-    for (auto &axis : sweep_axis_vector) {
+    for (const auto &axis : sweep_axis_vector) {
       for (auto &binding : m_options_bindings) {
         if (binding->get_name() == axis.m_option && binding->get_interface_name() == axis.m_interface) {
-          binding->set_sweep_hint(axis.m_hint);
+          if (axis.m_hint.has_value()) {
+            binding->set_sweep_hint(axis.m_hint.value());
+          }
           resolved.push_back(ResolvedAxis{axis.m_option, axis.m_interface, binding->generate_sweep_values()});
         }
       }
@@ -170,7 +172,7 @@ namespace Baseliner {
       throw Errors::recursive_consumer_options(typeid(*this).name());
     }
     visited.insert(this);
-    std::vector<ResolvedAxis> resolved_axis = this->resolve_depedency_sweep_axis(sweep_axis_vector);
+    std::vector<ResolvedAxis> resolved_axis = this->resolve_sweep_axis(sweep_axis_vector);
     for (IOption *consumer : m_consumers) {
       auto temp_resolved = consumer->resolve_depedency_sweep_axis(sweep_axis_vector, visited);
       for (const auto &temp_res : temp_resolved) {

@@ -170,11 +170,16 @@ namespace Baseliner {
     }
   }
   void from_json(const json &json_obj, RecipeComponent &component) {
-    json_obj.at("impl").get_to(component.m_impl);
-    if (json_obj.contains("preset")) {
-      component.m_preset = json_obj.at("preset").get<std::string>();
-    } else {
+    if (json_obj.is_string()) {
+      component.m_impl = json_obj;
       component.m_preset = {};
+    } else {
+      json_obj.at("impl").get_to(component.m_impl);
+      if (json_obj.contains("preset")) {
+        component.m_preset = json_obj.at("preset").get<std::string>();
+      } else {
+        component.m_preset = {};
+      }
     }
   }
 
@@ -190,14 +195,18 @@ namespace Baseliner {
     json_obj["min"] = hint.m_min;
     json_obj["max"] = hint.m_max;
     json_obj["step"] = hint.m_step;
-    json_obj["enumerated"] = hint.m_enumerated;
+    if (!hint.m_enumerated.empty()) {
+      json_obj["enumerated"] = hint.m_enumerated;
+    }
   }
   void from_json(const json &json_obj, SweepHint &hint) {
     json_obj.at("policy").get_to(hint.m_policy);
     json_obj.at("min").get_to(hint.m_min);
     json_obj.at("max").get_to(hint.m_max);
     json_obj.at("step").get_to(hint.m_step);
-    json_obj.at("enumerated").get_to(hint.m_enumerated);
+    if (json_obj.contains("enumerated")) {
+      json_obj.at("enumerated").get_to(hint.m_enumerated);
+    }
   }
 
   void to_json(json &json_obj, const SweepAxis &axis) {
@@ -208,7 +217,11 @@ namespace Baseliner {
   void from_json(const json &json_obj, SweepAxis &axis) {
     json_obj.at("interface").get_to(axis.m_interface);
     json_obj.at("option").get_to(axis.m_option);
-    json_obj.at("hint").get_to(axis.m_hint);
+    if (json_obj.contains("hint")) {
+      axis.m_hint = json_obj.at("hint").get<SweepHint>();
+    } else {
+      axis.m_hint = {};
+    }
   }
 
   void to_json(json &json_obj, const ResolvedAxis &axis) {
