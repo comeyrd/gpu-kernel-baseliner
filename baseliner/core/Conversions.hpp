@@ -1,0 +1,170 @@
+#ifndef BASELINER_CONVERSION_HPP
+#define BASELINER_CONVERSION_HPP
+#include <baseliner/core/Durations.hpp>
+#include <baseliner/core/stats/StatsType.hpp>
+#include <sstream>
+#include <string>
+#include <type_traits>
+#include <variant>
+#include <vector>
+namespace Baseliner::Conversion {
+  inline auto trim_before_after_whitespace(const std::string &thestring) -> std::string {
+    const std::string whitespace = " \t\n\r\f\v";
+    size_t start = thestring.find_first_not_of(whitespace);
+    std::string rsult{};
+    if (start != std::string::npos) {
+      // Extract strictly the substring between the first and last non-whitespace characters
+      size_t end = thestring.find_last_not_of(whitespace);
+      rsult = thestring.substr(start, end - start + 1);
+    }
+    return rsult;
+  }
+  template <typename T>
+  auto baseliner_from_string(const std::string &val) -> T;
+  template <typename T>
+  auto baseliner_to_string(const T &val) -> std::string;
+
+  template <typename T>
+  auto baseliner_from_string(const std::vector<std::string> &val) -> std::vector<T> {
+    std::vector<T> vec;
+    for (const auto &str : val) {
+      vec.push_back(baseliner_from_string<T>(str));
+    }
+    return vec;
+  };
+  template <typename T>
+  auto baseliner_to_string(const std::vector<T> &val) -> std::vector<std::string> {
+    std::vector<std::string> vec;
+    for (const auto &scal : val) {
+      vec.push_back(baseliner_to_string<T>(scal));
+    }
+    return vec;
+  };
+
+  inline auto bool_to_string(bool value) -> std::string {
+    return std::to_string(static_cast<int>(value));
+  };
+  inline auto string_to_bool(const std::string &value) -> bool {
+    const int i_value = std::stoi(value);
+    return (i_value != 0);
+  };
+
+  // To string
+  template <>
+  inline auto baseliner_to_string<bool>(const bool &val) -> std::string {
+    return bool_to_string(val);
+  };
+  template <>
+  inline auto baseliner_to_string<int>(const int &val) -> std::string {
+    return std::to_string(val);
+  }
+  template <>
+  inline auto baseliner_to_string<long>(const long &val) -> std::string {
+    return std::to_string(val);
+  }
+  template <>
+  inline auto baseliner_to_string<long long>(const long long &val) -> std::string {
+    return std::to_string(val);
+  }
+  template <>
+  inline auto baseliner_to_string<unsigned int>(const unsigned int &val) -> std::string {
+    return std::to_string(val);
+  }
+  template <>
+  inline auto baseliner_to_string<unsigned long>(const unsigned long &val) -> std::string {
+    return std::to_string(val);
+  }
+  template <>
+  inline auto baseliner_to_string<unsigned long long>(const unsigned long long &val) -> std::string {
+    return std::to_string(val);
+  }
+  template <>
+  inline auto baseliner_to_string<float>(const float &val) -> std::string {
+    return std::to_string(val);
+  }
+  template <>
+  inline auto baseliner_to_string<double>(const double &val) -> std::string {
+    return std::to_string(val);
+  }
+  template <>
+  inline auto baseliner_to_string<long double>(const long double &val) -> std::string {
+    return std::to_string(val);
+  }
+
+  template <>
+  inline auto baseliner_to_string<std::string>(const std::string &val) -> std::string {
+    return val;
+  };
+  // From String
+  template <>
+  inline auto baseliner_from_string(const std::string &val) -> bool {
+    return string_to_bool(val);
+  };
+  template <>
+  inline auto baseliner_from_string<int>(const std::string &val) -> int {
+    return std::stoi(val);
+  }
+  template <>
+  inline auto baseliner_from_string<long>(const std::string &val) -> long {
+    return std::stol(val);
+  }
+  template <>
+  inline auto baseliner_from_string<long long>(const std::string &val) -> long long {
+    return std::stoll(val);
+  }
+  template <>
+  inline auto baseliner_from_string<unsigned int>(const std::string &val) -> unsigned int {
+    return static_cast<unsigned int>(std::stoul(val));
+  }
+  template <>
+  inline auto baseliner_from_string<unsigned long>(const std::string &val) -> unsigned long {
+    return std::stoul(val);
+  }
+  template <>
+  inline auto baseliner_from_string<unsigned long long>(const std::string &val) -> unsigned long long {
+    return std::stoull(val);
+  }
+  template <>
+  inline auto baseliner_from_string<float>(const std::string &val) -> float {
+    return std::stof(val);
+  }
+  template <>
+  inline auto baseliner_from_string<double>(const std::string &val) -> double {
+    return std::stod(val);
+  }
+  template <>
+  inline auto baseliner_from_string<long double>(const std::string &val) -> long double {
+    return std::stold(val);
+  }
+  template <>
+  inline auto baseliner_from_string<std::string>(const std::string &val) -> std::string {
+    return val;
+  }
+  template <>
+  inline auto baseliner_to_string<float_milliseconds>(const float_milliseconds &val) -> std::string {
+    return baseliner_to_string(val.count());
+  }
+
+  template <typename T>
+  inline auto baseliner_to_string(const ConfidenceInterval<T> &val) -> std::string {
+    return baseliner_to_string(val.low) + " ," + baseliner_to_string(val.high);
+  }
+
+  template <typename... Types>
+  inline auto baseliner_to_string(const std::variant<Types...> &val)
+      -> std::variant<std::string, std::vector<std::string>> {
+    return std::visit(
+        [](auto &&arg) -> std::variant<std::string, std::vector<std::string>> {
+          using T = std::decay_t<decltype(arg)>;
+          if constexpr (std::is_same_v<T, std::monostate>) {
+            return "null";
+          } else {
+            return baseliner_to_string(arg);
+          }
+        },
+        val);
+  }
+
+} // namespace Baseliner::Conversion
+
+#endif // BASELINER_CONVERSION_HPP
