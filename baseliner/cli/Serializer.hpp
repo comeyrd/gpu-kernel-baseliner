@@ -1,13 +1,11 @@
 #ifndef BASELINER_SERIALIZER_HPP
 #define BASELINER_SERIALIZER_HPP
-#include <baseliner/Error.hpp>
+#include <baseliner/core/Error.hpp>
 #include <fstream>
 #include <iostream>
 #include <istream>
 #include <ostream>
-#include <stdexcept>
 #include <string>
-#include <vector>
 
 namespace Baseliner {
 

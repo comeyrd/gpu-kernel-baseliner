@@ -1,11 +1,12 @@
 
 #include <argparse/argparse.hpp>
-#include <baseliner/Orchestrator.hpp>
-#include <baseliner/Output.hpp>
-#include <baseliner/Protocol.hpp>
-#include <baseliner/Serializer.hpp>
-#include <baseliner/State.hpp>
-#include <baseliner/Version.hpp>
+#include <baseliner/cli/Serializer.hpp>
+#include <baseliner/core/State.hpp>
+#include <baseliner/core/Version.hpp>
+#include <baseliner/orchestrator/Orchestrator.hpp>
+#include <baseliner/orchestrator/Plan.hpp>
+#include <baseliner/orchestrator/Protocol.hpp>
+#include <baseliner/orchestrator/Report.hpp>
 #include <csignal>
 #include <iostream>
 #include <vector>
@@ -102,6 +103,7 @@ __attribute__((weak)) int main(int argc, char **argv) { // NOLINT
 
   else if (program.is_subcommand_used("gen")) {
     if (generate_parser.is_used("--metadata")) {
+
       throw Errors::not_implemented("Metadata generation is not implemented");
     } else if (generate_parser.is_used("--default-protocol-file")) {
       Protocol protocol = Orchestrator::get_default_protocol();

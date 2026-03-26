@@ -1,12 +1,11 @@
 #ifndef BASELINER_CLI_HELPER
 #define BASELINER_CLI_HELPER
 #include <algorithm>
-#include <baseliner/Conversions.hpp>
-#include <baseliner/IPrinter.hpp>
-#include <baseliner/Output.hpp>
+#include <baseliner/core/Conversions.hpp>
+#include <baseliner/core/IPrinter.hpp>
+#include <baseliner/orchestrator/Plan.hpp>
 #include <cstddef>
 #include <iomanip>
-#include <map>
 #include <string>
 #include <vector>
 namespace Baseliner::Cli {

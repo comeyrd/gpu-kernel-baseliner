@@ -1,8 +1,8 @@
-#include <baseliner/JsonImplementation.hpp>
-#include <baseliner/Metric.hpp>
-#include <baseliner/Options.hpp>
+#include <baseliner/cli/JsonImplementation.hpp>
+#include <baseliner/core/Metric.hpp>
+#include <baseliner/core/Options.hpp>
 
-#include <baseliner/Serializer.hpp>
+#include <baseliner/cli/Serializer.hpp>
 #include <iomanip>
 #include <ostream>
 #include <variant>

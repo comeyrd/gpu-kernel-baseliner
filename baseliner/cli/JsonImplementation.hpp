@@ -1,11 +1,12 @@
 #ifndef JSON_IMPLEMENTATION_HPP
 #define JSON_IMPLEMENTATION_HPP
-#include <baseliner/AxeSweeping.hpp>
-#include <baseliner/Metric.hpp>
-#include <baseliner/Options.hpp>
-#include <baseliner/Output.hpp>
-#include <baseliner/hardware/Backend.hpp>
-#include <baseliner/stats/StatsType.hpp>
+#include <baseliner/core/AxeSweeping.hpp>
+#include <baseliner/core/Metric.hpp>
+#include <baseliner/core/Options.hpp>
+#include <baseliner/core/hardware/Backend.hpp>
+#include <baseliner/core/stats/StatsType.hpp>
+#include <baseliner/orchestrator/Plan.hpp>
+#include <baseliner/orchestrator/Report.hpp>
 #include <iomanip>
 #include <nlohmann/json.hpp>
 using json = nlohmann::ordered_json;
