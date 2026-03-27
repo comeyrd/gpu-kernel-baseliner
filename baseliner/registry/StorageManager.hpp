@@ -1,14 +1,13 @@
 #ifndef BASELINER_STORAGE_MANAGER_HPP
 #define BASELINER_STORAGE_MANAGER_HPP
-#include "baseliner/managers/Components.hpp"
-#include "baseliner/managers/Factories.hpp"
-#include <baseliner/Protocol.hpp>
-#include <baseliner/managers/BackendStorage.hpp>
-#include <baseliner/managers/GeneralStorage.hpp>
+#include "baseliner/registry/Components.hpp"
+#include "baseliner/registry/Factories.hpp"
+#include <baseliner/orchestrator/Protocol.hpp>
+#include <baseliner/registry/BackendStorage.hpp>
+#include <baseliner/registry/GeneralStorage.hpp>
 #include <iostream>
 #include <string>
 #include <unordered_map>
-#include <utility>
 #include <vector>
 namespace Baseliner {
 

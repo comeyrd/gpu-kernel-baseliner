@@ -1,7 +1,6 @@
 #ifndef BASELINER_COMPONENT_HPP
 #define BASELINER_COMPONENT_HPP
-#include <baseliner/Options.hpp>
-#include <sstream>
+#include <baseliner/core/Options.hpp>
 #include <string>
 namespace Baseliner {
 

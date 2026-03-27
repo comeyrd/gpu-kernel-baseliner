@@ -1,3 +1,4 @@
 target_sources(baseliner PRIVATE
     Components.cpp
-StorageManager.cpp)
+StorageManager.cpp
+Register.cpp)

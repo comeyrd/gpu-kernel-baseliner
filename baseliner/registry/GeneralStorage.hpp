@@ -1,9 +1,7 @@
 #ifndef BASELINER_GENERAL_STORAGE_HPP
 #define BASELINER_GENERAL_STORAGE_HPP
-#include <baseliner/managers/Factories.hpp>
-#include <baseliner/stats/StatsEngine.hpp>
-#include <functional>
-#include <memory>
+#include <baseliner/core/stats/StatsEngine.hpp>
+#include <baseliner/registry/Factories.hpp>
 #include <string>
 #include <unordered_map>
 namespace Baseliner {

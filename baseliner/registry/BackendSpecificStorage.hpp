@@ -1,11 +1,9 @@
 #ifndef BASELINER_BACKEND_SPECIFIC_STORAGE_HPP
 #define BASELINER_BACKEND_SPECIFIC_STORAGE_HPP
-#include <baseliner/Benchmark.hpp>
-#include <baseliner/Case.hpp>
-#include <baseliner/managers/Factories.hpp>
-#include <baseliner/stats/StatsEngine.hpp>
-#include <functional>
-#include <memory>
+#include <baseliner/core/Benchmark.hpp>
+#include <baseliner/core/Case.hpp>
+#include <baseliner/core/stats/StatsEngine.hpp>
+#include <baseliner/registry/Factories.hpp>
 #include <string>
 #include <unordered_map>
 

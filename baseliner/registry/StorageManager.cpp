@@ -1,7 +1,7 @@
-#include <baseliner/Error.hpp>
-#include <baseliner/managers/Components.hpp>
-#include <baseliner/managers/Factories.hpp>
-#include <baseliner/managers/StorageManager.hpp>
+#include <baseliner/core/Error.hpp>
+#include <baseliner/registry/Components.hpp>
+#include <baseliner/registry/Factories.hpp>
+#include <baseliner/registry/StorageManager.hpp>
 
 namespace Baseliner {
   /*

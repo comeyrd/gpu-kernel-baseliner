@@ -1,7 +1,7 @@
 #ifndef BASELINER_REGISTRARS_HPP
 #define BASELINER_REGISTRARS_HPP
-#include <baseliner/managers/BackendStorage.hpp>
-#include <baseliner/managers/StorageManager.hpp>
+#include <baseliner/registry/BackendStorage.hpp>
+#include <baseliner/registry/StorageManager.hpp>
 
 #include <memory>
 namespace Baseliner {

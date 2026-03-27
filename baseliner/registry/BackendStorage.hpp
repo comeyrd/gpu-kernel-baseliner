@@ -1,13 +1,12 @@
 #ifndef BASELINER_BACKEND_MANAGER
 #define BASELINER_BACKEND_MANAGER
-#include "baseliner/Error.hpp"
-#include <baseliner/Benchmark.hpp>
-#include <baseliner/Case.hpp>
-#include <baseliner/Options.hpp>
-#include <baseliner/Serializer.hpp>
-#include <baseliner/managers/BackendSpecificStorage.hpp>
-#include <baseliner/managers/Factories.hpp>
-#include <baseliner/managers/PresetInjection.hpp>
+#include "baseliner/core/Error.hpp"
+#include <baseliner/core/Benchmark.hpp>
+#include <baseliner/core/Case.hpp>
+#include <baseliner/core/Options.hpp>
+#include <baseliner/registry/BackendSpecificStorage.hpp>
+#include <baseliner/registry/Factories.hpp>
+#include <baseliner/registry/PresetInjection.hpp>
 namespace Baseliner {
 
   class IBackendStorage {

@@ -1,4 +1,4 @@
-#include <baseliner/managers/Components.hpp>
+#include <baseliner/registry/Components.hpp>
 #include <string>
 namespace Baseliner {
   auto component_to_string(const ComponentType &type) -> std::string {

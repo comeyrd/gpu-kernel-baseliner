@@ -1,8 +1,7 @@
 #ifndef BASELINER_PRESET_INJECTION_HPP
 #define BASELINER_PRESET_INJECTION_HPP
-#include "baseliner/Benchmark.hpp"
-#include <baseliner/Options.hpp>
-#include <baseliner/Serializer.hpp>
+#include "baseliner/core/Benchmark.hpp"
+#include <baseliner/core/Options.hpp>
 #include <functional>
 #include <memory>
 namespace Baseliner {
