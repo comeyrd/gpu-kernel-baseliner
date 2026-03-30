@@ -1,7 +1,8 @@
 #ifndef BASELINER_BUILDER_HPP
 #define BASELINER_BUILDER_HPP
-#include <baseliner/Benchmark.hpp>
-#include <baseliner/managers/StorageManager.hpp>
+#include <baseliner/core/Benchmark.hpp>
+#include <baseliner/orchestrator/Plan.hpp>
+#include <baseliner/registry/StorageManager.hpp>
 
 namespace Baseliner::Builder {
 

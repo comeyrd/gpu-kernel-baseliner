@@ -1,9 +1,9 @@
-#include <baseliner/Error.hpp>
-#include <baseliner/Options.hpp>
-#include <baseliner/Output.hpp>
-#include <baseliner/Planner.hpp>
-#include <baseliner/Protocol.hpp>
-#include <baseliner/managers/Components.hpp>
+#include <baseliner/core/Error.hpp>
+#include <baseliner/core/Options.hpp>
+#include <baseliner/orchestrator/Plan.hpp>
+#include <baseliner/orchestrator/Planner.hpp>
+#include <baseliner/orchestrator/Protocol.hpp>
+#include <baseliner/registry/Components.hpp>
 namespace Baseliner::Planner {
 
   class PresetCascader {

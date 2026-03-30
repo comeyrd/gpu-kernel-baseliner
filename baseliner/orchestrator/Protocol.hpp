@@ -1,7 +1,7 @@
 #ifndef BASELINER_PROTOCOL_HPP
 #define BASELINER_PROTOCOL_HPP
-#include <baseliner/AxeSweeping.hpp>
-#include <baseliner/managers/Components.hpp>
+#include <baseliner/core/AxeSweeping.hpp>
+#include <baseliner/registry/Components.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>

@@ -1,6 +1,6 @@
-#include <baseliner/Benchmark.hpp>
-#include <baseliner/Builder.hpp>
-#include <baseliner/managers/StorageManager.hpp>
+#include <baseliner/core/Benchmark.hpp>
+#include <baseliner/orchestrator/Builder.hpp>
+#include <baseliner/registry/StorageManager.hpp>
 #include <functional>
 namespace Baseliner::Builder {
 
