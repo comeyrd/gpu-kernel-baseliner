@@ -1,7 +1,8 @@
 #ifndef BASELINER_RQ_HPP
 #define BASELINER_RQ_HPP
-#include <baseliner/AxeSweeping.hpp>
-#include <baseliner/Benchmark.hpp>
+#include <baseliner/core/AxeSweeping.hpp>
+#include <baseliner/core/Benchmark.hpp>
+#include <baseliner/orchestrator/Protocol.hpp>
 
 namespace Baseliner {
 
