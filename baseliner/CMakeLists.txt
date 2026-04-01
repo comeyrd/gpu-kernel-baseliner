@@ -1,7 +1,10 @@
 add_library(baseliner SHARED)
 add_library(baseliner::baseliner ALIAS baseliner)
-set(sources JsonImplementation.cpp Options.cpp Planner.cpp Serializer.cpp RQ.cpp StoppingCriterion.cpp main.cpp Builder.cpp )
-target_sources(baseliner PRIVATE ${sources})
+add_subdirectory(cli)
+add_subdirectory(core)
+add_subdirectory(orchestrator)
+add_subdirectory(registry)
+target_sources(baseliner PRIVATE RQ.cpp)
 #JSON
 
 
@@ -24,6 +27,4 @@ target_include_directories(baseliner PUBLIC
     # B. When installed
     $<INSTALL_INTERFACE:include> 
 )
-add_subdirectory(hardware)
-add_subdirectory(stats)
-add_subdirectory(managers)
+
