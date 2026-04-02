@@ -28,7 +28,7 @@
 
 // Copyright 2026, Come Eyraud.
 #include "MatMul.hpp"
-#include <baseliner/managers/RegisteringMacros.hpp>
+#include <baseliner/registry/RegisteringMacros.hpp>
 
 #include <vector>
 
@@ -117,7 +117,7 @@ __global__ void MatrixMulHIP(float *C, float *A, float *B, int wA, int wB) {
 void MatrixMulKernel::run(std::shared_ptr<hipStream_t> stream) {
   // Dispatch based on block size template parameter
   if (get_input()->m_block_size == 16) { // NOLINT
-    MatrixMulHIP<16>                    // NOLINT
+    MatrixMulHIP<16>                     // NOLINT
         <<<m_grid, m_threads, 0, *stream>>>(m_d_C, m_d_A, m_d_B, get_input()->m_wA, get_input()->m_wB);
   } else {
     MatrixMulHIP<32> // NOLINT

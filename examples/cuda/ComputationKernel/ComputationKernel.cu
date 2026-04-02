@@ -1,5 +1,5 @@
 #include "ComputationKernel.hpp"
-#include <baseliner/managers/RegisteringMacros.hpp>
+#include <baseliner/registry/RegisteringMacros.hpp>
 #include <vector>
 
 __global__ void computation_kernel(int *a, int *b, int *c, int N) {
