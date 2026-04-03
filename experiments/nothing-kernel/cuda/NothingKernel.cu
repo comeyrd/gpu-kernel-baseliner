@@ -1,6 +1,6 @@
 #include "../NothingKernel.hpp"
-#include "baseliner/managers/RegisteringMacros.hpp"
-#include <baseliner/hardware/cuda/CudaBackend.hpp>
+#include "baseliner/registry/RegisteringMacros.hpp"
+#include <baseliner/core/hardware/cuda/CudaBackend.hpp>
 using namespace Baseliner::Hardware;
 namespace Baseliner {
   __global__ void nothing_kernel(char *dummy) {

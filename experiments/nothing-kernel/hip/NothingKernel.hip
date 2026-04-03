@@ -1,6 +1,6 @@
-#include "hip/hip_runtime.h"
 #include "../NothingKernel.hpp"
-#include "baseliner/managers/RegisteringMacros.hpp"
+#include "baseliner/registry/RegisteringMacros.hpp"
+#include "hip/hip_runtime.h"
 #include <baseliner/hardware/hip/HipBackend.hpp>
 using namespace Baseliner::Hardware;
 namespace Baseliner {
@@ -12,8 +12,7 @@ namespace Baseliner {
     host.reserve(m_bytes_copied);
     if (m_async_memcpy) {
       CHECK_HIP(hipMallocAsync(&m_d_buffer, m_bytes_copied * sizeof(char), *stream));
-      CHECK_HIP(
-          hipMemcpyAsync(m_d_buffer, host.data(), m_bytes_copied * sizeof(char), hipMemcpyHostToDevice, *stream));
+      CHECK_HIP(hipMemcpyAsync(m_d_buffer, host.data(), m_bytes_copied * sizeof(char), hipMemcpyHostToDevice, *stream));
     } else {
       CHECK_HIP(hipMalloc(&m_d_buffer, m_bytes_copied * sizeof(char)));
       CHECK_HIP(hipMemcpy(m_d_buffer, host.data(), m_bytes_copied * sizeof(char), hipMemcpyHostToDevice));
