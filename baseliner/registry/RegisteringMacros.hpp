@@ -1,5 +1,5 @@
-#ifndef BASELINER_REGISTERING_MACROS_HPP
-#define BASELINER_REGISTERING_MACROS_HPP
+#ifndef BASELINER_REGISTRY_REGISTERINGMACROS_HPP
+#define BASELINER_REGISTRY_REGISTERINGMACROS_HPP
 #include <baseliner/registry/Registrars.hpp>
 #ifdef __GNUC__
 #define ATTRIBUTE_USED __attribute__((used))

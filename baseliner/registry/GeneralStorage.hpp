@@ -1,5 +1,5 @@
-#ifndef BASELINER_GENERAL_STORAGE_HPP
-#define BASELINER_GENERAL_STORAGE_HPP
+#ifndef BASELINER_REGISTRY_GENERALSTORAGE_HPP
+#define BASELINER_REGISTRY_GENERALSTORAGE_HPP
 #include <baseliner/core/stats/StatsEngine.hpp>
 #include <baseliner/registry/Factories.hpp>
 #include <string>

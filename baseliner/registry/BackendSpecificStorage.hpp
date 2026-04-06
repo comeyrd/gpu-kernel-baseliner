@@ -1,5 +1,5 @@
-#ifndef BASELINER_BACKEND_SPECIFIC_STORAGE_HPP
-#define BASELINER_BACKEND_SPECIFIC_STORAGE_HPP
+#ifndef BASELINER_REGISTRY_BACKENDSPECIFICSTORAGE_HPP
+#define BASELINER_REGISTRY_BACKENDSPECIFICSTORAGE_HPP
 #include <baseliner/core/Benchmark.hpp>
 #include <baseliner/core/Case.hpp>
 #include <baseliner/core/stats/StatsEngine.hpp>

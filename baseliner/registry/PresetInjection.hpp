@@ -1,6 +1,6 @@
-#ifndef BASELINER_PRESET_INJECTION_HPP
-#define BASELINER_PRESET_INJECTION_HPP
-#include "baseliner/core/Benchmark.hpp"
+#ifndef BASELINER_REGISTRY_PRESETINJECTION_HPP
+#define BASELINER_REGISTRY_PRESETINJECTION_HPP
+#include <baseliner/core/Benchmark.hpp>
 #include <baseliner/core/Options.hpp>
 #include <functional>
 #include <memory>

@@ -1,5 +1,5 @@
-#ifndef BASELINER_COMPONENT_HPP
-#define BASELINER_COMPONENT_HPP
+#ifndef BASELINER_REGISTRY_COMPONENTS_HPP
+#define BASELINER_REGISTRY_COMPONENTS_HPP
 #include <baseliner/core/Options.hpp>
 #include <string>
 namespace Baseliner {

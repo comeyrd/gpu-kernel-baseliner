@@ -1,6 +1,6 @@
-#ifndef BASELINER_FACTORIES_HPP
-#define BASELINER_FACTORIES_HPP
-#include "baseliner/registry/Components.hpp"
+#ifndef BASELINER_REGISTRY_FACTORIES_HPP
+#define BASELINER_REGISTRY_FACTORIES_HPP
+#include <baseliner/registry/Components.hpp>
 #include <baseliner/core/Benchmark.hpp>
 #include <baseliner/core/Case.hpp>
 #include <functional>

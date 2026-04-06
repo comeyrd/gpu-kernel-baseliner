@@ -1,7 +1,7 @@
-#ifndef BASELINER_STORAGE_MANAGER_HPP
-#define BASELINER_STORAGE_MANAGER_HPP
-#include "baseliner/registry/Components.hpp"
-#include "baseliner/registry/Factories.hpp"
+#ifndef BASELINER_REGISTRY_STORAGEMANAGER_HPP
+#define BASELINER_REGISTRY_STORAGEMANAGER_HPP
+#include <baseliner/registry/Components.hpp>
+#include <baseliner/registry/Factories.hpp>
 #include <baseliner/orchestrator/Protocol.hpp>
 #include <baseliner/registry/BackendStorage.hpp>
 #include <baseliner/registry/GeneralStorage.hpp>

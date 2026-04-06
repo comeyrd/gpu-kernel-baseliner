@@ -1,5 +1,5 @@
-#ifndef BASELINER_REGISTRARS_HPP
-#define BASELINER_REGISTRARS_HPP
+#ifndef BASELINER_REGISTRY_REGISTRARS_HPP
+#define BASELINER_REGISTRY_REGISTRARS_HPP
 #include <baseliner/registry/BackendStorage.hpp>
 #include <baseliner/registry/StorageManager.hpp>
 

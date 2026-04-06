@@ -1,6 +1,6 @@
-#ifndef BASELINER_BACKEND_MANAGER
-#define BASELINER_BACKEND_MANAGER
-#include "baseliner/core/Error.hpp"
+#ifndef BASELINER_REGISTRY_BACKENDSTORAGE_HPP
+#define BASELINER_REGISTRY_BACKENDSTORAGE_HPP
+#include <baseliner/core/Error.hpp>
 #include <baseliner/core/Benchmark.hpp>
 #include <baseliner/core/Case.hpp>
 #include <baseliner/core/Options.hpp>
