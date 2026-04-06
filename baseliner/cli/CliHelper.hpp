@@ -1,5 +1,5 @@
-#ifndef BASELINER_CLI_HELPER
-#define BASELINER_CLI_HELPER
+#ifndef BASELINER_CLI_CLIHELPER_HPP
+#define BASELINER_CLI_CLIHELPER_HPP
 #include <algorithm>
 #include <baseliner/core/Conversions.hpp>
 #include <baseliner/core/IPrinter.hpp>

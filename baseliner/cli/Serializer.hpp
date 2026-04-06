@@ -1,5 +1,5 @@
-#ifndef BASELINER_SERIALIZER_HPP
-#define BASELINER_SERIALIZER_HPP
+#ifndef BASELINER_CLI_SERIALIZER_HPP
+#define BASELINER_CLI_SERIALIZER_HPP
 #include <baseliner/core/Error.hpp>
 #include <fstream>
 #include <iostream>

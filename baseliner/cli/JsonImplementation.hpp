@@ -1,5 +1,5 @@
-#ifndef JSON_IMPLEMENTATION_HPP
-#define JSON_IMPLEMENTATION_HPP
+#ifndef BASELINER_CLI_JSONIMPLEMENTATION_HPP
+#define BASELINER_CLI_JSONIMPLEMENTATION_HPP
 #include <baseliner/core/AxeSweeping.hpp>
 #include <baseliner/core/Metric.hpp>
 #include <baseliner/core/Options.hpp>
