@@ -1,5 +1,5 @@
-#ifndef BASELINER_PROTOCOL_HPP
-#define BASELINER_PROTOCOL_HPP
+#ifndef BASELINER_ORCHESTRATOR_PROTOCOL_HPP
+#define BASELINER_ORCHESTRATOR_PROTOCOL_HPP
 #include <baseliner/core/AxeSweeping.hpp>
 #include <baseliner/registry/Components.hpp>
 #include <string>

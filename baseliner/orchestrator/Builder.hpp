@@ -1,5 +1,5 @@
-#ifndef BASELINER_BUILDER_HPP
-#define BASELINER_BUILDER_HPP
+#ifndef BASELINER_ORCHESTRATOR_BUILDER_HPP
+#define BASELINER_ORCHESTRATOR_BUILDER_HPP
 #include <baseliner/core/Benchmark.hpp>
 #include <baseliner/orchestrator/Plan.hpp>
 #include <baseliner/registry/StorageManager.hpp>

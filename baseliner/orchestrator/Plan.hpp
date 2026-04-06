@@ -1,5 +1,5 @@
-#ifndef BASELINER_OUTPUT_HPP
-#define BASELINER_OUTPUT_HPP
+#ifndef BASELINER_ORCHESTRATOR_PLAN_HPP
+#define BASELINER_ORCHESTRATOR_PLAN_HPP
 #include <baseliner/core/Benchmark.hpp>
 #include <baseliner/core/Metric.hpp>
 #include <baseliner/core/hardware/Backend.hpp>

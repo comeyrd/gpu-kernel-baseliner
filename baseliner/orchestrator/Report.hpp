@@ -1,5 +1,5 @@
-#ifndef BASELINER_REPORT_HPP
-#define BASELINER_REPORT_HPP
+#ifndef BASELINER_ORCHESTRATOR_REPORT_HPP
+#define BASELINER_ORCHESTRATOR_REPORT_HPP
 #include <baseliner/orchestrator/Plan.hpp>
 #include <string>
 #include <vector>
