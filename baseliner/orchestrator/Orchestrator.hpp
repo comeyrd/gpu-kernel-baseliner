@@ -1,14 +1,14 @@
 #ifndef BASELINER_ORCHESTRATOR_ORCHESTRATOR_HPP
 #define BASELINER_ORCHESTRATOR_ORCHESTRATOR_HPP
-#include <baseliner/cli/CliHelper.hpp>
-#include <baseliner/core/Version.hpp>
-#include <baseliner/orchestrator/Plan.hpp>
-#include <baseliner/orchestrator/Report.hpp>
 #include <baseliner/RQ.hpp>
+#include <baseliner/cli/CliHelper.hpp>
 #include <baseliner/core/GIT_VERSION.hpp>
+#include <baseliner/core/Version.hpp>
 #include <baseliner/orchestrator/Builder.hpp>
+#include <baseliner/orchestrator/Plan.hpp>
 #include <baseliner/orchestrator/Planner.hpp>
 #include <baseliner/orchestrator/Protocol.hpp>
+#include <baseliner/orchestrator/Report.hpp>
 #include <vector>
 namespace Baseliner {
   namespace Orchestrator {
