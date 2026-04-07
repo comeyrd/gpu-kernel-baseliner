@@ -1,5 +1,5 @@
-#ifndef BASELINER_BACKEND_STATS_HPP
-#define BASELINER_BACKEND_STATS_HPP
+#ifndef BASELINER_CORE_HARDWARE_BACKENDSTATS_HPP
+#define BASELINER_CORE_HARDWARE_BACKENDSTATS_HPP
 #include <baseliner/core/stats/Stats.hpp>
 
 namespace Baseliner::Stats {

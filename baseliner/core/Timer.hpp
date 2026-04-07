@@ -1,5 +1,5 @@
-#ifndef ITIMER_HPP
-#define ITIMER_HPP
+#ifndef BASELINER_CORE_TIMER_HPP
+#define BASELINER_CORE_TIMER_HPP
 #include <baseliner/core/Durations.hpp>
 #include <memory>
 namespace Baseliner {

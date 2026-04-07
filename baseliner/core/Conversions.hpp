@@ -1,5 +1,5 @@
-#ifndef BASELINER_CONVERSION_HPP
-#define BASELINER_CONVERSION_HPP
+#ifndef BASELINER_CORE_CONVERSIONS_HPP
+#define BASELINER_CORE_CONVERSIONS_HPP
 #include <baseliner/core/Durations.hpp>
 #include <baseliner/core/stats/StatsType.hpp>
 #include <sstream>

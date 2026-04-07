@@ -1,5 +1,5 @@
-#ifndef BASELINER_ISTATS_HPP
-#define BASELINER_ISTATS_HPP
+#ifndef BASELINER_CORE_STATS_ISTATS_HPP
+#define BASELINER_CORE_STATS_ISTATS_HPP
 
 #include <baseliner/core/Metric.hpp>
 #include <baseliner/core/Options.hpp>

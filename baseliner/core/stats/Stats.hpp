@@ -1,5 +1,5 @@
-#ifndef BASELINER_STATS_HPP
-#define BASELINER_STATS_HPP
+#ifndef BASELINER_CORE_STATS_STATS_HPP
+#define BASELINER_CORE_STATS_STATS_HPP
 #include <algorithm>
 #include <baseliner/core/Durations.hpp>
 #include <baseliner/core/Options.hpp>

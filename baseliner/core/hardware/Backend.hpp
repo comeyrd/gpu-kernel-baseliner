@@ -1,5 +1,5 @@
-#ifndef BACKEND_HPP
-#define BACKEND_HPP
+#ifndef BASELINER_CORE_HARDWARE_BACKEND_HPP
+#define BASELINER_CORE_HARDWARE_BACKEND_HPP
 #include <baseliner/core/Durations.hpp>
 #include <baseliner/core/Options.hpp>
 #include <baseliner/core/Timer.hpp>

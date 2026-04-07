@@ -1,8 +1,8 @@
-#ifndef BASELINER_BENCHMARK_HPP
-#define BASELINER_BENCHMARK_HPP
-#include "baseliner/core/Error.hpp"
-#include "baseliner/core/IPrinter.hpp"
-#include "baseliner/core/OptionTypes.hpp"
+#ifndef BASELINER_CORE_BENCHMARK_HPP
+#define BASELINER_CORE_BENCHMARK_HPP
+#include <baseliner/core/Error.hpp>
+#include <baseliner/core/IPrinter.hpp>
+#include <baseliner/core/OptionTypes.hpp>
 #include <baseliner/core/Case.hpp>
 #include <baseliner/core/Kernel.hpp>
 #include <baseliner/core/Metric.hpp>

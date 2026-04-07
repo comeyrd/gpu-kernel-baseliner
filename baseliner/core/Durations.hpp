@@ -1,5 +1,5 @@
-#ifndef DURATIONS_HPP
-#define DURATIONS_HPP
+#ifndef BASELINER_CORE_DURATIONS_HPP
+#define BASELINER_CORE_DURATIONS_HPP
 #include <chrono>
 #include <ostream>
 #include <ratio>

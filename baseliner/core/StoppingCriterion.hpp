@@ -1,5 +1,5 @@
-#ifndef STOPPING_CRITERION_HPP
-#define STOPPING_CRITERION_HPP
+#ifndef BASELINER_CORE_STOPPINGCRITERION_HPP
+#define BASELINER_CORE_STOPPINGCRITERION_HPP
 #include <baseliner/core/Durations.hpp>
 #include <baseliner/core/Metric.hpp>
 #include <baseliner/core/Options.hpp>

@@ -1,3 +1,3 @@
-#ifndef BASELINER_GIT_VERSION
-#define BASELINER_GIT_VERSION "not-provided" // NOLINT
+#ifndef BASELINER_CORE_GIT_VERSION_HPP
+#define BASELINER_CORE_GIT_VERSION_HPP "not-provided" // NOLINT
 #endif

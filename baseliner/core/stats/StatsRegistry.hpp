@@ -1,5 +1,5 @@
-#ifndef BASELINER_STATS_REGISTRY
-#define BASELINER_STATS_REGISTRY
+#ifndef BASELINER_CORE_STATS_STATSREGISTRY_HPP
+#define BASELINER_CORE_STATS_STATSREGISTRY_HPP
 #include <any>
 #include <typeindex>
 #include <unordered_map>

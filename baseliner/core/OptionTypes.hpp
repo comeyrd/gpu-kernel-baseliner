@@ -1,5 +1,5 @@
-#ifndef BASELINER_OPTION_TYPES
-#define BASELINER_OPTION_TYPES
+#ifndef BASELINER_CORE_OPTIONTYPES_HPP
+#define BASELINER_CORE_OPTIONTYPES_HPP
 #include <string>
 #include <unordered_map>
 namespace Baseliner {

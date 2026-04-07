@@ -1,5 +1,5 @@
-#ifndef HIP_BACKEND_HPP
-#define HIP_BACKEND_HPP
+#ifndef BASELINER_CORE_HARDWARE_HIP_HIPBACKEND_HPP
+#define BASELINER_CORE_HARDWARE_HIP_HIPBACKEND_HPP
 #include "hip/hip_runtime.h"
 #include <baseliner/core/Benchmark.hpp>
 #include <baseliner/core/Kernel.hpp>

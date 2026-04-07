@@ -1,5 +1,5 @@
-#ifndef BASELINER_IPRINTER_HPP
-#define BASELINER_IPRINTER_HPP
+#ifndef BASELINER_CORE_IPRINTER_HPP
+#define BASELINER_CORE_IPRINTER_HPP
 #include <baseliner/core/Metric.hpp>
 #include <baseliner/core/hardware/Backend.hpp>
 #include <optional>

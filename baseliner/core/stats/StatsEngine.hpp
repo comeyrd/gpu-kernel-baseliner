@@ -1,5 +1,5 @@
-#ifndef BASELINER_STATS_ENGINE_HPP
-#define BASELINER_STATS_ENGINE_HPP
+#ifndef BASELINER_CORE_STATS_STATSENGINE_HPP
+#define BASELINER_CORE_STATS_STATSENGINE_HPP
 #include <baseliner/core/Metric.hpp>
 #include <baseliner/core/stats/IStats.hpp>
 #include <baseliner/core/stats/StatsRegistry.hpp>

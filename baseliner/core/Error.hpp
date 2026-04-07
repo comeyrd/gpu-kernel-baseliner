@@ -1,6 +1,6 @@
-#ifndef BASELINER_ERROR_HPP
-#define BASELINER_ERROR_HPP
-#include "baseliner/core/AxeSweeping.hpp"
+#ifndef BASELINER_CORE_ERROR_HPP
+#define BASELINER_CORE_ERROR_HPP
+#include <baseliner/core/AxeSweeping.hpp>
 #include <baseliner/core/OptionTypes.hpp>
 #include <cstring>
 #include <sstream>

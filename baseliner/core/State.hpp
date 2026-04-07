@@ -1,5 +1,5 @@
-#ifndef BASELINER_STATE_HPP
-#define BASELINER_STATE_HPP
+#ifndef BASELINER_CORE_STATE_HPP
+#define BASELINER_CORE_STATE_HPP
 #include <atomic>
 #include <csignal>
 #include <iostream>

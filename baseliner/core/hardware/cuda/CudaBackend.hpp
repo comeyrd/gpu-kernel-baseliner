@@ -1,5 +1,5 @@
-#ifndef CUDA_BACKEND_HPP
-#define CUDA_BACKEND_HPP
+#ifndef BASELINER_CORE_HARDWARE_CUDA_CUDABACKEND_HPP
+#define BASELINER_CORE_HARDWARE_CUDA_CUDABACKEND_HPP
 #include "cuda_runtime.h"
 #include <baseliner/core/Benchmark.hpp>
 #include <baseliner/core/Kernel.hpp>

@@ -1,5 +1,5 @@
-#ifndef BASELINER_AXE_SWEEPING_HPP
-#define BASELINER_AXE_SWEEPING_HPP
+#ifndef BASELINER_CORE_AXESWEEPING_HPP
+#define BASELINER_CORE_AXESWEEPING_HPP
 #include <baseliner/core/OptionTypes.hpp>
 #include <iostream>
 #include <optional>

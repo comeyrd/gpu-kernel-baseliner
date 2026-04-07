@@ -1,5 +1,5 @@
-#ifndef KERNEL_HPP
-#define KERNEL_HPP
+#ifndef BASELINER_CORE_KERNEL_HPP
+#define BASELINER_CORE_KERNEL_HPP
 #include <baseliner/core/Case.hpp>
 #include <baseliner/core/Options.hpp>
 #include <baseliner/core/Timer.hpp>
