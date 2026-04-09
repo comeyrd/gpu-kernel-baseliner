@@ -89,28 +89,36 @@ namespace Baseliner {
     json_obj.at("options").get_to(stat.m_options);
   }
 
-  void to_json(json &json_obj, const Plan &plan) {
-    json_obj["campaign_name"] = plan.m_campaign_name;
-    json_obj["recipe_name"] = plan.m_recipe_name;
+  void to_json(json &json_obj, const CampaignPlan &plan) {
+    json_obj["name"] = plan.name;
+    json_obj["recipe_name"] = plan.recipe_name;
+    json_obj["recipe"] = plan.recipe;
+    json_obj["on_incompatible"] = plan.on_incompatible;
+    json_obj["benchmarks"] = plan.benchmarks;
+  }
+  void from_json(const json &json_obj, CampaignPlan &plan) {
+    json_obj.at("name").get_to(plan.name);
+    json_obj.at("recipe_name").get_to(plan.recipe_name);
+    json_obj.at("recipe").get_to(plan.recipe);
+    json_obj.at("benchmarks").get_to(plan.benchmarks);
+    json_obj.at("on_incompatible").get_to(plan.on_incompatible);
+  }
+  void to_json(json &json_obj, const BenchmarkPlan &plan) {
     json_obj["case"] = plan.m_case;
     json_obj["backend"] = plan.m_backend;
     json_obj["benchmark"] = plan.m_benchmark;
     json_obj["stopping"] = plan.m_stopping;
     json_obj["stats"] = plan.m_stats;
-    json_obj["on_incompatible"] = plan.m_on_incompatible;
     if (plan.m_sweep.has_value()) {
       json_obj["sweep"] = plan.m_sweep.value();
     }
   }
-  void from_json(const json &json_obj, Plan &plan) {
-    json_obj.at("campaign_name").get_to(plan.m_campaign_name);
-    json_obj.at("recipe_name").get_to(plan.m_recipe_name);
+  void from_json(const json &json_obj, BenchmarkPlan &plan) {
     json_obj.at("case").get_to(plan.m_case);
     json_obj.at("backend").get_to(plan.m_backend);
     json_obj.at("benchmark").get_to(plan.m_benchmark);
     json_obj.at("stopping").get_to(plan.m_stopping);
     json_obj.at("stats").get_to(plan.m_stats);
-    json_obj.at("on_incompatible").get_to(plan.m_on_incompatible);
     if (json_obj.contains("sweep")) {
       plan.m_sweep = json_obj.at("sweep").get<SweepSpec>();
     } else {
@@ -155,13 +163,25 @@ namespace Baseliner {
     json_obj["baseliner_version"] = report.m_baseliner_version;
     json_obj["git_version"] = report.m_git_version;
     json_obj["datetime"] = report.m_datetime;
-    json_obj["runs"] = report.m_runs;
+    json_obj["campaign_runs"] = report.m_campaign_runs;
   }
   void from_json(const json &json_obj, Report &report) {
     json_obj.at("baseliner_version").get_to(report.m_baseliner_version);
     json_obj.at("git_version").get_to(report.m_git_version);
     json_obj.at("datetime").get_to(report.m_datetime);
-    json_obj.at("runs").get_to(report.m_runs);
+    json_obj.at("campaign_runs").get_to(report.m_campaign_runs);
+  }
+  void to_json(json &json_obj, const CampaignReport &report) {
+    json_obj["name"] = report.name;
+    json_obj["recipe_name"] = report.recipe_name;
+    json_obj["recipe"] = report.recipe;
+    json_obj["benchmark_runs"] = report.benchmark_runs;
+  }
+  void from_json(const json &json_obj, CampaignReport &report) {
+    json_obj.at("name").get_to(report.name);
+    json_obj.at("recipe_name").get_to(report.recipe_name);
+    json_obj.at("recipe").get_to(report.recipe);
+    json_obj.at("benchmark_runs").get_to(report.benchmark_runs);
   }
 
   void to_json(json &json_obj, const RecipeComponent &component) {

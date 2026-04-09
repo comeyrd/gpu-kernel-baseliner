@@ -5,7 +5,7 @@
 #include <baseliner/registry/StorageManager.hpp>
 namespace Baseliner::Planner {
 
-  auto plan(const Protocol &protocol, const StorageManager *storage_manager) -> std::vector<Plan>;
+  auto plan(const Protocol &protocol, const StorageManager *storage_manager) -> std::vector<CampaignPlan>;
 
 } // namespace Baseliner::Planner
 

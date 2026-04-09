@@ -76,28 +76,30 @@ namespace Baseliner::Planner {
     const StorageManager *m_storage_manager;
   };
 
-  auto plan(const Protocol &protocol, const StorageManager *storage_manager) -> std::vector<Plan> {
-    std::vector<Plan> plan_vector{};
+  auto plan(const Protocol &protocol, const StorageManager *storage_manager) -> std::vector<CampaignPlan> {
+    std::vector<CampaignPlan> campaigns{};
     PresetCascader cascader(protocol.m_presets, protocol.m_stats_presets, storage_manager);
     for (const Campaign &current_campaign : protocol.m_campaigns) {
-      Plan current_plan;
-      current_plan.m_campaign_name = current_campaign.m_name;
-      current_plan.m_recipe_name = current_campaign.m_recipe;
+      CampaignPlan campaign_plan;
+      campaign_plan.name = current_campaign.m_name;
+      campaign_plan.recipe_name = current_campaign.m_recipe;
       if (protocol.m_recipes.find(current_campaign.m_recipe) == protocol.m_recipes.end()) {
         throw Errors::not_found("Recipe", current_campaign.m_recipe);
       }
       const Recipe &wanted_recipe = protocol.m_recipes.at(current_campaign.m_recipe);
-      current_plan.m_benchmark = cascader.cascade(wanted_recipe.m_benchmark, ComponentType::BENCHMARK);
-      current_plan.m_stopping = cascader.cascade(wanted_recipe.m_stopping, ComponentType::STOPPING);
-      current_plan.m_stats = cascader.cascade(wanted_recipe.m_stats);
-      current_plan.m_sweep = wanted_recipe.m_sweep;
-      current_plan.m_on_incompatible = current_campaign.m_on_incompatible;
+      campaign_plan.recipe = wanted_recipe;
+      BenchmarkPlan bench_plan;
+      bench_plan.m_benchmark = cascader.cascade(wanted_recipe.m_benchmark, ComponentType::BENCHMARK);
+      bench_plan.m_stopping = cascader.cascade(wanted_recipe.m_stopping, ComponentType::STOPPING);
+      bench_plan.m_stats = cascader.cascade(wanted_recipe.m_stats);
+      bench_plan.m_sweep = wanted_recipe.m_sweep;
+      campaign_plan.on_incompatible = current_campaign.m_on_incompatible;
       for (const RecipeComponent &current_case : current_campaign.m_cases) {
         for (const RecipeComponent &current_backend : current_campaign.m_backends) {
           try {
-            current_plan.m_backend = cascader.cascade(current_backend);
-            current_plan.m_case = cascader.cascade(current_case);
-            plan_vector.push_back(current_plan);
+            bench_plan.m_backend = cascader.cascade(current_backend);
+            bench_plan.m_case = cascader.cascade(current_case);
+            campaign_plan.benchmarks.push_back(bench_plan);
           } catch (const Error &e) {
             if (e.code() == ErrorCode::BackendCaseBenchmarkNotFound) {
               if (current_campaign.m_on_incompatible == OnIncompatible::Skip) {
@@ -113,8 +115,9 @@ namespace Baseliner::Planner {
           }
         }
       }
+      campaigns.push_back(campaign_plan);
     }
-    return plan_vector;
+    return campaigns;
   };
 
 } // namespace Baseliner::Planner

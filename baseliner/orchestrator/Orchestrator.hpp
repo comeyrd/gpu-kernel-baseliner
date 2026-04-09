@@ -18,15 +18,29 @@ namespace Baseliner {
     [[nodiscard]] inline auto get_metadata_file() -> Metadata {
       return StorageManager::instance()->get_metadata();
     }
-    inline auto run_plan(const Plan &plan, StorageManager *storage_manager = StorageManager::instance()) -> RunReport {
-      std::shared_ptr<Cli::CliPrinter> printer = std::make_shared<Cli::CliPrinter>();
-      IBenchmarkFactory bench_factory = Builder::build(plan, storage_manager);
-      printer->print_plan(plan);
+    inline auto run_benchmark_plan(const BenchmarkPlan &bench_plan, std::shared_ptr<Cli::CliPrinter> &printer,
+                                   StorageManager *storage_manager = StorageManager::instance()) -> RunReport {
+      IBenchmarkFactory bench_factory = Builder::build(bench_plan, storage_manager);
+      printer->print_benchmark_plan(bench_plan);
       std::shared_ptr<IBenchmark> bench = bench_factory();
       bench->set_printer(printer);
       BenchmarkReport bench_report = bench->run_benchmark();
-      return {plan, bench_report};
+      return {bench_plan, bench_report};
     };
+    auto run_campaign_plan(const CampaignPlan &campaign_plan,
+                           StorageManager *storage_manager = StorageManager::instance()) -> CampaignReport {
+      CampaignReport c_report;
+      c_report.name = campaign_plan.name;
+      c_report.recipe = campaign_plan.recipe;
+      c_report.recipe_name = campaign_plan.recipe_name;
+      std::shared_ptr<Cli::CliPrinter> printer = std::make_shared<Cli::CliPrinter>();
+      printer->print_campaign_plan(campaign_plan);
+      for (const auto &bench_plan : campaign_plan.benchmarks) {
+        RunReport runreprt = run_benchmark_plan(bench_plan, printer, storage_manager);
+        c_report.benchmark_runs[bench_plan.m_backend.m_impl][bench_plan.m_case.m_impl] = runreprt;
+      }
+      return c_report;
+    }
 
     inline auto run_protocol(const Protocol &protocol) -> Report {
       Report report;
@@ -34,12 +48,12 @@ namespace Baseliner {
       report.m_baseliner_version = Version::string();
       report.m_git_version = BASELINER_GIT_VERSION;
       report.m_datetime = "";
-      std::vector<Plan> plans = Planner::plan(protocol, storage_manager);
+      std::vector<CampaignPlan> plans = Planner::plan(protocol, storage_manager);
       for (const auto &plan : plans) {
         if (ExecutionController::exit_requested()) {
           break;
         }
-        report.m_runs.push_back(run_plan(plan));
+        report.m_campaign_runs.push_back(run_campaign_plan(plan));
       }
       return report;
     };
@@ -49,11 +63,13 @@ namespace Baseliner {
       report.m_baseliner_version = Version::string();
       report.m_git_version = BASELINER_GIT_VERSION;
       report.m_datetime = "";
-      for (const RunReport &run : to_replay_report.m_runs) {
-        report.m_runs.push_back(run_plan(run.m_plan));
+      for (const CampaignReport &campaign_run : to_replay_report.m_campaign_runs) {
+        CampaignPlan c_plan = campaign_plan_from_report(campaign_run);
+        report.m_campaign_runs.push_back(run_campaign_plan(c_plan));
       }
       return report;
     };
+
     inline auto run_research_questions(const std::vector<std::string> &case_names) -> Report {
       std::vector<std::string> backends = StorageManager::instance()->list_backends();
       std::vector<RecipeComponent> case_components;

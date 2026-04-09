@@ -4,7 +4,7 @@
 #include <functional>
 namespace Baseliner::Builder {
 
-  auto build(const Plan &plan, const StorageManager *storage_manager) -> IBenchmarkFactory {
+  auto build(const BenchmarkPlan &plan, const StorageManager *storage_manager) -> IBenchmarkFactory {
 
     IBenchmarkFactory benchmark_factory =
         storage_manager->get_benchmark_case_factory(plan.m_backend.m_impl, plan.m_benchmark.m_impl, plan.m_case.m_impl);

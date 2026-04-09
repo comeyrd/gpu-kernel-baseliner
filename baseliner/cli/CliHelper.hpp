@@ -115,10 +115,12 @@ namespace Baseliner::Cli {
       }
       print_row(row, report);
     };
-    void print_plan(const Plan &plan) {
-      std::cout << "Running Campaign " << plan.m_campaign_name << ", Recipe : " << plan.m_recipe_name << "\n";
-      std::cout << "Case : " << plan.m_case.m_impl << " (" << plan.m_case.m_preset << ")" << "\n";
-      std::cout << "Backend : " << plan.m_backend.m_impl << " (" << plan.m_backend.m_preset << ")" << "\n";
+    void print_campaign_plan(const CampaignPlan &campaign_plan) {
+      std::cout << "Running Campaign " << campaign_plan.name << ", Recipe : " << campaign_plan.recipe_name << "\n";
+    }
+    void print_benchmark_plan(const BenchmarkPlan &bench_plan) {
+      std::cout << "Case : " << bench_plan.m_case.m_impl << " (" << bench_plan.m_case.m_preset << ")" << "\n";
+      std::cout << "Backend : " << bench_plan.m_backend.m_impl << " (" << bench_plan.m_backend.m_preset << ")" << "\n";
     };
 
   private:

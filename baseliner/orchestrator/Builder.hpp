@@ -6,7 +6,7 @@
 
 namespace Baseliner::Builder {
 
-  auto build(const Plan &plan, const StorageManager *registry) -> IBenchmarkFactory;
+  auto build(const BenchmarkPlan &plan, const StorageManager *registry) -> IBenchmarkFactory;
 
 } // namespace Baseliner::Builder
 

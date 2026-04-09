@@ -81,8 +81,11 @@ namespace Baseliner {
   void to_json(json &json_obj, const ComponentPreset &preset);
   void from_json(const json &json_obj, ComponentPreset &preset);
 
-  void to_json(json &json_obj, const Plan &plan);
-  void from_json(const json &json_obj, Plan &plan);
+  void to_json(json &json_obj, const CampaignPlan &plan);
+  void from_json(const json &json_obj, CampaignPlan &plan);
+
+  void to_json(json &json_obj, const BenchmarkPlan &plan);
+  void from_json(const json &json_obj, BenchmarkPlan &plan);
 
   void to_json(json &json_obj, const SingleRunReport &report);
   void from_json(const json &json_obj, SingleRunReport &report);
@@ -95,6 +98,9 @@ namespace Baseliner {
 
   void to_json(json &json_obj, const Report &report);
   void from_json(const json &json_obj, Report &report);
+
+  void to_json(json &json_obj, const CampaignReport &report);
+  void from_json(const json &json_obj, CampaignReport &report);
 
   void to_json(json &json_obj, const RecipeComponent &component);
   void from_json(const json &json_obj, RecipeComponent &component);

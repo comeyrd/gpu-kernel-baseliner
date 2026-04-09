@@ -19,16 +19,22 @@ namespace Baseliner {
     OptionsMap m_options;
   };
 
-  struct Plan {
-    std::string m_campaign_name;
-    std::string m_recipe_name;
+  struct BenchmarkPlan {
     PlannedComponent m_case;
     PlannedComponent m_backend;
     PlannedComponent m_benchmark;
     PlannedComponent m_stopping;
     PlannedStat m_stats;
     std::optional<SweepSpec> m_sweep;
-    OnIncompatible m_on_incompatible;
   };
+
+  struct CampaignPlan {
+    std::string name;
+    std::string recipe_name;
+    Recipe recipe;
+    std::vector<BenchmarkPlan> benchmarks;
+    OnIncompatible on_incompatible;
+  };
+
 } // namespace Baseliner
 #endif // BASELINER_OUTPUT_HPP
