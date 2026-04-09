@@ -23,6 +23,10 @@ namespace Baseliner {
       }
       m_stats_map[name] = stat_func;
     }
+
+    void insert_options(const std::string &name, const OptionsMap &options) {
+      m_stats_options[name] = options;
+    }
     GeneralStatsStorage() = default;
 
     [[nodiscard]] auto list() const -> std::vector<std::string> {
@@ -33,9 +37,13 @@ namespace Baseliner {
       }
       return vecstr;
     }
+    [[nodiscard]] auto list_w_options() const -> std::unordered_map<std::string, OptionsMap> {
+      return m_stats_options;
+    }
 
   private:
     std::unordered_map<std::string, StatsFactory> m_stats_map;
+    std::unordered_map<std::string, OptionsMap> m_stats_options;
   };
   class StoppingCriterionStorage {
   public:

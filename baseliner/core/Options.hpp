@@ -1,9 +1,9 @@
 #ifndef BASELINER_CORE_OPTIONS_HPP
 #define BASELINER_CORE_OPTIONS_HPP
-#include <baseliner/core/Error.hpp>
-#include <baseliner/core/OptionTypes.hpp>
 #include <baseliner/core/AxeSweeping.hpp>
 #include <baseliner/core/Conversions.hpp>
+#include <baseliner/core/Error.hpp>
+#include <baseliner/core/OptionTypes.hpp>
 #include <iostream>
 #include <memory>
 #include <optional>

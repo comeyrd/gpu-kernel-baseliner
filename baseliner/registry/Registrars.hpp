@@ -13,7 +13,8 @@ namespace Baseliner {
   public:
     explicit GeneralStatRegistrar(const std::string &name) {
       StorageManager::instance()->register_general_stat(
-          name, [](std::shared_ptr<Stats::StatsEngine> engine) { engine->register_stat<StatT>(); });
+          name, [](std::shared_ptr<Stats::StatsEngine> engine) { engine->register_stat<StatT>(); },
+          StatT().get_options());
     }
   };
 
@@ -84,7 +85,8 @@ namespace Baseliner {
   public:
     explicit BackendStatRegistrar(const std::string &name) {
       BackendStorage<typename StatT::backend>::instance()->register_backend_stats(
-          name, [](std::shared_ptr<Stats::StatsEngine> engine) { engine->register_stat<StatT>(); });
+          name, [](std::shared_ptr<Stats::StatsEngine> engine) { engine->register_stat<StatT>(); },
+          StatT().get_options());
     }
   };
 

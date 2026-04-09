@@ -7,6 +7,7 @@
 #include <baseliner/core/stats/StatsType.hpp>
 #include <baseliner/orchestrator/Plan.hpp>
 #include <baseliner/orchestrator/Report.hpp>
+#include <baseliner/registry/Metadata.hpp>
 #include <iomanip>
 #include <nlohmann/json.hpp>
 using json = nlohmann::ordered_json;
@@ -124,6 +125,8 @@ namespace Baseliner {
 
   void to_json(json &json_obj, const Protocol &protocol);
   void from_json(const json &json_obj, Protocol &protocol);
+
+  void to_json(json &json_obj, const Metadata &metadata);
 
   template <typename T>
   void to_json(json &json_obj, const ConfidenceInterval<T> &obj) {

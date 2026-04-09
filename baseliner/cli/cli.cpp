@@ -103,8 +103,8 @@ __attribute__((weak)) int main(int argc, char **argv) { // NOLINT
 
   else if (program.is_subcommand_used("gen")) {
     if (generate_parser.is_used("--metadata")) {
-
-      throw Errors::not_implemented("Metadata generation is not implemented");
+      to_file(Orchestrator::get_metadata_file(), "metadata.json");
+      std::cout << "Metadata file saved to " << "metadata.json" << "\n";
     } else if (generate_parser.is_used("--default-protocol-file")) {
       Protocol protocol = Orchestrator::get_default_protocol();
       to_file(protocol, "default-protocol.json");

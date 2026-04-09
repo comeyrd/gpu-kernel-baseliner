@@ -1,10 +1,11 @@
 #ifndef BASELINER_REGISTRY_STORAGEMANAGER_HPP
 #define BASELINER_REGISTRY_STORAGEMANAGER_HPP
-#include <baseliner/registry/Components.hpp>
-#include <baseliner/registry/Factories.hpp>
 #include <baseliner/orchestrator/Protocol.hpp>
 #include <baseliner/registry/BackendStorage.hpp>
+#include <baseliner/registry/Components.hpp>
+#include <baseliner/registry/Factories.hpp>
 #include <baseliner/registry/GeneralStorage.hpp>
+#include <baseliner/registry/Metadata.hpp>
 #include <iostream>
 #include <string>
 #include <unordered_map>
@@ -29,7 +30,8 @@ namespace Baseliner {
     void register_stopping(const std::string &name, const StoppingCriterionFactory &stopping_factory);
     // TODO maybe let the stat thiny only to the engine ?
     // Maybe create something else than the manager ?
-    void register_general_stat(const std::string &name, const StatsFactory &stat_factory);
+    void register_stat_options(const std::string &name, const OptionsMap &options);
+    void register_general_stat(const std::string &name, const StatsFactory &stat_factory, const OptionsMap &options);
 
     void load_protocol_presets(const Protocol &protocol);
 
@@ -73,9 +75,14 @@ namespace Baseliner {
     /*
      * Retreiving everything
      */
-    [[nodiscard]] auto get_all_component_presets()
+    [[nodiscard]] auto get_all_component_presets() const
         -> std::unordered_map<std::string, std::unordered_map<std::string, ComponentPreset>>;
-    [[nodiscard]] auto get_all_stats_presets() -> std::unordered_map<std::string, StatsPreset>;
+    [[nodiscard]] auto get_all_stats_presets() const -> std::unordered_map<std::string, StatsPreset>;
+
+    /*
+     *Generating Metadata
+     */
+    [[nodiscard]] auto get_metadata() const -> Metadata;
 
   private:
     /*

@@ -15,7 +15,9 @@ namespace Baseliner {
     inline void load_presets(const Protocol &preset_protocol) {
       StorageManager::instance()->load_protocol_presets(preset_protocol);
     };
-
+    [[nodiscard]] inline auto get_metadata_file() -> Metadata {
+      return StorageManager::instance()->get_metadata();
+    }
     inline auto run_plan(const Plan &plan, StorageManager *storage_manager = StorageManager::instance()) -> RunReport {
       std::shared_ptr<Cli::CliPrinter> printer = std::make_shared<Cli::CliPrinter>();
       IBenchmarkFactory bench_factory = Builder::build(plan, storage_manager);

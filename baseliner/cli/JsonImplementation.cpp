@@ -28,6 +28,7 @@ namespace Baseliner {
   template void serialize<InterfaceOptions>(std::ostream &oss, const InterfaceOptions &obj);
   template void serialize<Protocol>(std::ostream &oss, const Protocol &obj);
   template void serialize<Report>(std::ostream &oss, const Report &obj);
+  template void serialize<Metadata>(std::ostream &oss, const Metadata &obj);
 
   template void serialize<std::vector<Metric>>(std::ostream &oss, const std::vector<Metric> &obj);
   template void serialize<std::vector<Option>>(std::ostream &oss, const std::vector<Option> &obj);
@@ -363,4 +364,15 @@ namespace Baseliner {
     json_obj.at("recipes").get_to(protocol.m_recipes);
     json_obj.at("campaigns").get_to(protocol.m_campaigns);
   }
+  void to_json(json &json_obj, const Metadata &metadata) {
+    json_obj["components"] = metadata.components;
+    json_obj["stats"] = metadata.stats;
+    json_obj["components_preset"] = metadata.component_presets;
+    json_obj["stats_presets"] = metadata.stats_presets;
+    json_obj["stats_options"] = metadata.stats_options;
+    json_obj["hardware_stats"] = metadata.hardware_stats;
+    json_obj["hardware_components"] = metadata.hardware_components;
+    json_obj["hardware_stat_options"] = metadata.hardware_stat_options;
+  }
+
 } // namespace Baseliner

@@ -1,6 +1,7 @@
 #include <baseliner/core/Error.hpp>
 #include <baseliner/registry/Components.hpp>
 #include <baseliner/registry/Factories.hpp>
+#include <baseliner/registry/Metadata.hpp>
 #include <baseliner/registry/StorageManager.hpp>
 
 namespace Baseliner {
@@ -34,8 +35,16 @@ namespace Baseliner {
     m_stopping_storage.insert(name, stopping_factory);
     register_component(name, ComponentType::STOPPING, stopping_factory()->get_options());
   }
-  void StorageManager::register_general_stat(const std::string &name, const StatsFactory &stat_factory) {
+  void StorageManager::register_stat_options(const std::string &name, const OptionsMap &options) {
+    if (!options.empty()) {
+      m_stats_storage.insert_options(name, options);
+    }
+  }
+
+  void StorageManager::register_general_stat(const std::string &name, const StatsFactory &stat_factory,
+                                             const OptionsMap &options) {
     m_stats_storage.insert(name, stat_factory);
+    register_stat_options(name, options);
   }
 
   /*
@@ -191,12 +200,33 @@ namespace Baseliner {
     }
   }
 
-  auto StorageManager::get_all_component_presets()
+  auto StorageManager::get_all_component_presets() const
       -> std::unordered_map<std::string, std::unordered_map<std::string, ComponentPreset>> {
     return m_component_presets;
   }
-  auto StorageManager::get_all_stats_presets() -> std::unordered_map<std::string, StatsPreset> {
+  auto StorageManager::get_all_stats_presets() const -> std::unordered_map<std::string, StatsPreset> {
     return m_stats_presets;
   }
 
+  auto StorageManager::get_metadata() const -> Metadata {
+    Metadata meta;
+    for (const auto &[compo_name, compo_type] : m_components) {
+      meta.components[component_to_string(compo_type)].push_back(compo_name);
+    }
+    for (const auto &[stat_name, stat_opt] : m_stats_storage.list_w_options()) {
+      meta.stats_options[stat_name] = stat_opt;
+    }
+
+    meta.stats = m_stats_storage.list();
+    meta.component_presets = m_component_presets;
+    meta.stats_presets = m_stats_presets;
+    for (const auto &[backend_name, backend_storage] : m_backends_storage) {
+      meta.hardware_stats[backend_name] = backend_storage->list_device_stats();
+      for (const auto &[name, component] : backend_storage->list_components()) {
+        meta.hardware_components[backend_name][component_to_string(component)].push_back(name);
+      }
+      meta.hardware_stat_options[backend_name] = backend_storage->list_device_stats_options();
+    }
+    return meta;
+  };
 } // namespace Baseliner

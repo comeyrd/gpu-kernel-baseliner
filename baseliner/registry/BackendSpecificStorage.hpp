@@ -113,8 +113,16 @@ namespace Baseliner {
       return m_stats_map.size();
     }
 
+    void insert_options(const std::string &name, const OptionsMap &options) {
+      m_stats_options[name] = options;
+    }
+    [[nodiscard]] auto list_w_options() const -> std::unordered_map<std::string, OptionsMap> {
+      return m_stats_options;
+    }
+
   private:
     std::unordered_map<std::string, StatsFactory> m_stats_map;
+    std::unordered_map<std::string, OptionsMap> m_stats_options;
   };
 } // namespace Baseliner
 #endif // BASELINER_BACKEND_SPECIFIC_STORAGE_HPP

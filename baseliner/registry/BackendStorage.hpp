@@ -1,8 +1,8 @@
 #ifndef BASELINER_REGISTRY_BACKENDSTORAGE_HPP
 #define BASELINER_REGISTRY_BACKENDSTORAGE_HPP
-#include <baseliner/core/Error.hpp>
 #include <baseliner/core/Benchmark.hpp>
 #include <baseliner/core/Case.hpp>
+#include <baseliner/core/Error.hpp>
 #include <baseliner/core/Options.hpp>
 #include <baseliner/registry/BackendSpecificStorage.hpp>
 #include <baseliner/registry/Factories.hpp>
@@ -23,6 +23,7 @@ namespace Baseliner {
       return m_name;
     }
     [[nodiscard]] virtual auto list_device_stats() const -> std::vector<std::string> = 0;
+    [[nodiscard]] virtual auto list_device_stats_options() const -> std::unordered_map<std::string, OptionsMap> = 0;
     [[nodiscard]] virtual auto list_device_cases() const -> std::vector<std::string> = 0;
     [[nodiscard]] virtual auto list_device_benchmarks() const -> std::vector<std::string> = 0;
     [[nodiscard]] virtual auto list_components() -> ComponentList = 0;
@@ -67,9 +68,16 @@ namespace Baseliner {
     void register_benchmark(const std::string &name, const BenchmarkFactory<BackendT> &bench_factory) {
       m_benchmark_storage.insert(name, bench_factory, get_name());
     }
-    void register_backend_stats(const std::string &name, const StatsFactory &stats_factory) {
+    void register_backend_stats(const std::string &name, const StatsFactory &stats_factory, const OptionsMap &options) {
       m_backend_stats_storage.insert(name, stats_factory, get_name());
+      if (!options.empty()) {
+        m_backend_stats_storage.insert_options(name, options);
+      }
     }
+    [[nodiscard]] auto list_device_stats_options() const -> std::unordered_map<std::string, OptionsMap> override {
+      return m_backend_stats_storage.list_w_options();
+    };
+
     [[nodiscard]] auto list_device_stats() const -> std::vector<std::string> override {
       return m_backend_stats_storage.list();
     };
