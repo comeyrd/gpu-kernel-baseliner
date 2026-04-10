@@ -26,7 +26,7 @@ namespace Baseliner {
         return typed;
       }
       if (hint.m_step.empty()) {
-        typed.m_step = {};
+        typed.m_step = T{};
       } else {
         typed.m_step = Conversion::baseliner_from_string<T>(hint.m_step);
       }
