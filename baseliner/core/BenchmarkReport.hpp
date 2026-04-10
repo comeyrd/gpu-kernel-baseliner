@@ -16,7 +16,7 @@ namespace Baseliner {
     std::vector<SingleRunReport> m_results;
     Hardware::HardwareInfo m_hardware;
   };
-  DESCRIBE(BenchmarkReport, FIELD(m_results))
+  DESCRIBE(BenchmarkReport, FIELD(m_results), FIELD(m_hardware))
 
 } // namespace Baseliner
 #endif // BASELINER_CORE_BENCHMARKREPORT_HPP
