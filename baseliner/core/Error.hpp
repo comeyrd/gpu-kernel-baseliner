@@ -11,7 +11,7 @@ namespace Baseliner {
 
   enum class ErrorCode {
     NotFound,
-    BackendCaseBenchmarkNotFound,
+    BackendWorkloadBenchmarkNotFound,
     AlreadyExists,
     BenchmarkError,
     OptionsError,
@@ -34,8 +34,8 @@ namespace Baseliner {
       return "OptionsError";
     case ErrorCode::StoppingCriterionError:
       return "StoppingCriterionError";
-    case ErrorCode::BackendCaseBenchmarkNotFound:
-      return "BackendCaseBenchmarkNotFound";
+    case ErrorCode::BackendWorkloadBenchmarkNotFound:
+      return "BackendWorkloadBenchmarkNotFound";
     case ErrorCode::PresetError:
       return "PresetError";
     case ErrorCode::FileError:
@@ -94,7 +94,7 @@ namespace Baseliner {
     }
     inline auto workload_benchmark_not_found_in_backend(const std::string &kind, const std::string &name,
                                                         const std::string &backend) -> Error {
-      return {ErrorCode::BackendCaseBenchmarkNotFound, kind + " '" + name + "' not found in Backend " + backend};
+      return {ErrorCode::BackendWorkloadBenchmarkNotFound, kind + " '" + name + "' not found in Backend " + backend};
     }
     inline auto component_already_exists(const std::string &name, const std::string &kind) -> Error {
       return {ErrorCode::AlreadyExists, "The component " + name + " is already taken by a" + kind + "component"};

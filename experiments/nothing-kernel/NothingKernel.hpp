@@ -1,10 +1,10 @@
 #ifndef NOTHING_KERNEL_HPP
 #define NOTHING_KERNEL_HPP
-#include <baseliner/core/Case.hpp>
+#include <baseliner/core/Workload.hpp>
 
 namespace Baseliner {
   template <typename BackendT>
-  class NothingKernel : public ICase<BackendT> {
+  class NothingKernel : public IWorkload<BackendT> {
   public:
     using backend = BackendT;
     auto name() -> std::string override {
@@ -18,7 +18,7 @@ namespace Baseliner {
     void run_workload(std::shared_ptr<typename backend::stream_t> stream) override;
     void teardown(std::shared_ptr<typename backend::stream_t> stream) override;
     void register_options() override {
-      ICase<BackendT>::register_options();
+      IWorkload<BackendT>::register_options();
       this->add_option("NothingKernel", "async_memcpy", "Should the copy before the launch be async?", m_async_memcpy);
       this->add_option("NothingKernel", "nb_bytes",
                        "How many bytes should be copied | memset before launching the empty kernel ?", m_bytes_copied);

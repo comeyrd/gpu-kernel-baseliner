@@ -1,13 +1,13 @@
 #ifndef BASELINER_REGISTRY_FACTORIES_HPP
 #define BASELINER_REGISTRY_FACTORIES_HPP
-#include <baseliner/registry/Components.hpp>
 #include <baseliner/core/Benchmark.hpp>
-#include <baseliner/core/Case.hpp>
+#include <baseliner/core/Workload.hpp>
+#include <baseliner/registry/Components.hpp>
 #include <functional>
 namespace Baseliner {
   // Factories
   template <typename BackendT>
-  using CaseFactory = std::function<std::shared_ptr<ICase<BackendT>>()>;
+  using WorkloadFactory = std::function<std::shared_ptr<IWorkload<BackendT>>()>;
 
   template <typename BackendT>
   using BenchmarkFactory = std::function<std::shared_ptr<Benchmark<BackendT>>()>;

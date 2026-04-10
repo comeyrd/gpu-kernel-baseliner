@@ -58,12 +58,14 @@ namespace Baseliner {
     }
   };
 
-  template <class CaseT>
-  class CaseRegistrar {
+  template <class WorkloadT>
+  class WorkloadRegistrar {
   public:
-    explicit CaseRegistrar(const std::string &name) {
-      auto factory = []() -> std::shared_ptr<ICase<typename CaseT::backend>> { return std::make_shared<CaseT>(); };
-      BackendStorage<typename CaseT::backend>::instance()->register_workload(name, factory);
+    explicit WorkloadRegistrar(const std::string &name) {
+      auto factory = []() -> std::shared_ptr<IWorkload<typename WorkloadT::backend>> {
+        return std::make_shared<WorkloadT>();
+      };
+      BackendStorage<typename WorkloadT::backend>::instance()->register_workload(name, factory);
       StorageManager::instance()->register_component(name, ComponentType::CASE, factory()->get_options());
     }
   };
@@ -72,8 +74,8 @@ namespace Baseliner {
   class KernelRegistrar {
   public:
     explicit KernelRegistrar(const std::string &name) {
-      auto factory = []() -> std::shared_ptr<ICase<typename KernelT::backend>> {
-        return std::make_shared<KernelCase<KernelT>>();
+      auto factory = []() -> std::shared_ptr<IWorkload<typename KernelT::backend>> {
+        return std::make_shared<KernelWorkload<KernelT>>();
       };
       BackendStorage<typename KernelT::backend>::instance()->register_workload(name, factory);
       StorageManager::instance()->register_component(name, ComponentType::CASE, factory()->get_options());

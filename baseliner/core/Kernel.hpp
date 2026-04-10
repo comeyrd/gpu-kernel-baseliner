@@ -1,8 +1,8 @@
 #ifndef BASELINER_CORE_KERNEL_HPP
 #define BASELINER_CORE_KERNEL_HPP
-#include <baseliner/core/Case.hpp>
 #include <baseliner/core/Options.hpp>
 #include <baseliner/core/Timer.hpp>
+#include <baseliner/core/Workload.hpp>
 #include <baseliner/core/hardware/Backend.hpp>
 #include <baseliner/core/stats/StatsEngine.hpp>
 #include <memory>
@@ -21,7 +21,7 @@ namespace Baseliner {
     auto operator=(MoveOnly &&) noexcept -> MoveOnly & = default;
     virtual ~MoveOnly() = default;
   };
-  class IInput : public MoveOnly, public IBaseCase {
+  class IInput : public MoveOnly, public IBaseWorkload {
   public:
     virtual void generate_random() = 0;
 
@@ -73,11 +73,11 @@ namespace Baseliner {
   };
 
   template <typename Kernel>
-  class KernelCase : public ICase<typename Kernel::backend> {
+  class KernelWorkload : public IWorkload<typename Kernel::backend> {
     using BackendT = typename Kernel::backend;
 
   public:
-    KernelCase()
+    KernelWorkload()
         : m_input(std::make_shared<typename Kernel::Input>()),
           m_kernel(std::make_unique<Kernel>(m_input)) {};
     void setup(std::shared_ptr<typename BackendT::stream_t> stream) override {

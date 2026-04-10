@@ -1,7 +1,6 @@
 #ifndef BASELINER_CORE_BENCHMARK_HPP
 #define BASELINER_CORE_BENCHMARK_HPP
 #include <baseliner/core/BenchmarkReport.hpp>
-#include <baseliner/core/Case.hpp>
 #include <baseliner/core/Error.hpp>
 #include <baseliner/core/IPrinter.hpp>
 #include <baseliner/core/Kernel.hpp>
@@ -10,6 +9,7 @@
 #include <baseliner/core/Options.hpp>
 #include <baseliner/core/State.hpp>
 #include <baseliner/core/StoppingCriterion.hpp>
+#include <baseliner/core/Workload.hpp>
 #include <baseliner/core/hardware/Backend.hpp>
 #include <baseliner/core/stats/IStats.hpp>
 #include <baseliner/core/stats/Stats.hpp>
@@ -223,7 +223,7 @@ namespace Baseliner {
       }
       return get_m_name();
     }
-    auto set_workload(std::shared_ptr<ICase<BackendT>> workload_impl) {
+    auto set_workload(std::shared_ptr<IWorkload<BackendT>> workload_impl) {
       m_workload = workload_impl;
     }
     auto run_benchmark() -> BenchmarkReport override {
@@ -304,7 +304,7 @@ namespace Baseliner {
     Hardware::BlockingKernel<BackendT> *m_blocker = Hardware::BlockingKernel<BackendT>::instance();
     std::shared_ptr<typename BackendT::stream_t> m_stream;
 
-    std::shared_ptr<ICase<BackendT>> m_workload;
+    std::shared_ptr<IWorkload<BackendT>> m_workload;
 
     [[nodiscard]] auto get_hardware_info() const -> Hardware::HardwareInfo {
       return backend::instance()->get_device_info();

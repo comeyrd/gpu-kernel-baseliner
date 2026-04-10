@@ -36,6 +36,6 @@ namespace Baseliner {
   };
   namespace {
     using NothingKernel = NothingKernel<HipBackend>;
-    BASELINER_REGISTER_CASE(NothingKernel);
+    BASELINER_REGISTER_WORKLOAD(NothingKernel);
   } // namespace
 } // namespace Baseliner

@@ -1,7 +1,7 @@
 #ifndef BASELINER_REGISTRY_BACKENDSPECIFICSTORAGE_HPP
 #define BASELINER_REGISTRY_BACKENDSPECIFICSTORAGE_HPP
 #include <baseliner/core/Benchmark.hpp>
-#include <baseliner/core/Case.hpp>
+#include <baseliner/core/Workload.hpp>
 #include <baseliner/core/stats/StatsEngine.hpp>
 #include <baseliner/registry/Factories.hpp>
 #include <string>
@@ -10,7 +10,7 @@
 namespace Baseliner {
 
   template <typename BackendT>
-  class CaseStorage {
+  class WorkloadStorage {
   public:
     [[nodiscard]] auto has(const std::string &name) const -> bool {
       return m_workloads_map.find(name) != m_workloads_map.end();
@@ -18,17 +18,17 @@ namespace Baseliner {
     /**
      *  throws std::out_of_range If the case is not in the storage, use has_workload to check beforehand.
      */
-    [[nodiscard]] auto at(const std::string &name) const -> CaseFactory<BackendT> {
+    [[nodiscard]] auto at(const std::string &name) const -> WorkloadFactory<BackendT> {
       return m_workloads_map.at(name);
     };
-    void insert(const std::string &name, const CaseFactory<BackendT> &workload_factory,
+    void insert(const std::string &name, const WorkloadFactory<BackendT> &workload_factory,
                 const std::string &backend_name) {
       if (has(name)) {
         throw Errors::already_exist_in_backend(component_to_string(CASE), name, backend_name);
       }
       m_workloads_map[name] = workload_factory;
     }
-    CaseStorage<BackendT>() = default;
+    WorkloadStorage<BackendT>() = default;
     [[nodiscard]] auto list() const -> std::vector<std::string> {
       std::vector<std::string> vecstr;
       vecstr.reserve(m_workloads_map.size());
@@ -42,7 +42,7 @@ namespace Baseliner {
     }
 
   private:
-    std::unordered_map<std::string, CaseFactory<BackendT>> m_workloads_map;
+    std::unordered_map<std::string, WorkloadFactory<BackendT>> m_workloads_map;
   };
 
   template <typename BackendT>

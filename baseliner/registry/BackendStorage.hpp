@@ -1,9 +1,9 @@
 #ifndef BASELINER_REGISTRY_BACKENDSTORAGE_HPP
 #define BASELINER_REGISTRY_BACKENDSTORAGE_HPP
 #include <baseliner/core/Benchmark.hpp>
-#include <baseliner/core/Case.hpp>
 #include <baseliner/core/Error.hpp>
 #include <baseliner/core/Options.hpp>
+#include <baseliner/core/Workload.hpp>
 #include <baseliner/registry/BackendSpecificStorage.hpp>
 #include <baseliner/registry/Factories.hpp>
 #include <baseliner/registry/PresetInjection.hpp>
@@ -64,7 +64,7 @@ namespace Baseliner {
       };
       return func;
     };
-    void register_workload(const std::string &name, const CaseFactory<BackendT> &workload_factory) {
+    void register_workload(const std::string &name, const WorkloadFactory<BackendT> &workload_factory) {
       m_workloads_storage.insert(name, workload_factory, get_name());
     }
     void register_benchmark(const std::string &name, const BenchmarkFactory<BackendT> &bench_factory) {
@@ -115,7 +115,7 @@ namespace Baseliner {
     };
 
   private:
-    CaseStorage<BackendT> m_workloads_storage;
+    WorkloadStorage<BackendT> m_workloads_storage;
     BenchmarkStorage<BackendT> m_benchmark_storage;
     BackendStatsStorage<BackendT> m_backend_stats_storage;
     BackendStorage<BackendT>() = default;

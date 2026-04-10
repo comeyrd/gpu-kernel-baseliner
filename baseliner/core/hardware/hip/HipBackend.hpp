@@ -35,7 +35,7 @@ namespace Baseliner {
       std::vector<hipEvent_t> m_stop_event;
     };
   } // namespace Hardware
-  using IHipCase = ICase<Hardware::HipBackend>;
+  using IHipWorkload = IWorkload<Hardware::HipBackend>;
   using HipBenchmark = Benchmark<Hardware::HipBackend>;
 
   template <typename Input, typename Output>

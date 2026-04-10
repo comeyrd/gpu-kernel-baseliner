@@ -22,10 +22,10 @@
 #define BASELINER_REGISTER_BACKEND(name, Backend)                                                                      \
   ATTRIBUTE_USED static Baseliner::BackendRegistrar<Backend> _registrar_##Backend##__LINE__{name};
 
-#define BASELINER_REGISTER_CASE(Case)                                                                                  \
-  ATTRIBUTE_USED static Baseliner::CaseRegistrar<Case> _registrar_##Case##__LINE__{#Case};
-#define BASELINER_REGISTER_CASE_NAME(Case, name)                                                                       \
-  ATTRIBUTE_USED static Baseliner::CaseRegistrar<Case> _registrar_##Case##__LINE__{name};
+#define BASELINER_REGISTER_WORKLOAD(Case)                                                                                  \
+  ATTRIBUTE_USED static Baseliner::WorkloadRegistrar<Case> _registrar_##Case##__LINE__{#Case};
+#define BASELINER_REGISTER_WORKLOAD_NAME(Case, name)                                                                       \
+  ATTRIBUTE_USED static Baseliner::WorkloadRegistrar<Case> _registrar_##Case##__LINE__{name};
 
 #define BASELINER_REGISTER_KERNEL(Kernel)                                                                              \
   ATTRIBUTE_USED static Baseliner::KernelRegistrar<Kernel> _registrar_##Kernel##__LINE__{#Kernel};

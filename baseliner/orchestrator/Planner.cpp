@@ -130,7 +130,7 @@ namespace Baseliner::Planner {
             bench_plan.workload = cascader.cascade(current_workload);
             campaign_plan.benchmarks.push_back(bench_plan);
           } catch (const Error &e) {
-            if (e.code() == ErrorCode::BackendCaseBenchmarkNotFound) {
+            if (e.code() == ErrorCode::BackendWorkloadBenchmarkNotFound) {
               if (current_campaign.on_incompatible == OnIncompatible::Skip) {
                 std::cout << "Warning" << e.what() << "\n";
                 continue;

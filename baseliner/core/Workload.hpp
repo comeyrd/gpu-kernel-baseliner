@@ -1,5 +1,5 @@
-#ifndef BASELINER_CORE_CASE_HPP
-#define BASELINER_CORE_CASE_HPP
+#ifndef BASELINER_CORE_WORKLOAD_HPP
+#define BASELINER_CORE_WORKLOAD_HPP
 #include <baseliner/core/Options.hpp>
 
 #include <baseliner/core/Timer.hpp>
@@ -11,7 +11,7 @@
 namespace Baseliner {
   constexpr int DEFAULT_SEED = 333;
   constexpr size_t DEFAULT_WORK_SIZE = 10;
-  class IBaseCase : public IOption {
+  class IBaseWorkload : public IOption {
   public:
     void register_options() override {
       this->add_option("Case", "work_size", "The work size to apply, 1 = 32MFlop & 1 = 1MB", m_work_size);
@@ -36,11 +36,11 @@ namespace Baseliner {
   };
 
   template <typename BackendT>
-  class ICase : public Hardware::GpuTimer<BackendT>, public IBaseCase {
+  class IWorkload : public Hardware::GpuTimer<BackendT>, public IBaseWorkload {
   public:
     using backend = BackendT;
-    ICase() = default;
-    ~ICase() override = default;
+    IWorkload() = default;
+    ~IWorkload() override = default;
     virtual auto name() -> std::string = 0;
     virtual void setup(std::shared_ptr<typename BackendT::stream_t> stream) = 0;
     virtual void workload_setup_metrics(std::shared_ptr<Stats::StatsEngine> & /*engine*/) {};
@@ -100,4 +100,4 @@ namespace Baseliner {
   };
 
 } // namespace Baseliner
-#endif // BASELINER_CASE_HPP
+#endif // BASELINER_WORKLOAD_HPP

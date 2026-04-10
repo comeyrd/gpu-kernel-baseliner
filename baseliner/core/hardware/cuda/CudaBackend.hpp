@@ -35,7 +35,7 @@ namespace Baseliner {
       std::vector<cudaEvent_t> m_stop_event;
     };
   } // namespace Hardware
-  using ICudaCase = ICase<Hardware::CudaBackend>;
+  using ICudaWorkload = IWorkload<Hardware::CudaBackend>;
   using CudaBenchmark = Benchmark<Hardware::CudaBackend>;
 
   template <typename Input, typename Output>

@@ -28,7 +28,7 @@ __attribute__((weak)) int main(int argc, char **argv) { // NOLINT
       .help("Replaying the reciped contained inside one or multiple results file");
   run_group.add_argument("--research-questions", "-rq")
       .nargs(argparse::nargs_pattern::at_least_one)
-      .help("Running the research questions on given Cases");
+      .help("Running the research questions on given Workloads");
   run_parser.add_argument("--load-preset-from-protocol-file", "--load-preset")
       .help("Load presets into baseliner with a protocol file (will ignore any recipes defined inside)")
       .nargs(1);
