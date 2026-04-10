@@ -303,4 +303,21 @@ namespace Baseliner {
 
 } // namespace Baseliner
 
+NLOHMANN_JSON_NAMESPACE_BEGIN
+
+// This Bridge solves the Namespace/ADL issue once and for all
+template <typename T>
+struct adl_serializer<
+    T, std::enable_if_t<::Baseliner::Ser::is_described<T>::value || ::Baseliner::Ser::is_described_enum<T>::value>> {
+  static void to_json(nlohmann::ordered_json &json, const T &obj) {
+    ::Baseliner::to_json(json, obj);
+  }
+
+  static void from_json(const nlohmann::ordered_json &json, T &obj) {
+    ::Baseliner::from_json(json, obj);
+  }
+};
+
+NLOHMANN_JSON_NAMESPACE_END
+
 #endif

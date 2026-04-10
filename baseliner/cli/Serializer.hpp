@@ -87,7 +87,7 @@ namespace Baseliner::Ser {
 // ── Macros ────────────────────────────────────────────────────────────────────
 
 #define FIELD(member)                                                                                                  \
-  Baseliner::Ser::FieldDescriptor<Self, decltype(Self::member)> {                                                      \
+  ::Baseliner::Ser::FieldDescriptor<Self, decltype(Self::member)> {                                                    \
     #member, &Self::member                                                                                             \
   }
 
@@ -103,7 +103,7 @@ namespace Baseliner::Ser {
   }
 
 #define ENUM_VALUE(value)                                                                                              \
-  Ser::EnumDescriptor<Self> {                                                                                          \
+  ::Baseliner::Ser::EnumDescriptor<Self> {                                                                             \
     #value, Self::value                                                                                                \
   }
 
@@ -119,7 +119,7 @@ namespace Baseliner::Ser {
   }
 
 #define ENUM_VALUE(value)                                                                                              \
-  Ser::EnumDescriptor<Self> {                                                                                          \
+  ::Baseliner::Ser::EnumDescriptor<Self> {                                                                             \
     #value, Self::value                                                                                                \
   }
 
