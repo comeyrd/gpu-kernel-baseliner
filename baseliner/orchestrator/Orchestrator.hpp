@@ -1,6 +1,6 @@
 #ifndef BASELINER_ORCHESTRATOR_ORCHESTRATOR_HPP
 #define BASELINER_ORCHESTRATOR_ORCHESTRATOR_HPP
-#include <baseliner/RQ.hpp>
+// #include <baseliner/RQ.hpp>
 #include <baseliner/cli/CliHelper.hpp>
 #include <baseliner/core/GIT_VERSION.hpp>
 #include <baseliner/core/Version.hpp>
@@ -27,8 +27,8 @@ namespace Baseliner {
       BenchmarkReport bench_report = bench->run_benchmark();
       return {bench_plan, bench_report};
     };
-    auto run_campaign_plan(const CampaignPlan &campaign_plan,
-                           StorageManager *storage_manager = StorageManager::instance()) -> CampaignReport {
+    inline auto run_campaign_plan(const CampaignPlan &campaign_plan,
+                                  StorageManager *storage_manager = StorageManager::instance()) -> CampaignReport {
       CampaignReport c_report;
       c_report.name = campaign_plan.name;
       c_report.recipe = campaign_plan.recipe;
@@ -36,8 +36,11 @@ namespace Baseliner {
       std::shared_ptr<Cli::CliPrinter> printer = std::make_shared<Cli::CliPrinter>();
       printer->print_campaign_plan(campaign_plan);
       for (const auto &bench_plan : campaign_plan.benchmarks) {
+        if (ExecutionController::exit_requested()) {
+          break;
+        }
         RunReport runreprt = run_benchmark_plan(bench_plan, printer, storage_manager);
-        c_report.benchmark_runs[bench_plan.m_backend.m_impl][bench_plan.m_case.m_impl] = runreprt;
+        c_report.benchmark_runs[bench_plan.backend.impl][bench_plan.workload.impl] = runreprt;
       }
       return c_report;
     }
@@ -45,46 +48,47 @@ namespace Baseliner {
     inline auto run_protocol(const Protocol &protocol) -> Report {
       Report report;
       auto *storage_manager = StorageManager::instance();
-      report.m_baseliner_version = Version::string();
-      report.m_git_version = BASELINER_GIT_VERSION;
-      report.m_datetime = "";
+      report.baseliner_version = Version::string();
+      report.git_version = BASELINER_GIT_VERSION;
+      report.datetime = ""; // TODO
       std::vector<CampaignPlan> plans = Planner::plan(protocol, storage_manager);
       for (const auto &plan : plans) {
         if (ExecutionController::exit_requested()) {
           break;
         }
-        report.m_campaign_runs.push_back(run_campaign_plan(plan));
+        report.campaign_runs.push_back(run_campaign_plan(plan));
       }
       return report;
     };
 
     inline auto replay_runs(const Report &to_replay_report) -> Report {
       Report report;
-      report.m_baseliner_version = Version::string();
-      report.m_git_version = BASELINER_GIT_VERSION;
-      report.m_datetime = "";
-      for (const CampaignReport &campaign_run : to_replay_report.m_campaign_runs) {
+      report.baseliner_version = Version::string();
+      report.git_version = BASELINER_GIT_VERSION;
+      report.datetime = "";
+      for (const CampaignReport &campaign_run : to_replay_report.campaign_runs) {
         CampaignPlan c_plan = campaign_plan_from_report(campaign_run);
-        report.m_campaign_runs.push_back(run_campaign_plan(c_plan));
+        report.campaign_runs.push_back(run_campaign_plan(c_plan));
       }
       return report;
     };
 
-    inline auto run_research_questions(const std::vector<std::string> &case_names) -> Report {
+    inline auto run_research_questions(const std::vector<std::string> &workload_names) -> Report {
       std::vector<std::string> backends = StorageManager::instance()->list_backends();
-      std::vector<RecipeComponent> case_components;
-      case_components.reserve(case_names.size());
+      std::vector<RecipeComponent> workload_components;
+      workload_components.reserve(workload_names.size());
       std::vector<RecipeComponent> backends_components;
       backends_components.reserve(backends.size());
 
-      for (const auto &case_name : case_names) {
-        case_components.push_back({case_name, {}});
+      for (const auto &workload_name : workload_names) {
+        workload_components.push_back({workload_name, {}});
       }
       for (const auto &backend : backends) {
         backends_components.push_back({backend, {}});
       }
-      Protocol protocol = rq_protocol(RQSize::Medium, case_components, backends_components);
-      return run_protocol(protocol);
+      // Protocol protocol = rq_protocol(RQSize::Medium, workload_components, backends_components);
+      // return run_protocol(protocol);
+      throw std::runtime_error("é");
     };
 
     inline auto run_protocols(const std::vector<Protocol> &protocols) -> std::vector<Report> {
@@ -101,29 +105,29 @@ namespace Baseliner {
     inline auto get_default_protocol() -> Protocol {
       Protocol protocol;
       auto *storage_manager = StorageManager::instance();
-      protocol.m_baseliner_version = Version::string();
-      protocol.m_presets = storage_manager->get_all_component_presets();
-      protocol.m_stats_presets = storage_manager->get_all_stats_presets();
+      protocol.baseliner_version = Version::string();
+      protocol.presets = storage_manager->get_all_component_presets();
+      protocol.stats_presets = storage_manager->get_all_stats_presets();
       Recipe def_recipe;
-      def_recipe.m_stats = RecipeStat{"default"};
-      def_recipe.m_benchmark = RecipeComponent{"Benchmark", "default"};
-      def_recipe.m_stopping = RecipeComponent{"StoppingCriterion", "default"};
-      def_recipe.m_sweep =
+      def_recipe.stats = RecipeStat{"default"};
+      def_recipe.benchmark = RecipeComponent{"Benchmark", "default"};
+      def_recipe.stopping = RecipeComponent{"StoppingCriterion", "default"};
+      def_recipe.sweep =
           SweepSpec{SweepStrategy::FullGrid,
                     {SweepAxis{"Case", "work_size", SweepHint{SweepPolicy::PowersOfTwo, "1", "1024", "1", {}}}}};
-      def_recipe.m_description = "Default Recipe";
-      protocol.m_recipes["default"] = def_recipe;
+      def_recipe.description = "Default Recipe";
+      protocol.recipes["default"] = def_recipe;
       Campaign default_campaign;
-      default_campaign.m_name = "default";
-      default_campaign.m_recipe = "default";
+      default_campaign.name = "default";
+      default_campaign.recipe = "default";
       for (const auto &backend : storage_manager->list_backends()) {
-        default_campaign.m_backends.push_back({backend, "default"});
+        default_campaign.backends.push_back({backend, "default"});
       }
-      for (const auto &cases : storage_manager->list_components(ComponentType::CASE)) {
-        default_campaign.m_cases.push_back({cases, "default"});
+      for (const auto &workloads : storage_manager->list_components(ComponentType::CASE)) {
+        default_campaign.workloads.push_back({workloads, "default"});
       }
-      default_campaign.m_on_incompatible = OnIncompatible::Skip;
-      protocol.m_campaigns.push_back(default_campaign);
+      default_campaign.on_incompatible = OnIncompatible::Skip;
+      protocol.campaigns.push_back(default_campaign);
       return protocol;
     }
   }; // namespace Orchestrator

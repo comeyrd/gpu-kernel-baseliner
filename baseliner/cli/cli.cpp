@@ -1,5 +1,7 @@
 
 #include <argparse/argparse.hpp>
+#include <baseliner/cli/Json.hpp>
+#include <baseliner/cli/JsonSchema.hpp>
 #include <baseliner/cli/Serializer.hpp>
 #include <baseliner/core/State.hpp>
 #include <baseliner/core/Version.hpp>
@@ -37,6 +39,10 @@ __attribute__((weak)) int main(int argc, char **argv) { // NOLINT
   auto &generate_group = generate_parser.add_mutually_exclusive_group(true);
   generate_group.add_argument("--metadata")
       .default_value("metadata.json")
+      .nargs(1)
+      .help("Generate the metadata file into the given file");
+  generate_group.add_argument("--schema")
+      .default_value("protocol.schema.json")
       .nargs(1)
       .help("Generate the metadata file into the given file");
   generate_group.add_argument("--default-protocol-file", "--default-pf")
@@ -93,8 +99,8 @@ __attribute__((weak)) int main(int argc, char **argv) { // NOLINT
         std::cout << "Report saved to " << filename << "\n";
       }
     } else if (run_parser.is_used("--research-questions")) {
-      auto cases_names = run_parser.get<std::vector<std::string>>("--research-questions");
-      Report report = Orchestrator::run_research_questions(cases_names);
+      auto workloads_names = run_parser.get<std::vector<std::string>>("--research-questions");
+      Report report = Orchestrator::run_research_questions(workloads_names);
       const std::string filename = "result.json";
       to_file(report, filename);
       std::cout << "Report saved to " << filename << "\n";
@@ -108,6 +114,9 @@ __attribute__((weak)) int main(int argc, char **argv) { // NOLINT
     } else if (generate_parser.is_used("--default-protocol-file")) {
       Protocol protocol = Orchestrator::get_default_protocol();
       to_file(protocol, "default-protocol.json");
+    } else if (generate_parser.is_used("--schema")) {
+      auto protocol_schema = Baseliner::Ser::export_json_schema<Baseliner::Protocol>();
+      Baseliner::to_file(protocol_schema, "protocol.schema.json");
     }
     /*else if (generate_parser.is_used("--saved-protocol-file")) {
       Protocol saved_protocol;

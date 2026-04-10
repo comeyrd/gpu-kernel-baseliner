@@ -1,5 +1,6 @@
 #ifndef BASELINER_CORE_HARDWARE_BACKEND_HPP
 #define BASELINER_CORE_HARDWARE_BACKEND_HPP
+#include <baseliner/cli/Serializer.hpp>
 #include <baseliner/core/Durations.hpp>
 #include <baseliner/core/Options.hpp>
 #include <baseliner/core/Timer.hpp>
@@ -9,6 +10,13 @@ namespace Baseliner::Hardware {
   struct HardwareInfo {
     std::string name;
   };
+} // namespace Baseliner::Hardware
+namespace Baseliner {
+  DESCRIBE(Hardware::HardwareInfo, FIELD(name))
+}
+
+namespace Baseliner::Hardware {
+
   template <typename BackendT>
   class L2Flusher;
 

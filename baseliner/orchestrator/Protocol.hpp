@@ -1,5 +1,6 @@
 #ifndef BASELINER_ORCHESTRATOR_PROTOCOL_HPP
 #define BASELINER_ORCHESTRATOR_PROTOCOL_HPP
+#include <baseliner/cli/Serializer.hpp>
 #include <baseliner/core/AxeSweeping.hpp>
 #include <baseliner/registry/Components.hpp>
 #include <string>
@@ -10,44 +11,51 @@ namespace Baseliner {
     Skip,
     Error
   };
-
+  DESCRIBE_ENUM(OnIncompatible, ENUM_VALUE(Skip), ENUM_VALUE(Error))
   struct RecipeComponent {
-    std::string m_impl;
-    std::optional<std::string> m_preset;
+    std::string impl;
+    std::optional<std::string> preset;
   };
+  DESCRIBE(RecipeComponent, FIELD(impl), FIELD(preset))
   struct RecipeStat {
-    std::string m_preset;
+    std::string preset;
   };
+  DESCRIBE(RecipeStat, FIELD(preset))
 
   struct Recipe {
-    std::string m_description;
-    std::optional<RecipeComponent> m_benchmark;
-    std::optional<RecipeComponent> m_stopping;
-    std::optional<RecipeStat> m_stats;
-    std::optional<SweepSpec> m_sweep;
+    std::string description;
+    std::optional<RecipeComponent> benchmark;
+    std::optional<RecipeComponent> stopping;
+    std::optional<RecipeStat> stats;
+    std::optional<SweepSpec> sweep;
   };
+  DESCRIBE(Recipe, FIELD(description), FIELD(benchmark), FIELD(stopping), FIELD(stats), FIELD(sweep))
 
   struct CampaignOverrides {
-    std::optional<RecipeComponent> m_benchmark;
-    std::optional<RecipeComponent> m_stopping;
-    std::optional<RecipeStat> m_stats;
+    std::optional<RecipeComponent> benchmark;
+    std::optional<RecipeComponent> stopping;
+    std::optional<RecipeStat> stats;
   };
-
+  DESCRIBE(CampaignOverrides, FIELD(benchmark), FIELD(stopping), FIELD(stats))
   struct Campaign {
-    std::string m_name;
-    std::string m_recipe;
-    std::vector<RecipeComponent> m_cases;
-    std::vector<RecipeComponent> m_backends;
-    CampaignOverrides m_overrides;
-    OnIncompatible m_on_incompatible;
+    std::string name;
+    std::string recipe;
+    std::vector<RecipeComponent> workloads;
+    std::vector<RecipeComponent> backends;
+    std::optional<CampaignOverrides> overrides;
+    OnIncompatible on_incompatible;
   };
+  DESCRIBE(Campaign, FIELD(name), FIELD(recipe), FIELD(workloads), FIELD(backends), FIELD(overrides),
+           FIELD(on_incompatible))
 
   struct Protocol {
-    std::string m_baseliner_version;
-    std::unordered_map<std::string, std::unordered_map<std::string, ComponentPreset>> m_presets;
-    std::unordered_map<std::string, StatsPreset> m_stats_presets;
-    std::unordered_map<std::string, Recipe> m_recipes;
-    std::vector<Campaign> m_campaigns;
+    std::string baseliner_version;
+    std::unordered_map<std::string, std::unordered_map<std::string, ComponentPreset>> presets;
+    std::unordered_map<std::string, StatsPreset> stats_presets;
+    std::unordered_map<std::string, Recipe> recipes;
+    std::vector<Campaign> campaigns;
   };
+  DESCRIBE(Protocol, FIELD(baseliner_version), FIELD(presets), FIELD(stats_presets), FIELD(recipes), FIELD(campaigns))
+
 } // namespace Baseliner
 #endif // BASELINER_PROTOCOL_HPP

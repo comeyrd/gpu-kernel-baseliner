@@ -20,6 +20,7 @@ namespace Baseliner {
     std::string m_unit;
     MetricData m_data;
   };
+  DESCRIBE(Metric, FIELD(m_name), FIELD(m_unit), FIELD(m_data))
 
 } // namespace Baseliner
 #endif // BASELINER_METRIC_HPP

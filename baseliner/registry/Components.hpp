@@ -1,5 +1,6 @@
 #ifndef BASELINER_REGISTRY_COMPONENTS_HPP
 #define BASELINER_REGISTRY_COMPONENTS_HPP
+#include <baseliner/cli/Serializer.hpp>
 #include <baseliner/core/Options.hpp>
 #include <string>
 namespace Baseliner {
@@ -17,15 +18,16 @@ namespace Baseliner {
   };
 
   struct ComponentPreset {
-    std::string m_description;
-    OptionsMap m_options;
+    std::optional<std::string> description;
+    OptionsMap options;
   };
-
+  DESCRIBE(ComponentPreset, FIELD(description), FIELD(options))
   struct StatsPreset {
-    std::string m_description;
-    std::vector<std::string> m_stat_names;
-    OptionsMap m_stat_options;
+    std::optional<std::string> description;
+    std::vector<std::string> stat_names;
+    OptionsMap stat_options;
   };
+  DESCRIBE(StatsPreset, FIELD(description), FIELD(stat_names), FIELD(stat_options))
 
   auto component_to_string(const ComponentType &type) -> std::string;
   auto string_to_component(const std::string_view &str) -> ComponentType;

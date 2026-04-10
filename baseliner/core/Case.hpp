@@ -43,12 +43,12 @@ namespace Baseliner {
     ~ICase() override = default;
     virtual auto name() -> std::string = 0;
     virtual void setup(std::shared_ptr<typename BackendT::stream_t> stream) = 0;
-    virtual void case_setup_metrics(std::shared_ptr<Stats::StatsEngine> & /*engine*/) {};
-    virtual void case_update_metrics(std::shared_ptr<Stats::StatsEngine> & /*engine*/) {};
-    virtual void reset_case(std::shared_ptr<typename BackendT::stream_t> stream) = 0;
-    virtual void run_case(std::shared_ptr<typename BackendT::stream_t> stream) = 0;
+    virtual void workload_setup_metrics(std::shared_ptr<Stats::StatsEngine> & /*engine*/) {};
+    virtual void workload_update_metrics(std::shared_ptr<Stats::StatsEngine> & /*engine*/) {};
+    virtual void reset_workload(std::shared_ptr<typename BackendT::stream_t> stream) = 0;
+    virtual void run_workload(std::shared_ptr<typename BackendT::stream_t> stream) = 0;
     virtual void teardown(std::shared_ptr<typename BackendT::stream_t> stream) = 0;
-    virtual auto validate_case() -> bool = 0;
+    virtual auto validate_workload() -> bool = 0;
     void setup_metrics(std::shared_ptr<Stats::StatsEngine> engine) {
       std::optional<size_t> bytes = this->number_of_bytes();
       std::optional<size_t> flops = this->number_of_floating_point_operations();
@@ -65,7 +65,7 @@ namespace Baseliner {
       if (m_bytes && m_flops) {
         engine->register_stat<Stats::ArithmeticIntensity>();
       }
-      this->case_setup_metrics(engine);
+      this->workload_setup_metrics(engine);
     };
     void update_metrics(std::shared_ptr<Stats::StatsEngine> engine) {
       std::optional<size_t> bytes = this->number_of_bytes();
@@ -76,11 +76,11 @@ namespace Baseliner {
       if (m_flops) {
         engine->update_values<Stats::FLOPCount>(flops.value());
       }
-      this->case_update_metrics(engine);
+      this->workload_update_metrics(engine);
     };
     virtual void timed_run(std::shared_ptr<typename BackendT::stream_t> stream) {
       this->measure_start(stream);
-      run_case(stream);
+      run_workload(stream);
       this->measure_stop(stream);
     };
     virtual void time_setup(std::shared_ptr<typename BackendT::stream_t> stream) {

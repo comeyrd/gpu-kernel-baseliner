@@ -39,8 +39,9 @@ namespace Baseliner {
      * Getting factories
      */
     [[nodiscard]] auto get_stopping_criterion_factory(const std::string &name) const -> StoppingCriterionFactory;
-    [[nodiscard]] auto get_benchmark_case_factory(const std::string &backend_name, const std::string &benchmark_name,
-                                                  const std::string &case_name) const -> IBenchmarkFactory;
+    [[nodiscard]] auto get_benchmark_workload_factory(const std::string &backend_name,
+                                                      const std::string &benchmark_name,
+                                                      const std::string &workload_name) const -> IBenchmarkFactory;
     [[nodiscard]] auto get_stats_factory(const std::string &name) const -> StatsFactory;
     [[nodiscard]] auto get_backend_stats_factory(const std::string &backend, const std::string &name) const
         -> StatsFactory;

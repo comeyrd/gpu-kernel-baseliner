@@ -13,6 +13,8 @@ namespace Baseliner {
     std::unordered_map<std::string, std::unordered_map<std::string, std::vector<std::string>>> hardware_components;
     std::unordered_map<std::string, std::unordered_map<std::string, OptionsMap>> hardware_stat_options;
   };
+  DESCRIBE(Metadata, FIELD(components), FIELD(stats), FIELD(component_presets), FIELD(stats_presets),
+           FIELD(stats_options), FIELD(hardware_stats), FIELD(hardware_components), FIELD(hardware_stat_options))
 
 }; // namespace Baseliner
 #endif // BASELINER_REGISTRY_METADATA_HPP

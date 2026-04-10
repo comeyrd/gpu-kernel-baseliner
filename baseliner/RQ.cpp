@@ -2,7 +2,7 @@
 #include <baseliner/core/Version.hpp>
 #include <string>
 #include <vector>
-
+/*
 namespace Baseliner {
   namespace RQs {
     auto work_size(RQSize size) -> SweepHint {
@@ -102,14 +102,14 @@ namespace Baseliner {
         {"RQ4", RQs::make_rq4(size)}, {"RQ5", RQs::make_rq5(size)},
     };
   }
-  auto rq_protocol(RQSize size, std::vector<RecipeComponent> &cases, std::vector<RecipeComponent> &backends)
+  auto rq_protocol(RQSize size, std::vector<RecipeComponent> &workloads, std::vector<RecipeComponent> &backends)
       -> Protocol {
     Protocol protocol;
     protocol.m_baseliner_version = Version::string();
     protocol.m_recipes = rq_recipes(size);
     Campaign base_campaign;
     base_campaign.m_backends = backends;
-    base_campaign.m_cases = cases;
+    base_campaign.m_workloads = workloads;
     base_campaign.m_on_incompatible = OnIncompatible::Skip;
 
     for (const auto &[name, _] : protocol.m_recipes) {
@@ -122,3 +122,4 @@ namespace Baseliner {
   }
 
 } // namespace Baseliner
+ */

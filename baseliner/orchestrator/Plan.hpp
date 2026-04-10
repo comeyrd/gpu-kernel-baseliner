@@ -9,24 +9,29 @@
 namespace Baseliner {
 
   struct PlannedComponent {
-    std::string m_impl;
-    std::string m_preset;
-    OptionsMap m_options;
+    std::string impl;
+    std::string preset;
+    OptionsMap options;
   };
+  DESCRIBE(PlannedComponent, FIELD(impl), FIELD(preset), FIELD(options))
+
   struct PlannedStat {
-    std::string m_preset;
-    std::vector<std::string> m_stats;
-    OptionsMap m_options;
+    std::string preset;
+    std::vector<std::string> stats;
+    OptionsMap options;
   };
+  DESCRIBE(PlannedStat, FIELD(preset), FIELD(stats), FIELD(options))
 
   struct BenchmarkPlan {
-    PlannedComponent m_case;
-    PlannedComponent m_backend;
-    PlannedComponent m_benchmark;
-    PlannedComponent m_stopping;
-    PlannedStat m_stats;
-    std::optional<SweepSpec> m_sweep;
+    PlannedComponent workload;
+    PlannedComponent backend;
+    PlannedComponent benchmark;
+    PlannedComponent stopping;
+    PlannedStat stats;
+    std::optional<SweepSpec> sweep;
   };
+  DESCRIBE(BenchmarkPlan, FIELD(workload), FIELD(backend), FIELD(benchmark), FIELD(stopping), FIELD(stats),
+           FIELD(sweep))
 
   struct CampaignPlan {
     std::string name;
@@ -35,6 +40,7 @@ namespace Baseliner {
     std::vector<BenchmarkPlan> benchmarks;
     OnIncompatible on_incompatible;
   };
+  DESCRIBE(CampaignPlan, FIELD(name), FIELD(recipe_name), FIELD(recipe), FIELD(benchmarks), FIELD(on_incompatible))
 
 } // namespace Baseliner
 #endif // BASELINER_OUTPUT_HPP

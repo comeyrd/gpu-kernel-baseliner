@@ -13,35 +13,36 @@ namespace Baseliner {
   class CaseStorage {
   public:
     [[nodiscard]] auto has(const std::string &name) const -> bool {
-      return m_cases_map.find(name) != m_cases_map.end();
+      return m_workloads_map.find(name) != m_workloads_map.end();
     }
     /**
-     *  throws std::out_of_range If the case is not in the storage, use has_case to check beforehand.
+     *  throws std::out_of_range If the case is not in the storage, use has_workload to check beforehand.
      */
     [[nodiscard]] auto at(const std::string &name) const -> CaseFactory<BackendT> {
-      return m_cases_map.at(name);
+      return m_workloads_map.at(name);
     };
-    void insert(const std::string &name, const CaseFactory<BackendT> &case_factory, const std::string &backend_name) {
+    void insert(const std::string &name, const CaseFactory<BackendT> &workload_factory,
+                const std::string &backend_name) {
       if (has(name)) {
         throw Errors::already_exist_in_backend(component_to_string(CASE), name, backend_name);
       }
-      m_cases_map[name] = case_factory;
+      m_workloads_map[name] = workload_factory;
     }
     CaseStorage<BackendT>() = default;
     [[nodiscard]] auto list() const -> std::vector<std::string> {
       std::vector<std::string> vecstr;
-      vecstr.reserve(m_cases_map.size());
-      for (const auto &[name, _] : m_cases_map) {
+      vecstr.reserve(m_workloads_map.size());
+      for (const auto &[name, _] : m_workloads_map) {
         vecstr.push_back(name);
       }
       return vecstr;
     }
     [[nodiscard]] auto size() const -> size_t {
-      return m_cases_map.size();
+      return m_workloads_map.size();
     }
 
   private:
-    std::unordered_map<std::string, CaseFactory<BackendT>> m_cases_map;
+    std::unordered_map<std::string, CaseFactory<BackendT>> m_workloads_map;
   };
 
   template <typename BackendT>

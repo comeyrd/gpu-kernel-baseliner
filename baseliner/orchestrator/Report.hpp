@@ -5,9 +5,10 @@
 #include <vector>
 namespace Baseliner {
   struct RunReport {
-    BenchmarkPlan m_plan;
-    BenchmarkReport m_benchmark_report;
+    BenchmarkPlan plan;
+    BenchmarkReport benchmark_report;
   };
+  DESCRIBE(RunReport, FIELD(plan), FIELD(benchmark_report))
 
   struct CampaignReport {
     std::string name;
@@ -16,6 +17,7 @@ namespace Baseliner {
     // Key1 Backend Key2 Case
     std::unordered_map<std::string, std::unordered_map<std::string, RunReport>> benchmark_runs;
   };
+  DESCRIBE(CampaignReport, FIELD(name), FIELD(recipe_name), FIELD(recipe), FIELD(benchmark_runs))
 
   inline auto campaign_plan_from_report(const CampaignReport &report,
                                         OnIncompatible on_incompatible = OnIncompatible::Skip) -> CampaignPlan {
@@ -25,9 +27,9 @@ namespace Baseliner {
     plan.recipe = report.recipe;
     plan.on_incompatible = on_incompatible;
 
-    for (const auto &[backend, cases_map] : report.benchmark_runs) {
-      for (const auto &[case_name, run_report] : cases_map) {
-        plan.benchmarks.push_back(run_report.m_plan);
+    for (const auto &[backend, workloads_map] : report.benchmark_runs) {
+      for (const auto &[workload_name, run_report] : workloads_map) {
+        plan.benchmarks.push_back(run_report.plan);
       }
     }
 
@@ -35,11 +37,13 @@ namespace Baseliner {
   }
 
   struct Report {
-    std::string m_baseliner_version;
-    std::string m_git_version;
-    std::string m_datetime;
-    std::vector<CampaignReport> m_campaign_runs;
+    std::string baseliner_version;
+    std::string git_version;
+    std::string datetime;
+    std::vector<CampaignReport> campaign_runs;
   };
+  DESCRIBE(Report, FIELD(baseliner_version), FIELD(git_version), FIELD(datetime), FIELD(campaign_runs))
+
 } // namespace Baseliner
 
 #endif

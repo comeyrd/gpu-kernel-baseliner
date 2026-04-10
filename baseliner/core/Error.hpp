@@ -92,8 +92,8 @@ namespace Baseliner {
         -> Error {
       return {ErrorCode::NotFound, kind + " '" + name + "' not found in Backend " + backend};
     }
-    inline auto case_benchmark_not_found_in_backend(const std::string &kind, const std::string &name,
-                                                    const std::string &backend) -> Error {
+    inline auto workload_benchmark_not_found_in_backend(const std::string &kind, const std::string &name,
+                                                        const std::string &backend) -> Error {
       return {ErrorCode::BackendCaseBenchmarkNotFound, kind + " '" + name + "' not found in Backend " + backend};
     }
     inline auto component_already_exists(const std::string &name, const std::string &kind) -> Error {
@@ -106,7 +106,7 @@ namespace Baseliner {
     inline auto already_exist(const std::string &kind, const std::string &name) -> Error {
       return {ErrorCode::AlreadyExists, kind + " '" + name + "' already "};
     }
-    inline auto empty_case_benchmark() -> Error {
+    inline auto empty_workload_benchmark() -> Error {
       return {ErrorCode::BenchmarkError, "Trying to run a Benchmark without a case set up"};
     }
     inline auto empty_stopping_benchmark() -> Error {

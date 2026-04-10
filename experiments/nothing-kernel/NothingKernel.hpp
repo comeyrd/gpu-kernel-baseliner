@@ -10,12 +10,12 @@ namespace Baseliner {
     auto name() -> std::string override {
       return "NothingKernel";
     };
-    auto validate_case() -> bool override {
+    auto validate_workload() -> bool override {
       return true;
     }
     void setup(std::shared_ptr<typename backend::stream_t> stream) override;
-    void reset_case(std::shared_ptr<typename backend::stream_t> stream) override;
-    void run_case(std::shared_ptr<typename backend::stream_t> stream) override;
+    void reset_workload(std::shared_ptr<typename backend::stream_t> stream) override;
+    void run_workload(std::shared_ptr<typename backend::stream_t> stream) override;
     void teardown(std::shared_ptr<typename backend::stream_t> stream) override;
     void register_options() override {
       ICase<BackendT>::register_options();

@@ -56,10 +56,11 @@ namespace Baseliner {
     }
     throw Errors::not_found(component_to_string(ComponentType::STOPPING), name);
   }
-  auto StorageManager::get_benchmark_case_factory(const std::string &backend_name, const std::string &benchmark_name,
-                                                  const std::string &case_name) const -> IBenchmarkFactory {
+  auto StorageManager::get_benchmark_workload_factory(const std::string &backend_name,
+                                                      const std::string &benchmark_name,
+                                                      const std::string &workload_name) const -> IBenchmarkFactory {
     IBackendStorage *storage = get_backend_storage(backend_name);
-    return storage->get_benchmark_with_case(benchmark_name, case_name);
+    return storage->get_benchmark_with_workload(benchmark_name, workload_name);
   }
   auto StorageManager::get_stats_factory(const std::string &name) const -> StatsFactory {
     std::optional<StatsFactory> fact = get_stats_factory_noexcept(name);

@@ -19,7 +19,7 @@ namespace Baseliner {
     }
   };
   template <>
-  void NothingKernel<CudaBackend>::reset_case(std::shared_ptr<typename backend::stream_t> stream) {
+  void NothingKernel<CudaBackend>::reset_workload(std::shared_ptr<typename backend::stream_t> stream) {
     if (m_async_memcpy) {
       CHECK_CUDA(cudaMemsetAsync(m_d_buffer, 0, m_bytes_copied * sizeof(char), *stream));
     } else {
@@ -27,7 +27,7 @@ namespace Baseliner {
     }
   };
   template <>
-  void NothingKernel<CudaBackend>::run_case(std::shared_ptr<typename backend::stream_t> stream) {
+  void NothingKernel<CudaBackend>::run_workload(std::shared_ptr<typename backend::stream_t> stream) {
     nothing_kernel<<<m_blocks, m_threads, 0, *stream>>>(m_d_buffer);
   };
   template <>

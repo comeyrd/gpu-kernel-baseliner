@@ -12,12 +12,14 @@ namespace Baseliner {
   enum class SweepStrategy : char {
     FullGrid
   };
+  DESCRIBE_ENUM(SweepStrategy, ENUM_VALUE(FullGrid))
 
   enum class SweepPolicy : char {
     PowersOfTwo,
     LinearRange,
     Enumerated
   };
+  DESCRIBE_ENUM(SweepPolicy, ENUM_VALUE(PowersOfTwo), ENUM_VALUE(LinearRange), ENUM_VALUE(Enumerated))
 
   struct SweepHint {
     SweepPolicy m_policy;
@@ -26,6 +28,7 @@ namespace Baseliner {
     std::string m_step;
     std::vector<std::string> m_enumerated;
   };
+  DESCRIBE(SweepHint, FIELD(m_policy), FIELD(m_min), FIELD(m_max), FIELD(m_step), FIELD(m_enumerated))
 
   template <typename T>
   struct TypedSweepHint {
@@ -41,16 +44,21 @@ namespace Baseliner {
     std::string m_option;
     std::optional<SweepHint> m_hint;
   };
+  DESCRIBE(SweepAxis, FIELD(m_interface), FIELD(m_option), FIELD(m_hint))
 
   struct ResolvedAxis {
     std::string m_interface;
     std::string m_option;
     std::vector<std::string> value;
   };
+  DESCRIBE(ResolvedAxis, FIELD(m_interface), FIELD(m_option), FIELD(value))
+
   struct SweepSpec {
     SweepStrategy m_strategy;
     std::vector<SweepAxis> m_axes;
   };
+  DESCRIBE(SweepSpec, FIELD(m_strategy), FIELD(m_axes))
+
   using SweepHintMap = std::unordered_map<std::string, std::unordered_map<std::string, SweepHint>>;
 
   namespace Sweep {

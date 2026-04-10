@@ -104,7 +104,7 @@ namespace Baseliner {
       m_name = std::move(name);
     }
 
-    virtual auto get_case_options() -> OptionsMap = 0;
+    virtual auto get_workload_options() -> OptionsMap = 0;
 
     void set_stopping_criterion(const std::function<std::unique_ptr<StoppingCriterion>()> &stopping_builder) {
       m_stopping = stopping_builder();
@@ -218,13 +218,13 @@ namespace Baseliner {
     BASELINER_BENCHMARK_SETTER(first, bool);
 
     auto name() -> std::string override {
-      if (m_case) {
-        return m_case->name() + get_m_name();
+      if (m_workload) {
+        return m_workload->name() + get_m_name();
       }
       return get_m_name();
     }
-    auto set_case(std::shared_ptr<ICase<BackendT>> case_impl) {
-      m_case = case_impl;
+    auto set_workload(std::shared_ptr<ICase<BackendT>> workload_impl) {
+      m_workload = workload_impl;
     }
     auto run_benchmark() -> BenchmarkReport override {
       BenchmarkReport report;
@@ -232,13 +232,16 @@ namespace Baseliner {
       report.m_hardware = this->get_hardware_info();
       auto sweeppoints = this->generate_sweep_points();
       for (const std::optional<OptionsMap> &sweep_point : sweeppoints) {
+        if (ExecutionController::exit_requested()) {
+          break;
+        }
         report.m_results.push_back(this->single_run(sweep_point));
         print_callback(report.m_results.back());
       }
       return report;
     }
-    auto get_case_options() -> OptionsMap override {
-      return m_case->get_options();
+    auto get_workload_options() -> OptionsMap override {
+      return m_workload->get_options();
     };
 
   protected:
@@ -251,8 +254,8 @@ namespace Baseliner {
       return Sweep::get_sweep_points(spec.m_strategy, resolved_axis);
     }
     void register_options_dependencies() override {
-      if (m_case) {
-        this->register_consumer(m_case.get());
+      if (m_workload) {
+        this->register_consumer(m_workload.get());
       }
       if (get_stopping_no_except().has_value()) {
         this->register_consumer(get_stopping());
@@ -267,25 +270,25 @@ namespace Baseliner {
       check_components();
       setup_metrics();
       get_stats_engine()->reset_engine();
-      m_case->setup(m_stream);
+      m_workload->setup(m_stream);
       update_metrics();
       pre_all();
       while (!get_stopping()->satisfied()) {
         if (ExecutionController::exit_requested()) {
           break;
         }
-        m_case->reset_case(m_stream);
+        m_workload->reset_workload(m_stream);
         pre_run();
-        m_case->timed_run(m_stream);
+        m_workload->timed_run(m_stream);
         post_run();
-        get_stats_engine()->template update_values<Stats::ExecutionTime>(m_case->time_elapsed());
+        get_stats_engine()->template update_values<Stats::ExecutionTime>(m_workload->time_elapsed());
         get_stats_engine()->compute_stats();
       }
       post_all();
-      m_case->teardown(m_stream);
-      bool valid_run = m_case->validate_case();
+      m_workload->teardown(m_stream);
+      bool valid_run = m_workload->validate_workload();
       if (!valid_run) {
-        std::cout << "Warning, not able to validate Case : " << m_case->name() << '\n';
+        std::cout << "Warning, not able to validate Case : " << m_workload->name() << '\n';
       }
       std::vector<Metric> metrics = {get_stats_engine()->get_metrics()};
       m_stream.reset();
@@ -301,7 +304,7 @@ namespace Baseliner {
     Hardware::BlockingKernel<BackendT> *m_blocker = Hardware::BlockingKernel<BackendT>::instance();
     std::shared_ptr<typename BackendT::stream_t> m_stream;
 
-    std::shared_ptr<ICase<BackendT>> m_case;
+    std::shared_ptr<ICase<BackendT>> m_workload;
 
     [[nodiscard]] auto get_hardware_info() const -> Hardware::HardwareInfo {
       return backend::instance()->get_device_info();
@@ -312,8 +315,8 @@ namespace Baseliner {
       }
     }
     virtual void update_metrics() {
-      if (m_case) {
-        m_case->update_metrics(get_stats_engine_shared());
+      if (m_workload) {
+        m_workload->update_metrics(get_stats_engine_shared());
       }
     }
     virtual void setup_metrics() {
@@ -327,8 +330,8 @@ namespace Baseliner {
         if (get_timed_teardown()) {
           get_stats_engine()->template register_metric<Stats::TeardownTime>();
         }
-        if (m_case) {
-          m_case->setup_metrics(get_stats_engine_shared());
+        if (m_workload) {
+          m_workload->setup_metrics(get_stats_engine_shared());
         }
         get_stats_engine()->set_options(get_stat_options());
         set_first(false);
@@ -336,8 +339,8 @@ namespace Baseliner {
     }
     virtual void pre_all() {
       if (get_warmup()) {
-        m_case->timed_run(m_stream);
-        get_stats_engine()->template update_values<Stats::WarmupTime>(m_case->time_elapsed());
+        m_workload->timed_run(m_stream);
+        get_stats_engine()->template update_values<Stats::WarmupTime>(m_workload->time_elapsed());
       }
     };
     virtual void pre_run() {
@@ -358,8 +361,8 @@ namespace Baseliner {
       BackendT::synchronize(m_stream);
     };
     void check_components() {
-      if (!m_case) {
-        throw Errors::empty_case_benchmark();
+      if (!m_workload) {
+        throw Errors::empty_workload_benchmark();
       }
       if (!get_stopping_no_except().has_value()) {
         throw Errors::empty_stopping_benchmark();

@@ -6,10 +6,10 @@
 #include <memory>
 namespace Baseliner {
   inline auto inject_option(const std::function<std::shared_ptr<IBenchmark>()> &funct,
-                            const OptionsMap &benchmark_preset, const OptionsMap &case_preset,
+                            const OptionsMap &benchmark_preset, const OptionsMap &workload_preset,
                             const OptionsMap &stat_options) -> std::function<std::shared_ptr<IBenchmark>()> {
 
-    auto output_function = [funct, benchmark_preset, case_preset, stat_options]() -> std::shared_ptr<IBenchmark> {
+    auto output_function = [funct, benchmark_preset, workload_preset, stat_options]() -> std::shared_ptr<IBenchmark> {
       auto ptr = funct();
       auto benchmark_options = ptr->get_options();
       if (Options::is_subset(benchmark_options, benchmark_preset)) {
@@ -17,11 +17,11 @@ namespace Baseliner {
       } else {
         throw Errors::preset_not_subset_of(benchmark_preset, benchmark_options);
       }
-      auto case_options = ptr->get_case_options();
-      if (Options::is_subset(case_options, case_preset)) {
-        ptr->apply_options(case_preset);
+      auto workload_options = ptr->get_workload_options();
+      if (Options::is_subset(workload_options, workload_preset)) {
+        ptr->apply_options(workload_preset);
       } else {
-        throw Errors::preset_not_subset_of(case_preset, case_options);
+        throw Errors::preset_not_subset_of(workload_preset, workload_options);
       }
       ptr->set_stat_options(stat_options);
       return ptr;

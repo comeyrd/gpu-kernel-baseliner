@@ -63,7 +63,7 @@ namespace Baseliner {
   public:
     explicit CaseRegistrar(const std::string &name) {
       auto factory = []() -> std::shared_ptr<ICase<typename CaseT::backend>> { return std::make_shared<CaseT>(); };
-      BackendStorage<typename CaseT::backend>::instance()->register_case(name, factory);
+      BackendStorage<typename CaseT::backend>::instance()->register_workload(name, factory);
       StorageManager::instance()->register_component(name, ComponentType::CASE, factory()->get_options());
     }
   };
@@ -75,7 +75,7 @@ namespace Baseliner {
       auto factory = []() -> std::shared_ptr<ICase<typename KernelT::backend>> {
         return std::make_shared<KernelCase<KernelT>>();
       };
-      BackendStorage<typename KernelT::backend>::instance()->register_case(name, factory);
+      BackendStorage<typename KernelT::backend>::instance()->register_workload(name, factory);
       StorageManager::instance()->register_component(name, ComponentType::CASE, factory()->get_options());
     }
   };

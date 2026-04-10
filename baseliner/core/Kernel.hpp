@@ -85,23 +85,23 @@ namespace Baseliner {
       m_input->generate_random();
       m_kernel->setup(stream);
     };
-    void reset_case(std::shared_ptr<typename BackendT::stream_t> stream) override {
+    void reset_workload(std::shared_ptr<typename BackendT::stream_t> stream) override {
       m_kernel->reset_kernel(stream);
     }
-    void run_case(std::shared_ptr<typename BackendT::stream_t> stream) override {
+    void run_workload(std::shared_ptr<typename BackendT::stream_t> stream) override {
       m_kernel->run(stream);
     }
     void teardown(std::shared_ptr<typename BackendT::stream_t> stream) override {
       m_gpu_output = std::make_shared<typename Kernel::Output>(m_input);
       m_kernel->teardown(stream, *m_gpu_output);
     }
-    void case_setup_metrics(std::shared_ptr<Stats::StatsEngine> &engine) override {
+    void workload_setup_metrics(std::shared_ptr<Stats::StatsEngine> &engine) override {
       m_kernel->setup_metrics(engine);
     };
-    void case_update_metrics(std::shared_ptr<Stats::StatsEngine> &engine) override {
+    void workload_update_metrics(std::shared_ptr<Stats::StatsEngine> &engine) override {
       m_kernel->update_metrics(engine);
     };
-    auto validate_case() -> bool override {
+    auto validate_workload() -> bool override {
       if (m_comparison_output && m_gpu_output) {
         return *m_gpu_output == *m_comparison_output;
       }
