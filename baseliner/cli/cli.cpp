@@ -49,6 +49,10 @@ __attribute__((weak)) int main(int argc, char **argv) { // NOLINT
       .default_value("default-protocol.json")
       .nargs(1)
       .help("Generate the protocol files with all default values set");
+  generate_group.add_argument("--minimal-protocol-file", "--minimal-pf")
+      .default_value("minimal-protocol.json")
+      .nargs(1)
+      .help("Generate the protocol files with the minimum things required for a protocol file to work");
 
   generate_group.add_argument("--saved-protocol-file", "--saved-pf")
       .default_value("saved-protocol.json")
@@ -114,6 +118,9 @@ __attribute__((weak)) int main(int argc, char **argv) { // NOLINT
     } else if (generate_parser.is_used("--default-protocol-file")) {
       Protocol protocol = Orchestrator::get_default_protocol();
       to_file(protocol, "default-protocol.json");
+    } else if (generate_parser.is_used("--minimal-protocol-file")) {
+      Protocol protocol = Orchestrator::get_minimal_protocol();
+      to_file(protocol, "minimal-protocol.json");
     } else if (generate_parser.is_used("--schema")) {
       auto protocol_schema = Baseliner::Ser::export_json_schema<Baseliner::Protocol>();
       Baseliner::to_file(protocol_schema, "protocol.schema.json");

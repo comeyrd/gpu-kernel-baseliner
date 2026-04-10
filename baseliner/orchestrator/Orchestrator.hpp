@@ -130,6 +130,32 @@ namespace Baseliner {
       protocol.campaigns.push_back(default_campaign);
       return protocol;
     }
+    inline auto get_minimal_protocol() -> Protocol {
+      Protocol protocol;
+      auto *storage_manager = StorageManager::instance();
+      protocol.baseliner_version = Version::string();
+      Recipe def_recipe;
+      def_recipe.stats = {};
+      def_recipe.benchmark = {};
+      def_recipe.stopping = {};
+      def_recipe.sweep =
+          SweepSpec{SweepStrategy::FullGrid,
+                    {SweepAxis{"Case", "work_size", SweepHint{SweepPolicy::PowersOfTwo, "1", "1024", "1", {}}}}};
+      def_recipe.description = "Minimal recipe with everything kept to default";
+      protocol.recipes["minimal"] = def_recipe;
+      Campaign default_campaign;
+      default_campaign.name = "minimal";
+      default_campaign.recipe = "minimal";
+      for (const auto &backend : storage_manager->list_backends()) {
+        default_campaign.backends.push_back({backend, {}});
+      }
+      for (const auto &workloads : storage_manager->list_components(ComponentType::CASE)) {
+        default_campaign.workloads.push_back({workloads, {}});
+      }
+      default_campaign.on_incompatible = OnIncompatible::Skip;
+      protocol.campaigns.push_back(default_campaign);
+      return protocol;
+    }
   }; // namespace Orchestrator
 
 } // namespace Baseliner
