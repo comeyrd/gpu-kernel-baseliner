@@ -31,9 +31,9 @@
 #ifndef MATRIXMUL_KERNEL_HPP
 #define MATRIXMUL_KERNEL_HPP
 
-#include <baseliner/Kernel.hpp>
-#include <baseliner/Options.hpp>
-#include <baseliner/hardware/hip/HipBackend.hpp>
+#include <baseliner/core/Kernel.hpp>
+#include <baseliner/core/Options.hpp>
+#include <baseliner/core/hardware/hip/HipBackend.hpp>
 #include <cstddef>
 #include <iostream>
 #include <memory>

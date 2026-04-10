@@ -1,7 +1,7 @@
 #include "../NothingKernel.hpp"
 #include "baseliner/registry/RegisteringMacros.hpp"
 #include "hip/hip_runtime.h"
-#include <baseliner/hardware/hip/HipBackend.hpp>
+#include <baseliner/core/hardware/hip/HipBackend.hpp>
 using namespace Baseliner::Hardware;
 namespace Baseliner {
   __global__ void nothing_kernel(char *dummy) {
@@ -19,7 +19,7 @@ namespace Baseliner {
     }
   };
   template <>
-  void NothingKernel<HipBackend>::reset_case(std::shared_ptr<typename backend::stream_t> stream) {
+  void NothingKernel<HipBackend>::reset_workload(std::shared_ptr<typename backend::stream_t> stream) {
     if (m_async_memcpy) {
       CHECK_HIP(hipMemsetAsync(m_d_buffer, 0, m_bytes_copied * sizeof(char), *stream));
     } else {
@@ -27,7 +27,7 @@ namespace Baseliner {
     }
   };
   template <>
-  void NothingKernel<HipBackend>::run_case(std::shared_ptr<typename backend::stream_t> stream) {
+  void NothingKernel<HipBackend>::run_workload(std::shared_ptr<typename backend::stream_t> stream) {
     nothing_kernel<<<m_blocks, m_threads, 0, *stream>>>(m_d_buffer);
   };
   template <>
