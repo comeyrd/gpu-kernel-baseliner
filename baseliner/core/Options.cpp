@@ -101,7 +101,7 @@ namespace Baseliner {
         auto intermediary = omap.at(binding->get_interface_name());
         if (intermediary.find(binding->get_name()) != intermediary.end()) {
           const Option opt = intermediary.at(binding->get_name());
-          binding->update_value(opt.m_value);
+          binding->update_value(opt.value);
         }
       }
     }
@@ -152,11 +152,11 @@ namespace Baseliner {
     std::vector<ResolvedAxis> resolved;
     for (const auto &axis : sweep_axis_vector) {
       for (auto &binding : m_options_bindings) {
-        if (binding->get_name() == axis.m_option && binding->get_interface_name() == axis.m_interface) {
-          if (axis.m_hint.has_value()) {
-            binding->set_sweep_hint(axis.m_hint.value());
+        if (binding->get_name() == axis.option && binding->get_interface_name() == axis.interface) {
+          if (axis.hint.has_value()) {
+            binding->set_sweep_hint(axis.hint.value());
           }
-          resolved.push_back(ResolvedAxis{axis.m_interface, axis.m_option, binding->generate_sweep_values()});
+          resolved.push_back(ResolvedAxis{axis.interface, axis.option, binding->generate_sweep_values()});
         }
       }
     }
@@ -179,7 +179,7 @@ namespace Baseliner {
       auto temp_resolved = consumer->resolve_depedency_sweep_axis(sweep_axis_vector, visited);
       for (const auto &temp_res : temp_resolved) {
         for (const auto &res : resolved_axis) {
-          if (temp_res.m_interface == res.m_interface && temp_res.m_option == res.m_option) {
+          if (temp_res.interface == res.interface && temp_res.option == res.option) {
             throw Errors::multiple_axis_responder(res);
           }
         }

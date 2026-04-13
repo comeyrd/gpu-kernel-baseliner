@@ -8,15 +8,15 @@
 namespace Baseliner {
 
   struct SingleRunReport {
-    std::optional<OptionsMap> m_sweep_point; // Interface → option → value
-    std::vector<Metric> m_measurements;
+    std::optional<OptionsMap> sweep_point; // Interface → option → value
+    std::vector<Metric> measurements;
   };
-  DESCRIBE(SingleRunReport, FIELD(m_sweep_point), FIELD(m_measurements))
+  DESCRIBE(SingleRunReport, FIELD(sweep_point), FIELD(measurements))
   struct BenchmarkReport {
-    std::vector<SingleRunReport> m_results;
-    Hardware::HardwareInfo m_hardware;
+    std::vector<SingleRunReport> results;
+    Hardware::HardwareInfo hardware;
   };
-  DESCRIBE(BenchmarkReport, FIELD(m_results), FIELD(m_hardware))
+  DESCRIBE(BenchmarkReport, FIELD(results), FIELD(hardware))
 
 } // namespace Baseliner
 #endif // BASELINER_CORE_BENCHMARKREPORT_HPP

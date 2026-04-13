@@ -122,8 +122,8 @@ namespace Baseliner {
       return {ErrorCode::OptionsError, "An Option consumer self registered as a depedency consumer: " + type};
     }
     inline auto multiple_axis_responder(const ResolvedAxis &axis) -> Error {
-      return {ErrorCode::OptionsError, "Multiple consumers responded for axis resolving for this axis :" +
-                                           axis.m_interface + "." + axis.m_option};
+      return {ErrorCode::OptionsError,
+              "Multiple consumers responded for axis resolving for this axis :" + axis.interface + "." + axis.option};
     }
     inline auto sweeping_error(const std::string &interface_name, const std::string &option_name) -> Error {
       return {ErrorCode::OptionsError, "Sweeping Error : Trying to sweep on option : " + interface_name + "." +

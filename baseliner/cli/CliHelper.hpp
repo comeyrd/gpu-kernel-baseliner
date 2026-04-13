@@ -35,11 +35,11 @@ namespace Baseliner::Cli {
   inline auto get_headers(const SingleRunReport &report) -> Row {
     std::vector<Cell> headers;
 
-    if (report.m_sweep_point.has_value()) {
-      for (const auto &[interface_name, options] : report.m_sweep_point.value()) {
+    if (report.sweep_point.has_value()) {
+      for (const auto &[interface_name, options] : report.sweep_point.value()) {
         for (const auto &[opt_name, opt] : options) {
           std::string name = interface_name + "." + opt_name;
-          size_t size = opt.m_value.size();
+          size_t size = opt.value.size();
           size = std::max(size, MIN_COL_SIZE);
           size = std::max(name.size(), size);
           headers.push_back({name, name, size});
@@ -47,11 +47,11 @@ namespace Baseliner::Cli {
       }
       std::sort(headers.begin(), headers.end()); // Consistency
     }
-    for (const auto &metric : report.m_measurements) {
-      if (!std::visit(IsVectorVisitor{}, metric.m_data)) {
-        std::string name = metric.m_name + " (" + metric.m_unit + ")";
-        std::string id = metric.m_name;
-        auto variant = Conversion::baseliner_to_string(metric.m_data);
+    for (const auto &metric : report.measurements) {
+      if (!std::visit(IsVectorVisitor{}, metric.data)) {
+        std::string name = metric.name + " (" + metric.unit + ")";
+        std::string id = metric.name;
+        auto variant = Conversion::baseliner_to_string(metric.data);
         size_t size = std::get<std::string>(variant).size();
         size = std::max(size, MIN_COL_SIZE);
         size = std::max(name.size(), size);
@@ -79,22 +79,22 @@ namespace Baseliner::Cli {
 
       // Logic: If the ID contains a '.', it's likely an Option (Interface.Name)
       auto dot_pos = col.id.find('.');
-      if (dot_pos != std::string::npos && report.m_sweep_point.has_value()) {
+      if (dot_pos != std::string::npos && report.sweep_point.has_value()) {
         std::string interface_name = col.id.substr(0, dot_pos);
         std::string opt_name = col.id.substr(dot_pos + 1);
 
         // Access the specific option value
-        const auto &sweep = report.m_sweep_point.value();
+        const auto &sweep = report.sweep_point.value();
         if (auto it_int = sweep.find(interface_name); it_int != sweep.end()) {
           if (auto it_opt = it_int->second.find(opt_name); it_opt != it_int->second.end()) {
-            value = it_opt->second.m_value;
+            value = it_opt->second.value;
           }
         }
       } else {
         // Otherwise, it's a Metric
-        for (const auto &metric : report.m_measurements) {
-          if (metric.m_name == col.id) {
-            auto variant = Conversion::baseliner_to_string(metric.m_data);
+        for (const auto &metric : report.measurements) {
+          if (metric.name == col.id) {
+            auto variant = Conversion::baseliner_to_string(metric.data);
             value = std::get<std::string>(variant);
           }
         }

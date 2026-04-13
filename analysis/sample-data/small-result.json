@@ -9,17 +9,17 @@
       "recipe": {
         "description": "Minimal recipe with everything kept to default",
         "sweep": {
-          "m_strategy": "FullGrid",
-          "m_axes": [
+          "strategy": "FullGrid",
+          "axes": [
             {
-              "m_interface": "Case",
-              "m_option": "work_size",
-              "m_hint": {
-                "m_policy": "PowersOfTwo",
-                "m_min": "1",
-                "m_max": "1024",
-                "m_step": "1",
-                "m_enumerated": []
+              "interface": "Case",
+              "option": "work_size",
+              "hint": {
+                "policy": "PowersOfTwo",
+                "min": "1",
+                "max": "1024",
+                "step": "1",
+                "enumerated": []
               }
             }
           ]
@@ -35,12 +35,12 @@
                 "options": {
                   "Case": {
                     "seed": {
-                      "m_description": "The seed used for the generation of input data",
-                      "m_value": "333"
+                      "description": "The seed used for the generation of input data",
+                      "value": "333"
                     },
                     "work_size": {
-                      "m_description": "The work size to apply, 1 = 32MFlop & 1 = 1MB",
-                      "m_value": "10"
+                      "description": "The work size to apply, 1 = 32MFlop & 1 = 1MB",
+                      "value": "10"
                     }
                   }
                 }
@@ -51,8 +51,8 @@
                 "options": {
                   "Backend": {
                     "device": {
-                      "m_description": "The device number to run on",
-                      "m_value": "0"
+                      "description": "The device number to run on",
+                      "value": "0"
                     }
                   }
                 }
@@ -63,28 +63,28 @@
                 "options": {
                   "Benchmark": {
                     "timed_setup": {
-                      "m_description": "Time the setup",
-                      "m_value": "0"
+                      "description": "Time the setup",
+                      "value": "0"
                     },
                     "timed_teardown": {
-                      "m_description": "Time the teardown",
-                      "m_value": "0"
+                      "description": "Time the teardown",
+                      "value": "0"
                     },
                     "warmup": {
-                      "m_description": "Having a warmup run",
-                      "m_value": "1"
+                      "description": "Having a warmup run",
+                      "value": "1"
                     },
                     "flush": {
-                      "m_description": "Enables the flushing of the L2 cache",
-                      "m_value": "1"
+                      "description": "Enables the flushing of the L2 cache",
+                      "value": "1"
                     },
                     "block_duration": {
-                      "m_description": "Duration of the blocking kernel (in ms)",
-                      "m_value": "1000.000000"
+                      "description": "Duration of the blocking kernel (in ms)",
+                      "value": "1000.000000"
                     },
                     "block": {
-                      "m_description": "Using a blocking kernel",
-                      "m_value": "0"
+                      "description": "Using a blocking kernel",
+                      "value": "0"
                     }
                   }
                 }
@@ -95,7 +95,7 @@
                 "options": {
                   "StoppingCriterion": {
                     "max_nb_repetition": {
-                      "m_value": "10"
+                      "value": "10"
                     }
                   }
                 }
@@ -106,950 +106,836 @@
                 "options": {}
               },
               "sweep": {
-                "m_strategy": "FullGrid",
-                "m_axes": [
+                "strategy": "FullGrid",
+                "axes": [
                   {
-                    "m_interface": "Case",
-                    "m_option": "work_size",
-                    "m_hint": {
-                      "m_policy": "PowersOfTwo",
-                      "m_min": "1",
-                      "m_max": "1024",
-                      "m_step": "1",
-                      "m_enumerated": []
+                    "interface": "Case",
+                    "option": "work_size",
+                    "hint": {
+                      "policy": "PowersOfTwo",
+                      "min": "1",
+                      "max": "1024",
+                      "step": "1",
+                      "enumerated": []
                     }
                   }
                 ]
               }
             },
             "benchmark_report": {
-              "m_results": [
+              "results": [
                 {
-                  "m_sweep_point": {
+                  "sweep_point": {
                     "Case": {
                       "work_size": {
-                        "m_description": "",
-                        "m_value": "1"
+                        "description": "",
+                        "value": "1"
                       }
                     }
                   },
-                  "m_measurements": [
+                  "measurements": [
                     {
-                      "m_name": "execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.01945599913597107,
-                        0.01945599913597107,
-                        0.01945599913597107,
-                        0.018432000651955605,
-                        0.01945599913597107,
-                        0.01945599913597107,
-                        0.01945599913597107,
-                        0.01945599913597107,
-                        0.01945599913597107,
-                        0.01945599913597107
+                      "name": "execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.020479999482631683, 0.018432000651955605,
+                        0.01945599913597107, 0.01945599913597107,
+                        0.01945599913597107, 0.018432000651955605,
+                        0.01945599913597107, 0.01945599913597107,
+                        0.020479999482631683, 0.01945599913597107
                       ]
                     },
                     {
-                      "m_name": "repetitions",
-                      "m_unit": "",
-                      "m_data": 10
+                      "name": "repetitions",
+                      "unit": "",
+                      "data": 10
                     },
                     {
-                      "m_name": "memory_bandwidth",
-                      "m_unit": "GB/s",
-                      "m_data": 40.42105484008789
+                      "name": "memory_bandwidth",
+                      "unit": "GB/s",
+                      "data": 40.42105484008789
                     },
                     {
-                      "m_name": "median",
-                      "m_unit": "ms",
-                      "m_data": 0.01945599913597107
+                      "name": "median",
+                      "unit": "ms",
+                      "data": 0.01945599913597107
                     },
                     {
-                      "m_name": "sorted_execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.018432000651955605,
-                        0.01945599913597107,
-                        0.01945599913597107,
-                        0.01945599913597107,
-                        0.01945599913597107,
-                        0.01945599913597107,
-                        0.01945599913597107,
-                        0.01945599913597107,
-                        0.01945599913597107,
-                        0.01945599913597107
+                      "name": "sorted_execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.018432000651955605, 0.018432000651955605,
+                        0.01945599913597107, 0.01945599913597107,
+                        0.01945599913597107, 0.01945599913597107,
+                        0.01945599913597107, 0.01945599913597107,
+                        0.020479999482631683, 0.020479999482631683
                       ]
                     },
                     {
-                      "m_name": "arithmetic_bandwidth",
-                      "m_unit": "GFLOP/S",
-                      "m_data": 1724.6317138671875
+                      "name": "arithmetic_bandwidth",
+                      "unit": "GFLOP/S",
+                      "data": 1724.6317138671875
                     },
                     {
-                      "m_name": "arithmetic_intensity",
-                      "m_unit": "",
-                      "m_data": 42.66666793823242
+                      "name": "arithmetic_intensity",
+                      "unit": "",
+                      "data": 42.66666793823242
                     },
                     {
-                      "m_name": "warmup_time",
-                      "m_unit": "ms",
-                      "m_data": 1.6425600051879883
+                      "name": "warmup_time",
+                      "unit": "ms",
+                      "data": 1.704416036605835
                     },
                     {
-                      "m_name": "memory_usage",
-                      "m_unit": "bytes",
-                      "m_data": 786432
+                      "name": "memory_usage",
+                      "unit": "bytes",
+                      "data": 786432
                     },
                     {
-                      "m_name": "arithmetic_usage",
-                      "m_unit": "Flops",
-                      "m_data": 33554432
+                      "name": "arithmetic_usage",
+                      "unit": "Flops",
+                      "data": 33554432
                     }
                   ]
                 },
                 {
-                  "m_sweep_point": {
+                  "sweep_point": {
                     "Case": {
                       "work_size": {
-                        "m_description": "",
-                        "m_value": "2"
+                        "description": "",
+                        "value": "2"
                       }
                     }
                   },
-                  "m_measurements": [
+                  "measurements": [
                     {
-                      "m_name": "execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.027648000046610832,
-                        0.027648000046610832,
-                        0.027648000046610832,
-                        0.027648000046610832,
-                        0.027648000046610832,
-                        0.027648000046610832,
-                        0.027648000046610832,
-                        0.027648000046610832,
-                        0.027648000046610832,
-                        0.027648000046610832
+                      "name": "execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.027648000046610832, 0.027648000046610832,
+                        0.027648000046610832, 0.027648000046610832,
+                        0.027648000046610832, 0.027648000046610832,
+                        0.028672000393271446, 0.028672000393271446,
+                        0.027648000046610832, 0.028672000393271446
                       ]
                     },
                     {
-                      "m_name": "repetitions",
-                      "m_unit": "",
-                      "m_data": 10
+                      "name": "repetitions",
+                      "unit": "",
+                      "data": 10
                     },
                     {
-                      "m_name": "memory_bandwidth",
-                      "m_unit": "GB/s",
-                      "m_data": 47.407405853271484
+                      "name": "memory_bandwidth",
+                      "unit": "GB/s",
+                      "data": 47.407405853271484
                     },
                     {
-                      "m_name": "median",
-                      "m_unit": "ms",
-                      "m_data": 0.027648000046610832
+                      "name": "median",
+                      "unit": "ms",
+                      "data": 0.027648000046610832
                     },
                     {
-                      "m_name": "sorted_execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.027648000046610832,
-                        0.027648000046610832,
-                        0.027648000046610832,
-                        0.027648000046610832,
-                        0.027648000046610832,
-                        0.027648000046610832,
-                        0.027648000046610832,
-                        0.027648000046610832,
-                        0.027648000046610832,
-                        0.027648000046610832
+                      "name": "sorted_execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.027648000046610832, 0.027648000046610832,
+                        0.027648000046610832, 0.027648000046610832,
+                        0.027648000046610832, 0.027648000046610832,
+                        0.027648000046610832, 0.028672000393271446,
+                        0.028672000393271446, 0.028672000393271446
                       ]
                     },
                     {
-                      "m_name": "arithmetic_bandwidth",
-                      "m_unit": "GFLOP/S",
-                      "m_data": 2427.25927734375
+                      "name": "arithmetic_bandwidth",
+                      "unit": "GFLOP/S",
+                      "data": 2427.25927734375
                     },
                     {
-                      "m_name": "arithmetic_intensity",
-                      "m_unit": "",
-                      "m_data": 51.20000076293945
+                      "name": "arithmetic_intensity",
+                      "unit": "",
+                      "data": 51.20000076293945
                     },
                     {
-                      "m_name": "warmup_time",
-                      "m_unit": "ms",
-                      "m_data": 0.15059199929237366
+                      "name": "warmup_time",
+                      "unit": "ms",
+                      "data": 0.3224320113658905
                     },
                     {
-                      "m_name": "memory_usage",
-                      "m_unit": "bytes",
-                      "m_data": 1310720
+                      "name": "memory_usage",
+                      "unit": "bytes",
+                      "data": 1310720
                     },
                     {
-                      "m_name": "arithmetic_usage",
-                      "m_unit": "Flops",
-                      "m_data": 67108864
+                      "name": "arithmetic_usage",
+                      "unit": "Flops",
+                      "data": 67108864
                     }
                   ]
                 },
                 {
-                  "m_sweep_point": {
+                  "sweep_point": {
                     "Case": {
                       "work_size": {
-                        "m_description": "",
-                        "m_value": "4"
+                        "description": "",
+                        "value": "4"
                       }
                     }
                   },
-                  "m_measurements": [
+                  "measurements": [
                     {
-                      "m_name": "execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.04403200000524521,
-                        0.04505600035190582,
-                        0.04403200000524521,
-                        0.04505600035190582,
-                        0.04403200000524521,
-                        0.04403200000524521,
-                        0.04505600035190582,
-                        0.04505600035190582,
-                        0.04403200000524521,
-                        0.04505600035190582
+                      "name": "execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.04403200000524521, 0.04505600035190582,
+                        0.04505600035190582, 0.04403200000524521,
+                        0.04403200000524521, 0.04403200000524521,
+                        0.04505600035190582, 0.04505600035190582,
+                        0.04505600035190582, 0.04505600035190582
                       ]
                     },
                     {
-                      "m_name": "repetitions",
-                      "m_unit": "",
-                      "m_data": 10
+                      "name": "repetitions",
+                      "unit": "",
+                      "data": 10
                     },
                     {
-                      "m_name": "memory_bandwidth",
-                      "m_unit": "GB/s",
-                      "m_data": 52.3636360168457
+                      "name": "memory_bandwidth",
+                      "unit": "GB/s",
+                      "data": 52.3636360168457
                     },
                     {
-                      "m_name": "median",
-                      "m_unit": "ms",
-                      "m_data": 0.04505600035190582
+                      "name": "median",
+                      "unit": "ms",
+                      "data": 0.04505600035190582
                     },
                     {
-                      "m_name": "sorted_execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.04403200000524521,
-                        0.04403200000524521,
-                        0.04403200000524521,
-                        0.04403200000524521,
-                        0.04403200000524521,
-                        0.04505600035190582,
-                        0.04505600035190582,
-                        0.04505600035190582,
-                        0.04505600035190582,
-                        0.04505600035190582
+                      "name": "sorted_execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.04403200000524521, 0.04403200000524521,
+                        0.04403200000524521, 0.04403200000524521,
+                        0.04505600035190582, 0.04505600035190582,
+                        0.04505600035190582, 0.04505600035190582,
+                        0.04505600035190582, 0.04505600035190582
                       ]
                     },
                     {
-                      "m_name": "arithmetic_bandwidth",
-                      "m_unit": "GFLOP/S",
-                      "m_data": 2978.9091796875
+                      "name": "arithmetic_bandwidth",
+                      "unit": "GFLOP/S",
+                      "data": 2978.9091796875
                     },
                     {
-                      "m_name": "arithmetic_intensity",
-                      "m_unit": "",
-                      "m_data": 56.88888931274414
+                      "name": "arithmetic_intensity",
+                      "unit": "",
+                      "data": 56.88888931274414
                     },
                     {
-                      "m_name": "warmup_time",
-                      "m_unit": "ms",
-                      "m_data": 0.4782719910144806
+                      "name": "warmup_time",
+                      "unit": "ms",
+                      "data": 0.21315200626850128
                     },
                     {
-                      "m_name": "memory_usage",
-                      "m_unit": "bytes",
-                      "m_data": 2359296
+                      "name": "memory_usage",
+                      "unit": "bytes",
+                      "data": 2359296
                     },
                     {
-                      "m_name": "arithmetic_usage",
-                      "m_unit": "Flops",
-                      "m_data": 134217728
+                      "name": "arithmetic_usage",
+                      "unit": "Flops",
+                      "data": 134217728
                     }
                   ]
                 },
                 {
-                  "m_sweep_point": {
+                  "sweep_point": {
                     "Case": {
                       "work_size": {
-                        "m_description": "",
-                        "m_value": "8"
+                        "description": "",
+                        "value": "8"
                       }
                     }
                   },
-                  "m_measurements": [
+                  "measurements": [
                     {
-                      "m_name": "execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.08191999793052673,
-                        0.08089599758386612,
-                        0.08089599758386612,
-                        0.08191999793052673,
-                        0.08191999793052673,
-                        0.08191999793052673,
-                        0.08089599758386612,
-                        0.08191999793052673,
-                        0.08089599758386612,
-                        0.08089599758386612
+                      "name": "execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.08089599758386612, 0.08089599758386612,
+                        0.08089599758386612, 0.08191999793052673,
+                        0.08089599758386612, 0.08089599758386612,
+                        0.08396799862384796, 0.08089599758386612,
+                        0.08191999793052673, 0.08191999793052673
                       ]
                     },
                     {
-                      "m_name": "repetitions",
-                      "m_unit": "",
-                      "m_data": 10
+                      "name": "repetitions",
+                      "unit": "",
+                      "data": 10
                     },
                     {
-                      "m_name": "memory_bandwidth",
-                      "m_unit": "GB/s",
-                      "m_data": 54.400001525878906
+                      "name": "memory_bandwidth",
+                      "unit": "GB/s",
+                      "data": 55.08860778808594
                     },
                     {
-                      "m_name": "median",
-                      "m_unit": "ms",
-                      "m_data": 0.08191999793052673
+                      "name": "median",
+                      "unit": "ms",
+                      "data": 0.08089599758386612
                     },
                     {
-                      "m_name": "sorted_execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.08089599758386612,
-                        0.08089599758386612,
-                        0.08089599758386612,
-                        0.08089599758386612,
-                        0.08089599758386612,
-                        0.08191999793052673,
-                        0.08191999793052673,
-                        0.08191999793052673,
-                        0.08191999793052673,
-                        0.08191999793052673
+                      "name": "sorted_execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.08089599758386612, 0.08089599758386612,
+                        0.08089599758386612, 0.08089599758386612,
+                        0.08089599758386612, 0.08089599758386612,
+                        0.08191999793052673, 0.08191999793052673,
+                        0.08191999793052673, 0.08396799862384796
                       ]
                     },
                     {
-                      "m_name": "arithmetic_bandwidth",
-                      "m_unit": "GFLOP/S",
-                      "m_data": 3276.800048828125
+                      "name": "arithmetic_bandwidth",
+                      "unit": "GFLOP/S",
+                      "data": 3318.278564453125
                     },
                     {
-                      "m_name": "arithmetic_intensity",
-                      "m_unit": "",
-                      "m_data": 60.235294342041016
+                      "name": "arithmetic_intensity",
+                      "unit": "",
+                      "data": 60.235294342041016
                     },
                     {
-                      "m_name": "warmup_time",
-                      "m_unit": "ms",
-                      "m_data": 0.5936639904975891
+                      "name": "warmup_time",
+                      "unit": "ms",
+                      "data": 0.7451840043067932
                     },
                     {
-                      "m_name": "memory_usage",
-                      "m_unit": "bytes",
-                      "m_data": 4456448
+                      "name": "memory_usage",
+                      "unit": "bytes",
+                      "data": 4456448
                     },
                     {
-                      "m_name": "arithmetic_usage",
-                      "m_unit": "Flops",
-                      "m_data": 268435456
+                      "name": "arithmetic_usage",
+                      "unit": "Flops",
+                      "data": 268435456
                     }
                   ]
                 },
                 {
-                  "m_sweep_point": {
+                  "sweep_point": {
                     "Case": {
                       "work_size": {
-                        "m_description": "",
-                        "m_value": "16"
+                        "description": "",
+                        "value": "16"
                       }
                     }
                   },
-                  "m_measurements": [
+                  "measurements": [
                     {
-                      "m_name": "execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.15360000729560852,
-                        0.15360000729560852,
-                        0.15462400019168854,
-                        0.15462400019168854,
-                        0.15360000729560852,
-                        0.15564799308776855,
-                        0.15462400019168854,
-                        0.15360000729560852,
-                        0.15360000729560852,
-                        0.15564799308776855
+                      "name": "execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.15564799308776855, 0.15360000729560852,
+                        0.15462400019168854, 0.15360000729560852,
+                        0.15360000729560852, 0.15462400019168854,
+                        0.15462400019168854, 0.15360000729560852,
+                        0.15360000729560852, 0.15360000729560852
                       ]
                     },
                     {
-                      "m_name": "repetitions",
-                      "m_unit": "",
-                      "m_data": 10
+                      "name": "repetitions",
+                      "unit": "",
+                      "data": 10
                     },
                     {
-                      "m_name": "memory_bandwidth",
-                      "m_unit": "GB/s",
-                      "m_data": 55.947021484375
+                      "name": "memory_bandwidth",
+                      "unit": "GB/s",
+                      "data": 56.31999588012695
                     },
                     {
-                      "m_name": "median",
-                      "m_unit": "ms",
-                      "m_data": 0.15462400019168854
+                      "name": "median",
+                      "unit": "ms",
+                      "data": 0.15360000729560852
                     },
                     {
-                      "m_name": "sorted_execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.15360000729560852,
-                        0.15360000729560852,
-                        0.15360000729560852,
-                        0.15360000729560852,
-                        0.15360000729560852,
-                        0.15462400019168854,
-                        0.15462400019168854,
-                        0.15462400019168854,
-                        0.15564799308776855,
-                        0.15564799308776855
+                      "name": "sorted_execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.15360000729560852, 0.15360000729560852,
+                        0.15360000729560852, 0.15360000729560852,
+                        0.15360000729560852, 0.15360000729560852,
+                        0.15462400019168854, 0.15462400019168854,
+                        0.15462400019168854, 0.15564799308776855
                       ]
                     },
                     {
-                      "m_name": "arithmetic_bandwidth",
-                      "m_unit": "GFLOP/S",
-                      "m_data": 3472.10595703125
+                      "name": "arithmetic_bandwidth",
+                      "unit": "GFLOP/S",
+                      "data": 3495.253173828125
                     },
                     {
-                      "m_name": "arithmetic_intensity",
-                      "m_unit": "",
-                      "m_data": 62.06060791015625
+                      "name": "arithmetic_intensity",
+                      "unit": "",
+                      "data": 62.06060791015625
                     },
                     {
-                      "m_name": "warmup_time",
-                      "m_unit": "ms",
-                      "m_data": 0.31654399633407593
+                      "name": "warmup_time",
+                      "unit": "ms",
+                      "data": 0.49190399050712585
                     },
                     {
-                      "m_name": "memory_usage",
-                      "m_unit": "bytes",
-                      "m_data": 8650752
+                      "name": "memory_usage",
+                      "unit": "bytes",
+                      "data": 8650752
                     },
                     {
-                      "m_name": "arithmetic_usage",
-                      "m_unit": "Flops",
-                      "m_data": 536870912
+                      "name": "arithmetic_usage",
+                      "unit": "Flops",
+                      "data": 536870912
                     }
                   ]
                 },
                 {
-                  "m_sweep_point": {
+                  "sweep_point": {
                     "Case": {
                       "work_size": {
-                        "m_description": "",
-                        "m_value": "32"
+                        "description": "",
+                        "value": "32"
                       }
                     }
                   },
-                  "m_measurements": [
+                  "measurements": [
                     {
-                      "m_name": "execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.2979840040206909,
-                        0.2979840040206909,
-                        0.2969599962234497,
-                        0.2979840040206909,
-                        0.2979840040206909,
-                        0.2969599962234497,
-                        0.2979840040206909,
-                        0.2969599962234497,
-                        0.2979840040206909,
-                        0.2969599962234497
+                      "name": "execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.2979840040206909, 0.2969599962234497,
+                        0.2979840040206909, 0.2969599962234497,
+                        0.2979840040206909, 0.2979840040206909,
+                        0.29900801181793213, 0.2979840040206909,
+                        0.2979840040206909, 0.2979840040206909
                       ]
                     },
                     {
-                      "m_name": "repetitions",
-                      "m_unit": "",
-                      "m_data": 10
+                      "name": "repetitions",
+                      "unit": "",
+                      "data": 10
                     },
                     {
-                      "m_name": "memory_bandwidth",
-                      "m_unit": "GB/s",
-                      "m_data": 57.18212890625
+                      "name": "memory_bandwidth",
+                      "unit": "GB/s",
+                      "data": 57.18212890625
                     },
                     {
-                      "m_name": "median",
-                      "m_unit": "ms",
-                      "m_data": 0.2979840040206909
+                      "name": "median",
+                      "unit": "ms",
+                      "data": 0.2979840040206909
                     },
                     {
-                      "m_name": "sorted_execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.2969599962234497,
-                        0.2969599962234497,
-                        0.2969599962234497,
-                        0.2969599962234497,
-                        0.2979840040206909,
-                        0.2979840040206909,
-                        0.2979840040206909,
-                        0.2979840040206909,
-                        0.2979840040206909,
-                        0.2979840040206909
+                      "name": "sorted_execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.2969599962234497, 0.2969599962234497,
+                        0.2979840040206909, 0.2979840040206909,
+                        0.2979840040206909, 0.2979840040206909,
+                        0.2979840040206909, 0.2979840040206909,
+                        0.2979840040206909, 0.29900801181793213
                       ]
                     },
                     {
-                      "m_name": "arithmetic_bandwidth",
-                      "m_unit": "GFLOP/S",
-                      "m_data": 3603.35400390625
+                      "name": "arithmetic_bandwidth",
+                      "unit": "GFLOP/S",
+                      "data": 3603.35400390625
                     },
                     {
-                      "m_name": "arithmetic_intensity",
-                      "m_unit": "",
-                      "m_data": 63.015384674072266
+                      "name": "arithmetic_intensity",
+                      "unit": "",
+                      "data": 63.015384674072266
                     },
                     {
-                      "m_name": "warmup_time",
-                      "m_unit": "ms",
-                      "m_data": 0.622655987739563
+                      "name": "warmup_time",
+                      "unit": "ms",
+                      "data": 0.5444160103797913
                     },
                     {
-                      "m_name": "memory_usage",
-                      "m_unit": "bytes",
-                      "m_data": 17039360
+                      "name": "memory_usage",
+                      "unit": "bytes",
+                      "data": 17039360
                     },
                     {
-                      "m_name": "arithmetic_usage",
-                      "m_unit": "Flops",
-                      "m_data": 1073741824
+                      "name": "arithmetic_usage",
+                      "unit": "Flops",
+                      "data": 1073741824
                     }
                   ]
                 },
                 {
-                  "m_sweep_point": {
+                  "sweep_point": {
                     "Case": {
                       "work_size": {
-                        "m_description": "",
-                        "m_value": "64"
+                        "description": "",
+                        "value": "64"
                       }
                     }
                   },
-                  "m_measurements": [
+                  "measurements": [
                     {
-                      "m_name": "execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.5847039818763733,
-                        0.5877760052680969,
-                        0.5867519974708557,
-                        0.5867519974708557,
-                        0.5857279896736145,
-                        0.5857279896736145,
-                        0.5857279896736145,
-                        0.5867519974708557,
-                        0.5857279896736145,
-                        0.5867519974708557
+                      "name": "execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.5867519974708557, 0.5867519974708557,
+                        0.5857279896736145, 0.5857279896736145,
+                        0.5867519974708557, 0.5867519974708557,
+                        0.5867519974708557, 0.5867519974708557,
+                        0.5857279896736145, 0.5867519974708557
                       ]
                     },
                     {
-                      "m_name": "repetitions",
-                      "m_unit": "",
-                      "m_data": 10
+                      "name": "repetitions",
+                      "unit": "",
+                      "data": 10
                     },
                     {
-                      "m_name": "memory_bandwidth",
-                      "m_unit": "GB/s",
-                      "m_data": 57.633506774902344
+                      "name": "memory_bandwidth",
+                      "unit": "GB/s",
+                      "data": 57.633506774902344
                     },
                     {
-                      "m_name": "median",
-                      "m_unit": "ms",
-                      "m_data": 0.5867519974708557
+                      "name": "median",
+                      "unit": "ms",
+                      "data": 0.5867519974708557
                     },
                     {
-                      "m_name": "sorted_execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.5847039818763733,
-                        0.5857279896736145,
-                        0.5857279896736145,
-                        0.5857279896736145,
-                        0.5857279896736145,
-                        0.5867519974708557,
-                        0.5867519974708557,
-                        0.5867519974708557,
-                        0.5867519974708557,
-                        0.5877760052680969
+                      "name": "sorted_execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.5857279896736145, 0.5857279896736145,
+                        0.5857279896736145, 0.5867519974708557,
+                        0.5867519974708557, 0.5867519974708557,
+                        0.5867519974708557, 0.5867519974708557,
+                        0.5867519974708557, 0.5867519974708557
                       ]
                     },
                     {
-                      "m_name": "arithmetic_bandwidth",
-                      "m_unit": "GFLOP/S",
-                      "m_data": 3659.951171875
+                      "name": "arithmetic_bandwidth",
+                      "unit": "GFLOP/S",
+                      "data": 3659.951171875
                     },
                     {
-                      "m_name": "arithmetic_intensity",
-                      "m_unit": "",
-                      "m_data": 63.503875732421875
+                      "name": "arithmetic_intensity",
+                      "unit": "",
+                      "data": 63.503875732421875
                     },
                     {
-                      "m_name": "warmup_time",
-                      "m_unit": "ms",
-                      "m_data": 1.012384057044983
+                      "name": "warmup_time",
+                      "unit": "ms",
+                      "data": 1.0138239860534668
                     },
                     {
-                      "m_name": "memory_usage",
-                      "m_unit": "bytes",
-                      "m_data": 33816576
+                      "name": "memory_usage",
+                      "unit": "bytes",
+                      "data": 33816576
                     },
                     {
-                      "m_name": "arithmetic_usage",
-                      "m_unit": "Flops",
-                      "m_data": 2147483648
+                      "name": "arithmetic_usage",
+                      "unit": "Flops",
+                      "data": 2147483648
                     }
                   ]
                 },
                 {
-                  "m_sweep_point": {
+                  "sweep_point": {
                     "Case": {
                       "work_size": {
-                        "m_description": "",
-                        "m_value": "128"
+                        "description": "",
+                        "value": "128"
                       }
                     }
                   },
-                  "m_measurements": [
+                  "measurements": [
                     {
-                      "m_name": "execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        1.16428804397583,
-                        1.16428804397583,
-                        1.16428804397583,
-                        1.1632640361785889,
-                        1.1632640361785889,
-                        1.16428804397583,
-                        1.1632640361785889,
-                        1.16428804397583,
-                        1.16428804397583,
-                        1.1632640361785889
+                      "name": "execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        1.16428804397583, 1.1632640361785889,
+                        1.1663360595703125, 1.1632640361785889,
+                        1.1673599481582642, 1.16428804397583,
+                        1.1653120517730713, 1.16428804397583,
+                        1.1653120517730713, 1.16428804397583
                       ]
                     },
                     {
-                      "m_name": "repetitions",
-                      "m_unit": "",
-                      "m_data": 10
+                      "name": "repetitions",
+                      "unit": "",
+                      "data": 10
                     },
                     {
-                      "m_name": "memory_bandwidth",
-                      "m_unit": "GB/s",
-                      "m_data": 57.86455535888672
+                      "name": "memory_bandwidth",
+                      "unit": "GB/s",
+                      "data": 57.86455535888672
                     },
                     {
-                      "m_name": "median",
-                      "m_unit": "ms",
-                      "m_data": 1.16428804397583
+                      "name": "median",
+                      "unit": "ms",
+                      "data": 1.16428804397583
                     },
                     {
-                      "m_name": "sorted_execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        1.1632640361785889,
-                        1.1632640361785889,
-                        1.1632640361785889,
-                        1.1632640361785889,
-                        1.16428804397583,
-                        1.16428804397583,
-                        1.16428804397583,
-                        1.16428804397583,
-                        1.16428804397583,
-                        1.16428804397583
+                      "name": "sorted_execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        1.1632640361785889, 1.1632640361785889,
+                        1.16428804397583, 1.16428804397583, 1.16428804397583,
+                        1.16428804397583, 1.1653120517730713,
+                        1.1653120517730713, 1.1663360595703125,
+                        1.1673599481582642
                       ]
                     },
                     {
-                      "m_name": "arithmetic_bandwidth",
-                      "m_unit": "GFLOP/S",
-                      "m_data": 3688.921630859375
+                      "name": "arithmetic_bandwidth",
+                      "unit": "GFLOP/S",
+                      "data": 3688.921630859375
                     },
                     {
-                      "m_name": "arithmetic_intensity",
-                      "m_unit": "",
-                      "m_data": 63.750972747802734
+                      "name": "arithmetic_intensity",
+                      "unit": "",
+                      "data": 63.750972747802734
                     },
                     {
-                      "m_name": "warmup_time",
-                      "m_unit": "ms",
-                      "m_data": 2.3054399490356445
+                      "name": "warmup_time",
+                      "unit": "ms",
+                      "data": 1.6728960275650024
                     },
                     {
-                      "m_name": "memory_usage",
-                      "m_unit": "bytes",
-                      "m_data": 67371008
+                      "name": "memory_usage",
+                      "unit": "bytes",
+                      "data": 67371008
                     },
                     {
-                      "m_name": "arithmetic_usage",
-                      "m_unit": "Flops",
-                      "m_data": 4294967296
+                      "name": "arithmetic_usage",
+                      "unit": "Flops",
+                      "data": 4294967296
                     }
                   ]
                 },
                 {
-                  "m_sweep_point": {
+                  "sweep_point": {
                     "Case": {
                       "work_size": {
-                        "m_description": "",
-                        "m_value": "256"
+                        "description": "",
+                        "value": "256"
                       }
                     }
                   },
-                  "m_measurements": [
+                  "measurements": [
                     {
-                      "m_name": "execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        3.759104013442993,
-                        3.5379199981689453,
-                        3.762176036834717,
-                        3.5348479747772217,
-                        3.122175931930542,
-                        2.8866560459136963,
-                        3.9229440689086914,
-                        3.7611520290374756,
-                        3.5348479747772217,
-                        3.9178240299224854
+                      "name": "execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        3.536895990371704, 3.9239680767059326,
+                        3.540992021560669, 3.92192006111145, 3.759104013442993,
+                        2.88972806930542, 3.2767999172210693, 3.758080005645752,
+                        3.5338239669799805, 3.9280641078948975
                       ]
                     },
                     {
-                      "m_name": "repetitions",
-                      "m_unit": "",
-                      "m_data": 10
+                      "name": "repetitions",
+                      "unit": "",
+                      "data": 10
                     },
                     {
-                      "m_name": "memory_bandwidth",
-                      "m_unit": "GB/s",
-                      "m_data": 35.77444839477539
+                      "name": "memory_bandwidth",
+                      "unit": "GB/s",
+                      "data": 35.78419494628906
                     },
                     {
-                      "m_name": "median",
-                      "m_unit": "ms",
-                      "m_data": 3.759104013442993
+                      "name": "median",
+                      "unit": "ms",
+                      "data": 3.758080005645752
                     },
                     {
-                      "m_name": "sorted_execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        2.8866560459136963,
-                        3.122175931930542,
-                        3.5348479747772217,
-                        3.5348479747772217,
-                        3.5379199981689453,
-                        3.759104013442993,
-                        3.7611520290374756,
-                        3.762176036834717,
-                        3.9178240299224854,
-                        3.9229440689086914
+                      "name": "sorted_execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        2.88972806930542, 3.2767999172210693,
+                        3.5338239669799805, 3.536895990371704,
+                        3.540992021560669, 3.758080005645752, 3.759104013442993,
+                        3.92192006111145, 3.9239680767059326, 3.9280641078948975
                       ]
                     },
                     {
-                      "m_name": "arithmetic_bandwidth",
-                      "m_unit": "GFLOP/S",
-                      "m_data": 2285.1015625
+                      "name": "arithmetic_bandwidth",
+                      "unit": "GFLOP/S",
+                      "data": 2285.724365234375
                     },
                     {
-                      "m_name": "arithmetic_intensity",
-                      "m_unit": "",
-                      "m_data": 63.875244140625
+                      "name": "arithmetic_intensity",
+                      "unit": "",
+                      "data": 63.875244140625
                     },
                     {
-                      "m_name": "warmup_time",
-                      "m_unit": "ms",
-                      "m_data": 4.282911777496338
+                      "name": "warmup_time",
+                      "unit": "ms",
+                      "data": 3.654911994934082
                     },
                     {
-                      "m_name": "memory_usage",
-                      "m_unit": "bytes",
-                      "m_data": 134479872
+                      "name": "memory_usage",
+                      "unit": "bytes",
+                      "data": 134479872
                     },
                     {
-                      "m_name": "arithmetic_usage",
-                      "m_unit": "Flops",
-                      "m_data": 8589934592
+                      "name": "arithmetic_usage",
+                      "unit": "Flops",
+                      "data": 8589934592
                     }
                   ]
                 },
                 {
-                  "m_sweep_point": {
+                  "sweep_point": {
                     "Case": {
                       "work_size": {
-                        "m_description": "",
-                        "m_value": "512"
+                        "description": "",
+                        "value": "512"
                       }
                     }
                   },
-                  "m_measurements": [
+                  "measurements": [
                     {
-                      "m_name": "execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        6.7942399978637695,
-                        6.376448154449463,
-                        5.997568130493164,
-                        6.639616012573242,
-                        6.638591766357422,
-                        6.628352165222168,
-                        6.642687797546387,
-                        6.416384220123291,
-                        6.805503845214844,
-                        7.0307841300964355
+                      "name": "execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        6.412288188934326, 6.789120197296143, 7.028736114501953,
+                        7.027711868286133, 7.037951946258545, 7.026688098907471,
+                        7.026688098907471, 6.640639781951904, 5.77126407623291,
+                        6.793216228485107
                       ]
                     },
                     {
-                      "m_name": "repetitions",
-                      "m_unit": "",
-                      "m_data": 10
+                      "name": "repetitions",
+                      "unit": "",
+                      "data": 10
                     },
                     {
-                      "m_name": "memory_bandwidth",
-                      "m_unit": "GB/s",
-                      "m_data": 40.46884536743164
+                      "name": "memory_bandwidth",
+                      "unit": "GB/s",
+                      "data": 38.23957824707031
                     },
                     {
-                      "m_name": "median",
-                      "m_unit": "ms",
-                      "m_data": 6.639616012573242
+                      "name": "median",
+                      "unit": "ms",
+                      "data": 7.026688098907471
                     },
                     {
-                      "m_name": "sorted_execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        5.997568130493164,
-                        6.376448154449463,
-                        6.416384220123291,
-                        6.628352165222168,
-                        6.638591766357422,
-                        6.639616012573242,
-                        6.642687797546387,
-                        6.7942399978637695,
-                        6.805503845214844,
-                        7.0307841300964355
+                      "name": "sorted_execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        5.77126407623291, 6.412288188934326, 6.640639781951904,
+                        6.789120197296143, 6.793216228485107, 7.026688098907471,
+                        7.026688098907471, 7.027711868286133, 7.028736114501953,
+                        7.037951946258545
                       ]
                     },
                     {
-                      "m_name": "arithmetic_bandwidth",
-                      "m_unit": "GFLOP/S",
-                      "m_data": 2587.479248046875
+                      "name": "arithmetic_bandwidth",
+                      "unit": "GFLOP/S",
+                      "data": 2444.945556640625
                     },
                     {
-                      "m_name": "arithmetic_intensity",
-                      "m_unit": "",
-                      "m_data": 63.93756103515625
+                      "name": "arithmetic_intensity",
+                      "unit": "",
+                      "data": 63.93756103515625
                     },
                     {
-                      "m_name": "warmup_time",
-                      "m_unit": "ms",
-                      "m_data": 7.142943859100342
+                      "name": "warmup_time",
+                      "unit": "ms",
+                      "data": 7.275680065155029
                     },
                     {
-                      "m_name": "memory_usage",
-                      "m_unit": "bytes",
-                      "m_data": 268697600
+                      "name": "memory_usage",
+                      "unit": "bytes",
+                      "data": 268697600
                     },
                     {
-                      "m_name": "arithmetic_usage",
-                      "m_unit": "Flops",
-                      "m_data": 17179869184
+                      "name": "arithmetic_usage",
+                      "unit": "Flops",
+                      "data": 17179869184
                     }
                   ]
                 },
                 {
-                  "m_sweep_point": {
+                  "sweep_point": {
                     "Case": {
                       "work_size": {
-                        "m_description": "",
-                        "m_value": "1024"
+                        "description": "",
+                        "value": "1024"
                       }
                     }
                   },
-                  "m_measurements": [
+                  "measurements": [
                     {
-                      "m_name": "execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        13.425663948059082,
-                        12.784640312194824,
-                        12.784640312194824,
-                        13.817855834960938,
-                        13.425663948059082,
-                        13.4399995803833,
-                        13.430784225463867,
-                        13.165568351745605,
-                        13.441023826599121,
-                        13.433856010437012
+                      "name": "execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        13.424639701843262, 13.811712265014648,
+                        12.794879913330078, 13.411328315734863,
+                        13.431808471679688, 13.825023651123047,
+                        13.433856010437012, 12.791808128356934,
+                        12.786687850952148, 13.827072143554688
                       ]
                     },
                     {
-                      "m_name": "repetitions",
-                      "m_unit": "",
-                      "m_data": 10
+                      "name": "repetitions",
+                      "unit": "",
+                      "data": 10
                     },
                     {
-                      "m_name": "memory_bandwidth",
-                      "m_unit": "GB/s",
-                      "m_data": 39.992679595947266
+                      "name": "memory_bandwidth",
+                      "unit": "GB/s",
+                      "data": 39.98963165283203
                     },
                     {
-                      "m_name": "median",
-                      "m_unit": "ms",
-                      "m_data": 13.430784225463867
+                      "name": "median",
+                      "unit": "ms",
+                      "data": 13.431808471679688
                     },
                     {
-                      "m_name": "sorted_execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        12.784640312194824,
-                        12.784640312194824,
-                        13.165568351745605,
-                        13.425663948059082,
-                        13.425663948059082,
-                        13.430784225463867,
-                        13.433856010437012,
-                        13.4399995803833,
-                        13.441023826599121,
-                        13.817855834960938
+                      "name": "sorted_execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        12.786687850952148, 12.791808128356934,
+                        12.794879913330078, 13.411328315734863,
+                        13.424639701843262, 13.431808471679688,
+                        13.433856010437012, 13.811712265014648,
+                        13.825023651123047, 13.827072143554688
                       ]
                     },
                     {
-                      "m_name": "arithmetic_bandwidth",
-                      "m_unit": "GFLOP/S",
-                      "m_data": 2558.282470703125
+                      "name": "arithmetic_bandwidth",
+                      "unit": "GFLOP/S",
+                      "data": 2558.087158203125
                     },
                     {
-                      "m_name": "arithmetic_intensity",
-                      "m_unit": "",
-                      "m_data": 63.96876525878906
+                      "name": "arithmetic_intensity",
+                      "unit": "",
+                      "data": 63.96876525878906
                     },
                     {
-                      "m_name": "warmup_time",
-                      "m_unit": "ms",
-                      "m_data": 14.23196792602539
+                      "name": "warmup_time",
+                      "unit": "ms",
+                      "data": 13.364704132080078
                     },
                     {
-                      "m_name": "memory_usage",
-                      "m_unit": "bytes",
-                      "m_data": 537133056
+                      "name": "memory_usage",
+                      "unit": "bytes",
+                      "data": 537133056
                     },
                     {
-                      "m_name": "arithmetic_usage",
-                      "m_unit": "Flops",
-                      "m_data": 34359738368
+                      "name": "arithmetic_usage",
+                      "unit": "Flops",
+                      "data": 34359738368
                     }
                   ]
                 }
               ],
-              "m_hardware": {
+              "hardware": {
                 "name": "Tesla V100-DGXS-32GB"
               }
             }
@@ -1062,12 +948,12 @@
                 "options": {
                   "Case": {
                     "seed": {
-                      "m_description": "The seed used for the generation of input data",
-                      "m_value": "333"
+                      "description": "The seed used for the generation of input data",
+                      "value": "333"
                     },
                     "work_size": {
-                      "m_description": "The work size to apply, 1 = 32MFlop & 1 = 1MB",
-                      "m_value": "10"
+                      "description": "The work size to apply, 1 = 32MFlop & 1 = 1MB",
+                      "value": "10"
                     }
                   }
                 }
@@ -1078,8 +964,8 @@
                 "options": {
                   "Backend": {
                     "device": {
-                      "m_description": "The device number to run on",
-                      "m_value": "0"
+                      "description": "The device number to run on",
+                      "value": "0"
                     }
                   }
                 }
@@ -1090,28 +976,28 @@
                 "options": {
                   "Benchmark": {
                     "timed_setup": {
-                      "m_description": "Time the setup",
-                      "m_value": "0"
+                      "description": "Time the setup",
+                      "value": "0"
                     },
                     "timed_teardown": {
-                      "m_description": "Time the teardown",
-                      "m_value": "0"
+                      "description": "Time the teardown",
+                      "value": "0"
                     },
                     "warmup": {
-                      "m_description": "Having a warmup run",
-                      "m_value": "1"
+                      "description": "Having a warmup run",
+                      "value": "1"
                     },
                     "flush": {
-                      "m_description": "Enables the flushing of the L2 cache",
-                      "m_value": "1"
+                      "description": "Enables the flushing of the L2 cache",
+                      "value": "1"
                     },
                     "block_duration": {
-                      "m_description": "Duration of the blocking kernel (in ms)",
-                      "m_value": "1000.000000"
+                      "description": "Duration of the blocking kernel (in ms)",
+                      "value": "1000.000000"
                     },
                     "block": {
-                      "m_description": "Using a blocking kernel",
-                      "m_value": "0"
+                      "description": "Using a blocking kernel",
+                      "value": "0"
                     }
                   }
                 }
@@ -1122,7 +1008,7 @@
                 "options": {
                   "StoppingCriterion": {
                     "max_nb_repetition": {
-                      "m_value": "10"
+                      "value": "10"
                     }
                   }
                 }
@@ -1133,950 +1019,838 @@
                 "options": {}
               },
               "sweep": {
-                "m_strategy": "FullGrid",
-                "m_axes": [
+                "strategy": "FullGrid",
+                "axes": [
                   {
-                    "m_interface": "Case",
-                    "m_option": "work_size",
-                    "m_hint": {
-                      "m_policy": "PowersOfTwo",
-                      "m_min": "1",
-                      "m_max": "1024",
-                      "m_step": "1",
-                      "m_enumerated": []
+                    "interface": "Case",
+                    "option": "work_size",
+                    "hint": {
+                      "policy": "PowersOfTwo",
+                      "min": "1",
+                      "max": "1024",
+                      "step": "1",
+                      "enumerated": []
                     }
                   }
                 ]
               }
             },
             "benchmark_report": {
-              "m_results": [
+              "results": [
                 {
-                  "m_sweep_point": {
+                  "sweep_point": {
                     "Case": {
                       "work_size": {
-                        "m_description": "",
-                        "m_value": "1"
+                        "description": "",
+                        "value": "1"
                       }
                     }
                   },
-                  "m_measurements": [
+                  "measurements": [
                     {
-                      "m_name": "execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.02457600086927414,
-                        0.02457600086927414,
-                        0.02457600086927414,
-                        0.025599999353289604,
-                        0.02457600086927414,
-                        0.02457600086927414,
-                        0.02457600086927414,
-                        0.02457600086927414,
-                        0.02457600086927414,
-                        0.02457600086927414
+                      "name": "execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.02457600086927414, 0.02457600086927414,
+                        0.02457600086927414, 0.02457600086927414,
+                        0.02457600086927414, 0.02457600086927414,
+                        0.02457600086927414, 0.02457600086927414,
+                        0.02457600086927414, 0.025599999353289604
                       ]
                     },
                     {
-                      "m_name": "repetitions",
-                      "m_unit": "",
-                      "m_data": 10
+                      "name": "repetitions",
+                      "unit": "",
+                      "data": 10
                     },
                     {
-                      "m_name": "memory_bandwidth",
-                      "m_unit": "GB/s",
-                      "m_data": 40.690101623535156
+                      "name": "memory_bandwidth",
+                      "unit": "GB/s",
+                      "data": 40.690101623535156
                     },
                     {
-                      "m_name": "median",
-                      "m_unit": "ms",
-                      "m_data": 0.02457600086927414
+                      "name": "median",
+                      "unit": "ms",
+                      "data": 0.02457600086927414
                     },
                     {
-                      "m_name": "sorted_execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.02457600086927414,
-                        0.02457600086927414,
-                        0.02457600086927414,
-                        0.02457600086927414,
-                        0.02457600086927414,
-                        0.02457600086927414,
-                        0.02457600086927414,
-                        0.02457600086927414,
-                        0.02457600086927414,
-                        0.025599999353289604
+                      "name": "sorted_execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.02457600086927414, 0.02457600086927414,
+                        0.02457600086927414, 0.02457600086927414,
+                        0.02457600086927414, 0.02457600086927414,
+                        0.02457600086927414, 0.02457600086927414,
+                        0.02457600086927414, 0.025599999353289604
                       ]
                     },
                     {
-                      "m_name": "arithmetic_bandwidth",
-                      "m_unit": "GFLOP/S",
-                      "m_data": 768.0256958007813
+                      "name": "arithmetic_bandwidth",
+                      "unit": "GFLOP/S",
+                      "data": 768.0256958007813
                     },
                     {
-                      "m_name": "arithmetic_intensity",
-                      "m_unit": "",
-                      "m_data": 18.875
+                      "name": "arithmetic_intensity",
+                      "unit": "",
+                      "data": 18.875
                     },
                     {
-                      "m_name": "warmup_time",
-                      "m_unit": "ms",
-                      "m_data": 0.4976640045642853
+                      "name": "warmup_time",
+                      "unit": "ms",
+                      "data": 0.27033600211143494
                     },
                     {
-                      "m_name": "memory_usage",
-                      "m_unit": "bytes",
-                      "m_data": 1000000
+                      "name": "memory_usage",
+                      "unit": "bytes",
+                      "data": 1000000
                     },
                     {
-                      "m_name": "arithmetic_usage",
-                      "m_unit": "Flops",
-                      "m_data": 18875000
+                      "name": "arithmetic_usage",
+                      "unit": "Flops",
+                      "data": 18875000
                     }
                   ]
                 },
                 {
-                  "m_sweep_point": {
+                  "sweep_point": {
                     "Case": {
                       "work_size": {
-                        "m_description": "",
-                        "m_value": "2"
+                        "description": "",
+                        "value": "2"
                       }
                     }
                   },
-                  "m_measurements": [
+                  "measurements": [
                     {
-                      "m_name": "execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.03993599861860275,
-                        0.03891199827194214,
-                        0.04198399931192398,
-                        0.03993599861860275,
-                        0.03993599861860275,
-                        0.03788800165057182,
-                        0.03891199827194214,
-                        0.03891199827194214,
-                        0.03993599861860275,
-                        0.03993599861860275
+                      "name": "execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.043007999658584595, 0.03993599861860275,
+                        0.03993599861860275, 0.03891199827194214,
+                        0.03891199827194214, 0.03686400130391121,
+                        0.03891199827194214, 0.03891199827194214,
+                        0.03993599861860275, 0.03891199827194214
                       ]
                     },
                     {
-                      "m_name": "repetitions",
-                      "m_unit": "",
-                      "m_data": 10
+                      "name": "repetitions",
+                      "unit": "",
+                      "data": 10
                     },
                     {
-                      "m_name": "memory_bandwidth",
-                      "m_unit": "GB/s",
-                      "m_data": 50.08013153076172
+                      "name": "memory_bandwidth",
+                      "unit": "GB/s",
+                      "data": 51.39802932739258
                     },
                     {
-                      "m_name": "median",
-                      "m_unit": "ms",
-                      "m_data": 0.03993599861860275
+                      "name": "median",
+                      "unit": "ms",
+                      "data": 0.03891199827194214
                     },
                     {
-                      "m_name": "sorted_execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.03788800165057182,
-                        0.03891199827194214,
-                        0.03891199827194214,
-                        0.03891199827194214,
-                        0.03993599861860275,
-                        0.03993599861860275,
-                        0.03993599861860275,
-                        0.03993599861860275,
-                        0.03993599861860275,
-                        0.04198399931192398
+                      "name": "sorted_execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.03686400130391121, 0.03891199827194214,
+                        0.03891199827194214, 0.03891199827194214,
+                        0.03891199827194214, 0.03891199827194214,
+                        0.03993599861860275, 0.03993599861860275,
+                        0.03993599861860275, 0.043007999658584595
                       ]
                     },
                     {
-                      "m_name": "arithmetic_bandwidth",
-                      "m_unit": "GFLOP/S",
-                      "m_data": 945.262451171875
+                      "name": "arithmetic_bandwidth",
+                      "unit": "GFLOP/S",
+                      "data": 970.1378173828125
                     },
                     {
-                      "m_name": "arithmetic_intensity",
-                      "m_unit": "",
-                      "m_data": 18.875
+                      "name": "arithmetic_intensity",
+                      "unit": "",
+                      "data": 18.875
                     },
                     {
-                      "m_name": "warmup_time",
-                      "m_unit": "ms",
-                      "m_data": 0.03993599861860275
+                      "name": "warmup_time",
+                      "unit": "ms",
+                      "data": 0.04095999896526337
                     },
                     {
-                      "m_name": "memory_usage",
-                      "m_unit": "bytes",
-                      "m_data": 2000000
+                      "name": "memory_usage",
+                      "unit": "bytes",
+                      "data": 2000000
                     },
                     {
-                      "m_name": "arithmetic_usage",
-                      "m_unit": "Flops",
-                      "m_data": 37750000
+                      "name": "arithmetic_usage",
+                      "unit": "Flops",
+                      "data": 37750000
                     }
                   ]
                 },
                 {
-                  "m_sweep_point": {
+                  "sweep_point": {
                     "Case": {
                       "work_size": {
-                        "m_description": "",
-                        "m_value": "4"
+                        "description": "",
+                        "value": "4"
                       }
                     }
                   },
-                  "m_measurements": [
+                  "measurements": [
                     {
-                      "m_name": "execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.07168000191450119,
-                        0.06963200122117996,
-                        0.07065600156784058,
-                        0.07065600156784058,
-                        0.07065600156784058,
-                        0.06963200122117996,
-                        0.07065600156784058,
-                        0.06963200122117996,
-                        0.06860800087451935,
-                        0.06963200122117996
+                      "name": "execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.06963200122117996, 0.06860800087451935,
+                        0.07065600156784058, 0.06963200122117996,
+                        0.07168000191450119, 0.06963200122117996,
+                        0.06963200122117996, 0.07065600156784058,
+                        0.06963200122117996, 0.06963200122117996
                       ]
                     },
                     {
-                      "m_name": "repetitions",
-                      "m_unit": "",
-                      "m_data": 10
+                      "name": "repetitions",
+                      "unit": "",
+                      "data": 10
                     },
                     {
-                      "m_name": "memory_bandwidth",
-                      "m_unit": "GB/s",
-                      "m_data": 56.6123161315918
+                      "name": "memory_bandwidth",
+                      "unit": "GB/s",
+                      "data": 57.44485092163086
                     },
                     {
-                      "m_name": "median",
-                      "m_unit": "ms",
-                      "m_data": 0.07065600156784058
+                      "name": "median",
+                      "unit": "ms",
+                      "data": 0.06963200122117996
                     },
                     {
-                      "m_name": "sorted_execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.06860800087451935,
-                        0.06963200122117996,
-                        0.06963200122117996,
-                        0.06963200122117996,
-                        0.06963200122117996,
-                        0.07065600156784058,
-                        0.07065600156784058,
-                        0.07065600156784058,
-                        0.07065600156784058,
-                        0.07168000191450119
+                      "name": "sorted_execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.06860800087451935, 0.06963200122117996,
+                        0.06963200122117996, 0.06963200122117996,
+                        0.06963200122117996, 0.06963200122117996,
+                        0.06963200122117996, 0.07065600156784058,
+                        0.07065600156784058, 0.07168000191450119
                       ]
                     },
                     {
-                      "m_name": "arithmetic_bandwidth",
-                      "m_unit": "GFLOP/S",
-                      "m_data": 1068.5574951171875
+                      "name": "arithmetic_bandwidth",
+                      "unit": "GFLOP/S",
+                      "data": 1084.2716064453125
                     },
                     {
-                      "m_name": "arithmetic_intensity",
-                      "m_unit": "",
-                      "m_data": 18.875
+                      "name": "arithmetic_intensity",
+                      "unit": "",
+                      "data": 18.875
                     },
                     {
-                      "m_name": "warmup_time",
-                      "m_unit": "ms",
-                      "m_data": 0.07065600156784058
+                      "name": "warmup_time",
+                      "unit": "ms",
+                      "data": 0.07168000191450119
                     },
                     {
-                      "m_name": "memory_usage",
-                      "m_unit": "bytes",
-                      "m_data": 4000000
+                      "name": "memory_usage",
+                      "unit": "bytes",
+                      "data": 4000000
                     },
                     {
-                      "m_name": "arithmetic_usage",
-                      "m_unit": "Flops",
-                      "m_data": 75500000
+                      "name": "arithmetic_usage",
+                      "unit": "Flops",
+                      "data": 75500000
                     }
                   ]
                 },
                 {
-                  "m_sweep_point": {
+                  "sweep_point": {
                     "Case": {
                       "work_size": {
-                        "m_description": "",
-                        "m_value": "8"
+                        "description": "",
+                        "value": "8"
                       }
                     }
                   },
-                  "m_measurements": [
+                  "measurements": [
                     {
-                      "m_name": "execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.130048006772995,
-                        0.130048006772995,
-                        0.131071999669075,
-                        0.131071999669075,
-                        0.130048006772995,
-                        0.131071999669075,
-                        0.131071999669075,
-                        0.12902399897575378,
-                        0.13209599256515503,
+                      "name": "execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.130048006772995, 0.12902399897575378,
+                        0.130048006772995, 0.13209599256515503,
+                        0.130048006772995, 0.13209599256515503,
+                        0.130048006772995, 0.130048006772995, 0.130048006772995,
                         0.130048006772995
                       ]
                     },
                     {
-                      "m_name": "repetitions",
-                      "m_unit": "",
-                      "m_data": 10
+                      "name": "repetitions",
+                      "unit": "",
+                      "data": 10
                     },
                     {
-                      "m_name": "memory_bandwidth",
-                      "m_unit": "GB/s",
-                      "m_data": 61.03515625
+                      "name": "memory_bandwidth",
+                      "unit": "GB/s",
+                      "data": 61.515743255615234
                     },
                     {
-                      "m_name": "median",
-                      "m_unit": "ms",
-                      "m_data": 0.131071999669075
+                      "name": "median",
+                      "unit": "ms",
+                      "data": 0.130048006772995
                     },
                     {
-                      "m_name": "sorted_execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.12902399897575378,
-                        0.130048006772995,
-                        0.130048006772995,
-                        0.130048006772995,
-                        0.130048006772995,
-                        0.131071999669075,
-                        0.131071999669075,
-                        0.131071999669075,
-                        0.131071999669075,
-                        0.13209599256515503
+                      "name": "sorted_execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.12902399897575378, 0.130048006772995,
+                        0.130048006772995, 0.130048006772995, 0.130048006772995,
+                        0.130048006772995, 0.130048006772995, 0.130048006772995,
+                        0.13209599256515503, 0.13209599256515503
                       ]
                     },
                     {
-                      "m_name": "arithmetic_bandwidth",
-                      "m_unit": "GFLOP/S",
-                      "m_data": 1152.03857421875
+                      "name": "arithmetic_bandwidth",
+                      "unit": "GFLOP/S",
+                      "data": 1161.1097412109375
                     },
                     {
-                      "m_name": "arithmetic_intensity",
-                      "m_unit": "",
-                      "m_data": 18.875
+                      "name": "arithmetic_intensity",
+                      "unit": "",
+                      "data": 18.875
                     },
                     {
-                      "m_name": "warmup_time",
-                      "m_unit": "ms",
-                      "m_data": 0.13209599256515503
+                      "name": "warmup_time",
+                      "unit": "ms",
+                      "data": 0.131071999669075
                     },
                     {
-                      "m_name": "memory_usage",
-                      "m_unit": "bytes",
-                      "m_data": 8000000
+                      "name": "memory_usage",
+                      "unit": "bytes",
+                      "data": 8000000
                     },
                     {
-                      "m_name": "arithmetic_usage",
-                      "m_unit": "Flops",
-                      "m_data": 151000000
+                      "name": "arithmetic_usage",
+                      "unit": "Flops",
+                      "data": 151000000
                     }
                   ]
                 },
                 {
-                  "m_sweep_point": {
+                  "sweep_point": {
                     "Case": {
                       "work_size": {
-                        "m_description": "",
-                        "m_value": "16"
+                        "description": "",
+                        "value": "16"
                       }
                     }
                   },
-                  "m_measurements": [
+                  "measurements": [
                     {
-                      "m_name": "execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.25088000297546387,
-                        0.2519040107727051,
-                        0.2519040107727051,
-                        0.24985599517822266,
-                        0.25088000297546387,
-                        0.2519040107727051,
-                        0.24985599517822266,
-                        0.25088000297546387,
-                        0.24985599517822266,
-                        0.2519040107727051
+                      "name": "execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.25088000297546387, 0.2519040107727051,
+                        0.24985599517822266, 0.24883200228214264,
+                        0.2519040107727051, 0.2529279887676239,
+                        0.2519040107727051, 0.24985599517822266,
+                        0.24985599517822266, 0.25088000297546387
                       ]
                     },
                     {
-                      "m_name": "repetitions",
-                      "m_unit": "",
-                      "m_data": 10
+                      "name": "repetitions",
+                      "unit": "",
+                      "data": 10
                     },
                     {
-                      "m_name": "memory_bandwidth",
-                      "m_unit": "GB/s",
-                      "m_data": 63.775508880615234
+                      "name": "memory_bandwidth",
+                      "unit": "GB/s",
+                      "data": 63.775508880615234
                     },
                     {
-                      "m_name": "median",
-                      "m_unit": "ms",
-                      "m_data": 0.25088000297546387
+                      "name": "median",
+                      "unit": "ms",
+                      "data": 0.25088000297546387
                     },
                     {
-                      "m_name": "sorted_execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.24985599517822266,
-                        0.24985599517822266,
-                        0.24985599517822266,
-                        0.25088000297546387,
-                        0.25088000297546387,
-                        0.25088000297546387,
-                        0.2519040107727051,
-                        0.2519040107727051,
-                        0.2519040107727051,
-                        0.2519040107727051
+                      "name": "sorted_execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.24883200228214264, 0.24985599517822266,
+                        0.24985599517822266, 0.24985599517822266,
+                        0.25088000297546387, 0.25088000297546387,
+                        0.2519040107727051, 0.2519040107727051,
+                        0.2519040107727051, 0.2529279887676239
                       ]
                     },
                     {
-                      "m_name": "arithmetic_bandwidth",
-                      "m_unit": "GFLOP/S",
-                      "m_data": 1203.7626953125
+                      "name": "arithmetic_bandwidth",
+                      "unit": "GFLOP/S",
+                      "data": 1203.7626953125
                     },
                     {
-                      "m_name": "arithmetic_intensity",
-                      "m_unit": "",
-                      "m_data": 18.875
+                      "name": "arithmetic_intensity",
+                      "unit": "",
+                      "data": 18.875
                     },
                     {
-                      "m_name": "warmup_time",
-                      "m_unit": "ms",
-                      "m_data": 0.2519040107727051
+                      "name": "warmup_time",
+                      "unit": "ms",
+                      "data": 0.2529279887676239
                     },
                     {
-                      "m_name": "memory_usage",
-                      "m_unit": "bytes",
-                      "m_data": 16000000
+                      "name": "memory_usage",
+                      "unit": "bytes",
+                      "data": 16000000
                     },
                     {
-                      "m_name": "arithmetic_usage",
-                      "m_unit": "Flops",
-                      "m_data": 302000000
+                      "name": "arithmetic_usage",
+                      "unit": "Flops",
+                      "data": 302000000
                     }
                   ]
                 },
                 {
-                  "m_sweep_point": {
+                  "sweep_point": {
                     "Case": {
                       "work_size": {
-                        "m_description": "",
-                        "m_value": "32"
+                        "description": "",
+                        "value": "32"
                       }
                     }
                   },
-                  "m_measurements": [
+                  "measurements": [
                     {
-                      "m_name": "execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.4904960095882416,
-                        0.4904960095882416,
-                        0.4915199875831604,
-                        0.4976640045642853,
-                        0.49459201097488403,
-                        0.4925439953804016,
-                        0.4915199875831604,
-                        0.48947200179100037,
-                        0.4925439953804016,
-                        0.49459201097488403
+                      "name": "execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.4935680031776428, 0.4915199875831604,
+                        0.49459201097488403, 0.4935680031776428,
+                        0.49663999676704407, 0.48947200179100037,
+                        0.49561598896980286, 0.4925439953804016,
+                        0.4925439953804016, 0.4935680031776428
                       ]
                     },
                     {
-                      "m_name": "repetitions",
-                      "m_unit": "",
-                      "m_data": 10
+                      "name": "repetitions",
+                      "unit": "",
+                      "data": 10
                     },
                     {
-                      "m_name": "memory_bandwidth",
-                      "m_unit": "GB/s",
-                      "m_data": 64.96881866455078
+                      "name": "memory_bandwidth",
+                      "unit": "GB/s",
+                      "data": 64.83402252197266
                     },
                     {
-                      "m_name": "median",
-                      "m_unit": "ms",
-                      "m_data": 0.4925439953804016
+                      "name": "median",
+                      "unit": "ms",
+                      "data": 0.4935680031776428
                     },
                     {
-                      "m_name": "sorted_execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.48947200179100037,
-                        0.4904960095882416,
-                        0.4904960095882416,
-                        0.4915199875831604,
-                        0.4915199875831604,
-                        0.4925439953804016,
-                        0.4925439953804016,
-                        0.49459201097488403,
-                        0.49459201097488403,
-                        0.4976640045642853
+                      "name": "sorted_execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.48947200179100037, 0.4915199875831604,
+                        0.4925439953804016, 0.4925439953804016,
+                        0.4935680031776428, 0.4935680031776428,
+                        0.4935680031776428, 0.49459201097488403,
+                        0.49561598896980286, 0.49663999676704407
                       ]
                     },
                     {
-                      "m_name": "arithmetic_bandwidth",
-                      "m_unit": "GFLOP/S",
-                      "m_data": 1226.286376953125
+                      "name": "arithmetic_bandwidth",
+                      "unit": "GFLOP/S",
+                      "data": 1223.7421875
                     },
                     {
-                      "m_name": "arithmetic_intensity",
-                      "m_unit": "",
-                      "m_data": 18.875
+                      "name": "arithmetic_intensity",
+                      "unit": "",
+                      "data": 18.875
                     },
                     {
-                      "m_name": "warmup_time",
-                      "m_unit": "ms",
-                      "m_data": 0.4935680031776428
+                      "name": "warmup_time",
+                      "unit": "ms",
+                      "data": 0.49561598896980286
                     },
                     {
-                      "m_name": "memory_usage",
-                      "m_unit": "bytes",
-                      "m_data": 32000000
+                      "name": "memory_usage",
+                      "unit": "bytes",
+                      "data": 32000000
                     },
                     {
-                      "m_name": "arithmetic_usage",
-                      "m_unit": "Flops",
-                      "m_data": 604000000
+                      "name": "arithmetic_usage",
+                      "unit": "Flops",
+                      "data": 604000000
                     }
                   ]
                 },
                 {
-                  "m_sweep_point": {
+                  "sweep_point": {
                     "Case": {
                       "work_size": {
-                        "m_description": "",
-                        "m_value": "64"
+                        "description": "",
+                        "value": "64"
                       }
                     }
                   },
-                  "m_measurements": [
+                  "measurements": [
                     {
-                      "m_name": "execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.9779199957847595,
-                        0.9789440035820007,
-                        0.9768959879875183,
-                        0.9809920191764832,
-                        0.9758719801902771,
-                        0.9758719801902771,
-                        0.9768959879875183,
-                        0.9758719801902771,
-                        0.9809920191764832,
-                        0.9799680113792419
+                      "name": "execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.9789440035820007, 0.9809920191764832,
+                        0.9789440035820007, 0.9768959879875183,
+                        0.9779199957847595, 0.9779199957847595,
+                        0.9779199957847595, 0.9789440035820007,
+                        0.9768959879875183, 0.9758719801902771
                       ]
                     },
                     {
-                      "m_name": "repetitions",
-                      "m_unit": "",
-                      "m_data": 10
+                      "name": "repetitions",
+                      "unit": "",
+                      "data": 10
                     },
                     {
-                      "m_name": "memory_bandwidth",
-                      "m_unit": "GB/s",
-                      "m_data": 65.44503021240234
+                      "name": "memory_bandwidth",
+                      "unit": "GB/s",
+                      "data": 65.44503021240234
                     },
                     {
-                      "m_name": "median",
-                      "m_unit": "ms",
-                      "m_data": 0.9779199957847595
+                      "name": "median",
+                      "unit": "ms",
+                      "data": 0.9779199957847595
                     },
                     {
-                      "m_name": "sorted_execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        0.9758719801902771,
-                        0.9758719801902771,
-                        0.9758719801902771,
-                        0.9768959879875183,
-                        0.9768959879875183,
-                        0.9779199957847595,
-                        0.9789440035820007,
-                        0.9799680113792419,
-                        0.9809920191764832,
-                        0.9809920191764832
+                      "name": "sorted_execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        0.9758719801902771, 0.9768959879875183,
+                        0.9768959879875183, 0.9779199957847595,
+                        0.9779199957847595, 0.9779199957847595,
+                        0.9789440035820007, 0.9789440035820007,
+                        0.9789440035820007, 0.9809920191764832
                       ]
                     },
                     {
-                      "m_name": "arithmetic_bandwidth",
-                      "m_unit": "GFLOP/S",
-                      "m_data": 1235.27490234375
+                      "name": "arithmetic_bandwidth",
+                      "unit": "GFLOP/S",
+                      "data": 1235.27490234375
                     },
                     {
-                      "m_name": "arithmetic_intensity",
-                      "m_unit": "",
-                      "m_data": 18.875
+                      "name": "arithmetic_intensity",
+                      "unit": "",
+                      "data": 18.875
                     },
                     {
-                      "m_name": "warmup_time",
-                      "m_unit": "ms",
-                      "m_data": 0.9789440035820007
+                      "name": "warmup_time",
+                      "unit": "ms",
+                      "data": 0.9830399751663208
                     },
                     {
-                      "m_name": "memory_usage",
-                      "m_unit": "bytes",
-                      "m_data": 64000000
+                      "name": "memory_usage",
+                      "unit": "bytes",
+                      "data": 64000000
                     },
                     {
-                      "m_name": "arithmetic_usage",
-                      "m_unit": "Flops",
-                      "m_data": 1208000000
+                      "name": "arithmetic_usage",
+                      "unit": "Flops",
+                      "data": 1208000000
                     }
                   ]
                 },
                 {
-                  "m_sweep_point": {
+                  "sweep_point": {
                     "Case": {
                       "work_size": {
-                        "m_description": "",
-                        "m_value": "128"
+                        "description": "",
+                        "value": "128"
                       }
                     }
                   },
-                  "m_measurements": [
+                  "measurements": [
                     {
-                      "m_name": "execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        1.9445760250091553,
-                        1.9517439603805542,
-                        1.943552017211914,
-                        1.9456000328063965,
-                        1.9456000328063965,
-                        1.947648048400879,
-                        1.9394559860229492,
-                        1.9517439603805542,
-                        1.9456000328063965,
-                        1.9456000328063965
+                      "name": "execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        1.950719952583313, 1.9456000328063965,
+                        1.9456000328063965, 1.9486720561981201,
+                        1.9496959447860718, 1.9456000328063965,
+                        1.9445760250091553, 1.9466240406036377,
+                        1.9486720561981201, 1.950719952583313
                       ]
                     },
                     {
-                      "m_name": "repetitions",
-                      "m_unit": "",
-                      "m_data": 10
+                      "name": "repetitions",
+                      "unit": "",
+                      "data": 10
                     },
                     {
-                      "m_name": "memory_bandwidth",
-                      "m_unit": "GB/s",
-                      "m_data": 65.78947448730469
+                      "name": "memory_bandwidth",
+                      "unit": "GB/s",
+                      "data": 65.68576049804688
                     },
                     {
-                      "m_name": "median",
-                      "m_unit": "ms",
-                      "m_data": 1.9456000328063965
+                      "name": "median",
+                      "unit": "ms",
+                      "data": 1.9486720561981201
                     },
                     {
-                      "m_name": "sorted_execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        1.9394559860229492,
-                        1.943552017211914,
-                        1.9445760250091553,
-                        1.9456000328063965,
-                        1.9456000328063965,
-                        1.9456000328063965,
-                        1.9456000328063965,
-                        1.947648048400879,
-                        1.9517439603805542,
-                        1.9517439603805542
+                      "name": "sorted_execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        1.9445760250091553, 1.9456000328063965,
+                        1.9456000328063965, 1.9456000328063965,
+                        1.9466240406036377, 1.9486720561981201,
+                        1.9486720561981201, 1.9496959447860718,
+                        1.950719952583313, 1.950719952583313
                       ]
                     },
                     {
-                      "m_name": "arithmetic_bandwidth",
-                      "m_unit": "GFLOP/S",
-                      "m_data": 1241.7762451171875
+                      "name": "arithmetic_bandwidth",
+                      "unit": "GFLOP/S",
+                      "data": 1239.8187255859375
                     },
                     {
-                      "m_name": "arithmetic_intensity",
-                      "m_unit": "",
-                      "m_data": 18.875
+                      "name": "arithmetic_intensity",
+                      "unit": "",
+                      "data": 18.875
                     },
                     {
-                      "m_name": "warmup_time",
-                      "m_unit": "ms",
-                      "m_data": 1.9456000328063965
+                      "name": "warmup_time",
+                      "unit": "ms",
+                      "data": 1.9496959447860718
                     },
                     {
-                      "m_name": "memory_usage",
-                      "m_unit": "bytes",
-                      "m_data": 128000000
+                      "name": "memory_usage",
+                      "unit": "bytes",
+                      "data": 128000000
                     },
                     {
-                      "m_name": "arithmetic_usage",
-                      "m_unit": "Flops",
-                      "m_data": 2416000000
+                      "name": "arithmetic_usage",
+                      "unit": "Flops",
+                      "data": 2416000000
                     }
                   ]
                 },
                 {
-                  "m_sweep_point": {
+                  "sweep_point": {
                     "Case": {
                       "work_size": {
-                        "m_description": "",
-                        "m_value": "256"
+                        "description": "",
+                        "value": "256"
                       }
                     }
                   },
-                  "m_measurements": [
+                  "measurements": [
                     {
-                      "m_name": "execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        4.40934419631958,
-                        4.816895961761475,
-                        4.6387200355529785,
-                        5.06060791015625,
-                        4.648960113525391,
-                        4.410367965698242,
-                        4.6387200355529785,
-                        4.423679828643799,
-                        4.816895961761475,
-                        4.636672019958496
+                      "name": "execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        4.426752090454102, 4.811776161193848,
+                        4.6387200355529785, 5.071872234344482,
+                        4.8066558837890625, 4.415487766265869,
+                        4.816895961761475, 4.641791820526123, 4.421631813049316,
+                        4.639743804931641
                       ]
                     },
                     {
-                      "m_name": "repetitions",
-                      "m_unit": "",
-                      "m_data": 10
+                      "name": "repetitions",
+                      "unit": "",
+                      "data": 10
                     },
                     {
-                      "m_name": "memory_bandwidth",
-                      "m_unit": "GB/s",
-                      "m_data": 55.18763732910156
+                      "name": "memory_bandwidth",
+                      "unit": "GB/s",
+                      "data": 55.15111541748047
                     },
                     {
-                      "m_name": "median",
-                      "m_unit": "ms",
-                      "m_data": 4.6387200355529785
+                      "name": "median",
+                      "unit": "ms",
+                      "data": 4.641791820526123
                     },
                     {
-                      "m_name": "sorted_execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        4.40934419631958,
-                        4.410367965698242,
-                        4.423679828643799,
-                        4.636672019958496,
-                        4.6387200355529785,
-                        4.6387200355529785,
-                        4.648960113525391,
-                        4.816895961761475,
-                        4.816895961761475,
-                        5.06060791015625
+                      "name": "sorted_execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        4.415487766265869, 4.421631813049316, 4.426752090454102,
+                        4.6387200355529785, 4.639743804931641,
+                        4.641791820526123, 4.8066558837890625,
+                        4.811776161193848, 4.816895961761475, 5.071872234344482
                       ]
                     },
                     {
-                      "m_name": "arithmetic_bandwidth",
-                      "m_unit": "GFLOP/S",
-                      "m_data": 1041.6666259765625
+                      "name": "arithmetic_bandwidth",
+                      "unit": "GFLOP/S",
+                      "data": 1040.977294921875
                     },
                     {
-                      "m_name": "arithmetic_intensity",
-                      "m_unit": "",
-                      "m_data": 18.875
+                      "name": "arithmetic_intensity",
+                      "unit": "",
+                      "data": 18.875
                     },
                     {
-                      "m_name": "warmup_time",
-                      "m_unit": "ms",
-                      "m_data": 4.651008129119873
+                      "name": "warmup_time",
+                      "unit": "ms",
+                      "data": 4.6561279296875
                     },
                     {
-                      "m_name": "memory_usage",
-                      "m_unit": "bytes",
-                      "m_data": 256000000
+                      "name": "memory_usage",
+                      "unit": "bytes",
+                      "data": 256000000
                     },
                     {
-                      "m_name": "arithmetic_usage",
-                      "m_unit": "Flops",
-                      "m_data": 4832000000
+                      "name": "arithmetic_usage",
+                      "unit": "Flops",
+                      "data": 4832000000
                     }
                   ]
                 },
                 {
-                  "m_sweep_point": {
+                  "sweep_point": {
                     "Case": {
                       "work_size": {
-                        "m_description": "",
-                        "m_value": "512"
+                        "description": "",
+                        "value": "512"
                       }
                     }
                   },
-                  "m_measurements": [
+                  "measurements": [
                     {
-                      "m_name": "execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        10.224639892578125,
-                        10.611712455749512,
-                        10.613759994506836,
-                        10.611712455749512,
-                        10.218496322631836,
-                        10.22156810760498,
-                        10.620927810668945,
-                        10.606592178344727,
-                        10.603520393371582,
-                        10.2225923538208
+                      "name": "execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        10.603520393371582, 10.61580753326416,
+                        10.637311935424805, 11.268095970153809,
+                        10.618880271911621, 10.62502384185791,
+                        10.612735748291016, 11.25376033782959,
+                        10.622976303100586, 10.610688209533691
                       ]
                     },
                     {
-                      "m_name": "repetitions",
-                      "m_unit": "",
-                      "m_data": 10
+                      "name": "repetitions",
+                      "unit": "",
+                      "data": 10
                     },
                     {
-                      "m_name": "memory_bandwidth",
-                      "m_unit": "GB/s",
-                      "m_data": 48.27186584472656
+                      "name": "memory_bandwidth",
+                      "unit": "GB/s",
+                      "data": 48.19741439819336
                     },
                     {
-                      "m_name": "median",
-                      "m_unit": "ms",
-                      "m_data": 10.606592178344727
+                      "name": "median",
+                      "unit": "ms",
+                      "data": 10.622976303100586
                     },
                     {
-                      "m_name": "sorted_execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        10.218496322631836,
-                        10.22156810760498,
-                        10.2225923538208,
-                        10.224639892578125,
-                        10.603520393371582,
-                        10.606592178344727,
-                        10.611712455749512,
-                        10.611712455749512,
-                        10.613759994506836,
-                        10.620927810668945
+                      "name": "sorted_execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        10.603520393371582, 10.610688209533691,
+                        10.612735748291016, 10.61580753326416,
+                        10.618880271911621, 10.622976303100586,
+                        10.62502384185791, 10.637311935424805,
+                        11.25376033782959, 11.268095970153809
                       ]
                     },
                     {
-                      "m_name": "arithmetic_bandwidth",
-                      "m_unit": "GFLOP/S",
-                      "m_data": 911.1314697265625
+                      "name": "arithmetic_bandwidth",
+                      "unit": "GFLOP/S",
+                      "data": 909.7261962890625
                     },
                     {
-                      "m_name": "arithmetic_intensity",
-                      "m_unit": "",
-                      "m_data": 18.875
+                      "name": "arithmetic_intensity",
+                      "unit": "",
+                      "data": 18.875
                     },
                     {
-                      "m_name": "warmup_time",
-                      "m_unit": "ms",
-                      "m_data": 10.247167587280273
+                      "name": "warmup_time",
+                      "unit": "ms",
+                      "data": 10.629119873046875
                     },
                     {
-                      "m_name": "memory_usage",
-                      "m_unit": "bytes",
-                      "m_data": 512000000
+                      "name": "memory_usage",
+                      "unit": "bytes",
+                      "data": 512000000
                     },
                     {
-                      "m_name": "arithmetic_usage",
-                      "m_unit": "Flops",
-                      "m_data": 9664000000
+                      "name": "arithmetic_usage",
+                      "unit": "Flops",
+                      "data": 9664000000
                     }
                   ]
                 },
                 {
-                  "m_sweep_point": {
+                  "sweep_point": {
                     "Case": {
                       "work_size": {
-                        "m_description": "",
-                        "m_value": "1024"
+                        "description": "",
+                        "value": "1024"
                       }
                     }
                   },
-                  "m_measurements": [
+                  "measurements": [
                     {
-                      "m_name": "execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        21.739519119262695,
-                        22.382591247558594,
-                        22.401023864746094,
-                        22.600704193115234,
-                        21.996543884277344,
-                        21.718015670776367,
-                        22.379520416259766,
-                        21.748735427856445,
-                        22.601728439331055,
-                        21.987327575683594
+                      "name": "execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        22.407167434692383, 22.805503845214844,
+                        22.393856048583984, 23.2673282623291,
+                        22.404096603393555, 23.033855438232422,
+                        22.774784088134766, 23.043071746826172,
+                        22.618112564086914, 23.053312301635742
                       ]
                     },
                     {
-                      "m_name": "repetitions",
-                      "m_unit": "",
-                      "m_data": 10
+                      "name": "repetitions",
+                      "unit": "",
+                      "data": 10
                     },
                     {
-                      "m_name": "memory_bandwidth",
-                      "m_unit": "GB/s",
-                      "m_data": 45.75611877441406
+                      "name": "memory_bandwidth",
+                      "unit": "GB/s",
+                      "data": 44.90144348144531
                     },
                     {
-                      "m_name": "median",
-                      "m_unit": "ms",
-                      "m_data": 22.379520416259766
+                      "name": "median",
+                      "unit": "ms",
+                      "data": 22.805503845214844
                     },
                     {
-                      "m_name": "sorted_execution_time_vector",
-                      "m_unit": "ms",
-                      "m_data": [
-                        21.718015670776367,
-                        21.739519119262695,
-                        21.748735427856445,
-                        21.987327575683594,
-                        21.996543884277344,
-                        22.379520416259766,
-                        22.382591247558594,
-                        22.401023864746094,
-                        22.600704193115234,
-                        22.601728439331055
+                      "name": "sorted_execution_time_vector",
+                      "unit": "ms",
+                      "data": [
+                        22.393856048583984, 22.404096603393555,
+                        22.407167434692383, 22.618112564086914,
+                        22.774784088134766, 22.805503845214844,
+                        23.033855438232422, 23.043071746826172,
+                        23.053312301635742, 23.2673282623291
                       ]
                     },
                     {
-                      "m_name": "arithmetic_bandwidth",
-                      "m_unit": "GFLOP/S",
-                      "m_data": 863.646728515625
+                      "name": "arithmetic_bandwidth",
+                      "unit": "GFLOP/S",
+                      "data": 847.5147094726563
                     },
                     {
-                      "m_name": "arithmetic_intensity",
-                      "m_unit": "",
-                      "m_data": 18.875
+                      "name": "arithmetic_intensity",
+                      "unit": "",
+                      "data": 18.875
                     },
                     {
-                      "m_name": "warmup_time",
-                      "m_unit": "ms",
-                      "m_data": 22.037504196166992
+                      "name": "warmup_time",
+                      "unit": "ms",
+                      "data": 22.407167434692383
                     },
                     {
-                      "m_name": "memory_usage",
-                      "m_unit": "bytes",
-                      "m_data": 1024000000
+                      "name": "memory_usage",
+                      "unit": "bytes",
+                      "data": 1024000000
                     },
                     {
-                      "m_name": "arithmetic_usage",
-                      "m_unit": "Flops",
-                      "m_data": 19328000000
+                      "name": "arithmetic_usage",
+                      "unit": "Flops",
+                      "data": 19328000000
                     }
                   ]
                 }
               ],
-              "m_hardware": {
+              "hardware": {
                 "name": "Tesla V100-DGXS-32GB"
               }
             }

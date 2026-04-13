@@ -20,18 +20,18 @@ namespace Baseliner {
     template <typename T>
     inline auto sweep_hint_to_typed(const SweepHint &hint) -> TypedSweepHint<T> {
       TypedSweepHint<T> typed{};
-      typed.m_policy = hint.m_policy;
-      if (typed.m_policy == SweepPolicy::Enumerated) {
-        typed.m_enumerated = Conversion::baseliner_from_string<T>(hint.m_enumerated);
+      typed.policy = hint.policy;
+      if (typed.policy == SweepPolicy::Enumerated) {
+        typed.enumerated = Conversion::baseliner_from_string<T>(hint.enumerated);
         return typed;
       }
-      if (hint.m_step.empty()) {
-        typed.m_step = T{};
+      if (hint.step.empty()) {
+        typed.step = T{};
       } else {
-        typed.m_step = Conversion::baseliner_from_string<T>(hint.m_step);
+        typed.step = Conversion::baseliner_from_string<T>(hint.step);
       }
-      typed.m_max = Conversion::baseliner_from_string<T>(hint.m_max);
-      typed.m_min = Conversion::baseliner_from_string<T>(hint.m_min);
+      typed.max = Conversion::baseliner_from_string<T>(hint.max);
+      typed.min = Conversion::baseliner_from_string<T>(hint.min);
       return typed;
     };
     class IOptionBinding {
@@ -84,8 +84,8 @@ namespace Baseliner {
       [[nodiscard]] auto generate_sweep_values() const -> std::vector<std::string> override {
         if (this->is_sweepable()) {
           SweepHint hint = this->get_sweep_hint().value();
-          if (hint.m_policy == SweepPolicy::Enumerated) {
-            return hint.m_enumerated;
+          if (hint.policy == SweepPolicy::Enumerated) {
+            return hint.enumerated;
           }
           return Conversion::baseliner_to_string<T>(Sweep::generate_sweep_values(sweep_hint_to_typed<T>(hint)));
         }

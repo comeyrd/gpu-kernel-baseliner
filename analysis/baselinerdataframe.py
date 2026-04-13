@@ -3,64 +3,61 @@ from enum import Enum
 import pandas as pd
 import json 
 from dataclasses import dataclass
-##TODO USE PYDANTIC for serialization deser
+from pydantic import BaseModel, Field
 ##Sweep
 
-@dataclass
-class SweepStrategy(Enum):
-  FullGrid = 1
+class SweepStrategy(str,Enum):
+  FullGrid = "FullGrid"
   
-@dataclass
-class SweepPolicy(Enum):
-  PowersOfTwo = 1
-  LinearRange = 2
-  Enumerated = 3
+class SweepPolicy(str,Enum):
+  PowersOfTwo = "PowersOfTwo"
+  LinearRange = "LinearRange"
+  Enumerated = "Enumerated"
   
   
-@dataclass
-class SweepHint:
+
+class SweepHint(BaseModel):
   policy:SweepPolicy
   min:str
   max:str
   step:str
   enumerated:list[str]
   
-@dataclass
-class SweepAxis:
+class SweepAxis(BaseModel):
   interface:str
   option:str
-  hint:Optional[SweepHint]
+  hint:Optional[SweepHint] = None
   
   
-@dataclass
-class SweepSpec:
+
+class SweepSpec(BaseModel):
   strategy:SweepStrategy
   axes:list[SweepAxis]
 
 
 #### Recipe
-@dataclass
-class RecipeStat:
+
+class RecipeStat(BaseModel):
   preset:str
   
-@dataclass
-class RecipeComponent:
-  impl:str
-  preset:Optional[str]
 
-@dataclass
-class Recipe:
+class RecipeComponent(BaseModel):
+  impl:str
+  preset:Optional[str] = None
+
+
+class Recipe(BaseModel):
   description:str
-  benchmark:Optional[RecipeComponent]
-  stopping:Optional[RecipeComponent]
-  stats:Optional[RecipeStat]
-  sweep:Optional[SweepSpec]
+  benchmark:Optional[RecipeComponent] = None
+  stopping:Optional[RecipeComponent] = None
+  stats:Optional[RecipeStat] = None
+  sweep:Optional[SweepSpec] = None
 
 ### Options
 
-@dataclass
-class Option:
-  description:Optional[str]
+
+class Option(BaseModel):
+  description:Optional[str]=None
   value:str
 
 OptionsMap:TypeAlias = dict[str,dict[str,Option]]
@@ -68,75 +65,68 @@ OptionsMap:TypeAlias = dict[str,dict[str,Option]]
 
 ### Plan
 
-@dataclass 
-class PlannedComponent:
+
+class PlannedComponent(BaseModel):
   impl:str
   preset:str
   options:OptionsMap
 
-@dataclass
-class PlannedStat:
+
+class PlannedStat(BaseModel):
   preset:str
   stats:list[str]
   options:OptionsMap
   
 
-@dataclass 
-class BenchmarkPlan:
+
+class BenchmarkPlan(BaseModel):
   workload:PlannedComponent
   backend:PlannedComponent
   stopping:PlannedComponent
   stats:PlannedStat
-  sweep:Optional[SweepSpec]
+  sweep:Optional[SweepSpec] = None
 
 ### Reports
-@dataclass
-class Metric:
+
+class Metric(BaseModel):
   name:str
   unit:str
   data:Any
 
-@dataclass
-class SingleRunReport:
+class SingleRunReport(BaseModel):
   sweep_point:OptionsMap
-  measurement:list[Metric]
+  measurements:list[Metric]
   
-@dataclass
-class Hardware:
+class Hardware(BaseModel):
   name:str
   
-@dataclass 
-class BenchmarkReport:
+class BenchmarkReport(BaseModel):
   results:list[SingleRunReport]
   hardware:Hardware
 
-@dataclass
-class RunReport:
+class RunReport(BaseModel):
   plan:BenchmarkPlan
   benchmark_report:BenchmarkReport
 
-@dataclass
-class CampaignReport:
+class CampaignReport(BaseModel):
   name:str
   recipe_name:str
   recipe:Recipe
   benchmark_runs:dict[str,dict[str,RunReport]]
     
-
-@dataclass
-class Report:
+class Report(BaseModel):
   """Class to hold a Baseliner Report"""
   baseliner_version:str
   git_version:str
   datetime:str
-  campaigns:list[CampaignReport]
+  campaign_runs:list[CampaignReport]
   
 
 def load_json(json_filepath):
-   with open('data.json', 'r') as file:
+   with open(json_filepath, 'r') as file:
     return json.load(file)
 
 def load_baseliner_report(json_filepath):
   json = load_json(json_filepath)
-  
+  return Report.model_validate(json)    
 

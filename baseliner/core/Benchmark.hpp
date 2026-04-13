@@ -229,14 +229,14 @@ namespace Baseliner {
     auto run_benchmark() -> BenchmarkReport override {
       BenchmarkReport report;
       BackendT::instance()->apply_options(get_backend_options());
-      report.m_hardware = this->get_hardware_info();
+      report.hardware = this->get_hardware_info();
       auto sweeppoints = this->generate_sweep_points();
       for (const std::optional<OptionsMap> &sweep_point : sweeppoints) {
         if (ExecutionController::exit_requested()) {
           break;
         }
-        report.m_results.push_back(this->single_run(sweep_point));
-        print_callback(report.m_results.back());
+        report.results.push_back(this->single_run(sweep_point));
+        print_callback(report.results.back());
       }
       return report;
     }
@@ -250,8 +250,8 @@ namespace Baseliner {
         return {{}};
       }
       SweepSpec spec = get_sweep_spec().value();
-      auto resolved_axis = this->resolve_depedency_sweep_axis(spec.m_axes);
-      return Sweep::get_sweep_points(spec.m_strategy, resolved_axis);
+      auto resolved_axis = this->resolve_depedency_sweep_axis(spec.axes);
+      return Sweep::get_sweep_points(spec.strategy, resolved_axis);
     }
     void register_options_dependencies() override {
       if (m_workload) {

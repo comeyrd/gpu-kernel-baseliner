@@ -5,10 +5,10 @@
 #include <unordered_map>
 namespace Baseliner {
   struct Option {
-    std::optional<std::string> m_description;
-    std::string m_value;
+    std::optional<std::string> description;
+    std::string value;
   };
-  DESCRIBE(Option, FIELD(m_description), FIELD(m_value))
+  DESCRIBE(Option, FIELD(description), FIELD(value))
 
   using InterfaceOptions = std::unordered_map<std::string, Option>;
   using OptionsMap = std::unordered_map<std::string, InterfaceOptions>;

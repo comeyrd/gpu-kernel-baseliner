@@ -16,11 +16,11 @@ namespace Baseliner {
                                   ConfidenceInterval<float_milliseconds>, ConfidenceInterval<size_t>>;
 
   struct Metric {
-    std::string m_name;
-    std::string m_unit;
-    MetricData m_data;
+    std::string name;
+    std::string unit;
+    MetricData data;
   };
-  DESCRIBE(Metric, FIELD(m_name), FIELD(m_unit), FIELD(m_data))
+  DESCRIBE(Metric, FIELD(name), FIELD(unit), FIELD(data))
 
 } // namespace Baseliner
 #endif // BASELINER_METRIC_HPP

@@ -113,18 +113,18 @@ namespace Baseliner::Stats {
       std::vector<Metric> metrics_vector{};
       for (auto &stat_ptr : m_stats) {
         Metric metric;
-        metric.m_name = stat_ptr->name();
-        metric.m_unit = stat_ptr->unit();
+        metric.name = stat_ptr->name();
+        metric.unit = stat_ptr->unit();
         ensure_on_demand_up_to_date(stat_ptr->output(), stat_ptr.get());
-        metric.m_data = stat_ptr->get_value(m_registry);
+        metric.data = stat_ptr->get_value(m_registry);
         metrics_vector.push_back(metric);
       }
       for (auto &metric_ptr : m_metrics) {
         if (metric_ptr->saving_policy() == MetricSavingPolicy::SAVE) {
           Metric metric;
-          metric.m_name = metric_ptr->name();
-          metric.m_unit = metric_ptr->unit();
-          metric.m_data = metric_ptr->get_value(m_registry);
+          metric.name = metric_ptr->name();
+          metric.unit = metric_ptr->unit();
+          metric.data = metric_ptr->get_value(m_registry);
           metrics_vector.push_back(metric);
         }
       }

@@ -22,42 +22,42 @@ namespace Baseliner {
   DESCRIBE_ENUM(SweepPolicy, ENUM_VALUE(PowersOfTwo), ENUM_VALUE(LinearRange), ENUM_VALUE(Enumerated))
 
   struct SweepHint {
-    SweepPolicy m_policy;
-    std::string m_min;
-    std::string m_max;
-    std::string m_step;
-    std::vector<std::string> m_enumerated;
+    SweepPolicy policy;
+    std::string min;
+    std::string max;
+    std::string step;
+    std::vector<std::string> enumerated;
   };
-  DESCRIBE(SweepHint, FIELD(m_policy), FIELD(m_min), FIELD(m_max), FIELD(m_step), FIELD(m_enumerated))
+  DESCRIBE(SweepHint, FIELD(policy), FIELD(min), FIELD(max), FIELD(step), FIELD(enumerated))
 
   template <typename T>
   struct TypedSweepHint {
-    SweepPolicy m_policy;
-    T m_min;
-    T m_max;
-    T m_step;
-    std::vector<T> m_enumerated;
+    SweepPolicy policy;
+    T min;
+    T max;
+    T step;
+    std::vector<T> enumerated;
   };
 
   struct SweepAxis {
-    std::string m_interface;
-    std::string m_option;
-    std::optional<SweepHint> m_hint;
+    std::string interface;
+    std::string option;
+    std::optional<SweepHint> hint;
   };
-  DESCRIBE(SweepAxis, FIELD(m_interface), FIELD(m_option), FIELD(m_hint))
+  DESCRIBE(SweepAxis, FIELD(interface), FIELD(option), FIELD(hint))
 
   struct ResolvedAxis {
-    std::string m_interface;
-    std::string m_option;
+    std::string interface;
+    std::string option;
     std::vector<std::string> value;
   };
-  DESCRIBE(ResolvedAxis, FIELD(m_interface), FIELD(m_option), FIELD(value))
+  DESCRIBE(ResolvedAxis, FIELD(interface), FIELD(option), FIELD(value))
 
   struct SweepSpec {
-    SweepStrategy m_strategy;
-    std::vector<SweepAxis> m_axes;
+    SweepStrategy strategy;
+    std::vector<SweepAxis> axes;
   };
-  DESCRIBE(SweepSpec, FIELD(m_strategy), FIELD(m_axes))
+  DESCRIBE(SweepSpec, FIELD(strategy), FIELD(axes))
 
   using SweepHintMap = std::unordered_map<std::string, std::unordered_map<std::string, SweepHint>>;
 
@@ -68,23 +68,23 @@ namespace Baseliner {
       template <typename T>
       struct Sweeper {
         static auto generate(const TypedSweepHint<T> &hint) -> std::vector<T> {
-          if (hint.m_policy == SweepPolicy::Enumerated) {
-            return hint.m_enumerated;
+          if (hint.policy == SweepPolicy::Enumerated) {
+            return hint.enumerated;
           }
 
           std::vector<T> result;
-          if (hint.m_policy == SweepPolicy::LinearRange) {
-            if (hint.m_step <= static_cast<T>(0)) {
+          if (hint.policy == SweepPolicy::LinearRange) {
+            if (hint.step <= static_cast<T>(0)) {
               throw std::invalid_argument("Step must be > 0");
             }
-            for (T value = hint.m_min; value <= hint.m_max; value += hint.m_step) {
+            for (T value = hint.min; value <= hint.max; value += hint.step) {
               result.push_back(value);
             }
-          } else if (hint.m_policy == SweepPolicy::PowersOfTwo) {
-            if (hint.m_min <= static_cast<T>(0)) {
+          } else if (hint.policy == SweepPolicy::PowersOfTwo) {
+            if (hint.min <= static_cast<T>(0)) {
               throw std::invalid_argument("Min must be > 0");
             }
-            for (T value = hint.m_min; value <= hint.m_max; value *= static_cast<T>(2)) {
+            for (T value = hint.min; value <= hint.max; value *= static_cast<T>(2)) {
               result.push_back(value);
             }
           }
@@ -95,11 +95,11 @@ namespace Baseliner {
       template <>
       struct Sweeper<bool> {
         static auto generate(const TypedSweepHint<bool> &hint) -> std::vector<bool> {
-          if (hint.m_policy == SweepPolicy::Enumerated) {
-            return hint.m_enumerated;
+          if (hint.policy == SweepPolicy::Enumerated) {
+            return hint.enumerated;
           }
-          if (hint.m_min == hint.m_max) {
-            return {hint.m_min};
+          if (hint.min == hint.max) {
+            return {hint.min};
           }
           return {false, true};
         }
@@ -128,7 +128,7 @@ namespace Baseliner {
           for (const OptionsMap &existing : result) {
             for (const std::string &val : axis.value) {
               OptionsMap entry = existing; // copy current combination
-              entry[axis.m_interface][axis.m_option] = Option{"", val};
+              entry[axis.interface][axis.option] = Option{"", val};
               next.push_back(std::move(entry));
             }
           }
