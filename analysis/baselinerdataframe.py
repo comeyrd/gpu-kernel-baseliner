@@ -87,13 +87,13 @@ class BenchmarkPlan(BaseModel):
   sweep:Optional[SweepSpec] = None
 
 ### Reports
-
 class Metric(BaseModel):
   name:str
   unit:str
   data:Any
 
 class SingleRunReport(BaseModel):
+  id:str
   sweep_point:OptionsMap
   measurements:list[Metric]
   
@@ -101,14 +101,17 @@ class Hardware(BaseModel):
   name:str
   
 class BenchmarkReport(BaseModel):
+  id:str
   results:list[SingleRunReport]
   hardware:Hardware
 
 class RunReport(BaseModel):
+  id:str
   plan:BenchmarkPlan
   benchmark_report:BenchmarkReport
 
 class CampaignReport(BaseModel):
+  id:str
   name:str
   recipe_name:str
   recipe:Recipe
@@ -117,6 +120,7 @@ class CampaignReport(BaseModel):
 class Report(BaseModel):
   """Class to hold a Baseliner Report"""
   baseliner_version:str
+  id:str
   git_version:str
   datetime:str
   campaign_runs:list[CampaignReport]
@@ -126,7 +130,15 @@ def load_json(json_filepath):
    with open(json_filepath, 'r') as file:
     return json.load(file)
 
-def load_baseliner_report(json_filepath):
-  json = load_json(json_filepath)
-  return Report.model_validate(json)    
 
+
+class ReportDataframe:
+  m_report:Report
+  m_vectors_df:pd.DataFrame
+  m_scalars_df:pd.DataFrame
+  
+  def __init__(self,json_filepath):
+    json = load_json(json_filepath)
+    self.m_report =  Report.model_validate(json) 
+  
+  

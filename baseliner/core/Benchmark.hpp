@@ -292,7 +292,10 @@ namespace Baseliner {
       }
       std::vector<Metric> metrics = {get_stats_engine()->get_metrics()};
       m_stream.reset();
-      return SingleRunReport{sweep_point, metrics};
+      SingleRunReport single_rep;
+      single_rep.sweep_point = sweep_point;
+      single_rep.measurements = metrics;
+      return single_rep;
     }
 
   private:

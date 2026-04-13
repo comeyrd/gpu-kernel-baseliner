@@ -9,6 +9,7 @@
 #include <baseliner/orchestrator/Planner.hpp>
 #include <baseliner/orchestrator/Protocol.hpp>
 #include <baseliner/orchestrator/Report.hpp>
+#include <baseliner/utils/Utils.hpp>
 #include <vector>
 namespace Baseliner {
   namespace Orchestrator {
@@ -25,7 +26,10 @@ namespace Baseliner {
       std::shared_ptr<IBenchmark> bench = bench_factory();
       bench->set_printer(printer);
       BenchmarkReport bench_report = bench->run_benchmark();
-      return {bench_plan, bench_report};
+      RunReport run_report;
+      run_report.benchmark_report = bench_report;
+      run_report.plan = bench_plan;
+      return run_report;
     };
     inline auto run_campaign_plan(const CampaignPlan &campaign_plan,
                                   StorageManager *storage_manager = StorageManager::instance()) -> CampaignReport {
@@ -48,9 +52,6 @@ namespace Baseliner {
     inline auto run_protocol(const Protocol &protocol) -> Report {
       Report report;
       auto *storage_manager = StorageManager::instance();
-      report.baseliner_version = Version::string();
-      report.git_version = BASELINER_GIT_VERSION;
-      report.datetime = ""; // TODO
       std::vector<CampaignPlan> plans = Planner::plan(protocol, storage_manager);
       for (const auto &plan : plans) {
         if (ExecutionController::exit_requested()) {
@@ -63,9 +64,6 @@ namespace Baseliner {
 
     inline auto replay_runs(const Report &to_replay_report) -> Report {
       Report report;
-      report.baseliner_version = Version::string();
-      report.git_version = BASELINER_GIT_VERSION;
-      report.datetime = "";
       for (const CampaignReport &campaign_run : to_replay_report.campaign_runs) {
         CampaignPlan c_plan = campaign_plan_from_report(campaign_run);
         report.campaign_runs.push_back(run_campaign_plan(c_plan));
@@ -88,7 +86,7 @@ namespace Baseliner {
       }
       // Protocol protocol = rq_protocol(RQSize::Medium, workload_components, backends_components);
       // return run_protocol(protocol);
-      throw std::runtime_error("é");
+      throw Errors::not_implemented("Research questions");
     };
 
     inline auto run_protocols(const std::vector<Protocol> &protocols) -> std::vector<Report> {
