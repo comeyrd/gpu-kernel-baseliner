@@ -168,12 +168,12 @@ namespace Baseliner {
       return m_backend_options;
     }
 
-    void print_callback(const SingleRunReport &report) {
+    void print_callback(const RunReport &report) {
       if (m_printer) {
         m_printer->consume_single_run_report(report);
       }
     }
-    [[nodiscard]] virtual auto single_run(const std::optional<OptionsMap> &sweep_point) -> SingleRunReport = 0;
+    [[nodiscard]] virtual auto single_run(const std::optional<OptionsMap> &sweep_point) -> RunReport = 0;
 
   private:
     bool m_warmup = true;
@@ -264,7 +264,7 @@ namespace Baseliner {
       this->register_consumer(get_stats_engine());
     }
 
-    [[nodiscard]] auto single_run(const std::optional<OptionsMap> &sweep_point) -> SingleRunReport override {
+    [[nodiscard]] auto single_run(const std::optional<OptionsMap> &sweep_point) -> RunReport override {
       this->apply_sweep_point(sweep_point);
       m_stream = BackendT::instance()->create_stream();
       check_components();
@@ -292,7 +292,7 @@ namespace Baseliner {
       }
       std::vector<Metric> metrics = {get_stats_engine()->get_metrics()};
       m_stream.reset();
-      SingleRunReport single_rep;
+      RunReport single_rep;
       single_rep.sweep_point = sweep_point;
       single_rep.measurements = metrics;
       return single_rep;

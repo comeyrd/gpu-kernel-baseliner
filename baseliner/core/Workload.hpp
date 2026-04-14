@@ -29,6 +29,7 @@ namespace Baseliner {
     [[nodiscard]] auto get_seed() const -> int {
       return m_seed;
     }
+    virtual ~IBaseWorkload() = default;
 
   private:
     size_t m_work_size = DEFAULT_WORK_SIZE;

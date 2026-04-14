@@ -7,12 +7,11 @@
 #include <string>
 #include <vector>
 namespace Baseliner {
-  struct RunReport {
-    std::string id = Utils::gen_uuid();
+  struct BenchmarkExecution {
     BenchmarkPlan plan;
     BenchmarkReport benchmark_report;
   };
-  DESCRIBE(RunReport, FIELD(id), FIELD(plan), FIELD(benchmark_report))
+  DESCRIBE(BenchmarkExecution, FIELD(plan), FIELD(benchmark_report))
 
   struct CampaignReport {
     std::string name;
@@ -20,7 +19,7 @@ namespace Baseliner {
     std::string id = Utils::gen_uuid();
     Recipe recipe;
     // Key1 Backend Key2 Case
-    std::unordered_map<std::string, std::unordered_map<std::string, RunReport>> benchmark_runs;
+    std::unordered_map<std::string, std::unordered_map<std::string, BenchmarkExecution>> benchmark_runs;
   };
 
   DESCRIBE(CampaignReport, FIELD(id), FIELD(name), FIELD(recipe_name), FIELD(recipe), FIELD(benchmark_runs))

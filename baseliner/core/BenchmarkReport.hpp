@@ -8,15 +8,15 @@
 #include <vector>
 namespace Baseliner {
 
-  struct SingleRunReport {
+  struct RunReport {
     std::string id = Utils::gen_uuid();
     std::optional<OptionsMap> sweep_point; // Interface → option → value
     std::vector<Metric> measurements;
   };
-  DESCRIBE(SingleRunReport, FIELD(id), FIELD(sweep_point), FIELD(measurements))
+  DESCRIBE(RunReport, FIELD(id), FIELD(sweep_point), FIELD(measurements))
   struct BenchmarkReport {
     std::string id = Utils::gen_uuid();
-    std::vector<SingleRunReport> results;
+    std::vector<RunReport> results;
     Hardware::HardwareInfo hardware;
   };
   DESCRIBE(BenchmarkReport, FIELD(id), FIELD(results), FIELD(hardware))

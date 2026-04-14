@@ -5,7 +5,7 @@
 namespace Baseliner {
   class IBenchmarkPrinter {
   public:
-    virtual void consume_single_run_report(const SingleRunReport &report) = 0;
+    virtual void consume_single_run_report(const RunReport &report) = 0;
     virtual ~IBenchmarkPrinter() = default;
   };
 } // namespace Baseliner

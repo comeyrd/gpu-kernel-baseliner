@@ -8,11 +8,11 @@
 #include <memory>
 namespace Baseliner::Hardware {
   struct HardwareInfo {
-    std::string name;
+    std::string card_name;
   };
 } // namespace Baseliner::Hardware
 namespace Baseliner {
-  DESCRIBE(Hardware::HardwareInfo, FIELD(name))
+  DESCRIBE(Hardware::HardwareInfo, FIELD(card_name))
 }
 
 namespace Baseliner::Hardware {

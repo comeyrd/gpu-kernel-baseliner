@@ -32,7 +32,7 @@ namespace Baseliner::Cli {
       return is_vector<T>::value;
     }
   };
-  inline auto get_headers(const SingleRunReport &report) -> Row {
+  inline auto get_headers(const RunReport &report) -> Row {
     std::vector<Cell> headers;
 
     if (report.sweep_point.has_value()) {
@@ -73,7 +73,7 @@ namespace Baseliner::Cli {
     std::cout << "\n" << std::setfill(' '); // Always reset setfill
   }
 
-  inline void print_row(const Row &headers, const SingleRunReport &report) {
+  inline void print_row(const Row &headers, const RunReport &report) {
     for (const auto &col : headers) {
       std::string value;
 
@@ -107,7 +107,7 @@ namespace Baseliner::Cli {
   class CliPrinter : public IBenchmarkPrinter {
   public:
     ~CliPrinter() = default;
-    void consume_single_run_report(const SingleRunReport &report) override {
+    void consume_single_run_report(const RunReport &report) override {
       if (first) {
         row = get_headers(report);
         print_headers(row);

@@ -570,7 +570,7 @@
                   ]
                 }
               ],
-              "hardware": { "name": "Tesla V100-DGXS-32GB" }
+              "hardware": { "card_name": "Tesla V100-DGXS-32GB" }
             }
           }
         }

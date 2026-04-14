@@ -20,16 +20,16 @@ namespace Baseliner {
       return StorageManager::instance()->get_metadata();
     }
     inline auto run_benchmark_plan(const BenchmarkPlan &bench_plan, std::shared_ptr<Cli::CliPrinter> &printer,
-                                   StorageManager *storage_manager = StorageManager::instance()) -> RunReport {
+                                   StorageManager *storage_manager = StorageManager::instance()) -> BenchmarkExecution {
       IBenchmarkFactory bench_factory = Builder::build(bench_plan, storage_manager);
       printer->print_benchmark_plan(bench_plan);
       std::shared_ptr<IBenchmark> bench = bench_factory();
       bench->set_printer(printer);
       BenchmarkReport bench_report = bench->run_benchmark();
-      RunReport run_report;
-      run_report.benchmark_report = bench_report;
-      run_report.plan = bench_plan;
-      return run_report;
+      BenchmarkExecution benchmark_exec;
+      benchmark_exec.benchmark_report = bench_report;
+      benchmark_exec.plan = bench_plan;
+      return benchmark_exec;
     };
     inline auto run_campaign_plan(const CampaignPlan &campaign_plan,
                                   StorageManager *storage_manager = StorageManager::instance()) -> CampaignReport {
@@ -43,8 +43,8 @@ namespace Baseliner {
         if (ExecutionController::exit_requested()) {
           break;
         }
-        RunReport runreprt = run_benchmark_plan(bench_plan, printer, storage_manager);
-        c_report.benchmark_runs[bench_plan.backend.impl][bench_plan.workload.impl] = runreprt;
+        BenchmarkExecution bench_exec = run_benchmark_plan(bench_plan, printer, storage_manager);
+        c_report.benchmark_runs[bench_plan.backend.impl][bench_plan.workload.impl] = bench_exec;
       }
       return c_report;
     }

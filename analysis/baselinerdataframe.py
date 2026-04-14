@@ -1,4 +1,6 @@
 from typing import Optional,TypeAlias,Any
+from collections import defaultdict
+import copy
 from enum import Enum
 import pandas as pd
 import json 
@@ -62,6 +64,13 @@ class Option(BaseModel):
 
 OptionsMap:TypeAlias = dict[str,dict[str,Option]]
 
+def merge_options_maps(*maps: OptionsMap) -> OptionsMap:
+    merged: OptionsMap = defaultdict(dict)
+    for m in maps:
+        for interface_name, in_dict in m.items():
+            for option_name, val in in_dict.items():
+                merged[interface_name][option_name] = val
+    return dict(merged)
 
 ### Plan
 
@@ -83,6 +92,7 @@ class BenchmarkPlan(BaseModel):
   workload:PlannedComponent
   backend:PlannedComponent
   stopping:PlannedComponent
+  benchmark:PlannedComponent
   stats:PlannedStat
   sweep:Optional[SweepSpec] = None
 
@@ -92,21 +102,20 @@ class Metric(BaseModel):
   unit:str
   data:Any
 
-class SingleRunReport(BaseModel):
+class RunReport(BaseModel):
   id:str
   sweep_point:OptionsMap
   measurements:list[Metric]
   
 class Hardware(BaseModel):
-  name:str
+  card_name:str
   
 class BenchmarkReport(BaseModel):
   id:str
-  results:list[SingleRunReport]
+  results:list[RunReport]
   hardware:Hardware
 
-class RunReport(BaseModel):
-  id:str
+class BenchmarkExecution(BaseModel):
   plan:BenchmarkPlan
   benchmark_report:BenchmarkReport
 
@@ -114,8 +123,8 @@ class CampaignReport(BaseModel):
   id:str
   name:str
   recipe_name:str
-  recipe:Recipe
-  benchmark_runs:dict[str,dict[str,RunReport]]
+  recipe:Recipe       #[backend,[workload,Exec]
+  benchmark_runs:dict[str,dict[str,BenchmarkExecution]]
     
 class Report(BaseModel):
   """Class to hold a Baseliner Report"""
@@ -136,9 +145,93 @@ class ReportDataframe:
   m_report:Report
   m_vectors_df:pd.DataFrame
   m_scalars_df:pd.DataFrame
+  m_metadata_df:pd.DataFrame # datetime,baseliner_version,git_version,report_id,campaign_id,benchmark_id,run_id,interface.option
   
   def __init__(self,json_filepath):
     json = load_json(json_filepath)
     self.m_report =  Report.model_validate(json) 
-  
-  
+    self.populate_dataframes()
+    
+  def filter(self, **kwargs) -> "ReportDataframe":
+    mask = pd.Series(True, index=self.m_metadata_df.index)
+    
+    for key, value in kwargs.items():
+        if key not in self.m_metadata_df.columns:
+            available = self.m_metadata_df.columns.tolist()
+            raise ValueError(f"Column '{key}' not found. Available: {available}")
+        
+        if isinstance(value, list):
+            mask &= self.m_metadata_df[key].isin(value)
+        else:
+            mask &= self.m_metadata_df[key] == value
+    
+    filtered_run_ids = self.m_metadata_df[mask]["run_id"]
+    
+    result = copy.copy(self)
+    result.m_metadata_df = self.m_metadata_df[mask].reset_index(drop=True)
+    result.m_scalars_df = self.m_scalars_df[
+        self.m_scalars_df["run_id"].isin(filtered_run_ids)
+    ].reset_index(drop=True)
+    result.m_vectors_df = self.m_vectors_df[
+        self.m_vectors_df["run_id"].isin(filtered_run_ids)
+    ].reset_index(drop=True)
+    
+    return result
+
+  def populate_dataframes(self):
+      metadata_rows = [] # Remplacement du dictionnaire de listes par une liste de dictionnaires
+      vector_rows = defaultdict(dict)
+      scalar_rows = defaultdict(dict)
+      
+      for campaign in self.m_report.campaign_runs:
+        for backend, inner_dict in campaign.benchmark_runs.items():
+          for workload, bench_exec in inner_dict.items():
+            
+            full_options: OptionsMap = defaultdict(dict)
+            full_options = merge_options_maps(
+                full_options,
+                bench_exec.plan.backend.options,
+                bench_exec.plan.workload.options,
+                bench_exec.plan.stopping.options,
+                bench_exec.plan.stats.options,
+                bench_exec.plan.benchmark.options
+            )
+            
+            for run in bench_exec.benchmark_report.results:
+              row_data = {
+                  "datetime": self.m_report.datetime,
+                  "baseliner_version": self.m_report.baseliner_version,
+                  "git_version": self.m_report.git_version,
+                  "report_id": self.m_report.id,
+                  "campaign_id": campaign.id,
+                  "benchmark_id": bench_exec.benchmark_report.id,
+                  "run_id": run.id,
+                  "backend": bench_exec.plan.backend.impl,
+                  "workload": bench_exec.plan.workload.impl,
+                  "stopping": bench_exec.plan.stopping.impl,
+                  "hardware.card_name": bench_exec.benchmark_report.hardware.card_name
+              }
+
+              options: OptionsMap = merge_options_maps(full_options, run.sweep_point)
+              for interface, in_dict in options.items():
+                for option, inner in in_dict.items():
+                  row_data[f"{interface}.{option}"] = inner.value
+              
+              metadata_rows.append(row_data)
+
+              for metrics in run.measurements:
+                if isinstance(metrics.data, list):
+                  for i, val in enumerate(metrics.data):
+                      vector_rows[(run.id, i)]["run_id"] = run.id
+                      vector_rows[(run.id, i)]["run_nb"] = i
+                      vector_rows[(run.id, i)][metrics.name] = val
+                      if metrics.unit != "":
+                        vector_rows[(run.id, i)][f"{metrics.name}.unit"] = metrics.unit
+                else:
+                  scalar_rows[run.id]["run_id"] = run.id
+                  scalar_rows[run.id][metrics.name] = metrics.data
+                  scalar_rows[run.id][f"{metrics.name}.unit"] = metrics.unit
+                  
+      self.m_metadata_df = pd.DataFrame(metadata_rows)
+      self.m_scalars_df = pd.DataFrame(scalar_rows.values())
+      self.m_vectors_df = pd.DataFrame(vector_rows.values())
