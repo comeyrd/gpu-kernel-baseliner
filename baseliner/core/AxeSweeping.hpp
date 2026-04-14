@@ -64,44 +64,50 @@ namespace Baseliner {
   namespace Sweep {
 
     namespace Detail {
-
-      template <typename T>
+      template <typename T, typename Enable = void>
       struct Sweeper {
+        static auto generate(const TypedSweepHint<T> & /*unused*/) -> std::vector<T> {
+          static_assert(sizeof(T) == 0, "Sweeper not supported for this type. Use Enumerated policy only.");
+        }
+      };
+      template <typename T>
+      struct Sweeper<T, std::enable_if_t<std::is_arithmetic<T>::value>> {
         static auto generate(const TypedSweepHint<T> &hint) -> std::vector<T> {
           if (hint.policy == SweepPolicy::Enumerated) {
             return hint.enumerated;
           }
 
           std::vector<T> result;
+
           if (hint.policy == SweepPolicy::LinearRange) {
             if (hint.step <= static_cast<T>(0)) {
               throw std::invalid_argument("Step must be > 0");
             }
-            for (T value = hint.min; value <= hint.max; value += hint.step) {
-              result.push_back(value);
+
+            for (T val = hint.min; val <= hint.max; val += hint.step) {
+              result.push_back(val);
             }
-          } else if (hint.policy == SweepPolicy::PowersOfTwo) {
+          }
+
+          else if (hint.policy == SweepPolicy::PowersOfTwo) {
             if (hint.min <= static_cast<T>(0)) {
               throw std::invalid_argument("Min must be > 0");
             }
-            for (T value = hint.min; value <= hint.max; value *= static_cast<T>(2)) {
-              result.push_back(value);
+            for (T val = hint.min; val <= hint.max; val *= static_cast<T>(2)) {
+              result.push_back(val);
             }
           }
+
           return result;
         }
       };
-
-      template <>
-      struct Sweeper<bool> {
-        static auto generate(const TypedSweepHint<bool> &hint) -> std::vector<bool> {
-          if (hint.policy == SweepPolicy::Enumerated) {
-            return hint.enumerated;
+      template <typename T>
+      struct Sweeper<T, std::enable_if_t<!std::is_arithmetic_v<T>>> {
+        static auto generate(const TypedSweepHint<T> &hint) -> std::vector<T> {
+          if (hint.policy != SweepPolicy::Enumerated) {
+            throw std::invalid_argument("Non-arithmetic types only support Enumerated sweep policy");
           }
-          if (hint.min == hint.max) {
-            return {hint.min};
-          }
-          return {false, true};
+          return hint.enumerated;
         }
       };
     } // namespace Detail
