@@ -113,7 +113,7 @@ __global__ void MatrixMulCUDA(float *C, float *A, float *B, int wA, int wB) {
 // Interface Implementation
 // ----------------------------------------------------------------------
 
-void MatrixMulKernel::run(std::shared_ptr<cudaStream_t> stream) {
+auto MatrixMulKernel::run(std::shared_ptr<cudaStream_t> stream) -> std::monostate {
   // Dispatch based on block size template parameter
   if (get_input()->m_block_size == 16) { // NOLINT
     MatrixMulCUDA<16>                    // NOLINT
@@ -122,5 +122,6 @@ void MatrixMulKernel::run(std::shared_ptr<cudaStream_t> stream) {
     MatrixMulCUDA<32> // NOLINT
         <<<m_grid, m_threads, 0, *stream>>>(m_d_C, m_d_A, m_d_B, get_input()->m_wA, get_input()->m_wB);
   }
+  return {};
 }
 BASELINER_REGISTER_KERNEL(MatrixMulKernel);

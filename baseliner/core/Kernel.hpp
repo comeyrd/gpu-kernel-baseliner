@@ -57,7 +57,7 @@ namespace Baseliner {
     virtual void reset_kernel(std::shared_ptr<typename backend::stream_t> stream) = 0;
     virtual void setup_metrics(std::shared_ptr<Stats::StatsEngine> & /*engine*/) {};  // NOLINT
     virtual void update_metrics(std::shared_ptr<Stats::StatsEngine> & /*engine*/) {}; // NOLINT
-    virtual void run(std::shared_ptr<typename backend::stream_t> stream) = 0;
+    virtual auto run(std::shared_ptr<typename backend::stream_t> stream) -> typename backend::launch_result_t = 0;
     virtual void teardown(std::shared_ptr<typename backend::stream_t> stream, Output &output) = 0;
     virtual auto name() -> std::string = 0;
     IKernel(const std::shared_ptr<const Input> input)
@@ -88,8 +88,8 @@ namespace Baseliner {
     void reset_workload(std::shared_ptr<typename BackendT::stream_t> stream) override {
       m_kernel->reset_kernel(stream);
     }
-    void run_workload(std::shared_ptr<typename BackendT::stream_t> stream) override {
-      m_kernel->run(stream);
+    auto run_workload(std::shared_ptr<typename BackendT::stream_t> stream) -> std::monostate override {
+      return m_kernel->run(stream);
     }
     void teardown(std::shared_ptr<typename BackendT::stream_t> stream) override {
       m_gpu_output = std::make_shared<typename Kernel::Output>(m_input);

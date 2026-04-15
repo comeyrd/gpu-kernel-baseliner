@@ -146,6 +146,7 @@ namespace Baseliner {
       add_option("Benchmark", "warmup", "Having a warmup run", m_warmup);
       add_option("Benchmark", "timed_setup", "Time the setup", m_time_setup);
       add_option("Benchmark", "timed_teardown", "Time the teardown", m_time_teardown);
+      add_option("Benchmark", "batch_size", "The size of the batch", m_batch_size);
     }
 
     auto get_stopping_no_except() -> std::optional<StoppingCriterion *> {
@@ -168,6 +169,9 @@ namespace Baseliner {
       return m_backend_options;
     }
 
+    auto get_batch_size() -> size_t {
+      return m_batch_size;
+    }
     void print_callback(const RunReport &report) {
       if (m_printer) {
         m_printer->consume_single_run_report(report);
@@ -180,9 +184,10 @@ namespace Baseliner {
     bool m_flush_l2 = true;
     bool m_block = false;
     float m_block_duration_ms = DEFAULT_BLOCK_DURATION;
-    bool m_time_setup = false;
+    bool m_time_setup = true;
     bool m_time_teardown = false;
     bool m_first = true;
+    size_t m_batch_size{25};
     OptionsMap stats_options;
     std::string m_name{DEFAULT_BENCHMARK_NAME};
     std::unique_ptr<StoppingCriterion> m_stopping;
@@ -267,22 +272,43 @@ namespace Baseliner {
     [[nodiscard]] auto single_run(const std::optional<OptionsMap> &sweep_point) -> RunReport override {
       this->apply_sweep_point(sweep_point);
       m_stream = BackendT::instance()->create_stream();
+      std::unique_ptr<ITimer<BackendT>> timer = std::make_unique<CpuTimer<BackendT>>();
       check_components();
       setup_metrics();
       get_stats_engine()->reset_engine();
-      m_workload->setup(m_stream);
+      timer->init();
+
+      timer->measure([this](auto stream) { m_workload->setup(stream); }, m_stream);
       update_metrics();
+      if (get_timed_setup()) {
+        get_stats_engine()->template update_values<Stats::SetupTime>(timer->elapsed());
+      }
+
       pre_all();
       while (!get_stopping()->satisfied()) {
         if (ExecutionController::exit_requested()) {
           break;
         }
-        m_workload->reset_workload(m_stream);
-        pre_run();
-        m_workload->timed_run(m_stream);
-        post_run();
-        get_stats_engine()->template update_values<Stats::ExecutionTime>(m_workload->time_elapsed());
-        get_stats_engine()->compute_stats();
+        if (get_block()) {
+          m_blocker->block(m_stream, get_block_duration());
+        }
+        timer->init_batch(get_batch_size());
+        for (int batch = 0; batch < get_batch_size(); batch++) {
+          if (get_flush_l2()) {
+            m_flusher->flush(m_stream);
+          }
+          m_workload->reset_workload(m_stream);
+          timer->measure_batch([this](auto stream, auto &e) { e = m_workload->run_workload(stream); }, m_stream);
+        }
+        BackendT::get_last_error();
+        if (get_block()) {
+          m_blocker->unblock();
+        }
+        auto timer_v = timer->elapsed_batch();
+        for (int batch = 0; batch < get_batch_size(); batch++) {
+          get_stats_engine()->template update_values<Stats::ExecutionTime>(timer_v[batch]);
+          get_stats_engine()->compute_stats();
+        }
       }
       post_all();
       m_workload->teardown(m_stream);
@@ -342,22 +368,8 @@ namespace Baseliner {
     }
     virtual void pre_all() {
       if (get_warmup()) {
-        m_workload->timed_run(m_stream);
-        get_stats_engine()->template update_values<Stats::WarmupTime>(m_workload->time_elapsed());
-      }
-    };
-    virtual void pre_run() {
-      if (get_flush_l2()) {
-        m_flusher->flush(m_stream);
-      }
-      if (get_block()) {
-        m_blocker->block(m_stream, get_block_duration());
-      }
-    };
-    virtual void post_run() {
-      BackendT::get_last_error();
-      if (get_block()) {
-        m_blocker->unblock();
+        m_workload->run_workload(m_stream);
+        // get_stats_engine()->template update_values<Stats::WarmupTime>();
       }
     };
     virtual void post_all() {

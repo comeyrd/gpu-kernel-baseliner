@@ -181,7 +181,7 @@ public:
     CHECK_CUDA(cudaMemsetAsync(m_d_C, 0, mem_size_C, *stream));
   };
 
-  void run(std::shared_ptr<cudaStream_t> stream) override;
+  auto run(std::shared_ptr<cudaStream_t> stream) -> std::monostate override;
 
   void teardown(std::shared_ptr<cudaStream_t> stream, Output &output) override {
     size_t mem_size_C = get_input()->m_hA * get_input()->m_wB * sizeof(float);

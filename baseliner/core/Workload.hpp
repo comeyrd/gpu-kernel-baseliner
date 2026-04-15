@@ -2,7 +2,6 @@
 #define BASELINER_CORE_WORKLOAD_HPP
 #include <baseliner/core/Options.hpp>
 
-#include <baseliner/core/Timer.hpp>
 #include <baseliner/core/hardware/Backend.hpp>
 #include <baseliner/core/stats/Stats.hpp>
 #include <baseliner/core/stats/StatsEngine.hpp>
@@ -37,7 +36,7 @@ namespace Baseliner {
   };
 
   template <typename BackendT>
-  class IWorkload : public Hardware::GpuTimer<BackendT>, public IBaseWorkload {
+  class IWorkload : public IBaseWorkload {
   public:
     using backend = BackendT;
     IWorkload() = default;
@@ -47,7 +46,8 @@ namespace Baseliner {
     virtual void workload_setup_metrics(std::shared_ptr<Stats::StatsEngine> & /*engine*/) {};
     virtual void workload_update_metrics(std::shared_ptr<Stats::StatsEngine> & /*engine*/) {};
     virtual void reset_workload(std::shared_ptr<typename BackendT::stream_t> stream) = 0;
-    virtual void run_workload(std::shared_ptr<typename BackendT::stream_t> stream) = 0;
+    virtual auto run_workload(std::shared_ptr<typename BackendT::stream_t> stream) ->
+        typename backend::launch_result_t = 0;
     virtual void teardown(std::shared_ptr<typename BackendT::stream_t> stream) = 0;
     virtual auto validate_workload() -> bool = 0;
     void setup_metrics(std::shared_ptr<Stats::StatsEngine> engine) {
@@ -78,21 +78,6 @@ namespace Baseliner {
         engine->update_values<Stats::FLOPCount>(flops.value());
       }
       this->workload_update_metrics(engine);
-    };
-    virtual void timed_run(std::shared_ptr<typename BackendT::stream_t> stream) {
-      this->measure_start(stream);
-      run_workload(stream);
-      this->measure_stop(stream);
-    };
-    virtual void time_setup(std::shared_ptr<typename BackendT::stream_t> stream) {
-      this->measure_start(stream);
-      setup(stream);
-      this->measure_stop(stream);
-    };
-    virtual void time_teardown(std::shared_ptr<typename BackendT::stream_t> stream) {
-      this->measure_start(stream);
-      teardown(stream);
-      this->measure_stop(stream);
     };
 
   private:

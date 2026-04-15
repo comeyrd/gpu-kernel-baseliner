@@ -21,6 +21,7 @@ namespace Baseliner {
     HardwareError,
     StatsEngineError,
     NotImplemented,
+    TimerError,
   };
   inline auto error_code_to_string(ErrorCode code) -> std::string {
     switch (code) {
@@ -46,6 +47,8 @@ namespace Baseliner {
       return "StatsEngineError";
     case ErrorCode::NotImplemented:
       return "NotImplemented";
+    case ErrorCode::TimerError:
+      return "TimerError";
     }
     return "Unknown";
   }
@@ -185,6 +188,18 @@ namespace Baseliner {
     }
     inline auto not_implemented(const std::string &name) -> Error {
       return {ErrorCode::StatsEngineError, name + " is currently not implemented."};
+    }
+    inline auto timer_stop_before_start() -> Error {
+      return {ErrorCode::TimerError, ".stop() called before a .start() was called"};
+    }
+    inline auto timer_elapsed_before_stop() -> Error {
+      return {ErrorCode::TimerError, ".time_elapsed() called before .stop(), or before any measurement made"};
+    }
+    inline auto timer_start_before_stop() -> Error {
+      return {ErrorCode::TimerError, ".start() was called before the previous .stop() was called"};
+    }
+    inline auto timer_exhausted_batch_size_events() -> Error {
+      return {ErrorCode::TimerError, "start() and stop() was called more than the batch size"};
     }
 
   } // namespace Errors

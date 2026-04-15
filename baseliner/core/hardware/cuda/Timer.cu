@@ -1,49 +1,42 @@
 #include <baseliner/core/hardware/cuda/CudaBackend.hpp>
+#include <baseliner/core/hardware/cuda/Timer.hpp>
 namespace Baseliner::Hardware {
 
-  GpuTimer<CudaBackend>::GpuTimer() {
-    int current_device = CudaBackend::instance()->get_current_device();
-    int max_device = CudaBackend::get_device_count();
-    m_start_event.resize(max_device);
-    m_stop_event.resize(max_device);
-    for (int device = 0; device < max_device; device++) {
-      CudaBackend::set_device(device);
-      alloc(device);
+  void GpuTimer<CudaBackend>::start() {
+    if (m_start_p != m_stop_p) {
+      throw Errors::timer_start_before_stop();
     }
-    CudaBackend::set_device(current_device);
-  }
-  GpuTimer<CudaBackend>::~GpuTimer() {
-    int current_device = CudaBackend::instance()->get_current_device();
-    int max_device = CudaBackend::get_device_count();
-    for (int device = 0; device < max_device; device++) {
-      CudaBackend::set_device(device);
-      free(device);
+    if (m_start_p >= m_batchsize) {
+      throw Errors::timer_exhausted_batch_size_events();
     }
-    CudaBackend::set_device(current_device);
-  }
-
-  void GpuTimer<CudaBackend>::alloc(int device) {
-    CHECK_CUDA(cudaEventCreate(&m_start_event[device]));
-    CHECK_CUDA(cudaEventCreate(&m_stop_event[device]));
-  }
-  void GpuTimer<CudaBackend>::free(int device) {
-    CHECK_CUDA(cudaEventDestroy(m_start_event[device]));
-    CHECK_CUDA(cudaEventDestroy(m_stop_event[device]));
-  }
-  void GpuTimer<CudaBackend>::measure_start(std::shared_ptr<CudaBackend::stream_t> stream) {
-    int device = CudaBackend::instance()->get_current_device();
-    CHECK_CUDA(cudaEventRecord(m_start_event[device], *stream));
+    CHECK_CUDA(cudaEventRecord(m_start_event[m_start_p], *this->m_stream));
+    m_start_p++;
   };
-  void GpuTimer<CudaBackend>::measure_stop(std::shared_ptr<CudaBackend::stream_t> stream) {
-    int device = CudaBackend::instance()->get_current_device();
-    CHECK_CUDA(cudaEventRecord(m_stop_event[device], *stream));
+  void GpuTimer<CudaBackend>::stop() {
+    if ((m_start_p - 1) != m_stop_p) {
+      throw Errors::timer_stop_before_start();
+    }
+    if (m_stop_p >= m_batchsize) {
+      throw Errors::timer_exhausted_batch_size_events();
+    }
+    CHECK_CUDA(cudaEventRecord(m_stop_event[m_stop_p], *this->m_stream));
+    m_stop_p++;
   };
-  auto GpuTimer<CudaBackend>::time_elapsed() -> float_milliseconds {
-    float result{};
-    int device = CudaBackend::instance()->get_current_device();
-    CHECK_CUDA(cudaEventSynchronize(m_stop_event[device]));
-    CHECK_CUDA(cudaEventElapsedTime(&result, m_start_event[device], m_stop_event[device]));
-    return float_milliseconds(result);
+  auto GpuTimer<CudaBackend>::time_elapsed() -> std::vector<float_milliseconds> {
+    if (m_start_p != m_stop_p) {
+      throw Errors::timer_elapsed_before_stop();
+    }
+    std::vector<float_milliseconds> results;
+    results.resize(m_start_p);
+    CHECK_CUDA(cudaEventSynchronize(m_stop_event[m_start_p - 1])); // Get the last element(m_start_p -1)
+    for (size_t index = 0; index < m_start_p; index++) {
+      float temp_f{};
+      CHECK_CUDA(cudaEventElapsedTime(&temp_f, m_start_event[index], m_stop_event[index]));
+      results[index] = float_milliseconds(temp_f);
+    }
+    m_start_p = 0;
+    m_stop_p = 0;
+    return results;
   };
 
 } // namespace Baseliner::Hardware

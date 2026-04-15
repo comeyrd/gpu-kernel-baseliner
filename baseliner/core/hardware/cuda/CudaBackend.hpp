@@ -3,6 +3,7 @@
 #include "cuda_runtime.h"
 #include <baseliner/core/Benchmark.hpp>
 #include <baseliner/core/Kernel.hpp>
+#include <baseliner/core/Timer.hpp>
 #include <baseliner/core/hardware/Backend.hpp>
 
 void check_cuda_error(cudaError_t error_code, const char *file, int line);                // NOLINT
@@ -12,28 +13,7 @@ void check_cuda_error_no_except(cudaError_t error_code, const char *file, int li
 
 namespace Baseliner {
   namespace Hardware {
-    using CudaBackend = Backend<cudaStream_t>;
-    template <>
-    class GpuTimer<CudaBackend> {
-    public:
-      ~GpuTimer();
-      GpuTimer();
-      GpuTimer(const GpuTimer &) = delete;
-      auto operator=(const GpuTimer &) -> GpuTimer & = delete;
-      GpuTimer(GpuTimer &&) = delete;
-      auto operator=(GpuTimer &&) -> GpuTimer & = delete;
-
-      void measure_start(std::shared_ptr<typename CudaBackend::stream_t> stream);
-      void measure_stop(std::shared_ptr<typename CudaBackend::stream_t> stream);
-      auto time_elapsed() -> float_milliseconds;
-
-    protected:
-    private:
-      void alloc(int device);
-      void free(int device);
-      std::vector<cudaEvent_t> m_start_event;
-      std::vector<cudaEvent_t> m_stop_event;
-    };
+    using CudaBackend = Backend<cudaStream_t, std::monostate>;
   } // namespace Hardware
   using ICudaWorkload = IWorkload<Hardware::CudaBackend>;
   using CudaBenchmark = Benchmark<Hardware::CudaBackend>;

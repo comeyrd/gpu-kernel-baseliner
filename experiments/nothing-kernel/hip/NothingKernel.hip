@@ -27,8 +27,9 @@ namespace Baseliner {
     }
   };
   template <>
-  void NothingKernel<HipBackend>::run_workload(std::shared_ptr<typename backend::stream_t> stream) {
+  auto NothingKernel<HipBackend>::run_workload(std::shared_ptr<typename backend::stream_t> stream) -> std::monostate {
     nothing_kernel<<<m_blocks, m_threads, 0, *stream>>>(m_d_buffer);
+    return {};
   };
   template <>
   void NothingKernel<HipBackend>::teardown(std::shared_ptr<typename backend::stream_t> stream) {

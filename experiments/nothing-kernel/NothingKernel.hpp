@@ -15,7 +15,8 @@ namespace Baseliner {
     }
     void setup(std::shared_ptr<typename backend::stream_t> stream) override;
     void reset_workload(std::shared_ptr<typename backend::stream_t> stream) override;
-    void run_workload(std::shared_ptr<typename backend::stream_t> stream) override;
+    auto run_workload(std::shared_ptr<typename backend::stream_t> stream) ->
+        typename BackendT::launch_result_t override;
     void teardown(std::shared_ptr<typename backend::stream_t> stream) override;
     void register_options() override {
       IWorkload<BackendT>::register_options();

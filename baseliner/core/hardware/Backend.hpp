@@ -25,31 +25,32 @@ namespace Baseliner::Hardware {
   template <typename BackendT>
   class GpuTimer;
 
-  template <typename S>
+  template <typename S, typename O>
   class Backend : public IOption {
-    friend class BlockingKernel<Backend<S>>;
-    friend class L2Flusher<Backend<S>>;
-    friend class GpuTimer<Backend<S>>;
+    friend class BlockingKernel<Backend<S, O>>;
+    friend class L2Flusher<Backend<S, O>>;
+    friend class GpuTimer<Backend<S, O>>;
 
   public:
     using stream_t = S;
-    static auto instance() -> Backend<S> * {
-      static Backend<S> backend;
+    using launch_result_t = O;
+    static auto instance() -> Backend<S, O> * {
+      static Backend<S, O> backend;
       return &backend;
     }
 
     auto create_stream() -> std::shared_ptr<stream_t> {
       this->set_device();
-      return Backend<S>::inner_create_stream();
+      return Backend<S, O>::inner_create_stream();
     };
     static auto get_device_count() -> int;
     static void synchronize(std::shared_ptr<stream_t> stream);
     static void get_last_error();
     void set_device() {
-      if (m_device >= Backend<S>::get_device_count()) {
-        throw Errors::hardware_illegal_device_setting(m_device, Backend<S>::get_device_count());
+      if (m_device >= Backend<S, O>::get_device_count()) {
+        throw Errors::hardware_illegal_device_setting(m_device, Backend<S, O>::get_device_count());
       }
-      Backend<S>::set_device(m_device);
+      Backend<S, O>::set_device(m_device);
     };
     auto get_device_info() -> HardwareInfo;
     auto get_current_device() -> int {
@@ -168,23 +169,6 @@ namespace Baseliner::Hardware {
     static void timeout_detected() {
       std::cout << "Deadlock detected" << "\n";
     };
-  };
-
-  template <typename BackendT>
-  class GpuTimer {
-  public:
-    ~GpuTimer();
-    GpuTimer();
-    GpuTimer(const GpuTimer &) = delete;
-    auto operator=(const GpuTimer &) -> GpuTimer & = delete;
-    GpuTimer(GpuTimer &&) = delete;
-    auto operator=(GpuTimer &&) -> GpuTimer & = delete;
-    auto time_elapsed() -> float_milliseconds;
-
-    void measure_start(std::shared_ptr<typename BackendT::stream_t> stream);
-    void measure_stop(std::shared_ptr<typename BackendT::stream_t> stream);
-
-  protected:
   };
 } // namespace Baseliner::Hardware
 
