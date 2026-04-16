@@ -23,12 +23,13 @@ namespace Baseliner {
     virtual void measure(const Funct &kernel, Stream &stream) = 0;
     virtual auto elapsed() -> float_milliseconds = 0;
 
-    virtual void init_batch(size_t batch_size) = 0;
+    virtual void init_batch(size_t batch_size, bool is_blocking) = 0;
     virtual void measure_batch(const Kernel &kernel, Stream &stream) = 0;
     virtual void measure_batch(const Funct &kernel, Stream &stream) = 0;
     virtual auto elapsed_batch() -> std::vector<float_milliseconds> = 0;
   };
 
+  // TODO add checks and throws
   template <typename BackendT>
   class CpuTimer final : public ITimer<BackendT> {
     using Clock = std::chrono::steady_clock;
@@ -39,6 +40,9 @@ namespace Baseliner {
 
   public:
     void init() override {
+      if (m_state != State::Idle) {
+        throw Errors::timer_init_on_not_idle();
+      }
       reset();
       m_state = State::Single;
       m_starts.resize(1);
@@ -46,6 +50,9 @@ namespace Baseliner {
     }
 
     void measure(const Funct &funct, Stream &stream) override {
+      if (m_state != State::Single) {
+        throw Errors::timer_not_single_state("measure()");
+      }
       m_starts[0] = Clock::now();
       funct(stream);
       BackendT::instance()->synchronize(stream);
@@ -61,22 +68,38 @@ namespace Baseliner {
     }
 
     auto elapsed() -> float_milliseconds override {
+      if (m_state != State::Single) {
+        throw Errors::timer_not_single_state("elapsed()");
+      }
       m_state = State::Idle;
       return float_milliseconds(m_stops[0] - m_starts[0]);
     }
 
-    void init_batch(size_t batch_size) override {
+    void init_batch(size_t batch_size, bool is_blocking) override {
+      if (m_state != State::Idle) {
+        throw Errors::timer_init_on_not_idle();
+      }
       reset();
       m_state = State::Batch;
       m_batch_size = batch_size;
       m_starts.reserve(batch_size);
       m_stops.reserve(batch_size);
+      m_is_blocking = is_blocking;
+      if (m_is_blocking) {
+        std::cout << "[Baseliner][CpuTimer] Warning : using CpuTimer while using a blocking kernel gives back wrong "
+                     "measurements";
+      }
     }
 
     void measure_batch(const Funct &funct, Stream &stream) override {
+      if (m_state != State::Batch) {
+        throw Errors::timer_not_batch("measure_batch()");
+      }
       m_starts.push_back(Clock::now());
       funct(stream);
-      BackendT::instance()->synchronize(stream);
+      if (!m_is_blocking) {
+        BackendT::instance()->synchronize(stream);
+      }
       m_stops.push_back(Clock::now());
     }
     void measure_batch(const Kernel &kernel, Stream &stream) override {
@@ -88,6 +111,9 @@ namespace Baseliner {
           stream);
     }
     auto elapsed_batch() -> std::vector<float_milliseconds> override {
+      if (m_state != State::Batch) {
+        throw Errors::timer_not_batch("elapsed_batch()");
+      }
       std::vector<float_milliseconds> results;
       results.reserve(m_starts.size());
       for (size_t i = 0; i < m_starts.size(); ++i) {
@@ -111,6 +137,7 @@ namespace Baseliner {
     }
 
     State m_state = State::Idle;
+    bool m_is_blocking{false};
     size_t m_batch_size = 0;
     std::vector<TimePoint> m_starts;
     std::vector<TimePoint> m_stops;

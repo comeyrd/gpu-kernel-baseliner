@@ -8,6 +8,23 @@
 #include <iomanip>
 #include <string>
 #include <vector>
+
+#ifdef __linux__
+#include <sys/ioctl.h>
+#include <unistd.h>
+inline auto get_max_size() -> size_t {
+  struct winsize w;
+  if (ioctl(STDOUT_FILENO, TIOCGWINSZ, &w) == 0 && w.ws_col > 0) {
+    return w.ws_col;
+  }
+  return 180;
+}
+#else
+inline auto get_max_size() -> size_t {
+  return 180;
+}
+#endif
+
 namespace Baseliner::Cli {
   constexpr size_t MIN_COL_SIZE = 12;
   struct Cell {
@@ -58,7 +75,23 @@ namespace Baseliner::Cli {
         headers.push_back({id, name, size});
       }
     }
-    return headers;
+    size_t curr_sz = 0;
+    std::vector<Cell> full_header;
+    full_header.reserve(headers.size());
+    size_t max_size = get_max_size();
+    for (auto &cell : headers) {
+      if ((curr_sz + cell.width + 1) > max_size) {
+        break;
+      }
+      curr_sz += cell.width + 1;
+      full_header.push_back(cell);
+    }
+    full_header.shrink_to_fit();
+    if (full_header.size() != headers.size()) {
+      std::cout << "Warning : Terminal output is truncated due to terminal size and metric sizes, full output in "
+                   "report file\n";
+    }
+    return full_header;
   }
   inline void print_headers(const Row &headers) {
     for (const auto &cell : headers) {

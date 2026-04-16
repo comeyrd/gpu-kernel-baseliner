@@ -79,18 +79,7 @@ namespace Baseliner {
     [[nodiscard]] auto get_block_duration() const -> float {
       return m_block_duration_ms;
     };
-    void set_m_timed_setup(bool timed_setup) {
-      m_time_setup = timed_setup;
-    };
-    [[nodiscard]] auto get_timed_setup() const -> bool {
-      return m_time_setup;
-    };
-    void set_m_timed_teardown(bool timed_teardown) {
-      m_time_teardown = timed_teardown;
-    };
-    [[nodiscard]] auto get_timed_teardown() const -> bool {
-      return m_time_teardown;
-    };
+
     [[nodiscard]] auto get_first() const -> bool {
       return m_first;
     }
@@ -144,8 +133,6 @@ namespace Baseliner {
       add_option("Benchmark", "block_duration", "Duration of the blocking kernel (in ms)", m_block_duration_ms);
       add_option("Benchmark", "flush", "Enables the flushing of the L2 cache", m_flush_l2);
       add_option("Benchmark", "warmup", "Having a warmup run", m_warmup);
-      add_option("Benchmark", "timed_setup", "Time the setup", m_time_setup);
-      add_option("Benchmark", "timed_teardown", "Time the teardown", m_time_teardown);
       add_option("Benchmark", "batch_size", "The size of the batch", m_batch_size);
     }
 
@@ -184,8 +171,6 @@ namespace Baseliner {
     bool m_flush_l2 = true;
     bool m_block = false;
     float m_block_duration_ms = DEFAULT_BLOCK_DURATION;
-    bool m_time_setup = true;
-    bool m_time_teardown = false;
     bool m_first = true;
     size_t m_batch_size{25};
     OptionsMap stats_options;
@@ -218,8 +203,6 @@ namespace Baseliner {
     BASELINER_BENCHMARK_SETTER(block, bool);
     BASELINER_BENCHMARK_SETTER(block_duration, float);
     BASELINER_BENCHMARK_SETTER(flush_l2, bool);
-    BASELINER_BENCHMARK_SETTER(timed_setup, float);
-    BASELINER_BENCHMARK_SETTER(timed_teardown, float);
     BASELINER_BENCHMARK_SETTER(first, bool);
 
     auto name() -> std::string override {
@@ -272,19 +255,19 @@ namespace Baseliner {
     [[nodiscard]] auto single_run(const std::optional<OptionsMap> &sweep_point) -> RunReport override {
       this->apply_sweep_point(sweep_point);
       m_stream = BackendT::instance()->create_stream();
-      std::unique_ptr<ITimer<BackendT>> timer = std::make_unique<CpuTimer<BackendT>>();
+      std::unique_ptr<ITimer<BackendT>> timer = std::make_unique<Hardware::GpuTimer<BackendT>>();
       check_components();
       setup_metrics();
       get_stats_engine()->reset_engine();
       timer->init();
-
       timer->measure([this](auto stream) { m_workload->setup(stream); }, m_stream);
       update_metrics();
-      if (get_timed_setup()) {
-        get_stats_engine()->template update_values<Stats::SetupTime>(timer->elapsed());
+      get_stats_engine()->template update_values<Stats::SetupTime>(timer->elapsed());
+      if (get_warmup()) {
+        timer->init();
+        timer->measure([this](auto stream, auto &e) { e = m_workload->run_workload(stream); }, m_stream);
+        get_stats_engine()->template update_values<Stats::WarmupTime>(timer->elapsed());
       }
-
-      pre_all();
       while (!get_stopping()->satisfied()) {
         if (ExecutionController::exit_requested()) {
           break;
@@ -292,7 +275,7 @@ namespace Baseliner {
         if (get_block()) {
           m_blocker->block(m_stream, get_block_duration());
         }
-        timer->init_batch(get_batch_size());
+        timer->init_batch(get_batch_size(), get_block());
         for (int batch = 0; batch < get_batch_size(); batch++) {
           if (get_flush_l2()) {
             m_flusher->flush(m_stream);
@@ -311,7 +294,10 @@ namespace Baseliner {
         }
       }
       post_all();
-      m_workload->teardown(m_stream);
+      timer->init();
+      timer->measure([this](auto stream) { m_workload->teardown(m_stream); }, m_stream);
+      get_stats_engine()->template update_values<Stats::TeardownTime>(timer->elapsed());
+
       bool valid_run = m_workload->validate_workload();
       if (!valid_run) {
         std::cout << "Warning, not able to validate Case : " << m_workload->name() << '\n';
@@ -353,12 +339,8 @@ namespace Baseliner {
         if (get_warmup()) {
           get_stats_engine()->template register_metric<Stats::WarmupTime>();
         }
-        if (get_timed_setup()) {
-          get_stats_engine()->template register_metric<Stats::SetupTime>();
-        }
-        if (get_timed_teardown()) {
-          get_stats_engine()->template register_metric<Stats::TeardownTime>();
-        }
+        get_stats_engine()->template register_metric<Stats::SetupTime>();
+        get_stats_engine()->template register_metric<Stats::TeardownTime>();
         if (m_workload) {
           m_workload->setup_metrics(get_stats_engine_shared());
         }
@@ -366,12 +348,7 @@ namespace Baseliner {
         set_first(false);
       }
     }
-    virtual void pre_all() {
-      if (get_warmup()) {
-        m_workload->run_workload(m_stream);
-        // get_stats_engine()->template update_values<Stats::WarmupTime>();
-      }
-    };
+    virtual void pre_all() {};
     virtual void post_all() {
       BackendT::synchronize(m_stream);
     };

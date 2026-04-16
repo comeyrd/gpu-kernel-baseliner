@@ -170,6 +170,9 @@ namespace Baseliner::Hardware {
       std::cout << "Deadlock detected" << "\n";
     };
   };
+  template <typename BackendT>
+  class GpuTimer : public ITimer<BackendT> {};
+
 } // namespace Baseliner::Hardware
 
 #endif // BACKEND_HPP

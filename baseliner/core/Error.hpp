@@ -189,17 +189,18 @@ namespace Baseliner {
     inline auto not_implemented(const std::string &name) -> Error {
       return {ErrorCode::StatsEngineError, name + " is currently not implemented."};
     }
-    inline auto timer_stop_before_start() -> Error {
-      return {ErrorCode::TimerError, ".stop() called before a .start() was called"};
+    inline auto timer_init_on_not_idle() -> Error {
+      return {ErrorCode::TimerError, "init() was called before a closing elapsed()"};
     }
-    inline auto timer_elapsed_before_stop() -> Error {
-      return {ErrorCode::TimerError, ".time_elapsed() called before .stop(), or before any measurement made"};
+    inline auto timer_not_single_state(const std::string &name) -> Error {
+      return {ErrorCode::TimerError, name + " was not called on a init() timer "};
     }
-    inline auto timer_start_before_stop() -> Error {
-      return {ErrorCode::TimerError, ".start() was called before the previous .stop() was called"};
+    inline auto timer_not_batch(const std::string &name) -> Error {
+      return {ErrorCode::TimerError, name + " was not called on a init_batch() timer"};
     }
-    inline auto timer_exhausted_batch_size_events() -> Error {
-      return {ErrorCode::TimerError, "start() and stop() was called more than the batch size"};
+    inline auto timer_more_measure_than_batch(size_t batchsize) -> Error {
+      return {ErrorCode::TimerError, "measure_batch() was called more than batch_size() was defined : batch_size=" +
+                                         std::to_string(batchsize)};
     }
 
   } // namespace Errors

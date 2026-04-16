@@ -14,6 +14,133 @@ void check_cuda_error_no_except(cudaError_t error_code, const char *file, int li
 namespace Baseliner {
   namespace Hardware {
     using CudaBackend = Backend<cudaStream_t, std::monostate>;
+    template <>
+    class GpuTimer<CudaBackend> : public ITimer<CudaBackend> {
+    public:
+      using Stream = ITimer<CudaBackend>::Stream;
+      using Kernel = ITimer<CudaBackend>::Kernel;
+      using Funct = ITimer<CudaBackend>::Funct;
+
+      ~GpuTimer() = default;
+      void init() override {
+        if (m_state != State::Idle) {
+          throw Errors::timer_init_on_not_idle();
+        }
+        reset();
+        m_state = State::Single;
+        m_starts.resize(1);
+        m_stops.resize(1);
+        CHECK_CUDA(cudaEventCreate(&m_starts[0]));
+        CHECK_CUDA(cudaEventCreate(&m_stops[0]));
+      };
+      void measure(const Funct &funct, Stream &stream) override {
+
+        CHECK_CUDA(cudaEventRecord(m_starts[0], *stream));
+        funct(stream);
+        CHECK_CUDA(cudaEventRecord(m_stops[0], *stream));
+      }
+      void measure(const Kernel &kernel, Stream &stream) override {
+        if (m_state != State::Single) {
+          throw Errors::timer_not_single_state("measure()");
+        }
+        measure(
+            [&kernel](Stream &s) {
+              typename CudaBackend::launch_result_t result;
+              kernel(s, result);
+            },
+            stream);
+      }
+
+      auto elapsed() -> float_milliseconds override {
+        if (m_state != State::Single) {
+          throw Errors::timer_not_single_state("elapsed()");
+        }
+        CHECK_CUDA(cudaEventSynchronize(m_stops[0]));
+        float temp_f{};
+        CHECK_CUDA(cudaEventElapsedTime(&temp_f, m_starts[0], m_stops[0]));
+        m_state = State::Idle;
+        return float_milliseconds(temp_f);
+      };
+
+      void init_batch(size_t batch_size, bool is_blocking) override {
+        if (m_state != State::Idle) {
+          throw Errors::timer_init_on_not_idle();
+        }
+        reset();
+        m_state = State::Batch;
+        m_is_blocking = is_blocking;
+        m_starts.resize(batch_size);
+        m_stops.resize(batch_size);
+        m_batch_size = batch_size;
+        for (size_t idx = 0; idx < batch_size; idx++) {
+          CHECK_CUDA(cudaEventCreate(&m_starts[idx]));
+          CHECK_CUDA(cudaEventCreate(&m_stops[idx]));
+        }
+      };
+      void measure_batch(const Kernel &kernel, Stream &stream) override {
+        measure_batch(
+            [&kernel](Stream &s) {
+              typename CudaBackend::launch_result_t result;
+              kernel(s, result);
+            },
+            stream);
+      };
+      void measure_batch(const Funct &kernel, Stream &stream) override {
+        if (m_state != State::Batch) {
+          throw Errors::timer_not_batch("measure_batch()");
+        }
+        if (m_pos_batch >= m_batch_size) {
+          throw Errors::timer_more_measure_than_batch(m_batch_size);
+        }
+        CHECK_CUDA(cudaEventRecord(m_starts[m_pos_batch], *stream));
+        kernel(stream);
+        CHECK_CUDA(cudaEventRecord(m_stops[m_pos_batch], *stream));
+        m_pos_batch++;
+      };
+      auto elapsed_batch() -> std::vector<float_milliseconds> override {
+        if (m_state != State::Batch) {
+          throw Errors::timer_not_batch("elapsed()");
+        }
+        std::vector<float_milliseconds> result_vec;
+        result_vec.reserve(m_pos_batch);
+        CHECK_CUDA(cudaEventSynchronize(m_stops[m_pos_batch - 1]));
+        for (size_t idx = 0; idx < m_pos_batch; idx++) {
+          float temp_f{};
+          CHECK_CUDA(cudaEventElapsedTime(&temp_f, m_starts[idx], m_stops[idx]));
+          result_vec.emplace_back(temp_f);
+        }
+        m_state = State::Idle;
+        return result_vec;
+      };
+
+    private:
+      void reset() {
+        for (auto start : m_starts) {
+          CHECK_CUDA(cudaEventDestroy(start));
+        }
+        for (auto stop : m_stops) {
+          CHECK_CUDA(cudaEventDestroy(stop));
+        }
+        m_starts.clear();
+        m_stops.clear();
+        m_batch_size = 0;
+        m_pos_batch = 0;
+      }
+
+      enum class State : char {
+        Idle,
+        Single,
+        Batch
+      };
+
+      size_t m_pos_batch;
+
+      State m_state = State::Idle;
+      bool m_is_blocking{false};
+      size_t m_batch_size = 0;
+      std::vector<cudaEvent_t> m_starts;
+      std::vector<cudaEvent_t> m_stops;
+    };
   } // namespace Hardware
   using ICudaWorkload = IWorkload<Hardware::CudaBackend>;
   using CudaBenchmark = Benchmark<Hardware::CudaBackend>;
@@ -58,5 +185,6 @@ public:
     static NvmlManager instance;
   }
 };
+
 #endif
 #endif // CUDA_BACKEND_HPP
