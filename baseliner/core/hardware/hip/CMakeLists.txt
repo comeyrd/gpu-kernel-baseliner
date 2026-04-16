@@ -3,7 +3,7 @@ target_sources(baseliner PRIVATE
     BlockingKernel.hip
     L2Flusher.hip
     HipStats.hip
-    Timer.hip)
+    )
 
 if(BASELINER_HAS_AMDSMI)
     target_link_libraries(baseliner PUBLIC AMD::amdsmi)

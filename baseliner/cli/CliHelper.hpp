@@ -88,8 +88,17 @@ namespace Baseliner::Cli {
     }
     full_header.shrink_to_fit();
     if (full_header.size() != headers.size()) {
-      std::cout << "Warning : Terminal output is truncated due to terminal size and metric sizes, full output in "
-                   "report file\n";
+      std::string missing_head{};
+      bool first{true};
+      for (size_t pos = full_header.size() - 1; pos < headers.size(); pos++) {
+        if (!first) {
+          missing_head += ", ";
+        }
+        missing_head += headers[pos].name;
+        first = false;
+      }
+      std::cout << "Warning : Terminal output is truncated due to terminal size missing " << missing_head
+                << " | full output in report file\n ";
     }
     return full_header;
   }
