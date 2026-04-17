@@ -64,7 +64,13 @@ __attribute__((weak)) int main(int argc, char **argv) { // NOLINT
     program.parse_args(argc, argv);
   } catch (const std::exception &err) {
     std::cerr << err.what() << "\n";
-    std::cerr << program;
+    if (program.is_subcommand_used("run")) {
+      std::cout << run_parser;
+    } else if (program.is_subcommand_used("gen")) {
+      std::cout << generate_parser;
+    } else {
+      std::cerr << program;
+    }
     return 1;
   }
 
