@@ -229,8 +229,9 @@ namespace Baseliner {
         } catch (const Error &e) {
           if (skip_error) {
             std::cerr << "Warning, error while running | " << e.what() << "\n";
+          } else {
+            throw e;
           }
-          throw e;
         }
       }
       return report;
