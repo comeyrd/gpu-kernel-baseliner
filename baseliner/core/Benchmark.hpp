@@ -229,7 +229,7 @@ namespace Baseliner {
       return report;
     }
     auto get_workload_options() -> OptionsMap override {
-      return m_workload->get_options();
+      return m_workload->get_depedencies_options();
     };
 
   protected:
