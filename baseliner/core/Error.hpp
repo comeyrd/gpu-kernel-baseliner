@@ -1,6 +1,5 @@
 #ifndef BASELINER_CORE_ERROR_HPP
 #define BASELINER_CORE_ERROR_HPP
-#include <baseliner/cli/Json.hpp>
 #include <baseliner/core/AxeSweeping.hpp>
 #include <baseliner/core/OptionTypes.hpp>
 #include <cstring>
@@ -137,15 +136,7 @@ namespace Baseliner {
       return {ErrorCode::StoppingCriterionError,
               "The stopping criterion was called before the stats engine was provided"};
     }
-    inline auto preset_not_subset_of(const OptionsMap &must_be_subset, const OptionsMap &original) -> Error {
-      std::ostringstream string_stream{};
-      string_stream << "the given preset should be a subset of the object Option Schema \n";
-      string_stream << "The given preset : \n";
-      Json::serialize(string_stream, must_be_subset);
-      string_stream << "\n" << "The object preset \n";
-      Json::serialize(string_stream, original);
-      return {ErrorCode::PresetError, string_stream.str()};
-    }
+    auto preset_not_subset_of(const OptionsMap &must_be_subset, const OptionsMap &original) -> Error;
     inline auto file_read_error(const std::string &filename) -> Error {
       return {ErrorCode::FileError, "Could not open file -" + filename + "- for reading"};
     }
