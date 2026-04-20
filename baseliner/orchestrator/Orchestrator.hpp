@@ -43,8 +43,16 @@ namespace Baseliner {
         if (ExecutionController::exit_requested()) {
           break;
         }
-        BenchmarkExecution bench_exec = run_benchmark_plan(bench_plan, printer, storage_manager);
-        c_report.benchmark_runs[bench_plan.backend.impl][bench_plan.workload.impl] = bench_exec;
+        try {
+          BenchmarkExecution bench_exec = run_benchmark_plan(bench_plan, printer, storage_manager);
+          c_report.benchmark_runs[bench_plan.backend.impl][bench_plan.workload.impl] = bench_exec;
+        } catch (const Error &e) {
+          if (campaign_plan.on_incompatible != OnIncompatible::Skip) {
+            throw e;
+          }
+          std::cerr << "Warning : " << e.what() << "\n";
+          std::cerr << "Continuing...\n";
+        }
       }
       return c_report;
     }
