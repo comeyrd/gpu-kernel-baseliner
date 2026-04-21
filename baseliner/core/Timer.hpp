@@ -20,7 +20,7 @@ namespace Baseliner {
 
     virtual void init(Stream &stream) = 0;
     virtual void measure_before(Stream &stream) = 0;
-    virtual void measure_consume(typename BackendT::launch_result_t event);
+    virtual void measure_consume(typename BackendT::launch_result_t event) = 0;
     virtual void measure_after(Stream &stream) = 0;
     virtual auto elapsed() -> float_milliseconds = 0;
 
