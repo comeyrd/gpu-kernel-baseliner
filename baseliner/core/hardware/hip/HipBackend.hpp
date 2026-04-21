@@ -42,7 +42,7 @@ namespace Baseliner {
       }
 
       // No-op for HIP: timing is driven by hipEvent_t, not launch_result_t
-      void measure_consume(typename HipBackend::launch_result_t &event) override {
+      void measure_consume(typename HipBackend::launch_result_t event) override {
       }
 
       void measure_after(Stream &stream) override {
@@ -90,7 +90,7 @@ namespace Baseliner {
       }
 
       // No-op for HIP
-      void measure_batch_consume(typename HipBackend::launch_result_t &event) override {
+      void measure_batch_consume(typename HipBackend::launch_result_t event) override {
       }
 
       void measure_batch_after(Stream &stream) override {
