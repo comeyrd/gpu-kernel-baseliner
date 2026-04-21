@@ -263,18 +263,17 @@ namespace Baseliner {
     [[nodiscard]] auto single_run(const std::optional<OptionsMap> &sweep_point) -> RunReport override {
       this->apply_sweep_point(sweep_point);
       m_stream = BackendT::instance()->create_stream();
-      std::unique_ptr<ITimer<BackendT>> timer = std::make_unique<Hardware::GpuTimer<BackendT>>();
+      std::shared_ptr<ITimer<BackendT>> timer = std::make_shared<Hardware::GpuTimer<BackendT>>();
+      m_workload->set_timer(timer);
       check_components();
       setup_metrics();
       get_stats_engine()->reset_engine();
-      timer->init();
-      timer->measure([this](auto stream) { m_workload->setup(stream); }, m_stream);
+      auto setup_time = m_workload->timed_sync_setup(m_stream);
       update_metrics();
-      get_stats_engine()->template update_values<Stats::SetupTime>(timer->elapsed());
+      get_stats_engine()->template update_values<Stats::SetupTime>(setup_time);
       if (get_warmup()) {
-        timer->init();
-        timer->measure([this](auto stream, auto &e) { e = m_workload->run_workload(stream); }, m_stream);
-        get_stats_engine()->template update_values<Stats::WarmupTime>(timer->elapsed());
+        auto warmup_time = m_workload->timed_sync_run_workload(m_stream);
+        get_stats_engine()->template update_values<Stats::WarmupTime>(warmup_time);
       }
       while (!get_stopping()->satisfied()) {
         if (ExecutionController::exit_requested()) {
@@ -283,28 +282,27 @@ namespace Baseliner {
         if (get_block()) {
           m_blocker->block(m_stream, get_block_duration());
         }
-        timer->init_batch(get_batch_size(), get_block());
+        m_workload->init_batch(m_stream, get_batch_size(), get_block());
         for (int batch = 0; batch < get_batch_size(); batch++) {
           if (get_flush_l2()) {
             m_flusher->flush(m_stream);
           }
           m_workload->reset_workload(m_stream);
-          timer->measure_batch([this](auto stream, auto &e) { e = m_workload->run_workload(stream); }, m_stream);
+          m_workload->timed_batch_run_workload(m_stream);
         }
         BackendT::get_last_error();
         if (get_block()) {
           m_blocker->unblock();
         }
-        auto timer_v = timer->elapsed_batch();
+        auto timer_v = m_workload->timed_run_elapsed_batch();
         for (int batch = 0; batch < get_batch_size(); batch++) {
           get_stats_engine()->template update_values<Stats::ExecutionTime>(timer_v[batch]);
           get_stats_engine()->compute_stats();
         }
       }
       post_all();
-      timer->init();
-      timer->measure([this](auto stream) { m_workload->teardown(m_stream); }, m_stream);
-      get_stats_engine()->template update_values<Stats::TeardownTime>(timer->elapsed());
+      auto teardown_time = m_workload->timed_sync_teardown(m_stream);
+      get_stats_engine()->template update_values<Stats::TeardownTime>(teardown_time);
 
       bool valid_run = m_workload->validate_workload();
       if (!valid_run) {

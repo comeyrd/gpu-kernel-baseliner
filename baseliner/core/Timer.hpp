@@ -18,18 +18,18 @@ namespace Baseliner {
 
     virtual ~ITimer() = default;
 
-    virtual void init() = 0;
-    virtual void measure(const Kernel &kernel, Stream &stream) = 0;
-    virtual void measure(const Funct &kernel, Stream &stream) = 0;
+    virtual void init(Stream &stream) = 0;
+    virtual void measure_before(Stream &stream) = 0;
+    virtual void measure_consume(typename BackendT::launch_result_t event);
+    virtual void measure_after(Stream &stream) = 0;
     virtual auto elapsed() -> float_milliseconds = 0;
 
-    virtual void init_batch(size_t batch_size, bool is_blocking) = 0;
-    virtual void measure_batch(const Kernel &kernel, Stream &stream) = 0;
-    virtual void measure_batch(const Funct &kernel, Stream &stream) = 0;
+    virtual void init_batch(Stream &stream, size_t batch_size, bool is_blocking) = 0;
+    virtual void measure_batch_before(Stream &stream) = 0;
+    virtual void measure_batch_consume(typename BackendT::launch_result_t event) = 0;
+    virtual void measure_batch_after(Stream &stream) = 0;
     virtual auto elapsed_batch() -> std::vector<float_milliseconds> = 0;
   };
-
-  // TODO add checks and throws
   template <typename BackendT>
   class CpuTimer final : public ITimer<BackendT> {
     using Clock = std::chrono::steady_clock;
@@ -39,7 +39,7 @@ namespace Baseliner {
     using Funct = std::function<void(Stream &)>;
 
   public:
-    void init() override {
+    void init(Stream &stream) override {
       if (m_state != State::Idle) {
         throw Errors::timer_init_on_not_idle();
       }
@@ -49,22 +49,23 @@ namespace Baseliner {
       m_stops.resize(1);
     }
 
-    void measure(const Funct &funct, Stream &stream) override {
+    void measure_before(Stream &stream) override {
       if (m_state != State::Single) {
-        throw Errors::timer_not_single_state("measure()");
+        throw Errors::timer_not_single_state("measure_before()");
       }
       m_starts[0] = Clock::now();
-      funct(stream);
+    }
+
+    // No-op for CPU: GPU launch_result_t events are irrelevant here
+    void measure_consume(typename BackendT::launch_result_t event) override {
+    }
+
+    void measure_after(Stream &stream) override {
+      if (m_state != State::Single) {
+        throw Errors::timer_not_single_state("measure_after()");
+      }
       BackendT::instance()->synchronize(stream);
       m_stops[0] = Clock::now();
-    }
-    void measure(const Kernel &kernel, Stream &stream) override {
-      measure(
-          [&kernel](Stream &s) {
-            typename BackendT::launch_result_t result;
-            kernel(s, result);
-          },
-          stream);
     }
 
     auto elapsed() -> float_milliseconds override {
@@ -75,7 +76,7 @@ namespace Baseliner {
       return float_milliseconds(m_stops[0] - m_starts[0]);
     }
 
-    void init_batch(size_t batch_size, bool is_blocking) override {
+    void init_batch(Stream &stream, size_t batch_size, bool is_blocking) override {
       if (m_state != State::Idle) {
         throw Errors::timer_init_on_not_idle();
       }
@@ -91,25 +92,27 @@ namespace Baseliner {
       }
     }
 
-    void measure_batch(const Funct &funct, Stream &stream) override {
+    void measure_batch_before(Stream &stream) override {
       if (m_state != State::Batch) {
-        throw Errors::timer_not_batch("measure_batch()");
+        throw Errors::timer_not_batch("measure_batch_before()");
       }
       m_starts.push_back(Clock::now());
-      funct(stream);
+    }
+
+    // No-op for CPU
+    void measure_batch_consume(typename BackendT::launch_result_t event) override {
+    }
+
+    void measure_batch_after(Stream &stream) override {
+      if (m_state != State::Batch) {
+        throw Errors::timer_not_batch("measure_batch_after()");
+      }
       if (!m_is_blocking) {
         BackendT::instance()->synchronize(stream);
       }
       m_stops.push_back(Clock::now());
     }
-    void measure_batch(const Kernel &kernel, Stream &stream) override {
-      measure_batch(
-          [&kernel](Stream &s) {
-            typename BackendT::launch_result_t result;
-            kernel(s, result);
-          },
-          stream);
-    }
+
     auto elapsed_batch() -> std::vector<float_milliseconds> override {
       if (m_state != State::Batch) {
         throw Errors::timer_not_batch("elapsed_batch()");
@@ -142,6 +145,5 @@ namespace Baseliner {
     std::vector<TimePoint> m_starts;
     std::vector<TimePoint> m_stops;
   };
-
 } // namespace Baseliner
 #endif // BASELINER_CORE_TIMER_HPP

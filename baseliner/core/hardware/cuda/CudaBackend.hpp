@@ -22,7 +22,8 @@ namespace Baseliner {
       using Funct = ITimer<CudaBackend>::Funct;
 
       ~GpuTimer() = default;
-      void init() override {
+
+      void init(Stream &stream) override {
         if (m_state != State::Idle) {
           throw Errors::timer_init_on_not_idle();
         }
@@ -32,23 +33,24 @@ namespace Baseliner {
         m_stops.resize(1);
         CHECK_CUDA(cudaEventCreate(&m_starts[0]));
         CHECK_CUDA(cudaEventCreate(&m_stops[0]));
-      };
-      void measure(const Funct &funct, Stream &stream) override {
-
-        CHECK_CUDA(cudaEventRecord(m_starts[0], *stream));
-        funct(stream);
-        CHECK_CUDA(cudaEventRecord(m_stops[0], *stream));
       }
-      void measure(const Kernel &kernel, Stream &stream) override {
+
+      void measure_before(Stream &stream) override {
         if (m_state != State::Single) {
-          throw Errors::timer_not_single_state("measure()");
+          throw Errors::timer_not_single_state("measure_before()");
         }
-        measure(
-            [&kernel](Stream &s) {
-              typename CudaBackend::launch_result_t result;
-              kernel(s, result);
-            },
-            stream);
+        CHECK_CUDA(cudaEventRecord(m_starts[0], *stream));
+      }
+
+      // No-op for CUDA: timing is driven by cudaEvent_t, not launch_result_t
+      void measure_consume(typename CudaBackend::launch_result_t event) override {
+      }
+
+      void measure_after(Stream &stream) override {
+        if (m_state != State::Single) {
+          throw Errors::timer_not_single_state("measure_after()");
+        }
+        CHECK_CUDA(cudaEventRecord(m_stops[0], *stream));
       }
 
       auto elapsed() -> float_milliseconds override {
@@ -60,46 +62,49 @@ namespace Baseliner {
         CHECK_CUDA(cudaEventElapsedTime(&temp_f, m_starts[0], m_stops[0]));
         m_state = State::Idle;
         return float_milliseconds(temp_f);
-      };
+      }
 
-      void init_batch(size_t batch_size, bool is_blocking) override {
+      void init_batch(Stream &stream, size_t batch_size, bool is_blocking) override {
         if (m_state != State::Idle) {
           throw Errors::timer_init_on_not_idle();
         }
         reset();
         m_state = State::Batch;
         m_is_blocking = is_blocking;
+        m_batch_size = batch_size;
         m_starts.resize(batch_size);
         m_stops.resize(batch_size);
-        m_batch_size = batch_size;
         for (size_t idx = 0; idx < batch_size; idx++) {
           CHECK_CUDA(cudaEventCreate(&m_starts[idx]));
           CHECK_CUDA(cudaEventCreate(&m_stops[idx]));
         }
-      };
-      void measure_batch(const Kernel &kernel, Stream &stream) override {
-        measure_batch(
-            [&kernel](Stream &s) {
-              typename CudaBackend::launch_result_t result;
-              kernel(s, result);
-            },
-            stream);
-      };
-      void measure_batch(const Funct &kernel, Stream &stream) override {
+      }
+
+      void measure_batch_before(Stream &stream) override {
         if (m_state != State::Batch) {
-          throw Errors::timer_not_batch("measure_batch()");
+          throw Errors::timer_not_batch("measure_batch_before()");
         }
         if (m_pos_batch >= m_batch_size) {
           throw Errors::timer_more_measure_than_batch(m_batch_size);
         }
         CHECK_CUDA(cudaEventRecord(m_starts[m_pos_batch], *stream));
-        kernel(stream);
+      }
+
+      // No-op for CUDA
+      void measure_batch_consume(typename CudaBackend::launch_result_t event) override {
+      }
+
+      void measure_batch_after(Stream &stream) override {
+        if (m_state != State::Batch) {
+          throw Errors::timer_not_batch("measure_batch_after()");
+        }
         CHECK_CUDA(cudaEventRecord(m_stops[m_pos_batch], *stream));
         m_pos_batch++;
-      };
+      }
+
       auto elapsed_batch() -> std::vector<float_milliseconds> override {
         if (m_state != State::Batch) {
-          throw Errors::timer_not_batch("elapsed()");
+          throw Errors::timer_not_batch("elapsed_batch()");
         }
         std::vector<float_milliseconds> result_vec;
         result_vec.reserve(m_pos_batch);
@@ -111,7 +116,7 @@ namespace Baseliner {
         }
         m_state = State::Idle;
         return result_vec;
-      };
+      }
 
     private:
       void reset() {
@@ -133,8 +138,7 @@ namespace Baseliner {
         Batch
       };
 
-      size_t m_pos_batch;
-
+      size_t m_pos_batch = 0;
       State m_state = State::Idle;
       bool m_is_blocking{false};
       size_t m_batch_size = 0;
