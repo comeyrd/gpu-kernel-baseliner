@@ -61,6 +61,7 @@ namespace Baseliner::Stats {
   template <typename BackendT>
   class DeviceTemperatureVector
       : public BackendStat<BackendT, DeviceTemperatureVector<BackendT>, std::vector<int>, DeviceTemperature<BackendT>> {
+  public:
     [[nodiscard]] auto name() const -> std::string override {
       return "temperature_vector";
     }

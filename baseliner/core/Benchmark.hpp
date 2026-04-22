@@ -11,6 +11,7 @@
 #include <baseliner/core/StoppingCriterion.hpp>
 #include <baseliner/core/Workload.hpp>
 #include <baseliner/core/hardware/Backend.hpp>
+#include <baseliner/core/hardware/BackendStats.hpp>
 #include <baseliner/core/stats/IStats.hpp>
 #include <baseliner/core/stats/Stats.hpp>
 #include <baseliner/core/stats/StatsEngine.hpp>
@@ -22,18 +23,6 @@
 #include <utility>
 #include <vector>
 inline static const std::string_view DEFAULT_BENCHMARK_NAME = "Benchmark";
-
-#define BASELINER_BENCHMARK_SETTER(name, type)                                                                         \
-  auto set_##name(type value) &->Benchmark & {                                                                         \
-    this->set_m_##name(value); /* or call an internal logic function */                                                \
-    return *this;                                                                                                      \
-  }                                                                                                                    \
-                                                                                                                       \
-  /* The R-value version: calls the one above and moves *this */                                                       \
-  auto set_##name(type value) &&->Benchmark {                                                                          \
-    this->set_m_##name(value); /* Calls the & version */                                                               \
-    return std::move(*this);                                                                                           \
-  }
 
 namespace Baseliner {
   constexpr float DEFAULT_BLOCK_DURATION = 1000.0F;
@@ -131,9 +120,20 @@ namespace Baseliner {
     void register_options() override {
       add_option("Benchmark", "block", "Using a blocking kernel", m_block);
       add_option("Benchmark", "block_duration", "Duration of the blocking kernel (in ms)", m_block_duration_ms);
+      add_option("Benchmark", "block_queue_size", "The max size of the blocking queue", m_max_blocked_queue);
       add_option("Benchmark", "flush", "Enables the flushing of the L2 cache", m_flush_l2);
       add_option("Benchmark", "warmup", "Having a warmup run", m_warmup);
       add_option("Benchmark", "batch_size", "The size of the batch", m_batch_size);
+      add_option("Benchmark", "warm_cool", "Does the Benchmark actively warm or cool the GPU", m_warm_cool);
+      add_option("Benchmark", "warm_cool_timeout", "How long the benchmark warms or cool before throwing",
+                 m_warm_cool_timeout);
+      add_option("Benchmark", "max_gpu_temp",
+                 "If warm_cool, the minimum accepted temperature before warming up the GPU", m_min_gpu_temp);
+      add_option("Benchmark", "min_gpu_temp",
+                 "If warm_cool, the minimum accepted temperature before cooling down the GPU", m_max_gpu_temp);
+      add_option("Benchmark", "minimal_batch_duration",
+                 "If dynamic batch size is set tu true, how long a batch should minimaly be", m_minimal_batch_duration);
+      add_option("Benchmark", "dynamic_batch", "If the batch size is dynamic", m_dynamic_batch);
     }
 
     auto get_stopping_no_except() -> std::optional<StoppingCriterion *> {
@@ -156,22 +156,54 @@ namespace Baseliner {
       return m_backend_options;
     }
 
-    auto get_batch_size() -> size_t {
+    auto get_batch_size() const -> size_t {
       return m_batch_size;
+    }
+    void set_batch_size(size_t newbatchsize) {
+      m_batch_size = newbatchsize;
     }
     void print_callback(const RunReport &report) {
       if (m_printer) {
         m_printer->consume_single_run_report(report);
       }
     }
+    auto get_warm_cool() const -> bool {
+      return m_warm_cool;
+    }
+    auto get_warm_cool_timeout() const -> int {
+      return m_warm_cool_timeout;
+    }
+    auto get_min_gpu_temp() const -> float {
+      return m_min_gpu_temp;
+    }
+    auto get_max_gpu_temp() const -> float {
+      return m_max_gpu_temp;
+    }
+    auto get_minimal_batch_duration() const -> float {
+      return m_minimal_batch_duration;
+    }
+    auto get_dynamic_batch() const -> bool {
+      return m_dynamic_batch;
+    }
+    auto get_max_blocking_queue() const -> int {
+      return m_max_blocked_queue;
+    }
+
     [[nodiscard]] virtual auto single_run(const std::optional<OptionsMap> &sweep_point) -> RunReport = 0;
 
   private:
+    bool m_warm_cool = false;
+    float m_min_gpu_temp = 50.0;
+    float m_max_gpu_temp = 60.0;
+    int m_warm_cool_timeout = 3;
     bool m_warmup = true;
     bool m_flush_l2 = true;
+    int m_max_blocked_queue = 64;
     bool m_block = false;
     float m_block_duration_ms = DEFAULT_BLOCK_DURATION;
     bool m_first = true;
+    bool m_dynamic_batch = false;
+    float m_minimal_batch_duration = 10.0;
     size_t m_batch_size{25};
     OptionsMap stats_options;
     std::string m_name{DEFAULT_BENCHMARK_NAME};
@@ -197,13 +229,6 @@ namespace Baseliner {
     // Ensure copies are still deleted (good for safety)
     Benchmark(const Benchmark &) = delete;
     auto operator=(const Benchmark &) -> Benchmark & = delete;
-
-    BASELINER_BENCHMARK_SETTER(warmup, bool);
-    BASELINER_BENCHMARK_SETTER(name, std::string);
-    BASELINER_BENCHMARK_SETTER(block, bool);
-    BASELINER_BENCHMARK_SETTER(block_duration, float);
-    BASELINER_BENCHMARK_SETTER(flush_l2, bool);
-    BASELINER_BENCHMARK_SETTER(first, bool);
 
     auto name() -> std::string override {
       if (m_workload) {
@@ -266,6 +291,7 @@ namespace Baseliner {
       std::shared_ptr<ITimer<BackendT>> timer = std::make_shared<Hardware::GpuTimer<BackendT>>();
       m_workload->set_timer(timer);
       check_components();
+      int base_batch_size = get_batch_size();
       setup_metrics();
       get_stats_engine()->reset_engine();
       auto setup_time = m_workload->timed_sync_setup(m_stream);
@@ -279,11 +305,30 @@ namespace Baseliner {
         if (ExecutionController::exit_requested()) {
           break;
         }
+        if (get_warm_cool()) {
+          auto timeout = std::chrono::steady_clock::now() + std::chrono::seconds(get_warm_cool_timeout());
+          while (true) {
+            int temp = get_stats_engine()->template force_recompute<Stats::DeviceTemperature<BackendT>>();
+            if (std::chrono::steady_clock::now() > timeout) {
+              throw Errors::warm_cool_gpu_timeout(get_warm_cool_timeout());
+            }
+            if (temp < get_min_gpu_temp()) {
+              BackendT::instance()->warm_gpu(m_stream);
+            } else if (temp > get_max_gpu_temp()) {
+              BackendT::instance()->cool_gpu(m_stream);
+            } else {
+              break;
+            }
+          }
+        }
         if (get_block()) {
           m_blocker->block(m_stream, get_block_duration());
         }
         m_workload->init_batch(m_stream, get_batch_size(), get_block());
         for (int batch = 0; batch < get_batch_size(); batch++) {
+          if (batch % get_max_blocking_queue() == 0 && get_block()) {
+            m_blocker->unblock();
+          }
           if (get_flush_l2()) {
             m_flusher->flush(m_stream);
           }
@@ -299,6 +344,12 @@ namespace Baseliner {
           get_stats_engine()->template update_values<Stats::ExecutionTime>(timer_v[batch]);
           get_stats_engine()->compute_stats();
         }
+        if (get_dynamic_batch()) {
+          float batch_duration = sum(timer_v).count();
+          if (batch_duration < get_minimal_batch_duration()) {
+            set_batch_size(get_batch_size() * 2);
+          }
+        }
       }
       post_all();
       auto teardown_time = m_workload->timed_sync_teardown(m_stream);
@@ -310,6 +361,7 @@ namespace Baseliner {
       }
       std::vector<Metric> metrics = {get_stats_engine()->get_metrics()};
       m_stream.reset();
+      set_batch_size(base_batch_size);
       RunReport single_rep;
       single_rep.sweep_point = sweep_point;
       single_rep.measurements = metrics;
@@ -345,13 +397,16 @@ namespace Baseliner {
         if (get_warmup()) {
           get_stats_engine()->template register_metric<Stats::WarmupTime>();
         }
+        if (get_warm_cool()) {
+          get_stats_engine()->template register_stat<Stats::DeviceTemperature<BackendT>>();
+        }
         get_stats_engine()->template register_metric<Stats::SetupTime>();
         get_stats_engine()->template register_metric<Stats::TeardownTime>();
         if (m_workload) {
           m_workload->setup_metrics(get_stats_engine_shared());
         }
         get_stats_engine()->set_options(get_stat_options());
-        set_first(false);
+        set_m_first(false);
       }
     }
     virtual void pre_all() {};

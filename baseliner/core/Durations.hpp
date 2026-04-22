@@ -7,6 +7,13 @@
 namespace Baseliner {
   using float_milliseconds = std::chrono::duration<float, std::milli>;
 
+  inline auto sum(std::vector<float_milliseconds> &f_vector) -> float_milliseconds {
+    float sum{0};
+    for (auto &item : f_vector) {
+      sum += item.count();
+    }
+    return float_milliseconds(sum);
+  }
 } // namespace Baseliner
 inline auto operator<<(std::ostream &outputStream, const Baseliner::float_milliseconds &duration) -> std::ostream & {
   const float count = duration.count();

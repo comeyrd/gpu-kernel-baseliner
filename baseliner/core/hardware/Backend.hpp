@@ -6,6 +6,7 @@
 #include <baseliner/core/Timer.hpp>
 #include <iostream>
 #include <memory>
+#include <thread>
 namespace Baseliner::Hardware {
   struct HardwareInfo {
     std::string card_name;
@@ -42,6 +43,10 @@ namespace Baseliner::Hardware {
     auto create_stream() -> std::shared_ptr<stream_t> {
       this->set_device();
       return Backend<S, O>::inner_create_stream();
+    };
+    static void warm_gpu(std::shared_ptr<stream_t> stream);
+    static void cool_gpu(std::shared_ptr<stream_t> stream) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
     };
     static auto get_device_count() -> int;
     static void synchronize(std::shared_ptr<stream_t> stream);

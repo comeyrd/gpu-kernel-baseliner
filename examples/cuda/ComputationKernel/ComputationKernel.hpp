@@ -12,23 +12,17 @@ constexpr int DEFAULT_N = 125000;
 
 class ComputationInput : public Baseliner::IInput {
 public:
-  void on_update() override {
-    allocate();
-  };
-  void generate_random() override {
-    std::default_random_engine gen(get_seed());
+  void generate_random(int seed) override {
+    std::default_random_engine gen(seed);
     std::uniform_int_distribution<int> dist(1, 100);
     for (int i = 0; i < m_N; i++) {
       m_a_host[i] = dist(gen);
       m_b_host[i] = dist(gen);
     }
   };
-  explicit ComputationInput()
-      : Baseliner::IInput() {
-    allocate();
-  };
-  void allocate() override {
-    m_N = m_base_N * get_work_size();
+  ComputationInput() = default;
+  void allocate(int work_size) override {
+    m_N = m_base_N * work_size;
     m_a_host = std::vector<int>(m_N);
     m_b_host = std::vector<int>(m_N);
   }
@@ -48,7 +42,6 @@ public:
 
 protected:
   void register_options() override {
-    IInput::register_options();
     add_option("ComputationInput", "base_N", "The size of the arrays", m_base_N);
   };
 };

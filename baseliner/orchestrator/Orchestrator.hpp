@@ -50,7 +50,7 @@ namespace Baseliner {
           c_report.benchmark_runs[bench_plan.backend.impl][bench_plan.workload.impl] = bench_exec;
         } catch (const Error &e) {
           if (campaign_plan.on_incompatible != OnIncompatible::Skip) {
-            throw e;
+            throw;
           }
           std::cerr << "Warning : " << e.what() << "\n";
           std::cerr << "Continuing...\n";

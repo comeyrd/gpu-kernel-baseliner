@@ -42,12 +42,8 @@
 
 class MatrixMulInput : public Baseliner::IInput {
 public:
-  void on_update() override {
-    allocate();
-  };
-
-  void generate_random() override {
-    std::mt19937 gen(get_seed());
+  void generate_random(int seed) override {
+    std::mt19937 gen(seed);
     std::uniform_real_distribution<float> dist(0.0f, 1.0f); // NOLINT
 
     for (auto &val : m_h_A) {
@@ -58,15 +54,12 @@ public:
     }
   };
 
-  explicit MatrixMulInput()
-      : Baseliner::IInput() { // NOLINT
-    allocate();
-  };
+  MatrixMulInput() = default;
 
-  void allocate() override {
+  void allocate(int work_size) override {
     // Apply work_size multiplier to the height of A to increase workload
     m_wA = m_wA_base;
-    m_hA = m_hA_base * get_work_size();
+    m_hA = m_hA_base * work_size;
 
     // Inner dimensions must match
     m_hB = m_wA;
@@ -107,7 +100,6 @@ public:
 
 protected:
   void register_options() override {
-    IInput::register_options();
     add_option("MatrixMulInput", "wA", "Width of Matrix A", m_wA_base);
     add_option("MatrixMulInput", "hA", "Height of Matrix A", m_hA_base);
     add_option("MatrixMulInput", "wB", "Width of Matrix B", m_wB_base);

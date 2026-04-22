@@ -10,8 +10,13 @@
 namespace Baseliner {
   constexpr int DEFAULT_SEED = 333;
   constexpr size_t DEFAULT_WORK_SIZE = 10;
-  class IBaseWorkload : public IOption {
+
+  template <typename BackendT>
+  class IWorkload : public IOption {
   public:
+    using backend = BackendT;
+    IWorkload() = default;
+    virtual ~IWorkload() = default;
     void register_options() override {
       this->add_option("Case", "work_size", "The work size to apply, 1 = 32MFlop & 1 = 1MB", m_work_size);
       this->add_option("Case", "seed", "The seed used for the generation of input data", m_seed);
@@ -28,19 +33,6 @@ namespace Baseliner {
     [[nodiscard]] auto get_seed() const -> int {
       return m_seed;
     }
-    virtual ~IBaseWorkload() = default;
-
-  private:
-    size_t m_work_size = DEFAULT_WORK_SIZE;
-    int m_seed = DEFAULT_SEED;
-  };
-
-  template <typename BackendT>
-  class IWorkload : public IBaseWorkload {
-  public:
-    using backend = BackendT;
-    IWorkload() = default;
-    ~IWorkload() override = default;
 
     virtual auto name() -> std::string = 0;
     virtual void workload_setup_metrics(std::shared_ptr<Stats::StatsEngine> & /*engine*/) {};
@@ -136,6 +128,8 @@ namespace Baseliner {
     bool m_bytes = false;
     bool m_flops = false;
     std::shared_ptr<ITimer<BackendT>> m_timer;
+    size_t m_work_size = DEFAULT_WORK_SIZE;
+    int m_seed = DEFAULT_SEED;
   };
 
 } // namespace Baseliner

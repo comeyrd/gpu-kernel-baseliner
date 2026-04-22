@@ -21,16 +21,19 @@ namespace Baseliner {
     auto operator=(MoveOnly &&) noexcept -> MoveOnly & = default;
     virtual ~MoveOnly() = default;
   };
-  class IInput : public MoveOnly, public IBaseWorkload {
+  class IInput : public MoveOnly, public IOption {
   public:
-    virtual void generate_random() = 0;
+    virtual void generate_random(int seed) = 0;
+    virtual void allocate(int work_size) = 0;
 
     ~IInput() override = default;
     IInput() = default;
-
-    virtual void allocate() = 0;
-
-  private:
+    virtual auto number_of_floating_point_operations() -> std::optional<size_t> {
+      return {};
+    }
+    virtual auto number_of_bytes() -> std::optional<size_t> {
+      return {};
+    }
   };
   template <typename Input>
   class IOutput : public MoveOnly {
@@ -81,8 +84,8 @@ namespace Baseliner {
         : m_input(std::make_shared<typename Kernel::Input>()),
           m_kernel(std::make_unique<Kernel>(m_input)) {};
     void setup(std::shared_ptr<typename BackendT::stream_t> stream) override {
-      m_input->allocate();
-      m_input->generate_random();
+      m_input->allocate(this->get_work_size());
+      m_input->generate_random(this->get_seed());
       m_kernel->setup(stream);
     };
     void reset_workload(std::shared_ptr<typename BackendT::stream_t> stream) override {
@@ -119,6 +122,11 @@ namespace Baseliner {
     }
     auto number_of_bytes() -> std::optional<size_t> override {
       return m_input->number_of_bytes();
+    }
+
+    void on_update() override {
+      IWorkload<BackendT>::on_update();
+      m_input->allocate(this->get_work_size());
     }
 
   private:

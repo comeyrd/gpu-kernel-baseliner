@@ -1,5 +1,6 @@
 #ifndef BASELINER_CORE_ERROR_HPP
 #define BASELINER_CORE_ERROR_HPP
+#include "baseliner/core/Conversions.hpp"
 #include <baseliner/core/AxeSweeping.hpp>
 #include <baseliner/core/OptionTypes.hpp>
 #include <cstring>
@@ -21,6 +22,7 @@ namespace Baseliner {
     HardwareError,
     StatsEngineError,
     NotImplemented,
+    WarmCoolGpu,
     TimerError,
   };
   inline auto error_code_to_string(ErrorCode code) -> std::string {
@@ -49,6 +51,8 @@ namespace Baseliner {
       return "NotImplemented";
     case ErrorCode::TimerError:
       return "TimerError";
+    case ErrorCode::WarmCoolGpu:
+      return "WarmCoolGpu";
     }
     return "Unknown";
   }
@@ -192,6 +196,10 @@ namespace Baseliner {
     inline auto timer_more_measure_than_batch(size_t batchsize) -> Error {
       return {ErrorCode::TimerError, "measure_batch() was called more than batch_size() was defined : batch_size=" +
                                          std::to_string(batchsize)};
+    }
+    inline auto warm_cool_gpu_timeout(float seconds) -> Error {
+      return {ErrorCode::WarmCoolGpu, "Device did not warm up or cool down in the " +
+                                          Conversion::baseliner_to_string(seconds) + "s allocated."};
     }
 
   } // namespace Errors

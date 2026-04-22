@@ -107,6 +107,19 @@ namespace Baseliner::Stats {
       throw Errors::accessing_un_registered_thing("Stat", typeid(StatType).name());
     };
 
+    // ONLY CALL ON STATS THAT JUST ARE MEASURED AND WITHOUT DEPEDENCIES
+    // TODO add a type of thingy that needs computing
+    template <typename StatType>
+    auto force_recompute() -> const typename StatType::type & {
+      auto iter = std::find_if(m_stats.begin(), m_stats.end(),
+                               [](const auto &s) { return s->output() == std::type_index(typeid(StatType)); });
+      if (iter != m_stats.end()) {
+        (*iter)->compute(m_registry);
+        return m_registry.get<StatType>();
+      }
+      throw Errors::accessing_un_registered_thing("Stat", typeid(StatType).name());
+    }
+
     void compute_stats();
 
     auto get_metrics() -> std::vector<Metric> {

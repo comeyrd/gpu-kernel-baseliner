@@ -2,7 +2,7 @@ target_sources(baseliner PRIVATE
     CudaBackend.cu
     BlockingKernel.cu
     L2Flusher.cu
-    CudaStats.cu)
+    CudaStats.cu WarmingGpu.cu)
 
 if(BASELINER_HAS_NVML)
     target_link_libraries(baseliner PUBLIC CUDA::nvml)
