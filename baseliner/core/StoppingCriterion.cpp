@@ -11,6 +11,7 @@ namespace Baseliner {
   //
   void StoppingCriterion::register_stats() {
     m_stats_engine->register_stat<Stats::Repetitions>();
+    m_stats_engine->register_stat<Stats::BatchCount>();
   }
 
   auto StoppingCriterion::satisfied() -> bool {

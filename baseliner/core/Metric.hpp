@@ -15,12 +15,16 @@ namespace Baseliner {
                                   std::vector<std::string>, std::vector<float>, ConfidenceInterval<float>,
                                   ConfidenceInterval<float_milliseconds>, ConfidenceInterval<size_t>>;
 
+  DESCRIBE_ENUM(MetricGranularity, ENUM_VALUE(EVERY_ELEMENT), ENUM_VALUE(EVERY_BATCH), ENUM_VALUE(ON_DEMAND),
+                ENUM_VALUE(ONCE))
+
   struct Metric {
     std::string name;
     std::string unit;
     MetricData data;
+    MetricGranularity granularity;
   };
-  DESCRIBE(Metric, FIELD(name), FIELD(unit), FIELD(data))
+  DESCRIBE(Metric, FIELD(name), FIELD(unit), FIELD(data), FIELD(granularity))
 
 } // namespace Baseliner
 #endif // BASELINER_METRIC_HPP

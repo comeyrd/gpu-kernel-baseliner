@@ -66,7 +66,8 @@ namespace Baseliner::Stats {
 
   // TODO Clean up, add check so no everytick stats depends on on demand stats
   void StatsEngine::build_execution_plan() {
-    m_every_tick_execution_plan.clear();
+    m_every_batch_execution_plan.clear();
+    m_every_element_execution_plan.clear();
     m_metric_to_stats.clear();
     m_unlinked_stats.clear();
 
@@ -127,31 +128,62 @@ namespace Baseliner::Stats {
     while (!not_in_execution_plan.empty()) {
       for (auto &[producer, ptr] : tag_to_producers) {
         if (producer_to_depedency[producer].empty()) {
-          // Only add to the every tick execution plan stats that have the corresponding compute policy
-          if (ptr->compute_policy() == StatComputePolicy::EVERY_TICK) {
-            m_every_tick_execution_plan.push_back(ptr);
-          } else {
+          const auto granularity = ptr->granularity();
+
+          // Invariant check: dependencies cannot have a coarser granularity
+          for (const auto &dep : ptr->dependencies()) {
+            auto dep_iter = tag_to_producers.find(dep);
+            if (dep_iter != tag_to_producers.end()) {
+              const auto dep_g = dep_iter->second->granularity();
+              if (granularity == MetricGranularity::EVERY_ELEMENT && dep_g != MetricGranularity::EVERY_ELEMENT) {
+                throw Errors::invalid_granularity_dependency(ptr->name(), dep_iter->second->name());
+              }
+              if (granularity == MetricGranularity::EVERY_BATCH && dep_g == MetricGranularity::ON_DEMAND) {
+                throw Errors::invalid_granularity_dependency(ptr->name(), dep_iter->second->name());
+              }
+            }
+          }
+
+          if (granularity == MetricGranularity::EVERY_ELEMENT) {
+            m_every_element_execution_plan.push_back(ptr);
+          } else if (granularity == MetricGranularity::EVERY_BATCH) {
+            m_every_batch_execution_plan.push_back(ptr);
+          } else if (granularity == MetricGranularity::ON_DEMAND) {
             m_on_demand_stats[producer] = ptr;
           }
+          // ONCE never enters any plan
+
           not_in_execution_plan.erase(producer);
-          for (const auto &depedencies : depedency_to_producer[producer]) {
-            producer_to_depedency[depedencies].erase(producer);
+          for (const auto &dep : depedency_to_producer[producer]) {
+            producer_to_depedency[dep].erase(producer);
           }
           depedency_to_producer.erase(producer);
         }
       }
       tag_to_producers = not_in_execution_plan;
     }
-    m_on_demand_up_to_date_stats.reserve(m_on_demand_stats.size());
     m_is_built = true;
   }
-  void StatsEngine::compute_stats() {
+  void StatsEngine::compute_element_stats() {
     ensure_build();
-    for (IStatBase *stat : m_every_tick_execution_plan) {
+    compute_on_demand();
+    for (IStatBase *stat : m_every_element_execution_plan) {
       stat->compute(m_registry);
     }
-    m_on_demand_up_to_date_stats.clear();
   };
+  void StatsEngine::compute_batch_stats() {
+    ensure_build();
+    compute_on_demand();
+    for (IStatBase *stat : m_every_batch_execution_plan) {
+      stat->compute(m_registry);
+    }
+  };
+  void StatsEngine::compute_on_demand() {
+    ensure_build();
+    for (auto on_demand_stat_ : m_on_demand_stats) {
+      on_demand_stat_.second->compute(m_registry);
+    }
+  }
   void StatsEngine::set_default() {
     for (auto &stat : m_stats) {
       stat->set_default(m_registry);

@@ -9,10 +9,6 @@
 #include <vector>
 
 namespace Baseliner::Stats {
-  enum StatComputePolicy : u_int8_t {
-    EVERY_TICK,
-    ON_DEMAND
-  };
   enum MetricSavingPolicy : char {
     SAVE,
     DISCARD
@@ -31,7 +27,7 @@ namespace Baseliner::Stats {
     [[nodiscard]] virtual auto output() const -> std::type_index = 0;
 
     // When do i need to refresh
-    [[nodiscard]] virtual auto compute_policy() -> StatComputePolicy = 0;
+    [[nodiscard]] virtual auto granularity() const -> MetricGranularity = 0;
 
     virtual void compute(StatsRegistry &reg) = 0;
     [[nodiscard]] virtual auto get_value(const StatsRegistry &reg) const -> MetricData = 0;
@@ -99,6 +95,7 @@ namespace Baseliner::Stats {
     [[nodiscard]] virtual auto get_value(const StatsRegistry &reg) const -> MetricData = 0;
     virtual void set_default(StatsRegistry &reg) = 0;
     [[nodiscard]] virtual auto saving_policy() -> MetricSavingPolicy = 0;
+    [[nodiscard]] virtual auto granularity() const -> MetricGranularity = 0;
     virtual ~IMetricBase() = default;
   };
   template <typename OutputTag, typename ValueType>

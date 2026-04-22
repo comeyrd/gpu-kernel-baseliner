@@ -2,6 +2,13 @@
 #define BASELINER_CORE_STATS_STATSTYPE_HPP
 #include <baseliner/cli/Serializer.hpp>
 namespace Baseliner {
+  enum class MetricGranularity : uint8_t {
+    EVERY_ELEMENT,
+    EVERY_BATCH,
+    ON_DEMAND,
+    ONCE,
+  };
+
   template <typename T>
   struct ConfidenceInterval {
     T high;

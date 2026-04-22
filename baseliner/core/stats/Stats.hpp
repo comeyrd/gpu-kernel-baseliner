@@ -23,11 +23,14 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto saving_policy() -> MetricSavingPolicy override {
       return MetricSavingPolicy::DISCARD;
     }
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::EVERY_ELEMENT;
+    }
   };
-  // For throughput calculations
+
   class ByteNumbers : public Imetric<ByteNumbers, size_t> {
   public:
-    using Imetric<ByteNumbers, size_t>::Imetric; // Needs this for defaults
+    using Imetric<ByteNumbers, size_t>::Imetric;
     [[nodiscard]] auto name() const -> std::string override {
       return "memory_usage";
     }
@@ -37,10 +40,14 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto saving_policy() -> MetricSavingPolicy override {
       return MetricSavingPolicy::SAVE;
     }
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::ONCE;
+    }
   };
+
   class FLOPCount : public Imetric<FLOPCount, size_t> {
   public:
-    using Imetric<FLOPCount, size_t>::Imetric; // Needs this for defaults
+    using Imetric<FLOPCount, size_t>::Imetric;
     [[nodiscard]] auto name() const -> std::string override {
       return "arithmetic_usage";
     }
@@ -50,9 +57,44 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto saving_policy() -> MetricSavingPolicy override {
       return MetricSavingPolicy::SAVE;
     }
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::ONCE;
+    }
   };
-  class ArithmeticIntensity : public IStat<ArithmeticIntensity, float, ByteNumbers, FLOPCount> {
 
+  class BatchSize : public Imetric<BatchSize, int> {
+  public:
+    using Imetric<BatchSize, int>::Imetric;
+    [[nodiscard]] auto name() const -> std::string override {
+      return "batch_size";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "";
+    }
+    [[nodiscard]] auto saving_policy() -> MetricSavingPolicy override {
+      return MetricSavingPolicy::DISCARD;
+    }
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::EVERY_BATCH;
+    }
+  };
+  class BatchTime : public Imetric<BatchTime, float_milliseconds> {
+  public:
+    [[nodiscard]] auto name() const -> std::string override {
+      return "batch_time";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "ms";
+    }
+    [[nodiscard]] auto saving_policy() -> MetricSavingPolicy override {
+      return MetricSavingPolicy::DISCARD;
+    }
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::EVERY_ELEMENT;
+    }
+  };
+
+  class ArithmeticIntensity : public IStat<ArithmeticIntensity, float, ByteNumbers, FLOPCount> {
     void calculate(ArithmeticIntensity::type &value_to_update, const typename ByteNumbers::type &byte,
                    const typename FLOPCount::type &flops) override {
       value_to_update = static_cast<float>(static_cast<double>(flops) / static_cast<double>(byte));
@@ -63,10 +105,11 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto unit() const -> std::string override {
       return "";
     }
-    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
-      return StatComputePolicy::ON_DEMAND;
-    };
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::ON_DEMAND;
+    }
   };
+
   class SetupTime : public Imetric<SetupTime, float_milliseconds> {
   public:
     [[nodiscard]] auto name() const -> std::string override {
@@ -78,7 +121,11 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto saving_policy() -> MetricSavingPolicy override {
       return MetricSavingPolicy::SAVE;
     }
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::ONCE;
+    }
   };
+
   class TeardownTime : public Imetric<TeardownTime, float_milliseconds> {
   public:
     [[nodiscard]] auto name() const -> std::string override {
@@ -90,7 +137,11 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto saving_policy() -> MetricSavingPolicy override {
       return MetricSavingPolicy::SAVE;
     }
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::ONCE;
+    }
   };
+
   class WarmupTime : public Imetric<WarmupTime, float_milliseconds> {
   public:
     [[nodiscard]] auto name() const -> std::string override {
@@ -102,7 +153,11 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto saving_policy() -> MetricSavingPolicy override {
       return MetricSavingPolicy::SAVE;
     }
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::ONCE;
+    }
   };
+
   class Repetitions : public IStat<Repetitions, size_t> {
   public:
     [[nodiscard]] auto name() const -> std::string override {
@@ -113,11 +168,43 @@ namespace Baseliner::Stats {
     }
     void calculate(Repetitions::type &value_to_update) override {
       value_to_update = value_to_update + 1;
-    };
-    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
-      return StatComputePolicy::EVERY_TICK;
-    };
+    }
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::EVERY_ELEMENT;
+    }
   };
+  class BatchCount : public IStat<BatchCount, size_t> {
+  public:
+    [[nodiscard]] auto name() const -> std::string override {
+      return "batch_count";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "";
+    }
+    void calculate(BatchCount::type &value_to_update) override {
+      value_to_update = value_to_update + 1;
+    }
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::EVERY_BATCH;
+    }
+  };
+
+  class BatchSizeVector : public IStat<BatchSizeVector, std::vector<int>, BatchSize> {
+  public:
+    [[nodiscard]] auto name() const -> std::string override {
+      return "batch_size_vector";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "";
+    }
+    void calculate(BatchSizeVector::type &value_to_update, const typename BatchSize::type &input) override {
+      value_to_update.push_back(input);
+    }
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::EVERY_BATCH;
+    }
+  };
+
   class ExecutionTimeVector : public IStat<ExecutionTimeVector, std::vector<float_milliseconds>, ExecutionTime> {
   public:
     [[nodiscard]] auto name() const -> std::string override {
@@ -128,11 +215,27 @@ namespace Baseliner::Stats {
     }
     void calculate(ExecutionTimeVector::type &value_to_update, const typename ExecutionTime::type &inputs) override {
       value_to_update.push_back(inputs);
-    };
-    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
-      return StatComputePolicy::EVERY_TICK;
-    };
+    }
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::EVERY_ELEMENT;
+    }
   };
+  class BatchTimeVector : public IStat<BatchTimeVector, std::vector<float_milliseconds>, BatchTime> {
+  public:
+    [[nodiscard]] auto name() const -> std::string override {
+      return "execution_time_vector";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "ms";
+    }
+    void calculate(BatchTimeVector::type &value_to_update, const typename BatchTime::type &inputs) override {
+      value_to_update.push_back(inputs);
+    }
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::EVERY_BATCH;
+    }
+  };
+
   class Mean : public IStat<Mean, float, ExecutionTimeVector> {
   public:
     [[nodiscard]] auto name() const -> std::string override {
@@ -144,13 +247,13 @@ namespace Baseliner::Stats {
         total += input.count();
       }
       value_to_update = static_cast<float>(total / inputs.size());
-    };
+    }
     [[nodiscard]] auto unit() const -> std::string override {
       return "ms";
     }
-    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
-      return StatComputePolicy::ON_DEMAND;
-    };
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::ON_DEMAND;
+    }
   };
 
   class SortedExecutionTimeVector
@@ -164,13 +267,12 @@ namespace Baseliner::Stats {
     }
     void calculate(SortedExecutionTimeVector::type &value_to_update,
                    const typename ExecutionTime::type &inputs) override {
-
       auto iterator = std::lower_bound(value_to_update.begin(), value_to_update.end(), inputs);
       value_to_update.insert(iterator, inputs);
-    };
-    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
-      return StatComputePolicy::EVERY_TICK;
-    };
+    }
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::EVERY_ELEMENT;
+    }
   };
 
   class Median : public IStat<Median, float, SortedExecutionTimeVector> {
@@ -185,13 +287,13 @@ namespace Baseliner::Stats {
       } else {
         value_to_update = 0;
       }
-    };
+    }
     [[nodiscard]] auto unit() const -> std::string override {
       return "ms";
     }
-    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
-      return StatComputePolicy::ON_DEMAND;
-    };
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::ON_DEMAND;
+    }
   };
 
   class MedianDataTroughput : public IStat<MedianDataTroughput, float, Median, ByteNumbers> {
@@ -202,20 +304,20 @@ namespace Baseliner::Stats {
                    const typename ByteNumbers::type &nb_bytes) override {
       auto bytes = static_cast<double>(nb_bytes);
       auto seconds = static_cast<double>(median);
-
       if (seconds > 0) {
         value_to_update = static_cast<float>(bytes / (seconds * 1e6));
       } else {
         value_to_update = 0.0F;
       }
-    };
+    }
     [[nodiscard]] auto unit() const -> std::string override {
       return "GB/s";
     }
-    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
-      return StatComputePolicy::ON_DEMAND;
-    };
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::ON_DEMAND;
+    }
   };
+
   class MedianFLOPThroughput : public IStat<MedianFLOPThroughput, float, Median, FLOPCount> {
     [[nodiscard]] auto name() const -> std::string override {
       return "arithmetic_bandwidth";
@@ -224,19 +326,18 @@ namespace Baseliner::Stats {
                    const typename FLOPCount::type &nb_flops) override {
       auto flops = static_cast<double>(nb_flops);
       auto miliseconds = static_cast<double>(median);
-
       if (miliseconds > 0) {
         value_to_update = static_cast<float>(flops / (miliseconds * 1e6));
       } else {
         value_to_update = 0.0F;
       }
-    };
+    }
     [[nodiscard]] auto unit() const -> std::string override {
       return "GFLOP/S";
     }
-    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
-      return StatComputePolicy::ON_DEMAND;
-    };
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::ON_DEMAND;
+    }
   };
 
   class Q1 : public IStat<Q1, float, SortedExecutionTimeVector> {
@@ -254,11 +355,12 @@ namespace Baseliner::Stats {
       } else {
         value_to_update = 0;
       }
-    };
-    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
-      return StatComputePolicy::ON_DEMAND;
-    };
+    }
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::ON_DEMAND;
+    }
   };
+
   class Q3 : public IStat<Q3, float, SortedExecutionTimeVector> {
   public:
     [[nodiscard]] auto name() const -> std::string override {
@@ -274,15 +376,16 @@ namespace Baseliner::Stats {
       } else {
         value_to_update = 0;
       }
-    };
-    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
-      return StatComputePolicy::ON_DEMAND;
-    };
+    }
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::ON_DEMAND;
+    }
   };
 
   constexpr double MEDIAN = 0.5F;
   constexpr double CONFIDENCE_95_PERCENT = 0.95F;
   constexpr size_t LARGE_SAMPLE_TH = 30;
+
   class MedianConfidenceInterval
       : public IStat<MedianConfidenceInterval, ConfidenceInterval<float_milliseconds>, SortedExecutionTimeVector> {
     [[nodiscard]] auto name() const -> std::string override {
@@ -301,10 +404,10 @@ namespace Baseliner::Stats {
       } else {
         value_to_update = MedianConfidenceInterval::type{};
       }
-    };
-    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
-      return StatComputePolicy::ON_DEMAND;
-    };
+    }
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::ON_DEMAND;
+    }
 
   protected:
     void register_options() override;
@@ -320,6 +423,7 @@ namespace Baseliner::Stats {
     float m_confidence = CONFIDENCE_95_PERCENT;
     size_t m_large_sample_threshold = LARGE_SAMPLE_TH;
   };
+
   constexpr float IQR_OUTLIER_RANGE = 1.5F;
 
   class WithoutOutliers
@@ -336,20 +440,16 @@ namespace Baseliner::Stats {
                    const typename Q3::type &Q3_) override {
       if (sorted_vec.size() > 0) {
         const float InterQuartileRange = Q3_ - Q1_;
-
         auto lower_fence = static_cast<float_milliseconds>(Q1_ - (IQR_OUTLIER_RANGE * InterQuartileRange));
         auto upper_fence = static_cast<float_milliseconds>(Q3_ + (IQR_OUTLIER_RANGE * InterQuartileRange));
-
         auto it_start = std::lower_bound(sorted_vec.begin(), sorted_vec.end(), lower_fence);
-
         auto it_end = std::upper_bound(it_start, sorted_vec.end(), upper_fence);
-
         value_to_update = std::vector<float_milliseconds>(it_start, it_end);
       }
     }
-    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
-      return StatComputePolicy::ON_DEMAND;
-    };
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::ON_DEMAND;
+    }
 
   protected:
     void register_options() override;
@@ -357,8 +457,8 @@ namespace Baseliner::Stats {
   private:
     float m_i_q_r_outlier_range = IQR_OUTLIER_RANGE;
   };
-  class MedianAbsoluteDeviation : public IStat<MedianAbsoluteDeviation, float, SortedExecutionTimeVector, Median> {
 
+  class MedianAbsoluteDeviation : public IStat<MedianAbsoluteDeviation, float, SortedExecutionTimeVector, Median> {
   public:
     [[nodiscard]] auto name() const -> std::string override {
       return "MAD";
@@ -366,9 +466,9 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto unit() const -> std::string override {
       return "ms";
     }
-    [[nodiscard]] auto compute_policy() -> StatComputePolicy override {
-      return StatComputePolicy::ON_DEMAND;
-    };
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::ON_DEMAND;
+    }
     void calculate(float &value_to_update, const typename SortedExecutionTimeVector::type &sorted_vec,
                    const typename Median::type &median) override {
       if (sorted_vec.size() > 0) {
@@ -382,6 +482,54 @@ namespace Baseliner::Stats {
         value_to_update = deviations[middle];
       }
     }
+  };
+
+  class CoefficientOfVariation : public IStat<CoefficientOfVariation, float, BatchTimeVector> {
+  public:
+    [[nodiscard]] auto name() const -> std::string override {
+      return "coefficient_of_variation";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "%";
+    }
+
+    void calculate(float &value_to_update, const std::vector<float_milliseconds> &batch_times) override {
+      // Use the configurable window size
+      if (batch_times.size() < 2) {
+        value_to_update = 100.0f;
+        return;
+      }
+
+      size_t start = (batch_times.size() > m_window_size) ? batch_times.size() - m_window_size : 0;
+      size_t n = batch_times.size() - start;
+
+      double sum = 0.0;
+      for (size_t i = start; i < batch_times.size(); ++i)
+        sum += batch_times[i].count();
+      double mean = sum / n;
+
+      double sq_sum = 0.0;
+      for (size_t i = start; i < batch_times.size(); ++i) {
+        sq_sum += std::pow(batch_times[i].count() - mean, 2);
+      }
+
+      double stdev = std::sqrt(sq_sum / (n - 1));
+
+      value_to_update = (mean > 0) ? static_cast<float>((stdev / mean) * 100.0) : 100.0f;
+    }
+
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::EVERY_BATCH;
+    }
+
+  protected:
+    void register_options() override {
+      add_option("CoefficientOfVariation", "window_size", "Number of recent batches used to calculate noise",
+                 m_window_size);
+    }
+
+  private:
+    size_t m_window_size = 10;
   };
 
 } // namespace Baseliner::Stats

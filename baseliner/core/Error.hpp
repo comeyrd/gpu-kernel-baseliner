@@ -18,6 +18,7 @@ namespace Baseliner {
     OptionsError,
     StoppingCriterionError,
     PresetError,
+    StatEngineError,
     FileError,
     HardwareError,
     StatsEngineError,
@@ -53,6 +54,8 @@ namespace Baseliner {
       return "TimerError";
     case ErrorCode::WarmCoolGpu:
       return "WarmCoolGpu";
+    case ErrorCode::StatEngineError:
+      return "StatEngineError";
     }
     return "Unknown";
   }
@@ -139,6 +142,10 @@ namespace Baseliner {
     inline auto empty_stat_engine_stopping() -> Error {
       return {ErrorCode::StoppingCriterionError,
               "The stopping criterion was called before the stats engine was provided"};
+    }
+    inline auto invalid_granularity_dependency(const std::string &stat_name, const std::string &dep_name) -> Error {
+      return {ErrorCode::StatEngineError, "Stat \"" + stat_name + "\" has an invalid dependency on \"" + dep_name +
+                                              "\" — a finer-grained stat cannot depend on a coarser-grained one"};
     }
     auto preset_not_subset_of(const OptionsMap &must_be_subset, const OptionsMap &original) -> Error;
     inline auto file_read_error(const std::string &filename) -> Error {

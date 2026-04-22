@@ -198,7 +198,7 @@ namespace Baseliner {
     int m_warm_cool_timeout = 3;
     bool m_warmup = true;
     bool m_flush_l2 = true;
-    int m_max_blocked_queue = 64;
+    int m_max_blocked_queue = 500;
     bool m_block = false;
     float m_block_duration_ms = DEFAULT_BLOCK_DURATION;
     bool m_first = true;
@@ -222,6 +222,8 @@ namespace Baseliner {
     explicit Benchmark()
         : IBenchmark() {
       get_stats_engine()->template register_stat<Stats::ExecutionTimeVector>();
+      get_stats_engine()->template register_stat<Stats::BatchSizeVector>();
+      get_stats_engine()->template register_stat<Stats::BatchTimeVector>();
     };
     Benchmark(Benchmark &&) noexcept = default;
     auto operator=(Benchmark &&) noexcept -> Benchmark & = default;
@@ -308,7 +310,7 @@ namespace Baseliner {
         if (get_warm_cool()) {
           auto timeout = std::chrono::steady_clock::now() + std::chrono::seconds(get_warm_cool_timeout());
           while (true) {
-            int temp = get_stats_engine()->template force_recompute<Stats::DeviceTemperature<BackendT>>();
+            int temp = get_stats_engine()->template get_result<Stats::DeviceTemperature<BackendT>>();
             if (std::chrono::steady_clock::now() > timeout) {
               throw Errors::warm_cool_gpu_timeout(get_warm_cool_timeout());
             }
@@ -342,10 +344,14 @@ namespace Baseliner {
         auto timer_v = m_workload->timed_run_elapsed_batch();
         for (int batch = 0; batch < get_batch_size(); batch++) {
           get_stats_engine()->template update_values<Stats::ExecutionTime>(timer_v[batch]);
-          get_stats_engine()->compute_stats();
+          get_stats_engine()->compute_element_stats();
         }
+        get_stats_engine()->template update_values<Stats::BatchSize>(get_batch_size());
+        float batch_duration = sum(timer_v).count();
+        get_stats_engine()->template update_values<Stats::BatchTime>(float_milliseconds(batch_duration));
+
+        get_stats_engine()->compute_batch_stats();
         if (get_dynamic_batch()) {
-          float batch_duration = sum(timer_v).count();
           if (batch_duration < get_minimal_batch_duration()) {
             set_batch_size(get_batch_size() * 2);
           }
@@ -401,6 +407,7 @@ namespace Baseliner {
           get_stats_engine()->template register_stat<Stats::DeviceTemperature<BackendT>>();
         }
         get_stats_engine()->template register_metric<Stats::SetupTime>();
+        get_stats_engine()->template register_metric<Stats::BatchSize>();
         get_stats_engine()->template register_metric<Stats::TeardownTime>();
         if (m_workload) {
           m_workload->setup_metrics(get_stats_engine_shared());
