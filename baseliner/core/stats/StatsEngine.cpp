@@ -138,9 +138,6 @@ namespace Baseliner::Stats {
               if (granularity == MetricGranularity::EVERY_ELEMENT && dep_g != MetricGranularity::EVERY_ELEMENT) {
                 throw Errors::invalid_granularity_dependency(ptr->name(), dep_iter->second->name());
               }
-              if (granularity == MetricGranularity::EVERY_BATCH && dep_g == MetricGranularity::ON_DEMAND) {
-                throw Errors::invalid_granularity_dependency(ptr->name(), dep_iter->second->name());
-              }
             }
           }
 

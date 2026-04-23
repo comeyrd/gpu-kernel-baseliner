@@ -105,6 +105,7 @@ namespace Baseliner {
         }
       }
     }
+    on_update();
   };
   void IOption::apply_depedencies_options(const OptionsMap &omap) {
     std::unordered_set<IOption *> visited;

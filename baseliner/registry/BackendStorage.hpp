@@ -31,6 +31,7 @@ namespace Baseliner {
     [[nodiscard]] virtual auto has_workload(const std::string &name) const -> bool = 0;
     [[nodiscard]] virtual auto has_benchmark(const std::string &name) const -> bool = 0;
     [[nodiscard]] virtual auto has_stat(const std::string &name) const -> bool = 0;
+    [[nodiscard]] virtual auto at_stat(const std::string &name) const -> StatsFactory = 0;
     IBackendStorage() = default;
 
   private:
@@ -112,6 +113,9 @@ namespace Baseliner {
     };
     [[nodiscard]] auto has_stat(const std::string &name) const -> bool override {
       return m_backend_stats_storage.has(name);
+    };
+    [[nodiscard]] auto at_stat(const std::string &name) const -> StatsFactory override {
+      return m_backend_stats_storage.at(name);
     };
 
   private:

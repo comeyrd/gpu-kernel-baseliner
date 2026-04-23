@@ -93,7 +93,7 @@ namespace Baseliner {
         add_stat(stat);
       }
     }
-    void add_stat(std::function<void(std::shared_ptr<Stats::StatsEngine>)> &stat_recipe) {
+    void add_stat(const std::function<void(std::shared_ptr<Stats::StatsEngine>)> &stat_recipe) {
       stat_recipe(m_stats_engine);
     }
 

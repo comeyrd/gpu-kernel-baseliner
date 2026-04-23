@@ -16,11 +16,13 @@ namespace Baseliner::Builder {
     benchmark_factory =
         inject_option(benchmark_factory, plan.benchmark.options, plan.workload.options, plan.stats.options);
 
-    IBenchmarkFactory final_factory = [benchmark_factory, stopping_factory, plan]() -> std::shared_ptr<IBenchmark> {
+    IBenchmarkFactory final_factory = [benchmark_factory, stopping_factory, plan,
+                                       combined_stats]() -> std::shared_ptr<IBenchmark> {
       std::shared_ptr<IBenchmark> bench = benchmark_factory();
       bench->set_stopping_criterion(stopping_factory);
       bench->set_sweep_spec(plan.sweep);
       bench->set_backend_options(plan.backend.options);
+      bench->add_stat(combined_stats);
       return bench;
     };
     return final_factory;

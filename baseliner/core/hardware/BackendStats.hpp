@@ -23,6 +23,9 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::ON_DEMAND;
     }
+    [[nodiscard]] auto saving_policy() const -> SavingPolicy override {
+      return SavingPolicy::SAVE;
+    }
   };
 
   template <typename BackendT>
@@ -42,6 +45,9 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::EVERY_BATCH;
     }
+    [[nodiscard]] auto saving_policy() const -> SavingPolicy override {
+      return SavingPolicy::SAVE;
+    }
   };
 
   template <typename BackendT>
@@ -56,6 +62,9 @@ namespace Baseliner::Stats {
     void calculate(typename DeviceTemperature<BackendT>::type &value_to_update) override;
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::ON_DEMAND;
+    }
+    [[nodiscard]] auto saving_policy() const -> SavingPolicy override {
+      return SavingPolicy::SAVE;
     }
   };
 
@@ -76,6 +85,9 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::EVERY_BATCH;
     }
+    [[nodiscard]] auto saving_policy() const -> SavingPolicy override {
+      return SavingPolicy::SAVE;
+    }
   };
 
   template <typename BackendT>
@@ -90,6 +102,9 @@ namespace Baseliner::Stats {
     void calculate(typename DevicePowerUtilization<BackendT>::type &value_to_update) override;
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::ON_DEMAND;
+    }
+    [[nodiscard]] auto saving_policy() const -> SavingPolicy override {
+      return SavingPolicy::SAVE;
     }
   };
 
@@ -109,6 +124,9 @@ namespace Baseliner::Stats {
     }
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::EVERY_BATCH;
+    }
+    [[nodiscard]] auto saving_policy() const -> SavingPolicy override {
+      return SavingPolicy::SAVE;
     }
   };
 

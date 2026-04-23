@@ -55,6 +55,28 @@ namespace Baseliner {
       });
     }
     BASELINER_REGISTER_BACKEND("cuda", CudaBackend);
+
+#ifdef BASELINER_HAS_NVML
+    template <>
+    void CudaBackend::unlock_clock() {
+      nvmlDevice_t device = NvmlManager::get_current_device();
+      CHECK_NVML(nvmlDeviceResetGpuLockedClocks(device));
+    };
+    template <>
+    void CudaBackend::lock_clocks(int min_clock_val, int max_clock_val) {
+      nvmlDevice_t device = NvmlManager::get_current_device();
+      CHECK_NVML(nvmlDeviceSetGpuLockedClocks(device, NVML_CLOCK_LIMIT_ID_TDP, NVML_CLOCK_LIMIT_ID_TDP));
+    };
+#else
+    template <>
+    void CudaBackend::unlock_clock() {
+      throw Errors::not_found_in_backend("NVML", "Locking clocks", "cuda");
+    };
+    template <>
+    void CudaBackend::lock_clocks(int min_clock_val, int max_clock_val) {
+      // throw Errors::not_found_in_backend("NVML", "unlocking_clocks", "cuda");
+    };
+#endif
   } // namespace Hardware
 
 } // namespace Baseliner

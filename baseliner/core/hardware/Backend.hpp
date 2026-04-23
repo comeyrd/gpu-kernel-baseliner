@@ -65,13 +65,34 @@ namespace Baseliner::Hardware {
     static void reset_device();
     void register_options() override {
       this->add_option("Backend", "device", "The device number to run on", m_device);
+      this->add_option("Backend", "lock_clock", "If the clocks should be locked", m_lock_clock);
+      this->add_option("Backend", "min_clock_value",
+                       "-1 means locking to the base clock, else is locking to a specific frequency",
+                       m_min_clock_value);
+      this->add_option("Backend", "max_clock_value",
+                       "-1 means locking to the base clock, else is locking to a specific frequency",
+                       m_max_clock_value);
     }
+    void on_update() override {
+      std::cout << "Lock clock val" << m_lock_clock << "/n";
+      this->set_device();
+      if (m_lock_clock) {
+        Backend<S, O>::lock_clocks(m_min_clock_value, m_max_clock_value);
+      } else {
+        Backend<S, O>::unlock_clock();
+      }
+    };
 
   private:
+    static void unlock_clock();
+    static void lock_clocks(int min_clock_val, int max_clock_val);
     static auto inner_create_stream() -> std::shared_ptr<stream_t>;
     static void set_device(int device);
     Backend() = default;
     int m_device = 0;
+    bool m_lock_clock = false;
+    int m_min_clock_value = -1;
+    int m_max_clock_value = -1;
   };
 
   template <typename BackendT>

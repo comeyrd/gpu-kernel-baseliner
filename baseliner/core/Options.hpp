@@ -219,7 +219,7 @@ namespace Baseliner {
     virtual void register_options_dependencies() {};
 
     void register_consumer(IOption *consumer);
-    virtual void on_update() {};
+    virtual void on_update() {}; // Called when the options are updated
     template <typename T>
     auto add_option(const std::string &interface, const std::string &name, const std::string &description, T &variable)
         -> OptionBindings::OptionBinding<T> & {

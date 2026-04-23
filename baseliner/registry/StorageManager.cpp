@@ -89,7 +89,7 @@ namespace Baseliner {
       -> std::optional<StatsFactory> {
     IBackendStorage *storage = get_backend_storage(backend);
     if (storage->has_stat(name)) {
-      return m_stats_storage.at(name);
+      return storage->at_stat(name);
     }
     return {};
   };

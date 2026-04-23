@@ -205,9 +205,10 @@ namespace Baseliner::Stats {
     size_t m_total_samples = 0;
     double m_sum_count_log_counter = 0.0;
 
-    std::deque<float> m_internal_window; // Deque is better for pop_front
-    size_t m_max_window_size = 299;      // Default NVBench window
+    std::deque<float> m_internal_window;
+    size_t m_max_window_size = 299;
   };
+
   struct RegressionResult {
     float slope_deg = 0.0f;
     float r_squared = 0.0f;
