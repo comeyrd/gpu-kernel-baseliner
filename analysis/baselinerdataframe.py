@@ -142,14 +142,15 @@ def load_json(json_filepath):
 
 
 class ReportDataframe:
+  m_original_json:json
   m_report:Report
   m_vectors_df:pd.DataFrame
   m_scalars_df:pd.DataFrame
   m_metadata_df:pd.DataFrame # datetime,baseliner_version,git_version,report_id,campaign_id,benchmark_id,run_id,interface.option
   
   def __init__(self,json_filepath):
-    json = load_json(json_filepath)
-    self.m_report =  Report.model_validate(json) 
+    self.m_original_json = load_json(json_filepath)
+    self.m_report =  Report.model_validate(self.m_original_json) 
     self.populate_dataframes()
     
   def filter(self, **kwargs) -> "ReportDataframe":
@@ -178,8 +179,17 @@ class ReportDataframe:
     
     return result
 
+  def to_csv(self,folder):
+    
+    with open(folder+"/report.json","w") as f:
+      json.dump(self.m_original_json,f,indent=2)
+    self.m_metadata_df.to_csv(folder+"/metadata.csv")
+    self.m_scalars_df.to_csv(folder+"/scalars.csv")
+    self.m_vectors_df.to_csv(folder+"/vectors.csv")
+    
+    
   def populate_dataframes(self):
-      metadata_rows = [] # Remplacement du dictionnaire de listes par une liste de dictionnaires
+      metadata_rows = []
       vector_rows = defaultdict(dict)
       scalar_rows = defaultdict(dict)
       
