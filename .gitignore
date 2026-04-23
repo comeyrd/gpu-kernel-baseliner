@@ -4,3 +4,4 @@ build/
 .venv
 __pycache__
 test.ipynb
+protocol.schema.json
