@@ -9,7 +9,7 @@
 #include <vector>
 
 namespace Baseliner::Stats {
-  enum MetricSavingPolicy : char {
+  enum SavingPolicy : char {
     SAVE,
     DISCARD
   };
@@ -28,6 +28,11 @@ namespace Baseliner::Stats {
 
     // When do i need to refresh
     [[nodiscard]] virtual auto granularity() const -> MetricGranularity = 0;
+
+    // Does the Stats needs to be saved
+    [[nodiscard]] virtual auto saving_policy() const -> SavingPolicy {
+      return SavingPolicy::SAVE;
+    };
 
     virtual void compute(StatsRegistry &reg) = 0;
     [[nodiscard]] virtual auto get_value(const StatsRegistry &reg) const -> MetricData = 0;
@@ -51,7 +56,10 @@ namespace Baseliner::Stats {
       if (!reg.has<OutputTag>()) {
         return {};
       }
-      return reg.get<OutputTag>();
+      if (this->saving_policy() == SavingPolicy::SAVE) {
+        return reg.get<OutputTag>();
+      }
+      return std::monostate();
     }
 
     [[nodiscard]] auto output() const -> std::type_index override {
@@ -94,7 +102,9 @@ namespace Baseliner::Stats {
     [[nodiscard]] virtual auto output() const -> std::type_index = 0;
     [[nodiscard]] virtual auto get_value(const StatsRegistry &reg) const -> MetricData = 0;
     virtual void set_default(StatsRegistry &reg) = 0;
-    [[nodiscard]] virtual auto saving_policy() -> MetricSavingPolicy = 0;
+    [[nodiscard]] virtual auto saving_policy() const -> SavingPolicy {
+      return SavingPolicy::SAVE;
+    };
     [[nodiscard]] virtual auto granularity() const -> MetricGranularity = 0;
     virtual ~IMetricBase() = default;
   };

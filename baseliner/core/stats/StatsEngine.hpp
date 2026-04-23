@@ -116,13 +116,15 @@ namespace Baseliner::Stats {
       compute_on_demand();
       for (auto &stat_ptr : m_stats) {
         Metric metric;
-        metric.name = stat_ptr->name();
-        metric.unit = stat_ptr->unit();
-        metric.data = stat_ptr->get_value(m_registry);
-        metrics_vector.push_back(metric);
+        if (stat_ptr->saving_policy() == SavingPolicy::SAVE) {
+          metric.name = stat_ptr->name();
+          metric.unit = stat_ptr->unit();
+          metric.data = stat_ptr->get_value(m_registry);
+          metrics_vector.push_back(metric);
+        }
       }
       for (auto &metric_ptr : m_metrics) {
-        if (metric_ptr->saving_policy() == MetricSavingPolicy::SAVE) {
+        if (metric_ptr->saving_policy() == SavingPolicy::SAVE) {
           Metric metric;
           metric.name = metric_ptr->name();
           metric.unit = metric_ptr->unit();

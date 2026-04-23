@@ -20,8 +20,8 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto unit() const -> std::string override {
       return "ms";
     }
-    [[nodiscard]] auto saving_policy() -> MetricSavingPolicy override {
-      return MetricSavingPolicy::DISCARD;
+    [[nodiscard]] auto saving_policy() const -> SavingPolicy override {
+      return SavingPolicy::DISCARD;
     }
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::EVERY_ELEMENT;
@@ -37,9 +37,6 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto unit() const -> std::string override {
       return "bytes";
     }
-    [[nodiscard]] auto saving_policy() -> MetricSavingPolicy override {
-      return MetricSavingPolicy::SAVE;
-    }
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::ONCE;
     }
@@ -53,9 +50,6 @@ namespace Baseliner::Stats {
     }
     [[nodiscard]] auto unit() const -> std::string override {
       return "Flops";
-    }
-    [[nodiscard]] auto saving_policy() -> MetricSavingPolicy override {
-      return MetricSavingPolicy::SAVE;
     }
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::ONCE;
@@ -71,8 +65,8 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto unit() const -> std::string override {
       return "";
     }
-    [[nodiscard]] auto saving_policy() -> MetricSavingPolicy override {
-      return MetricSavingPolicy::DISCARD;
+    [[nodiscard]] auto saving_policy() const -> SavingPolicy override {
+      return SavingPolicy::DISCARD;
     }
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::EVERY_BATCH;
@@ -86,8 +80,8 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto unit() const -> std::string override {
       return "ms";
     }
-    [[nodiscard]] auto saving_policy() -> MetricSavingPolicy override {
-      return MetricSavingPolicy::DISCARD;
+    [[nodiscard]] auto saving_policy() const -> SavingPolicy override {
+      return SavingPolicy::DISCARD;
     }
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::EVERY_ELEMENT;
@@ -118,9 +112,6 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto unit() const -> std::string override {
       return "ms";
     }
-    [[nodiscard]] auto saving_policy() -> MetricSavingPolicy override {
-      return MetricSavingPolicy::SAVE;
-    }
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::ONCE;
     }
@@ -134,9 +125,6 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto unit() const -> std::string override {
       return "ms";
     }
-    [[nodiscard]] auto saving_policy() -> MetricSavingPolicy override {
-      return MetricSavingPolicy::SAVE;
-    }
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::ONCE;
     }
@@ -149,9 +137,6 @@ namespace Baseliner::Stats {
     }
     [[nodiscard]] auto unit() const -> std::string override {
       return "ms";
-    }
-    [[nodiscard]] auto saving_policy() -> MetricSavingPolicy override {
-      return MetricSavingPolicy::SAVE;
     }
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::ONCE;
@@ -255,6 +240,40 @@ namespace Baseliner::Stats {
       return MetricGranularity::ON_DEMAND;
     }
   };
+  class HarmonicMean : public IStat<HarmonicMean, float, ExecutionTimeVector> {
+  public:
+    [[nodiscard]] auto name() const -> std::string override {
+      return "harmonic_mean";
+    }
+    void calculate(HarmonicMean::type &value_to_update, const typename ExecutionTimeVector::type &inputs) override {
+      if (inputs.empty()) {
+        value_to_update = 0.0f;
+        return;
+      }
+      double sum_of_reciprocals = 0.0;
+      size_t count = 0;
+
+      for (const auto &input : inputs) {
+        auto val = static_cast<double>(input.count());
+        if (val > 0.0) {
+          sum_of_reciprocals += 1.0 / val;
+          count++;
+        }
+      }
+
+      if (count > 0) {
+        value_to_update = static_cast<float>(static_cast<double>(count) / sum_of_reciprocals);
+      } else {
+        value_to_update = 0.0f;
+      }
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "ms";
+    }
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::ON_DEMAND;
+    }
+  };
 
   class SortedExecutionTimeVector
       : public IStat<SortedExecutionTimeVector, std::vector<float_milliseconds>, ExecutionTime> {
@@ -296,11 +315,11 @@ namespace Baseliner::Stats {
     }
   };
 
-  class MedianDataTroughput : public IStat<MedianDataTroughput, float, Median, ByteNumbers> {
+  class DataTroughput : public IStat<DataTroughput, float, Median, ByteNumbers> {
     [[nodiscard]] auto name() const -> std::string override {
       return "memory_bandwidth";
     }
-    void calculate(MedianDataTroughput::type &value_to_update, const typename Median::type &median,
+    void calculate(DataTroughput::type &value_to_update, const typename HarmonicMean::type &median,
                    const typename ByteNumbers::type &nb_bytes) override {
       auto bytes = static_cast<double>(nb_bytes);
       auto seconds = static_cast<double>(median);
@@ -318,11 +337,11 @@ namespace Baseliner::Stats {
     }
   };
 
-  class MedianFLOPThroughput : public IStat<MedianFLOPThroughput, float, Median, FLOPCount> {
+  class FLOPThroughputaTroughput : public IStat<FLOPThroughputaTroughput, float, HarmonicMean, FLOPCount> {
     [[nodiscard]] auto name() const -> std::string override {
       return "arithmetic_bandwidth";
     }
-    void calculate(MedianFLOPThroughput::type &value_to_update, const typename Median::type &median,
+    void calculate(FLOPThroughputaTroughput::type &value_to_update, const typename HarmonicMean::type &median,
                    const typename FLOPCount::type &nb_flops) override {
       auto flops = static_cast<double>(nb_flops);
       auto miliseconds = static_cast<double>(median);

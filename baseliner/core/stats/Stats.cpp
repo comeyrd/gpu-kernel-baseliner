@@ -101,8 +101,8 @@ namespace Baseliner::Stats {
 
   BASELINER_REGISTER_STAT(SortedExecutionTimeVector);
   BASELINER_REGISTER_STAT(Median);
-  BASELINER_REGISTER_STAT(MedianDataTroughput);
-  BASELINER_REGISTER_STAT(MedianFLOPThroughput);
+  BASELINER_REGISTER_STAT(DataTroughput);
+  BASELINER_REGISTER_STAT(FLOPThroughputaTroughput);
   BASELINER_REGISTER_STAT(Q1);
   BASELINER_REGISTER_STAT(Q3);
   BASELINER_REGISTER_STAT(MedianConfidenceInterval);
