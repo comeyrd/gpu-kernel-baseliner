@@ -17,9 +17,7 @@
 #include <baseliner/core/stats/StatsEngine.hpp>
 #include <iostream>
 #include <memory>
-#include <stdexcept>
 #include <string>
-#include <type_traits>
 #include <utility>
 #include <vector>
 inline static const std::string_view DEFAULT_BENCHMARK_NAME = "Benchmark";

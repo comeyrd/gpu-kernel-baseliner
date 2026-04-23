@@ -1,5 +1,6 @@
 #include <baseliner/core/StoppingCriterion.hpp>
 #include <baseliner/nvbench/NvBenchStopping.hpp>
+#include <baseliner/primbench/PrimBenchStopping.hpp>
 #include <baseliner/registry/RegisteringMacros.hpp>
 namespace Baseliner {
   BASELINER_REGISTER_STOPPING_CRITERION(StoppingCriterion);
