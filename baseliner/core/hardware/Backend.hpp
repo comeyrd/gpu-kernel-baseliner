@@ -74,13 +74,13 @@ namespace Baseliner::Hardware {
                        m_max_clock_value);
     }
     void on_update() override {
-      std::cout << "Lock clock val" << m_lock_clock << "/n";
       this->set_device();
       if (m_lock_clock) {
         Backend<S, O>::lock_clocks(m_min_clock_value, m_max_clock_value);
-      } else {
+      } else if (m_was_locked) {
         Backend<S, O>::unlock_clock();
       }
+      m_was_locked = m_lock_clock;
     };
 
   private:
@@ -90,6 +90,7 @@ namespace Baseliner::Hardware {
     static void set_device(int device);
     Backend() = default;
     int m_device = 0;
+    bool m_was_locked = false;
     bool m_lock_clock = false;
     int m_min_clock_value = -1;
     int m_max_clock_value = -1;

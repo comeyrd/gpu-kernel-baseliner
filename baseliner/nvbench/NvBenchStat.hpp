@@ -145,6 +145,10 @@ namespace Baseliner::Stats {
     float evicted_value;
     bool was_sliding;
     size_t current_size;
+    size_t total_samples = 0;
+    double sum_count_log_counter = 0.0;
+
+    std::deque<float> internal_window;
     operator std::monostate() const {
       return std::monostate{};
     }
@@ -157,33 +161,34 @@ namespace Baseliner::Stats {
     }
 
     void calculate(EntropyWindowUpdate &update, const TrackerResult &tracker) override {
-      m_total_samples++;
+      update.total_samples++;
 
       const size_t new_count = tracker.data[tracker.last_index].second;
       const auto old_count = static_cast<double>(new_count - 1);
       const auto new_c = static_cast<double>(new_count);
 
       if (old_count > 0) {
-        m_sum_count_log_counter += new_c * std::log2(new_c / old_count) + std::log2(old_count);
+        update.sum_count_log_counter += new_c * std::log2(new_c / old_count) + std::log2(old_count);
       } else {
-        m_sum_count_log_counter += new_c * std::log2(new_c);
+        update.sum_count_log_counter += new_c * std::log2(new_c);
       }
 
-      const auto n = static_cast<double>(m_total_samples);
-      const float current_entropy = static_cast<float>(std::max(0.0, std::log2(n) - (m_sum_count_log_counter / n)));
+      const auto n = static_cast<double>(update.total_samples);
+      const float current_entropy =
+          static_cast<float>(std::max(0.0, std::log2(n) - (update.sum_count_log_counter / n)));
 
       update.added_value = current_entropy;
-      update.was_sliding = (m_internal_window.size() >= m_max_window_size);
+      update.was_sliding = (update.internal_window.size() >= m_max_window_size);
 
       if (update.was_sliding) {
-        update.evicted_value = m_internal_window.front();
-        m_internal_window.pop_front(); // Use deque for efficient front removal
+        update.evicted_value = update.internal_window.front();
+        update.internal_window.pop_front(); // Use deque for efficient front removal
       } else {
         update.evicted_value = 0.0f;
       }
 
-      m_internal_window.push_back(current_entropy);
-      update.current_size = m_internal_window.size();
+      update.internal_window.push_back(current_entropy);
+      update.current_size = update.internal_window.size();
     }
 
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
@@ -202,10 +207,6 @@ namespace Baseliner::Stats {
     }
 
   private:
-    size_t m_total_samples = 0;
-    double m_sum_count_log_counter = 0.0;
-
-    std::deque<float> m_internal_window;
     size_t m_max_window_size = 299;
   };
 
@@ -213,6 +214,7 @@ namespace Baseliner::Stats {
     float slope_deg = 0.0f;
     float r_squared = 0.0f;
     bool is_valid = false;
+    Utils::online_linear_regression reg;
     operator std::monostate() const {
       return std::monostate{};
     }
@@ -228,14 +230,14 @@ namespace Baseliner::Stats {
 
       if (update.was_sliding) {
 
-        m_reg.slide_window(update.evicted_value, update.added_value);
+        result.reg.slide_window(update.evicted_value, update.added_value);
       } else {
         const double x = static_cast<double>(update.current_size - 1);
-        m_reg.update({x, static_cast<double>(update.added_value)});
+        result.reg.update({x, static_cast<double>(update.added_value)});
       }
 
-      const double raw_slope = m_reg.slope();
-      const double r2 = m_reg.r_squared();
+      const double raw_slope = result.reg.slope();
+      const double r2 = result.reg.r_squared();
 
       if (std::isfinite(raw_slope) && std::isfinite(r2)) {
         result.is_valid = true;
@@ -258,9 +260,6 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto unit() const -> std::string override {
       return "";
     }
-
-  private:
-    Utils::online_linear_regression m_reg;
   };
 } // namespace Baseliner::Stats
 #endif
