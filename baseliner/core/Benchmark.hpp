@@ -198,7 +198,7 @@ namespace Baseliner {
     int m_warm_cool_timeout = 3;
     bool m_warmup = true;
     bool m_flush_l2 = true;
-    int m_max_blocked_queue = 500;
+    int m_max_blocked_queue = 64;
     bool m_block = false;
     float m_block_duration_ms = DEFAULT_BLOCK_DURATION;
     bool m_first = true;
