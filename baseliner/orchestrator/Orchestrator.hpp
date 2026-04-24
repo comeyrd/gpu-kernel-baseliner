@@ -122,7 +122,7 @@ namespace Baseliner {
       def_recipe.stopping = RecipeComponent{"StoppingCriterion", "default"};
       def_recipe.sweep =
           SweepSpec{SweepStrategy::FullGrid,
-                    {SweepAxis{"Case", "work_size", SweepHint{SweepPolicy::PowersOfTwo, "1", "1024", "1", {}}}}};
+                    {SweepAxis{"Workload", "work_size", SweepHint{SweepPolicy::PowersOfTwo, "1", "1024", "1", {}}}}};
       def_recipe.description = "Default Recipe";
       protocol.recipes["default"] = def_recipe;
       Campaign default_campaign;
@@ -131,7 +131,7 @@ namespace Baseliner {
       for (const auto &backend : storage_manager->list_backends()) {
         default_campaign.backends.push_back({backend, "default"});
       }
-      for (const auto &workloads : storage_manager->list_components(ComponentType::CASE)) {
+      for (const auto &workloads : storage_manager->list_components(ComponentType::WORKLOAD)) {
         default_campaign.workloads.push_back({workloads, "default"});
       }
       default_campaign.on_incompatible = OnIncompatible::Skip;
@@ -148,7 +148,7 @@ namespace Baseliner {
       def_recipe.stopping = {};
       def_recipe.sweep =
           SweepSpec{SweepStrategy::FullGrid,
-                    {SweepAxis{"Case", "work_size", SweepHint{SweepPolicy::PowersOfTwo, "1", "1024", "1", {}}}}};
+                    {SweepAxis{"Workload", "work_size", SweepHint{SweepPolicy::PowersOfTwo, "1", "1024", "1", {}}}}};
       def_recipe.description = "Minimal recipe with everything kept to default";
       protocol.recipes["minimal"] = def_recipe;
       Campaign default_campaign;
@@ -157,7 +157,7 @@ namespace Baseliner {
       for (const auto &backend : storage_manager->list_backends()) {
         default_campaign.backends.push_back({backend, {}});
       }
-      for (const auto &workloads : storage_manager->list_components(ComponentType::CASE)) {
+      for (const auto &workloads : storage_manager->list_components(ComponentType::WORKLOAD)) {
         default_campaign.workloads.push_back({workloads, {}});
       }
       default_campaign.on_incompatible = OnIncompatible::Skip;

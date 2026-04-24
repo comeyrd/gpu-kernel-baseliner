@@ -18,7 +18,7 @@ namespace Baseliner {
     std::string recipe_name;
     std::string id = Utils::gen_uuid();
     Recipe recipe;
-    // Key1 Backend Key2 Case
+    // Key1 Backend Key2 Workload
     std::unordered_map<std::string, std::unordered_map<std::string, BenchmarkExecution>> benchmark_runs;
   };
 

@@ -120,6 +120,7 @@ namespace Baseliner::Stats {
           metric.name = stat_ptr->name();
           metric.unit = stat_ptr->unit();
           metric.data = stat_ptr->get_value(m_registry);
+          metric.granularity = stat_ptr->granularity();
           metrics_vector.push_back(metric);
         }
       }
@@ -129,6 +130,7 @@ namespace Baseliner::Stats {
           metric.name = metric_ptr->name();
           metric.unit = metric_ptr->unit();
           metric.data = metric_ptr->get_value(m_registry);
+          metric.granularity = metric_ptr->granularity();
           metrics_vector.push_back(metric);
         }
       }

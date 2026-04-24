@@ -11,7 +11,7 @@ namespace Baseliner {
 
   enum ComponentType : uint8_t {
     NONE,
-    CASE,
+    WORKLOAD,
     BENCHMARK,
     STOPPING,
     BACKEND

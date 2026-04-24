@@ -66,7 +66,8 @@ namespace Baseliner {
         return std::make_shared<WorkloadT>();
       };
       BackendStorage<typename WorkloadT::backend>::instance()->register_workload(name, factory);
-      StorageManager::instance()->register_component(name, ComponentType::CASE, factory()->get_depedencies_options());
+      StorageManager::instance()->register_component(name, ComponentType::WORKLOAD,
+                                                     factory()->get_depedencies_options());
     }
   };
 
@@ -78,7 +79,7 @@ namespace Baseliner {
         return std::make_shared<KernelWorkload<KernelT>>();
       };
       BackendStorage<typename KernelT::backend>::instance()->register_workload(name, factory);
-      StorageManager::instance()->register_component(name, ComponentType::CASE, factory()->get_options());
+      StorageManager::instance()->register_component(name, ComponentType::WORKLOAD, factory()->get_options());
     }
   };
 

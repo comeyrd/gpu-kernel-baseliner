@@ -18,8 +18,8 @@ namespace Baseliner {
     IWorkload() = default;
     virtual ~IWorkload() = default;
     void register_options() override {
-      this->add_option("Case", "work_size", "The work size to apply, 1 = 32MFlop & 1 = 1MB", m_work_size);
-      this->add_option("Case", "seed", "The seed used for the generation of input data", m_seed);
+      this->add_option("Workload", "work_size", "The work size to apply, 1 = 32MFlop & 1 = 1MB", m_work_size);
+      this->add_option("Workload", "seed", "The seed used for the generation of input data", m_seed);
     }
     virtual auto number_of_floating_point_operations() -> std::optional<size_t> {
       return {};

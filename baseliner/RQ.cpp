@@ -36,7 +36,8 @@ namespace Baseliner {
                     {},
                     {},
                     SweepSpec{SweepStrategy::FullGrid,
-                              {SweepAxis{"Case", "seed", seed_hint}, SweepAxis{"Case", "work_size", work_size_hint}}}};
+                              {SweepAxis{"Workload", "seed", seed_hint}, SweepAxis{"Workload", "work_size",
+work_size_hint}}}};
     }
 
     auto make_rq2(RQSize size) -> Recipe {
@@ -56,7 +57,7 @@ namespace Baseliner {
                     {},
                     {},
                     {},
-                    SweepSpec{SweepStrategy::FullGrid, {SweepAxis{"Case", "work_size", work_size_hint}}}};
+                    SweepSpec{SweepStrategy::FullGrid, {SweepAxis{"Workload", "work_size", work_size_hint}}}};
     }
 
     auto make_rq3(RQSize size) -> Recipe {
@@ -68,7 +69,7 @@ namespace Baseliner {
                     {},
                     SweepSpec{SweepStrategy::FullGrid,
                               {SweepAxis{"Benchmark", "flush", SweepHint{SweepPolicy::LinearRange, "0", "1", "1", {}}},
-                               SweepAxis{"Case", "work_size", work_size_hint}}}};
+                               SweepAxis{"Workload", "work_size", work_size_hint}}}};
     }
 
     auto make_rq4(RQSize size) -> Recipe {
@@ -80,7 +81,7 @@ namespace Baseliner {
                     {},
                     SweepSpec{SweepStrategy::FullGrid,
                               {SweepAxis{"Benchmark", "block", SweepHint{SweepPolicy::LinearRange, "0", "1", "1", {}}},
-                               SweepAxis{"Case", "work_size", work_size_hint}}}};
+                               SweepAxis{"Workload", "work_size", work_size_hint}}}};
     }
 
     auto make_rq5(RQSize size) -> Recipe {
@@ -92,7 +93,7 @@ namespace Baseliner {
                     {},
                     SweepSpec{SweepStrategy::FullGrid,
                               {SweepAxis{"Benchmark", "warmup", SweepHint{SweepPolicy::LinearRange, "0", "1", "1", {}}},
-                               SweepAxis{"Case", "work_size", work_size_hint}}}};
+                               SweepAxis{"Workload", "work_size", work_size_hint}}}};
     }
 
   } // namespace RQs

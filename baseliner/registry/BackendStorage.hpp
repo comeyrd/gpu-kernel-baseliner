@@ -53,8 +53,8 @@ namespace Baseliner {
                                                               benchmark_name, this->get_name());
       }
       if (!m_workloads_storage.has(workload_name)) {
-        throw Errors::workload_benchmark_not_found_in_backend(component_to_string(ComponentType::CASE), workload_name,
-                                                              this->get_name());
+        throw Errors::workload_benchmark_not_found_in_backend(component_to_string(ComponentType::WORKLOAD),
+                                                              workload_name, this->get_name());
       }
       auto benchmark_recipe = m_benchmark_storage.at(benchmark_name);
       auto workload_recipe = m_workloads_storage.at(workload_name);
@@ -91,7 +91,7 @@ namespace Baseliner {
       return m_benchmark_storage.list();
     };
     [[nodiscard]] auto list_components() -> ComponentList override {
-      ComponentType component_workload = ComponentType::CASE;
+      ComponentType component_workload = ComponentType::WORKLOAD;
       std::vector<std::pair<std::string, ComponentType>> result;
       result.reserve(m_workloads_storage.size());
       for (const auto &str : list_device_workloads()) {

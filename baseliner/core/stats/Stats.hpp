@@ -208,7 +208,7 @@ namespace Baseliner::Stats {
   class BatchTimeVector : public IStat<BatchTimeVector, std::vector<float_milliseconds>, BatchTime> {
   public:
     [[nodiscard]] auto name() const -> std::string override {
-      return "execution_time_vector";
+      return "batch_time_vector";
     }
     [[nodiscard]] auto unit() const -> std::string override {
       return "ms";

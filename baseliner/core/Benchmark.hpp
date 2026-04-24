@@ -361,7 +361,7 @@ namespace Baseliner {
 
       bool valid_run = m_workload->validate_workload();
       if (!valid_run) {
-        std::cout << "Warning, not able to validate Case : " << m_workload->name() << '\n';
+        std::cout << "Warning, not able to validate Workload : " << m_workload->name() << '\n';
       }
       std::vector<Metric> metrics = {get_stats_engine()->get_metrics()};
       m_stream.reset();

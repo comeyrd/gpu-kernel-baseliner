@@ -161,7 +161,7 @@ namespace Baseliner::Cli {
       std::cout << "Running Campaign " << campaign_plan.name << ", Recipe : " << campaign_plan.recipe_name << "\n";
     }
     void print_benchmark_plan(const BenchmarkPlan &bench_plan) {
-      std::cout << "Case : " << bench_plan.workload.impl << " (" << bench_plan.workload.preset << ")" << "\n";
+      std::cout << "Workload : " << bench_plan.workload.impl << " (" << bench_plan.workload.preset << ")" << "\n";
       std::cout << "Backend : " << bench_plan.backend.impl << " (" << bench_plan.backend.preset << ")" << "\n";
     };
 

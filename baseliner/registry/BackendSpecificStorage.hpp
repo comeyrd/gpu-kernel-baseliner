@@ -24,7 +24,7 @@ namespace Baseliner {
     void insert(const std::string &name, const WorkloadFactory<BackendT> &workload_factory,
                 const std::string &backend_name) {
       if (has(name)) {
-        throw Errors::already_exist_in_backend(component_to_string(CASE), name, backend_name);
+        throw Errors::already_exist_in_backend(component_to_string(WORKLOAD), name, backend_name);
       }
       m_workloads_map[name] = workload_factory;
     }

@@ -5,8 +5,8 @@ namespace Baseliner {
     switch (type) {
     case NONE:
       return "";
-    case CASE:
-      return "Case";
+    case WORKLOAD:
+      return "Workload";
     case BENCHMARK:
       return "Benchmark";
     case STOPPING:
@@ -16,8 +16,8 @@ namespace Baseliner {
     }
   }
   auto string_to_component(const std::string_view &str) -> ComponentType {
-    if (str == "Case") {
-      return CASE;
+    if (str == "Workload") {
+      return WORKLOAD;
     }
     if (str == "Benchmark") {
       return BENCHMARK;
