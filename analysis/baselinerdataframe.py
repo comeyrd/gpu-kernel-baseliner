@@ -16,7 +16,11 @@ class SweepPolicy(str,Enum):
   LinearRange = "LinearRange"
   Enumerated = "Enumerated"
   
-  
+class MetricGranularity(str,Enum):
+    EVERY_ELEMENT = "EVERY_ELEMENT"
+    EVERY_BATCH = "EVERY_BATCH"
+    ON_DEMAND = "ON_DEMAND"
+    ONCE = "ONCE"
 
 class SweepHint(BaseModel):
   policy:SweepPolicy
@@ -101,6 +105,7 @@ class Metric(BaseModel):
   name:str
   unit:str
   data:Any
+  granularity:MetricGranularity
 
 class RunReport(BaseModel):
   id:str
@@ -232,11 +237,17 @@ class ReportDataframe:
               for metrics in run.measurements:
                 if isinstance(metrics.data, list):
                   for i, val in enumerate(metrics.data):
+                      if metrics.granularity ==  MetricGranularity.EVERY_ELEMENT:
+                        vector_rows[(run.id, i)]["run_nb"] = i
+                      elif metrics.granularity == MetricGranularity.EVERY_BATCH:
+                        vector_rows[(run.id,i)]["batch_nb"] = i
+
                       vector_rows[(run.id, i)]["run_id"] = run.id
-                      vector_rows[(run.id, i)]["run_nb"] = i
                       vector_rows[(run.id, i)][metrics.name] = val
                       if metrics.unit != "":
                         vector_rows[(run.id, i)][f"{metrics.name}.unit"] = metrics.unit
+                      if metrics.unit != "":
+                        vector_rows[(run.id, i)][f"{metrics.name}.granularity"] = metrics.granularity
                 else:
                   scalar_rows[run.id]["run_id"] = run.id
                   scalar_rows[run.id][metrics.name] = metrics.data
@@ -245,3 +256,10 @@ class ReportDataframe:
       self.m_metadata_df = pd.DataFrame(metadata_rows)
       self.m_scalars_df = pd.DataFrame(scalar_rows.values())
       self.m_vectors_df = pd.DataFrame(vector_rows.values())
+
+  def merge_scalars(self):
+    new_df = pd.merge(self.m_metadata_df,self.m_scalars_df,on="run_id")
+    return new_df
+  def merge_vectors(self):
+    new_df = pd.merge(self.m_metadata_df,self.m_vectors_df,on="run_id")
+    return new_df
