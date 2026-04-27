@@ -32,11 +32,6 @@ BASE_LAYOUT = dict(
     paper_bgcolor="white",
     plot_bgcolor="#f9f9fb",
     margin=dict(t=60, b=60, l=70, r=30),
-    legend=dict(
-        bgcolor="rgba(255,255,255,0.8)",
-        bordercolor="#e0e0e0",
-        borderwidth=1,
-    ),
     xaxis=dict(
         showgrid=True,
         gridcolor="#e8e8f0",
@@ -48,6 +43,17 @@ BASE_LAYOUT = dict(
         gridcolor="#e8e8f0",
         linecolor="#cccccc",
         zerolinecolor="#cccccc",
+    ),legend=dict(
+        bgcolor="rgba(255,255,255,0.8)",
+        bordercolor="#e0e0e0",
+        borderwidth=1,
+        
+        # Position logic
+        orientation="v",      # "v" for vertical, "h" for horizontal
+        x=0.02,               # Horizontal position (0 is left, 1 is right)
+        y=0.98,               # Vertical position (0 is bottom, 1 is top)
+        xanchor="left",       # Anchor point of the legend box
+        yanchor="top",        # Anchor point of the legend box
     ),
 )
 
