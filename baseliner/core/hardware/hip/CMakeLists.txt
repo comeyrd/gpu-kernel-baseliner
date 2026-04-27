@@ -3,6 +3,7 @@ target_sources(baseliner PRIVATE
     BlockingKernel.hip
     L2Flusher.hip
     HipStats.hip
+    WarmingGpu.hip
     )
 
 if(BASELINER_HAS_AMDSMI)

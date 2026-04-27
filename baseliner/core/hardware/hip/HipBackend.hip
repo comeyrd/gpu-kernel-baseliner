@@ -56,6 +56,32 @@ namespace Baseliner {
       });
     }
     BASELINER_REGISTER_BACKEND("hip", HipBackend);
+
+#ifdef BASELINER_HAS_AMDSMI
+    template <>
+    void HipBackend::lock_clocks(int min_clock_val, int max_clock_val) {
+      AmdSmiManager *manager = AmdSmiManager::ensure_init();
+      amdsmi_processor_handle handle = manager->get_current_device();
+      amdsmi_frequencies_t freq_info;
+      CHECK_AMDSMI(amdsmi_get_clk_freq(handle, AMDSMI_CLK_TYPE_SYS, &freq_info));
+      amdsmi_set_gpu_perf_level(handle, AMDSMI_DEV_PERF_LEVEL_DETERMINISM);
+    };
+    template <>
+    void HipBackend::unlock_clock() {
+      AmdSmiManager *manager = AmdSmiManager::ensure_init();
+      amdsmi_processor_handle handle = manager->get_current_device();
+      amdsmi_set_gpu_perf_level(handle, AMDSMI_DEV_PERF_LEVEL_AUTO);
+    };
+#else
+    template <>
+    void HipBackend::unlock_clock() {
+      throw Errors::not_found_in_backend("AMDSMI", "Locking clocks", "hip");
+    };
+    template <>
+    void HipBackend::lock_clocks(int min_clock_val, int max_clock_val) {
+      // throw Errors::not_found_in_backend("NVML", "unlocking_clocks", "hip");
+    };
+#endif
   } // namespace Hardware
 
 } // namespace Baseliner
