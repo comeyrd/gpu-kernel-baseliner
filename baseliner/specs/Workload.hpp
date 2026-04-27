@@ -1,12 +1,22 @@
 #ifndef BASELINER_CORE_WORKLOAD_HPP
 #define BASELINER_CORE_WORKLOAD_HPP
-#include <baseliner/core/Options.hpp>
-
+#include <baseliner/specs/Options.hpp>
+#include <baseliner/specs/Timer.hpp>
+#ifdef BASELINER_FULL_LIBRARY
 #include <baseliner/core/hardware/Backend.hpp>
 #include <baseliner/core/stats/Stats.hpp>
 #include <baseliner/core/stats/StatsEngine.hpp>
+#include <baseliner/specs/Options.hpp>
+
+#else
+#include <baseliner/specs/stubs/BackendStub.hpp>
+#include <baseliner/specs/stubs/StatsEngineStub.hpp>
+#include <baseliner/specs/stubs/StatsStubs.hpp>
+#endif
+
 #include <memory>
 #include <optional>
+
 namespace Baseliner {
   constexpr int DEFAULT_SEED = 333;
   constexpr size_t DEFAULT_WORK_SIZE = 10;
@@ -99,12 +109,12 @@ namespace Baseliner {
       std::optional<size_t> flops = this->number_of_floating_point_operations();
       if (bytes.has_value()) {
         engine->register_metric<Stats::ByteNumbers>(bytes.value());
-        engine->register_stat<Stats::DataTroughput>();
+        engine->register_stat<Stats::DataThroughput>();
         m_bytes = true;
       }
       if (flops.has_value()) {
         engine->register_metric<Stats::FLOPCount>(flops.value());
-        engine->register_stat<Stats::FLOPThroughputaTroughput>();
+        engine->register_stat<Stats::FLOPThroughput>();
         m_flops = true;
       }
       if (m_bytes && m_flops) {

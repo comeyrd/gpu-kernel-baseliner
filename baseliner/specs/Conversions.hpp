@@ -1,12 +1,13 @@
 #ifndef BASELINER_CORE_CONVERSIONS_HPP
 #define BASELINER_CORE_CONVERSIONS_HPP
-#include <baseliner/core/Durations.hpp>
-#include <baseliner/core/stats/StatsType.hpp>
+#include <baseliner/specs/Durations.hpp>
+
 #include <sstream>
 #include <string>
 #include <type_traits>
 #include <variant>
 #include <vector>
+
 namespace Baseliner::Conversion {
   inline auto trim_before_after_whitespace(const std::string &thestring) -> std::string {
     const std::string whitespace = " \t\n\r\f\v";
@@ -140,16 +141,15 @@ namespace Baseliner::Conversion {
   inline auto baseliner_from_string<std::string>(const std::string &val) -> std::string {
     return val;
   }
+
   template <>
   inline auto baseliner_to_string<float_milliseconds>(const float_milliseconds &val) -> std::string {
     return baseliner_to_string(val.count());
   }
-
   template <typename T>
   inline auto baseliner_to_string(const ConfidenceInterval<T> &val) -> std::string {
     return baseliner_to_string(val.low) + " ," + baseliner_to_string(val.high);
   }
-
   template <typename... Types>
   inline auto baseliner_to_string(const std::variant<Types...> &val)
       -> std::variant<std::string, std::vector<std::string>> {

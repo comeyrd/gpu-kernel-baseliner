@@ -1,4 +1,5 @@
-#include <baseliner/core/Error.hpp>
+#include <baseliner/specs/Error.hpp>
+
 #include <baseliner/core/hardware/cuda/CudaBackend.hpp>
 #include <baseliner/registry/RegisteringMacros.hpp>
 void check_cuda_error(cudaError_t error_code, const char *file, int line) {

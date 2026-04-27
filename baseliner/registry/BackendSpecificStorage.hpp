@@ -1,9 +1,9 @@
 #ifndef BASELINER_REGISTRY_BACKENDSPECIFICSTORAGE_HPP
 #define BASELINER_REGISTRY_BACKENDSPECIFICSTORAGE_HPP
 #include <baseliner/core/Benchmark.hpp>
-#include <baseliner/core/Workload.hpp>
 #include <baseliner/core/stats/StatsEngine.hpp>
 #include <baseliner/registry/Factories.hpp>
+#include <baseliner/specs/Workload.hpp>
 #include <string>
 #include <unordered_map>
 

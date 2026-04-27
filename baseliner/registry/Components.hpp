@@ -1,7 +1,8 @@
 #ifndef BASELINER_REGISTRY_COMPONENTS_HPP
 #define BASELINER_REGISTRY_COMPONENTS_HPP
 #include <baseliner/cli/Serializer.hpp>
-#include <baseliner/core/Options.hpp>
+#include <baseliner/specs/Options.hpp>
+
 #include <string>
 namespace Baseliner {
 

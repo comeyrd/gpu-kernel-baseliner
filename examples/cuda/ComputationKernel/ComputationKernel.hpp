@@ -1,8 +1,9 @@
 #ifndef COMPUTATION_HPP
 #define COMPUTATION_HPP
-#include <baseliner/core/Kernel.hpp>
-#include <baseliner/core/Options.hpp>
+#include <baseliner/specs/Options.hpp>
+
 #include <baseliner/core/hardware/cuda/CudaBackend.hpp>
+#include <baseliner/specs/Kernel.hpp>
 #include <memory>
 #include <ostream>
 #include <random>

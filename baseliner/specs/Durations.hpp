@@ -4,6 +4,10 @@
 #include <ostream>
 #include <ratio>
 #include <vector>
+#ifdef BASELINER_FULL_LIBRARY
+#include <baseliner/cli/Serializer.hpp>
+#endif
+
 namespace Baseliner {
   using float_milliseconds = std::chrono::duration<float, std::milli>;
 
@@ -14,6 +18,15 @@ namespace Baseliner {
     }
     return float_milliseconds(sum);
   }
+  template <typename T>
+  struct ConfidenceInterval {
+    T high;
+    T low;
+  };
+#ifdef BASELINER_FULL_LIBRARY
+  DESCRIBE_TEMPLATE(ConfidenceInterval, FIELD(high), FIELD(low))
+#endif
+
 } // namespace Baseliner
 inline auto operator<<(std::ostream &outputStream, const Baseliner::float_milliseconds &duration) -> std::ostream & {
   const float count = duration.count();
@@ -30,4 +43,5 @@ inline auto operator<<(std::ostream &outputStream, const std::vector<Baseliner::
   outputStream << " ]";
   return outputStream;
 }
+
 #endif // DURATIONS_HPP

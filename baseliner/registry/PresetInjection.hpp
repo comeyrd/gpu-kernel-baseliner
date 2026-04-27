@@ -1,7 +1,8 @@
 #ifndef BASELINER_REGISTRY_PRESETINJECTION_HPP
 #define BASELINER_REGISTRY_PRESETINJECTION_HPP
 #include <baseliner/core/Benchmark.hpp>
-#include <baseliner/core/Options.hpp>
+#include <baseliner/specs/Options.hpp>
+
 #include <functional>
 #include <memory>
 namespace Baseliner {

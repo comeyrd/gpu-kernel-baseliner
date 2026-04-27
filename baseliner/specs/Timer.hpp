@@ -1,9 +1,10 @@
 #ifndef BASELINER_CORE_TIMER_HPP
 #define BASELINER_CORE_TIMER_HPP
-#include <baseliner/core/Durations.hpp>
-#include <baseliner/core/Error.hpp>
+#include <baseliner/specs/Durations.hpp>
+#include <baseliner/specs/Error.hpp>
 #include <chrono>
 #include <functional>
+#include <iostream>
 #include <memory>
 #include <vector>
 

@@ -1,4 +1,5 @@
-#include <baseliner/core/Error.hpp>
+#include <baseliner/specs/Error.hpp>
+
 #include <baseliner/core/hardware/hip/HipBackend.hpp>
 #include <baseliner/registry/RegisteringMacros.hpp>
 void check_hip_error(hipError_t error_code, const char *file, int line) {

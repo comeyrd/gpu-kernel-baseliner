@@ -1,8 +1,10 @@
 #ifndef BASELINER_CORE_STATS_STATS_HPP
 #define BASELINER_CORE_STATS_STATS_HPP
 #include <algorithm>
-#include <baseliner/core/Durations.hpp>
-#include <baseliner/core/Options.hpp>
+#include <baseliner/specs/Durations.hpp>
+
+#include <baseliner/specs/Options.hpp>
+
 #include <baseliner/core/stats/IStats.hpp>
 #include <baseliner/core/stats/StatsType.hpp>
 #include <cmath>
@@ -315,11 +317,11 @@ namespace Baseliner::Stats {
     }
   };
 
-  class DataTroughput : public IStat<DataTroughput, float, Median, ByteNumbers> {
+  class DataThroughput : public IStat<DataThroughput, float, Median, ByteNumbers> {
     [[nodiscard]] auto name() const -> std::string override {
       return "memory_bandwidth";
     }
-    void calculate(DataTroughput::type &value_to_update, const typename HarmonicMean::type &median,
+    void calculate(DataThroughput::type &value_to_update, const typename HarmonicMean::type &median,
                    const typename ByteNumbers::type &nb_bytes) override {
       auto bytes = static_cast<double>(nb_bytes);
       auto seconds = static_cast<double>(median);
@@ -337,11 +339,11 @@ namespace Baseliner::Stats {
     }
   };
 
-  class FLOPThroughputaTroughput : public IStat<FLOPThroughputaTroughput, float, HarmonicMean, FLOPCount> {
+  class FLOPThroughput : public IStat<FLOPThroughput, float, HarmonicMean, FLOPCount> {
     [[nodiscard]] auto name() const -> std::string override {
       return "arithmetic_bandwidth";
     }
-    void calculate(FLOPThroughputaTroughput::type &value_to_update, const typename HarmonicMean::type &median,
+    void calculate(FLOPThroughput::type &value_to_update, const typename HarmonicMean::type &median,
                    const typename FLOPCount::type &nb_flops) override {
       auto flops = static_cast<double>(nb_flops);
       auto miliseconds = static_cast<double>(median);

@@ -1,6 +1,7 @@
 #include <algorithm>
 #include <array>
-#include <baseliner/core/Durations.hpp>
+#include <baseliner/specs/Durations.hpp>
+
 #include <baseliner/core/stats/Stats.hpp>
 #include <baseliner/registry/RegisteringMacros.hpp>
 
@@ -101,8 +102,8 @@ namespace Baseliner::Stats {
 
   BASELINER_REGISTER_STAT(SortedExecutionTimeVector);
   BASELINER_REGISTER_STAT(Median);
-  BASELINER_REGISTER_STAT(DataTroughput);
-  BASELINER_REGISTER_STAT(FLOPThroughputaTroughput);
+  BASELINER_REGISTER_STAT(DataThroughput);
+  BASELINER_REGISTER_STAT(FLOPThroughput);
   BASELINER_REGISTER_STAT(Q1);
   BASELINER_REGISTER_STAT(Q3);
   BASELINER_REGISTER_STAT(MedianConfidenceInterval);

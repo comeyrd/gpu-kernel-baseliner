@@ -1,8 +1,8 @@
 #ifndef BASELINER_ORCHESTRATOR_PROTOCOL_HPP
 #define BASELINER_ORCHESTRATOR_PROTOCOL_HPP
 #include <baseliner/cli/Serializer.hpp>
-#include <baseliner/core/AxeSweeping.hpp>
 #include <baseliner/registry/Components.hpp>
+#include <baseliner/specs/AxeSweeping.hpp>
 #include <string>
 #include <unordered_map>
 #include <vector>

@@ -1,5 +1,7 @@
-#include <baseliner/core/Error.hpp>
-#include <baseliner/core/Options.hpp>
+#include <baseliner/specs/Error.hpp>
+
+#include <baseliner/specs/Options.hpp>
+
 #include <baseliner/orchestrator/Plan.hpp>
 #include <baseliner/orchestrator/Planner.hpp>
 #include <baseliner/orchestrator/Protocol.hpp>
@@ -56,6 +58,8 @@ namespace Baseliner::Planner {
       } catch (const Error &e) {
         if (found_omap.empty()) {
           throw e;
+        } else {
+          std::cerr << "Encountered error : " << e.what() << "\n";
         }
       }
       return {wanted_component.impl, current_preset, found_omap};
@@ -83,6 +87,8 @@ namespace Baseliner::Planner {
       } catch (const Error &e) {
         if (found_preset.stat_names.empty()) {
           throw e;
+        } else {
+          std::cerr << "Encountered error : " << e.what() << "\n";
         }
       }
       return PlannedStat{wanted_stat.preset, found_preset.stat_names, found_preset.stat_options};

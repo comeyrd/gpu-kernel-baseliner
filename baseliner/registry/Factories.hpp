@@ -1,8 +1,8 @@
 #ifndef BASELINER_REGISTRY_FACTORIES_HPP
 #define BASELINER_REGISTRY_FACTORIES_HPP
 #include <baseliner/core/Benchmark.hpp>
-#include <baseliner/core/Workload.hpp>
 #include <baseliner/registry/Components.hpp>
+#include <baseliner/specs/Workload.hpp>
 #include <functional>
 namespace Baseliner {
   // Factories

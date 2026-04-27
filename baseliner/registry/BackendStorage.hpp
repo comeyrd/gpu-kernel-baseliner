@@ -1,12 +1,14 @@
 #ifndef BASELINER_REGISTRY_BACKENDSTORAGE_HPP
 #define BASELINER_REGISTRY_BACKENDSTORAGE_HPP
 #include <baseliner/core/Benchmark.hpp>
-#include <baseliner/core/Error.hpp>
-#include <baseliner/core/Options.hpp>
-#include <baseliner/core/Workload.hpp>
+#include <baseliner/specs/Error.hpp>
+
+#include <baseliner/specs/Options.hpp>
+
 #include <baseliner/registry/BackendSpecificStorage.hpp>
 #include <baseliner/registry/Factories.hpp>
 #include <baseliner/registry/PresetInjection.hpp>
+#include <baseliner/specs/Workload.hpp>
 namespace Baseliner {
 
   class IBackendStorage {

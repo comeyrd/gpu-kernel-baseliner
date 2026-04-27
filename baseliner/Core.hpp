@@ -3,6 +3,6 @@
 
 #include <baseliner/core/Benchmark.hpp>
 #include <baseliner/core/StoppingCriterion.hpp>
-#include <baseliner/core/Workload.hpp>
+#include <baseliner/specs/Workload.hpp>
 
 #endif // BASELINER_CORE_HPP

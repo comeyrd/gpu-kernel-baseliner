@@ -5,7 +5,6 @@ add_subdirectory(core)
 add_subdirectory(orchestrator)
 add_subdirectory(registry)
 add_subdirectory(utils)
-target_sources(baseliner PRIVATE RQ.cpp)
 #JSON
 
 

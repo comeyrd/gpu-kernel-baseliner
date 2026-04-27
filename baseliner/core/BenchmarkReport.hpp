@@ -1,7 +1,8 @@
 #ifndef BASELINER_CORE_BENCHMARKREPORT_HPP
 #define BASELINER_CORE_BENCHMARKREPORT_HPP
 #include <baseliner/core/Metric.hpp>
-#include <baseliner/core/Options.hpp>
+#include <baseliner/specs/Options.hpp>
+
 #include <baseliner/core/hardware/Backend.hpp>
 #include <baseliner/utils/Utils.hpp>
 #include <optional>

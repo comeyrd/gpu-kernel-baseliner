@@ -1,4 +1,5 @@
-#include <baseliner/core/Error.hpp>
+#include <baseliner/specs/Error.hpp>
+
 #include <baseliner/core/hardware/cuda/CudaBackend.hpp>
 #include <iostream>
 #include <nvml.h>

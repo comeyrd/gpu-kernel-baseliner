@@ -1,9 +1,11 @@
 #ifndef BASELINER_CORE_HARDWARE_BACKEND_HPP
 #define BASELINER_CORE_HARDWARE_BACKEND_HPP
 #include <baseliner/cli/Serializer.hpp>
-#include <baseliner/core/Durations.hpp>
-#include <baseliner/core/Options.hpp>
-#include <baseliner/core/Timer.hpp>
+#include <baseliner/specs/Durations.hpp>
+
+#include <baseliner/specs/Options.hpp>
+
+#include <baseliner/specs/Timer.hpp>
 #include <iostream>
 #include <memory>
 #include <thread>

@@ -7,6 +7,8 @@ set(BASELINER_FOUND_DEVICE_COMPILER OFF)
 
 
 include(CheckLanguage)
+set(BASELINER_FULL_LIBRARY ON)
+add_compile_definitions(BASELINER_FULL_LIBRARY)
 check_language(CUDA)
 if(CMAKE_CUDA_COMPILER)
     set(CMAKE_CUDA_RUNTIME_LIBRARY Shared)

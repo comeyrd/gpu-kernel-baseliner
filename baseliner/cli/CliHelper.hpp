@@ -1,7 +1,8 @@
 #ifndef BASELINER_CLI_CLIHELPER_HPP
 #define BASELINER_CLI_CLIHELPER_HPP
 #include <algorithm>
-#include <baseliner/core/Conversions.hpp>
+#include <baseliner/specs/Conversions.hpp>
+
 #include <baseliner/core/IPrinter.hpp>
 #include <baseliner/orchestrator/Plan.hpp>
 #include <cstddef>

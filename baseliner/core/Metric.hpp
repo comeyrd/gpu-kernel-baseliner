@@ -1,6 +1,7 @@
 #ifndef BASELINER_CORE_METRIC_HPP
 #define BASELINER_CORE_METRIC_HPP
-#include <baseliner/core/Durations.hpp>
+#include <baseliner/specs/Durations.hpp>
+
 #include <baseliner/core/stats/StatsType.hpp>
 #include <cstddef>
 #include <cstdint>
