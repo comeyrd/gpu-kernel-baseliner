@@ -74,8 +74,10 @@ target_include_directories(baseliner_specs INTERFACE
     $<BUILD_INTERFACE:${BASELINER_SPEC_INCLUDE_DIR}>
     $<INSTALL_INTERFACE:include>
 )
+add_library(baseliner SHARED)
+add_library(baseliner::baseliner ALIAS baseliner)
+target_compile_definitions(baseliner PUBLIC BASELINER_FULL_LIBRARY)
 
-add_compile_definitions(BASELINER_FULL_LIBRARY)
 add_subdirectory(baseliner)
 if(BASELINER_BUILD_EXAMPLES)
     add_subdirectory(examples)

@@ -1,5 +1,3 @@
-add_library(baseliner SHARED)
-add_library(baseliner::baseliner ALIAS baseliner)
 add_subdirectory(cli)
 add_subdirectory(core)
 add_subdirectory(orchestrator)
