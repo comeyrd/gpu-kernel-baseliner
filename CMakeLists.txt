@@ -7,8 +7,7 @@ set(BASELINER_FOUND_DEVICE_COMPILER OFF)
 
 
 include(CheckLanguage)
-set(BASELINER_FULL_LIBRARY ON)
-add_compile_definitions(BASELINER_FULL_LIBRARY)
+
 check_language(CUDA)
 if(CMAKE_CUDA_COMPILER)
     set(CMAKE_CUDA_RUNTIME_LIBRARY Shared)
@@ -60,6 +59,23 @@ set(CMAKE_CUDA_USE_RESPONSE_FILE_FOR_INCLUDES 0)
 set(CMAKE_CUDA_USE_RESPONSE_FILE_FOR_LIBRARIES 0)
 set(CMAKE_CUDA_USE_RESPONSE_FILE_FOR_OBJECTS 0)
 
+set(BASELINER_SPEC_INCLUDE_DIR ${CMAKE_BINARY_DIR}/baseliner_specs_include)
+
+file(MAKE_DIRECTORY ${BASELINER_SPEC_INCLUDE_DIR}/baseliner)
+file(COPY
+    ${CMAKE_CURRENT_SOURCE_DIR}/baseliner/specs
+    DESTINATION ${BASELINER_SPEC_INCLUDE_DIR}/baseliner
+)
+
+add_library(baseliner_specs INTERFACE)
+add_library(baseliner::specs ALIAS baseliner_specs)
+
+target_include_directories(baseliner_specs INTERFACE
+    $<BUILD_INTERFACE:${BASELINER_SPEC_INCLUDE_DIR}>
+    $<INSTALL_INTERFACE:include>
+)
+
+add_compile_definitions(BASELINER_FULL_LIBRARY)
 add_subdirectory(baseliner)
 if(BASELINER_BUILD_EXAMPLES)
     add_subdirectory(examples)
