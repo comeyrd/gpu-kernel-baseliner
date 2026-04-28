@@ -205,7 +205,7 @@ namespace Baseliner {
     bool m_first = true;
     bool m_dynamic_batch = false;
     float m_minimal_batch_duration = 10.0;
-    size_t m_batch_size{25};
+    size_t m_batch_size{15};
     OptionsMap stats_options;
     std::string m_name{DEFAULT_BENCHMARK_NAME};
     std::unique_ptr<StoppingCriterion> m_stopping;
@@ -347,6 +347,9 @@ namespace Baseliner {
         if (get_dynamic_batch()) {
           if (batch_duration < get_minimal_batch_duration()) {
             set_batch_size(get_batch_size() * 2);
+          }
+          if (batch_duration > get_minimal_batch_duration() * 2) {
+            set_batch_size((get_batch_size() / 2) + 1);
           }
         }
       }
