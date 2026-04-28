@@ -90,9 +90,7 @@ __attribute__((weak)) int main(int argc, char **argv) { // NOLINT
         std::cout << "Runnning protocol : " << protocol << "...\n";
         auto parsed_protocol = from_file<Protocol>(protocol);
         Report report = Orchestrator::run_protocol(parsed_protocol);
-        // TODO fix generate_uid
-        //  const std::string filename = "result-" + generate_uid() + ".json";
-        const std::string filename = "result.json";
+        const std::string filename = "result-" + Utils::gen_uuid() + ".json";
         to_file(report, filename);
         std::cout << "Report saved to " << filename << "\n";
       }
@@ -104,43 +102,44 @@ __attribute__((weak)) int main(int argc, char **argv) { // NOLINT
         }
         auto parsed_report = from_file<Report>(replay);
         Report report = Orchestrator::replay_runs(parsed_report);
-        const std::string filename = "result.json";
+        const std::string filename = "result-" + Utils::gen_uuid() + ".json";
         to_file(report, filename);
         std::cout << "Report saved to " << filename << "\n";
       }
     } else if (run_parser.is_used("--research-questions")) {
       auto workloads_names = run_parser.get<std::vector<std::string>>("--research-questions");
       Report report = Orchestrator::run_research_questions(workloads_names);
-      const std::string filename = "result.json";
+      const std::string filename = "result-" + Utils::gen_uuid() + ".json";
+      to_file(report, filename);
+      std::cout << "Report saved to " << filename << "\n";
+    } else {
+      Report report = Orchestrator::run_default();
+      const std::string filename = "result-" + Utils::gen_uuid() + ".json";
       to_file(report, filename);
       std::cout << "Report saved to " << filename << "\n";
     }
-  }
-
-  else if (program.is_subcommand_used("gen")) {
+  } else if (program.is_subcommand_used("gen")) {
     if (generate_parser.is_used("--metadata")) {
-      to_file(Orchestrator::get_metadata_file(), "metadata.json");
-      std::cout << "Metadata file saved to " << "metadata.json" << "\n";
+      auto filename = run_parser.get<std::string>("--metadata");
+      to_file(Orchestrator::get_metadata_file(), filename);
+      std::cout << "Metadata file saved to " << filename << "\n";
     } else if (generate_parser.is_used("--default-protocol-file")) {
       Protocol protocol = Orchestrator::get_default_protocol();
-      to_file(protocol, "default-protocol.json");
+      auto filename = run_parser.get<std::string>("--default-protocol-file");
+      to_file(protocol, filename);
+      std::cout << "Default protocol filed saved to" << filename << "\n";
     } else if (generate_parser.is_used("--minimal-protocol-file")) {
+      auto filename = run_parser.get<std::string>("--minimal-protocol-file");
       Protocol protocol = Orchestrator::get_minimal_protocol();
-      to_file(protocol, "minimal-protocol.json");
+      to_file(protocol, filename);
+      std::cout << "Minimal protocol saved to" << filename << "\n";
     } else if (generate_parser.is_used("--schema")) {
       auto protocol_schema = Baseliner::Ser::export_json_schema<Baseliner::Protocol>();
-      Baseliner::to_file(protocol_schema, "protocol.schema.json");
-    }
-    /*else if (generate_parser.is_used("--saved-protocol-file")) {
-      Protocol saved_protocol;
-      saved_protocol.m_baseliner_version = Version::string();
-      saved_protocol.m_presets = manager->get_all_preset_definitions();
-      saved_protocol.m_recipes = RecipeManager::get_recipes();
-      auto protocol_file = generate_parser.get<std::string>("--saved-protocol-file");
-      protocol_to_file(saved_protocol, protocol_file);
-      std::cout << "Saved protocol file successfully saved to " << protocol_file << "\n";
-    }*/
-    else {
+      auto filename = run_parser.get<std::string>("--schema");
+      Baseliner::to_file(protocol_schema, filename);
+      std::cout << "Schema saved to" << filename << "\n";
+
+    } else {
       std::cout << program << "\n";
     }
   } else {

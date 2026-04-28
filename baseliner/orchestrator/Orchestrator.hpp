@@ -138,6 +138,29 @@ namespace Baseliner {
       protocol.campaigns.push_back(default_campaign);
       return protocol;
     }
+    inline auto run_default() -> Report {
+      Protocol protocol;
+      auto *storage_manager = StorageManager::instance();
+      protocol.baseliner_version = Version::string();
+      Recipe def_recipe;
+      def_recipe.stats = {};
+      def_recipe.benchmark = RecipeComponent{"Benchmark", {}};
+      def_recipe.stopping = RecipeComponent{"StoppingCriterion", {}};
+      def_recipe.description = "Default Recipe";
+      protocol.recipes["default"] = def_recipe;
+      Campaign default_campaign;
+      default_campaign.name = "default";
+      default_campaign.recipe = "default";
+      for (const auto &backend : storage_manager->list_backends()) {
+        default_campaign.backends.push_back({backend, {}});
+      }
+      for (const auto &workloads : storage_manager->list_components(ComponentType::WORKLOAD)) {
+        default_campaign.workloads.push_back({workloads, {}});
+      }
+      default_campaign.on_incompatible = OnIncompatible::Skip;
+      protocol.campaigns.push_back(default_campaign);
+      return run_protocol(protocol);
+    }
     inline auto get_minimal_protocol() -> Protocol {
       Protocol protocol;
       auto *storage_manager = StorageManager::instance();
