@@ -62,7 +62,12 @@ namespace Baseliner {
     virtual void update_metrics(std::shared_ptr<Stats::StatsEngine> & /*engine*/) {}; // NOLINT
     virtual auto run(std::shared_ptr<typename backend::stream_t> stream) -> typename backend::launch_result_t = 0;
     virtual void teardown(std::shared_ptr<typename backend::stream_t> stream, Output &output) = 0;
-    virtual auto name() -> std::string = 0;
+    virtual auto algo() -> std::string {
+      return {};
+    };
+    virtual auto specialization() -> std::string {
+      return {};
+    };
     IKernel(const std::shared_ptr<const Input> input)
         : m_input(input) {};
     virtual ~IKernel() = default;
@@ -113,9 +118,12 @@ namespace Baseliner {
     void register_options_dependencies() override {
       this->register_consumer(m_input.get());
     }
-    auto name() -> std::string override {
-      return m_kernel->name();
-    }
+    auto algo() -> std::string override {
+      return m_kernel->algo();
+    };
+    auto specialization() -> std::string override {
+      return m_kernel->specialization();
+    };
 
     auto number_of_floating_point_operations() -> std::optional<size_t> override {
       return m_input->number_of_floating_point_operations();

@@ -76,8 +76,8 @@ public:
 
 class ComputationKernel : public Baseliner::IHipKernel<ComputationInput, ComputationOutput> {
 public:
-  auto name() -> std::string override {
-    return "ComputationKernel";
+  auto algo() -> std::string override {
+    return "Computation";
   };
   void setup(std::shared_ptr<ComputationKernel::backend::stream_t> stream) override {
     CHECK_HIP(hipMallocAsync(&m_d_a, get_input()->m_N * sizeof(int), *stream));

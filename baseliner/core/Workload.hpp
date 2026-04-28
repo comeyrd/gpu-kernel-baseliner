@@ -35,8 +35,12 @@ namespace Baseliner {
     [[nodiscard]] auto get_seed() const -> int {
       return m_seed;
     }
-
-    virtual auto name() -> std::string = 0;
+    virtual auto algo() -> std::string {
+      return {};
+    };
+    virtual auto specialization() -> std::string {
+      return {};
+    };
     virtual void workload_setup_metrics(std::shared_ptr<Stats::StatsEngine> & /*engine*/) {};
     virtual void workload_update_metrics(std::shared_ptr<Stats::StatsEngine> & /*engine*/) {};
     //

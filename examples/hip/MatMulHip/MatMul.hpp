@@ -144,8 +144,8 @@ public:
 
 class MatrixMulKernel : public Baseliner::IHipKernel<MatrixMulInput, MatrixMulOutput> {
 public:
-  auto name() -> std::string override {
-    return "MatrixMulKernel";
+  auto algo() -> std::string override {
+    return "MatrixMul";
   };
 
   void setup(std::shared_ptr<hipStream_t> stream) override {

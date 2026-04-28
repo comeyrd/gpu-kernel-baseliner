@@ -235,7 +235,7 @@ namespace Baseliner {
 
     auto name() -> std::string override {
       if (m_workload) {
-        return m_workload->name() + get_m_name();
+        return m_workload->algo() + m_workload->specialization() + get_m_name();
       }
       return get_m_name();
     }
@@ -359,7 +359,8 @@ namespace Baseliner {
 
       bool valid_run = m_workload->validate_workload();
       if (!valid_run) {
-        std::cout << "Warning, not able to validate Workload : " << m_workload->name() << '\n';
+        std::cout << "Warning, not able to validate Workload : " << m_workload->algo() + m_workload->specialization()
+                  << '\n';
       }
       std::vector<Metric> metrics = {get_stats_engine()->get_metrics()};
       m_stream.reset();

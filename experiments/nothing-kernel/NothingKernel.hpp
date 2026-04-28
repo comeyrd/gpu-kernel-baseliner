@@ -7,8 +7,8 @@ namespace Baseliner {
   class NothingKernel : public IWorkload<BackendT> {
   public:
     using backend = BackendT;
-    auto name() -> std::string override {
-      return "NothingKernel";
+    auto algo() -> std::string override {
+      return "Nothing";
     };
     auto validate_workload() -> bool override {
       return true;
