@@ -20,13 +20,12 @@ namespace Baseliner {
       return StorageManager::instance()->get_metadata();
     }
     inline auto run_benchmark_plan(const BenchmarkPlan &bench_plan, std::shared_ptr<Cli::CliPrinter> &printer,
-                                   StorageManager *storage_manager = StorageManager::instance(),
-                                   bool skip_error = false) -> BenchmarkExecution {
+                                   StorageManager *storage_manager = StorageManager::instance()) -> BenchmarkExecution {
       IBenchmarkFactory bench_factory = Builder::build(bench_plan, storage_manager);
       printer->print_benchmark_plan(bench_plan);
       std::shared_ptr<IBenchmark> bench = bench_factory();
       bench->set_printer(printer);
-      BenchmarkReport bench_report = bench->run_benchmark(skip_error);
+      BenchmarkReport bench_report = bench->run_benchmark();
       BenchmarkExecution benchmark_exec;
       benchmark_exec.benchmark_report = bench_report;
       benchmark_exec.plan = bench_plan;
@@ -45,15 +44,13 @@ namespace Baseliner {
           break;
         }
         try {
-          BenchmarkExecution bench_exec = run_benchmark_plan(bench_plan, printer, storage_manager,
-                                                             (campaign_plan.on_incompatible == OnIncompatible::Skip));
+          BenchmarkExecution bench_exec = run_benchmark_plan(bench_plan, printer, storage_manager);
           c_report.benchmark_runs[bench_plan.backend.impl][bench_plan.workload.impl] = bench_exec;
         } catch (const Error &e) {
           if (campaign_plan.on_incompatible != OnIncompatible::Skip) {
             throw;
           }
           std::cerr << "Warning : " << e.what() << "\n";
-          std::cerr << "Continuing...\n";
         }
       }
       return c_report;

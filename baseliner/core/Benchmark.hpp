@@ -43,7 +43,7 @@ namespace Baseliner {
     auto operator=(const IBenchmark &) -> IBenchmark & = delete;
 
     ~IBenchmark() override = default;
-    virtual auto run_benchmark(bool skip_error = false) -> BenchmarkReport = 0;
+    virtual auto run_benchmark() -> BenchmarkReport = 0;
 
     void set_m_warmup(bool warmup) {
       m_warmup = warmup;
@@ -242,7 +242,7 @@ namespace Baseliner {
     auto set_workload(std::shared_ptr<IWorkload<BackendT>> workload_impl) {
       m_workload = workload_impl;
     }
-    auto run_benchmark(bool skip_error = false) -> BenchmarkReport override {
+    auto run_benchmark() -> BenchmarkReport override {
       BenchmarkReport report;
       BackendT::instance()->apply_options(get_backend_options());
       report.hardware = this->get_hardware_info();
@@ -251,16 +251,8 @@ namespace Baseliner {
         if (ExecutionController::exit_requested()) {
           break;
         }
-        try {
-          report.results.push_back(this->single_run(sweep_point));
-          print_callback(report.results.back());
-        } catch (const Error &e) {
-          if (skip_error) {
-            std::cerr << "Warning, error while running | " << e.what() << "\n";
-          } else {
-            throw e;
-          }
-        }
+        report.results.push_back(this->single_run(sweep_point));
+        print_callback(report.results.back());
       }
       return report;
     }
