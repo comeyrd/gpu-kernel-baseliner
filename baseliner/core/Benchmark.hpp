@@ -332,10 +332,10 @@ namespace Baseliner {
           if (batch % get_max_blocking_queue() == 0 && get_block()) {
             m_blocker->unblock();
           }
+          m_workload->reset_workload(m_stream);
           if (get_flush_l2()) {
             m_flusher->flush(m_stream);
           }
-          m_workload->reset_workload(m_stream);
           m_workload->timed_batch_run_workload(m_stream);
         }
         BackendT::get_last_error();
