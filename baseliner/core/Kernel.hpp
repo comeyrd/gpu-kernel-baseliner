@@ -1,10 +1,10 @@
 #ifndef BASELINER_CORE_KERNEL_HPP
 #define BASELINER_CORE_KERNEL_HPP
-#include <baseliner/specs/Options.hpp>
+#include <baseliner/core/Options.hpp>
 
+#include <baseliner/core/Workload.hpp>
 #include <baseliner/core/hardware/Backend.hpp>
 #include <baseliner/core/stats/StatsEngine.hpp>
-#include <baseliner/specs/Workload.hpp>
 #include <memory>
 #include <optional>
 namespace Baseliner {

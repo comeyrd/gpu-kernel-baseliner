@@ -1,7 +1,7 @@
 #ifndef BASELINER_CORE_STATS_STATSTYPE_HPP
 #define BASELINER_CORE_STATS_STATSTYPE_HPP
 #include <baseliner/cli/Serializer.hpp>
-#include <baseliner/specs/Conversions.hpp>
+#include <baseliner/core/Conversions.hpp>
 
 namespace Baseliner {
   enum class MetricGranularity : uint8_t {

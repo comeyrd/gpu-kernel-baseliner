@@ -1,6 +1,6 @@
 #ifndef BASELINER_CORE_CONVERSIONS_HPP
 #define BASELINER_CORE_CONVERSIONS_HPP
-#include <baseliner/specs/Durations.hpp>
+#include <baseliner/core/Durations.hpp>
 
 #include <sstream>
 #include <string>

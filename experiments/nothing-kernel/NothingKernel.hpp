@@ -1,6 +1,6 @@
 #ifndef NOTHING_KERNEL_HPP
 #define NOTHING_KERNEL_HPP
-#include <baseliner/specs/Workload.hpp>
+#include <baseliner/core/Workload.hpp>
 
 namespace Baseliner {
   template <typename BackendT>

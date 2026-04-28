@@ -1,5 +1,5 @@
 
-#include <baseliner/specs/Durations.hpp>
+#include <baseliner/core/Durations.hpp>
 
 #include <baseliner/core/StoppingCriterion.hpp>
 #include <baseliner/core/stats/Stats.hpp>

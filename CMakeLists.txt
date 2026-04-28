@@ -67,16 +67,12 @@ file(COPY
     DESTINATION ${BASELINER_SPEC_INCLUDE_DIR}/baseliner
 )
 
-add_library(baseliner_specs INTERFACE)
-add_library(baseliner::specs ALIAS baseliner_specs)
 
-target_include_directories(baseliner_specs INTERFACE
-    $<BUILD_INTERFACE:${BASELINER_SPEC_INCLUDE_DIR}>
-    $<INSTALL_INTERFACE:include>
-)
 add_library(baseliner SHARED)
 add_library(baseliner::baseliner ALIAS baseliner)
-target_compile_definitions(baseliner PUBLIC BASELINER_FULL_LIBRARY)
+
+add_library(baseliner_core SHARED)
+add_library(baseliner::core ALIAS baseliner_core)
 
 add_subdirectory(baseliner)
 if(BASELINER_BUILD_EXAMPLES)

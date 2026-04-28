@@ -1,7 +1,6 @@
-#include <baseliner/specs/Error.hpp>
+#include <baseliner/core/Error.hpp>
 
 #include <baseliner/core/hardware/hip/HipBackend.hpp>
-#include <baseliner/registry/RegisteringMacros.hpp>
 void check_hip_error(hipError_t error_code, const char *file, int line) {
   if (error_code != hipSuccess) {
     throw Baseliner::Errors::hardware_error("HIP", hipGetErrorString(error_code), file, line);
@@ -55,7 +54,6 @@ namespace Baseliner {
         }
       });
     }
-    BASELINER_REGISTER_BACKEND("hip", HipBackend);
 
 #ifdef BASELINER_HAS_AMDSMI
     template <>

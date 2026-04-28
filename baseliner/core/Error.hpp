@@ -1,9 +1,9 @@
 #ifndef BASELINER_CORE_ERROR_HPP
 #define BASELINER_CORE_ERROR_HPP
-#include <baseliner/specs/Conversions.hpp>
+#include <baseliner/core/Conversions.hpp>
 
-#include <baseliner/specs/AxeSweeping.hpp>
-#include <baseliner/specs/OptionTypes.hpp>
+#include <baseliner/core/AxeSweeping.hpp>
+#include <baseliner/core/OptionTypes.hpp>
 
 #include <cstring>
 #include <sstream>

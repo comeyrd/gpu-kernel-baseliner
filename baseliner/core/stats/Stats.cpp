@@ -1,9 +1,8 @@
 #include <algorithm>
 #include <array>
-#include <baseliner/specs/Durations.hpp>
+#include <baseliner/core/Durations.hpp>
 
 #include <baseliner/core/stats/Stats.hpp>
-#include <baseliner/registry/RegisteringMacros.hpp>
 
 #include <cmath>
 #include <cstddef>
@@ -99,20 +98,5 @@ namespace Baseliner::Stats {
     add_option("WithoutOutliersStat", "InterQuartileRange", "The range at which we define an outlier",
                m_i_q_r_outlier_range);
   };
-
-  BASELINER_REGISTER_STAT(SortedExecutionTimeVector);
-  BASELINER_REGISTER_STAT(Median);
-  BASELINER_REGISTER_STAT(DataThroughput);
-  BASELINER_REGISTER_STAT(FLOPThroughput);
-  BASELINER_REGISTER_STAT(Q1);
-  BASELINER_REGISTER_STAT(Q3);
-  BASELINER_REGISTER_STAT(MedianConfidenceInterval);
-  BASELINER_REGISTER_STAT(WithoutOutliers);
-  BASELINER_REGISTER_STAT(MedianAbsoluteDeviation);
-  BASELINER_REGISTER_STAT(Mean);
-  BASELINER_REGISTER_STAT(HarmonicMean);
-  const std::vector<std::string> default_stats = {"Median"};
-
-  BASELINER_REGISTER_DEFAULT_STATS(default_stats);
 
 } // namespace Baseliner::Stats

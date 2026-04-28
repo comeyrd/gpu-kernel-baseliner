@@ -28,7 +28,7 @@
 
 // Copyright 2026, Come Eyraud.
 #include "MatMul.hpp"
-#include <baseliner/registry/RegisteringMacros.hpp>
+#include <baseliner/Register.hpp>
 
 #include <vector>
 

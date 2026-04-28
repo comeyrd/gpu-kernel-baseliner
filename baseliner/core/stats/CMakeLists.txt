@@ -1,3 +1,1 @@
-target_sources(baseliner PRIVATE
-   Stats.cpp
-StatsEngine.cpp)
+target_sources(baseliner_core PRIVATE Stats.cpp StatsEngine.cpp)

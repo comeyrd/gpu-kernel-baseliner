@@ -2,8 +2,8 @@
 #define BASELINER_CORE_HARDWARE_HIP_HIPBACKEND_HPP
 #include "hip/hip_runtime.h"
 #include <baseliner/core/Benchmark.hpp>
+#include <baseliner/core/Kernel.hpp>
 #include <baseliner/core/hardware/Backend.hpp>
-#include <baseliner/specs/Kernel.hpp>
 
 void check_hip_error(hipError_t error_code, const char *file, int line);                // NOLINT
 void check_hip_error_no_except(hipError_t error_code, const char *file, int line);      // NOLINT

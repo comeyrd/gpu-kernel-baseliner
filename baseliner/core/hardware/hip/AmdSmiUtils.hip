@@ -1,5 +1,5 @@
 #include "amd_smi/amdsmi.h"
-#include <baseliner/specs/Error.hpp>
+#include <baseliner/core/Error.hpp>
 
 #include <baseliner/core/hardware/hip/HipBackend.hpp>
 #include <iostream>

@@ -1,7 +1,6 @@
-#include <baseliner/specs/Error.hpp>
+#include <baseliner/core/Error.hpp>
 
 #include <baseliner/core/hardware/cuda/CudaBackend.hpp>
-#include <baseliner/registry/RegisteringMacros.hpp>
 void check_cuda_error(cudaError_t error_code, const char *file, int line) {
   if (error_code != cudaSuccess) {
     throw Baseliner::Errors::hardware_error("CUDA", cudaGetErrorString(error_code), file, line);
@@ -55,7 +54,6 @@ namespace Baseliner {
         }
       });
     }
-    BASELINER_REGISTER_BACKEND("cuda", CudaBackend);
 
 #ifdef BASELINER_HAS_NVML
     template <>

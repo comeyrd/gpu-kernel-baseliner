@@ -2,9 +2,9 @@
 #define BASELINER_CORE_HARDWARE_CUDA_CUDABACKEND_HPP
 #include "cuda_runtime.h"
 #include <baseliner/core/Benchmark.hpp>
+#include <baseliner/core/Kernel.hpp>
+#include <baseliner/core/Timer.hpp>
 #include <baseliner/core/hardware/Backend.hpp>
-#include <baseliner/specs/Kernel.hpp>
-#include <baseliner/specs/Timer.hpp>
 
 void check_cuda_error(cudaError_t error_code, const char *file, int line);                // NOLINT
 void check_cuda_error_no_except(cudaError_t error_code, const char *file, int line);      // NOLINT

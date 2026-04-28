@@ -1,6 +1,6 @@
 #include "ComputationKernel.hpp"
 #include "hip/hip_runtime.h"
-#include <baseliner/registry/RegisteringMacros.hpp>
+#include <baseliner/Register.hpp>
 #include <vector>
 
 __global__ void computation_kernel(int *a, int *b, int *c, int N) {

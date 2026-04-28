@@ -1,1 +1,1 @@
-target_sources(baseliner PRIVATE Utils.cpp)
+target_sources(baseliner_core PRIVATE Utils.cpp)

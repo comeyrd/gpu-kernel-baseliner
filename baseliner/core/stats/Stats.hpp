@@ -1,9 +1,9 @@
 #ifndef BASELINER_CORE_STATS_STATS_HPP
 #define BASELINER_CORE_STATS_STATS_HPP
 #include <algorithm>
-#include <baseliner/specs/Durations.hpp>
+#include <baseliner/core/Durations.hpp>
 
-#include <baseliner/specs/Options.hpp>
+#include <baseliner/core/Options.hpp>
 
 #include <baseliner/core/stats/IStats.hpp>
 #include <baseliner/core/stats/StatsType.hpp>

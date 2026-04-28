@@ -17,12 +17,19 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(argparse)
 
-#add_subdirectory(cli)
-target_link_libraries(baseliner PUBLIC nlohmann_json::nlohmann_json argparse)
-target_include_directories(baseliner PUBLIC 
+target_link_libraries(baseliner_core PUBLIC nlohmann_json::nlohmann_json argparse)
+target_include_directories(baseliner_core PUBLIC 
     # A.From source
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
     # B. When installed
     $<INSTALL_INTERFACE:include> 
 )
 
+
+target_link_libraries(baseliner PUBLIC baseliner_core)
+target_include_directories(baseliner PUBLIC 
+    # A.From source
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>
+    # B. When installed
+    $<INSTALL_INTERFACE:include> 
+)

@@ -1,7 +1,7 @@
 #ifndef BASELINER_CORE_TIMER_HPP
 #define BASELINER_CORE_TIMER_HPP
-#include <baseliner/specs/Durations.hpp>
-#include <baseliner/specs/Error.hpp>
+#include <baseliner/core/Durations.hpp>
+#include <baseliner/core/Error.hpp>
 #include <chrono>
 #include <functional>
 #include <iostream>
@@ -40,7 +40,7 @@ namespace Baseliner {
     using Funct = std::function<void(Stream &)>;
 
   public:
-    void init(Stream &stream) override {
+    void init(Stream & /*stream*/) override {
       if (m_state != State::Idle) {
         throw Errors::timer_init_on_not_idle();
       }
@@ -50,15 +50,14 @@ namespace Baseliner {
       m_stops.resize(1);
     }
 
-    void measure_before(Stream &stream) override {
+    void measure_before(Stream & /*stream*/) override {
       if (m_state != State::Single) {
         throw Errors::timer_not_single_state("measure_before()");
       }
       m_starts[0] = Clock::now();
     }
 
-    // No-op for CPU: GPU launch_result_t events are irrelevant here
-    void measure_consume(typename BackendT::launch_result_t event) override {
+    void measure_consume(typename BackendT::launch_result_t /*event*/) override {
     }
 
     void measure_after(Stream &stream) override {
@@ -77,7 +76,7 @@ namespace Baseliner {
       return float_milliseconds(m_stops[0] - m_starts[0]);
     }
 
-    void init_batch(Stream &stream, size_t batch_size, bool is_blocking) override {
+    void init_batch(Stream & /*stream*/, size_t batch_size, bool is_blocking) override {
       if (m_state != State::Idle) {
         throw Errors::timer_init_on_not_idle();
       }
@@ -93,7 +92,7 @@ namespace Baseliner {
       }
     }
 
-    void measure_batch_before(Stream &stream) override {
+    void measure_batch_before(Stream & /*stream*/) override {
       if (m_state != State::Batch) {
         throw Errors::timer_not_batch("measure_batch_before()");
       }
@@ -101,7 +100,7 @@ namespace Baseliner {
     }
 
     // No-op for CPU
-    void measure_batch_consume(typename BackendT::launch_result_t event) override {
+    void measure_batch_consume(typename BackendT::launch_result_t /*event*/) override {
     }
 
     void measure_batch_after(Stream &stream) override {
@@ -128,7 +127,7 @@ namespace Baseliner {
     }
 
   private:
-    enum class State {
+    enum class State : char {
       Idle,
       Single,
       Batch

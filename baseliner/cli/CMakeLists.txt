@@ -1,3 +1,1 @@
-target_sources(baseliner PRIVATE
-    cli.cpp
-    )
+target_sources(baseliner PRIVATE cli.cpp)

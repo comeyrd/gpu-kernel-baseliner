@@ -1,5 +1,5 @@
 #include "../NothingKernel.hpp"
-#include "baseliner/registry/RegisteringMacros.hpp"
+#include <baseliner/Register.hpp>
 #include <baseliner/core/hardware/cuda/CudaBackend.hpp>
 using namespace Baseliner::Hardware;
 namespace Baseliner {

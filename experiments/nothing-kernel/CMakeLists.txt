@@ -44,5 +44,3 @@ endif()
 
 add_executable(nothing-kernel-bin ${sources})
 target_link_libraries(nothing-kernel-bin PRIVATE baseliner::baseliner)
-
-

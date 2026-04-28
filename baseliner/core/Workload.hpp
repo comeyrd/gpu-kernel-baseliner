@@ -1,18 +1,10 @@
 #ifndef BASELINER_CORE_WORKLOAD_HPP
 #define BASELINER_CORE_WORKLOAD_HPP
-#include <baseliner/specs/Options.hpp>
-#include <baseliner/specs/Timer.hpp>
-#ifdef BASELINER_FULL_LIBRARY
+#include <baseliner/core/Options.hpp>
+#include <baseliner/core/Timer.hpp>
 #include <baseliner/core/hardware/Backend.hpp>
 #include <baseliner/core/stats/Stats.hpp>
 #include <baseliner/core/stats/StatsEngine.hpp>
-#include <baseliner/specs/Options.hpp>
-
-#else
-#include <baseliner/specs/stubs/BackendStub.hpp>
-#include <baseliner/specs/stubs/StatsEngineStub.hpp>
-#include <baseliner/specs/stubs/StatsStubs.hpp>
-#endif
 
 #include <memory>
 #include <optional>

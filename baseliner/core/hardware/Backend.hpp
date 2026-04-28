@@ -1,11 +1,11 @@
 #ifndef BASELINER_CORE_HARDWARE_BACKEND_HPP
 #define BASELINER_CORE_HARDWARE_BACKEND_HPP
 #include <baseliner/cli/Serializer.hpp>
-#include <baseliner/specs/Durations.hpp>
+#include <baseliner/core/Durations.hpp>
 
-#include <baseliner/specs/Options.hpp>
+#include <baseliner/core/Options.hpp>
 
-#include <baseliner/specs/Timer.hpp>
+#include <baseliner/core/Timer.hpp>
 #include <iostream>
 #include <memory>
 #include <thread>
@@ -47,7 +47,7 @@ namespace Baseliner::Hardware {
       return Backend<S, O>::inner_create_stream();
     };
     static void warm_gpu(std::shared_ptr<stream_t> stream);
-    static void cool_gpu(std::shared_ptr<stream_t> stream) {
+    static void cool_gpu(std::shared_ptr<stream_t> /*stream*/) {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
     };
     static auto get_device_count() -> int;

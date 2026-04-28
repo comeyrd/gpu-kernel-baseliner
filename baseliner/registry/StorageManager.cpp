@@ -1,4 +1,4 @@
-#include <baseliner/specs/Error.hpp>
+#include <baseliner/core/Error.hpp>
 
 #include <baseliner/registry/Components.hpp>
 #include <baseliner/registry/Factories.hpp>

@@ -1,23 +1,23 @@
 #ifndef BASELINER_CORE_BENCHMARK_HPP
 #define BASELINER_CORE_BENCHMARK_HPP
 #include <baseliner/core/BenchmarkReport.hpp>
-#include <baseliner/specs/Error.hpp>
+#include <baseliner/core/Error.hpp>
 
 #include <baseliner/core/IPrinter.hpp>
 #include <baseliner/core/Metric.hpp>
-#include <baseliner/specs/OptionTypes.hpp>
+#include <baseliner/core/OptionTypes.hpp>
 
-#include <baseliner/specs/Options.hpp>
+#include <baseliner/core/Options.hpp>
 
+#include <baseliner/core/Kernel.hpp>
 #include <baseliner/core/State.hpp>
 #include <baseliner/core/StoppingCriterion.hpp>
+#include <baseliner/core/Workload.hpp>
 #include <baseliner/core/hardware/Backend.hpp>
 #include <baseliner/core/hardware/BackendStats.hpp>
 #include <baseliner/core/stats/IStats.hpp>
 #include <baseliner/core/stats/Stats.hpp>
 #include <baseliner/core/stats/StatsEngine.hpp>
-#include <baseliner/specs/Kernel.hpp>
-#include <baseliner/specs/Workload.hpp>
 #include <iostream>
 #include <memory>
 #include <string>

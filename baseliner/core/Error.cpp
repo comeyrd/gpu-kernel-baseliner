@@ -1,5 +1,5 @@
 #include <baseliner/cli/Json.hpp>
-#include <baseliner/specs/Error.hpp>
+#include <baseliner/core/Error.hpp>
 
 namespace Baseliner::Errors {
   auto preset_not_subset_of(const OptionsMap &must_be_subset, const OptionsMap &original) -> Error {

@@ -2,7 +2,7 @@
 #define BASELINER_CLI_JSON_HPP
 
 #include <baseliner/cli/Serializer.hpp>
-#include <baseliner/specs/Durations.hpp>
+#include <baseliner/core/Durations.hpp>
 
 #include <baseliner/core/Metric.hpp>
 #include <nlohmann/json.hpp>

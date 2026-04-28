@@ -2,7 +2,7 @@
 #define BASELINER_CORE_STATS_ISTATS_HPP
 
 #include <baseliner/core/Metric.hpp>
-#include <baseliner/specs/Options.hpp>
+#include <baseliner/core/Options.hpp>
 
 #include <baseliner/core/stats/StatsRegistry.hpp>
 #include <string>

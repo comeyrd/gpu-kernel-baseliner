@@ -1,12 +1,10 @@
 #ifndef BASELINER_CORE_DURATIONS_HPP
 #define BASELINER_CORE_DURATIONS_HPP
+#include <baseliner/cli/Serializer.hpp>
 #include <chrono>
 #include <ostream>
 #include <ratio>
 #include <vector>
-#ifdef BASELINER_FULL_LIBRARY
-#include <baseliner/cli/Serializer.hpp>
-#endif
 
 namespace Baseliner {
   using float_milliseconds = std::chrono::duration<float, std::milli>;
@@ -23,9 +21,7 @@ namespace Baseliner {
     T high;
     T low;
   };
-#ifdef BASELINER_FULL_LIBRARY
   DESCRIBE_TEMPLATE(ConfidenceInterval, FIELD(high), FIELD(low))
-#endif
 
 } // namespace Baseliner
 inline auto operator<<(std::ostream &outputStream, const Baseliner::float_milliseconds &duration) -> std::ostream & {

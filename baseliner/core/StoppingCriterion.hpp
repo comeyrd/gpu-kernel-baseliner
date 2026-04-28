@@ -1,9 +1,9 @@
 #ifndef BASELINER_CORE_STOPPINGCRITERION_HPP
 #define BASELINER_CORE_STOPPINGCRITERION_HPP
-#include <baseliner/specs/Durations.hpp>
+#include <baseliner/core/Durations.hpp>
 
 #include <baseliner/core/Metric.hpp>
-#include <baseliner/specs/Options.hpp>
+#include <baseliner/core/Options.hpp>
 
 #include <baseliner/core/stats/Stats.hpp>
 #include <baseliner/core/stats/StatsEngine.hpp>

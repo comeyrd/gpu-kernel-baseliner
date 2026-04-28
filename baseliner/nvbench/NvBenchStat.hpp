@@ -19,9 +19,9 @@
 #ifndef BASELINER_CORE_STATS_NVBENCHSTAT_HPP
 #define BASELINER_CORE_STATS_NVBENCHSTAT_HPP
 #include <algorithm>
-#include <baseliner/specs/Durations.hpp>
+#include <baseliner/core/Durations.hpp>
 
-#include <baseliner/specs/Options.hpp>
+#include <baseliner/core/Options.hpp>
 
 #include <baseliner/core/stats/IStats.hpp>
 #include <baseliner/core/stats/Stats.hpp>

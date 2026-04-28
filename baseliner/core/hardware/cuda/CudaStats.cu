@@ -1,7 +1,6 @@
 #include <baseliner/core/hardware/BackendStats.hpp>
 #include <baseliner/core/hardware/cuda/CudaBackend.hpp>
 #include <baseliner/core/stats/Stats.hpp>
-#include <baseliner/registry/RegisteringMacros.hpp>
 namespace Baseliner::Stats {
 
 #ifdef BASELINER_HAS_NVML
@@ -38,20 +37,6 @@ namespace Baseliner::Stats {
     CHECK_NVML(nvmlDeviceGetEnforcedPowerLimit(Backend, &mw_limit));
     to_update = (static_cast<float>(mw_act_power) / mw_limit) * 100.0F;
   }
-  namespace {
-    using ClockFrequency = ClockFrequency<Hardware::CudaBackend>;
-    using ClockFrequencyVector = ClockFrequencyVector<Hardware::CudaBackend>;
-    using DeviceTemperature = DeviceTemperature<Hardware::CudaBackend>;
-    using DeviceTemperatureVector = DeviceTemperatureVector<Hardware::CudaBackend>;
-    using DevicePowerUtilization = DevicePowerUtilization<Hardware::CudaBackend>;
-    using DevicePowerUtilizationVector = DevicePowerUtilizationVector<Hardware::CudaBackend>;
 
-    BASELINER_REGISTER_BACKEND_STATS(ClockFrequency);
-    BASELINER_REGISTER_BACKEND_STATS(ClockFrequencyVector);
-    BASELINER_REGISTER_BACKEND_STATS(DeviceTemperature);
-    BASELINER_REGISTER_BACKEND_STATS(DeviceTemperatureVector);
-    BASELINER_REGISTER_BACKEND_STATS(DevicePowerUtilization);
-    BASELINER_REGISTER_BACKEND_STATS(DevicePowerUtilizationVector);
-  } // namespace
 #endif
 } // namespace Baseliner::Stats

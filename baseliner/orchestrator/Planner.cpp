@@ -1,6 +1,6 @@
-#include <baseliner/specs/Error.hpp>
+#include <baseliner/core/Error.hpp>
 
-#include <baseliner/specs/Options.hpp>
+#include <baseliner/core/Options.hpp>
 
 #include <baseliner/orchestrator/Plan.hpp>
 #include <baseliner/orchestrator/Planner.hpp>

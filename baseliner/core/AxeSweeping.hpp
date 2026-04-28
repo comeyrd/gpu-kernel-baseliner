@@ -1,14 +1,12 @@
 #ifndef BASELINER_CORE_AXESWEEPING_HPP
 #define BASELINER_CORE_AXESWEEPING_HPP
-#include <baseliner/specs/OptionTypes.hpp>
+#include <baseliner/cli/Serializer.hpp>
+#include <baseliner/core/OptionTypes.hpp>
 #include <optional>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <vector>
-#ifdef BASELINER_FULL_LIBRARY
-#include <baseliner/cli/Serializer.hpp>
-#endif
 namespace Baseliner {
   enum class SweepStrategy : char {
     FullGrid
@@ -56,15 +54,12 @@ namespace Baseliner {
 
   using SweepHintMap = std::unordered_map<std::string, std::unordered_map<std::string, SweepHint>>;
 
-#ifdef BASELINER_FULL_LIBRARY
-
   DESCRIBE_ENUM(SweepStrategy, ENUM_VALUE(FullGrid))
   DESCRIBE_ENUM(SweepPolicy, ENUM_VALUE(PowersOfTwo), ENUM_VALUE(LinearRange), ENUM_VALUE(Enumerated))
   DESCRIBE(SweepHint, FIELD(policy), FIELD(min), FIELD(max), FIELD(step), FIELD(enumerated))
   DESCRIBE(SweepAxis, FIELD(interface), FIELD(option), FIELD(hint))
   DESCRIBE(ResolvedAxis, FIELD(interface), FIELD(option), FIELD(value))
   DESCRIBE(SweepSpec, FIELD(strategy), FIELD(axes))
-#endif
 
   namespace Sweep {
 
