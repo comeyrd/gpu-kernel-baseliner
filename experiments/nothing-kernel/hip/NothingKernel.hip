@@ -1,6 +1,6 @@
 #include "../NothingKernel.hpp"
-#include "baseliner/registry/RegisteringMacros.hpp"
 #include "hip/hip_runtime.h"
+#include <baseliner/Register.hpp>
 #include <baseliner/core/hardware/hip/HipBackend.hpp>
 using namespace Baseliner::Hardware;
 namespace Baseliner {
