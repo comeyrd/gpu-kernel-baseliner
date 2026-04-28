@@ -120,22 +120,22 @@ __attribute__((weak)) int main(int argc, char **argv) { // NOLINT
     }
   } else if (program.is_subcommand_used("gen")) {
     if (generate_parser.is_used("--metadata")) {
-      auto filename = run_parser.get<std::string>("--metadata");
+      auto filename = generate_parser.get<std::string>("--metadata");
       to_file(Orchestrator::get_metadata_file(), filename);
       std::cout << "Metadata file saved to " << filename << "\n";
     } else if (generate_parser.is_used("--default-protocol-file")) {
       Protocol protocol = Orchestrator::get_default_protocol();
-      auto filename = run_parser.get<std::string>("--default-protocol-file");
+      auto filename = generate_parser.get<std::string>("--default-protocol-file");
       to_file(protocol, filename);
-      std::cout << "Default protocol filed saved to" << filename << "\n";
+      std::cout << "Default protocol filed saved to " << filename << "\n";
     } else if (generate_parser.is_used("--minimal-protocol-file")) {
-      auto filename = run_parser.get<std::string>("--minimal-protocol-file");
+      auto filename = generate_parser.get<std::string>("--minimal-protocol-file");
       Protocol protocol = Orchestrator::get_minimal_protocol();
       to_file(protocol, filename);
-      std::cout << "Minimal protocol saved to" << filename << "\n";
+      std::cout << "Minimal protocol saved to " << filename << "\n";
     } else if (generate_parser.is_used("--schema")) {
       auto protocol_schema = Baseliner::Ser::export_json_schema<Baseliner::Protocol>();
-      auto filename = run_parser.get<std::string>("--schema");
+      auto filename = generate_parser.get<std::string>("--schema");
       Baseliner::to_file(protocol_schema, filename);
       std::cout << "Schema saved to" << filename << "\n";
 
