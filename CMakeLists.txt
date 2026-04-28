@@ -59,15 +59,6 @@ set(CMAKE_CUDA_USE_RESPONSE_FILE_FOR_INCLUDES 0)
 set(CMAKE_CUDA_USE_RESPONSE_FILE_FOR_LIBRARIES 0)
 set(CMAKE_CUDA_USE_RESPONSE_FILE_FOR_OBJECTS 0)
 
-set(BASELINER_SPEC_INCLUDE_DIR ${CMAKE_BINARY_DIR}/baseliner_specs_include)
-
-file(MAKE_DIRECTORY ${BASELINER_SPEC_INCLUDE_DIR}/baseliner)
-file(COPY
-    ${CMAKE_CURRENT_SOURCE_DIR}/baseliner/specs
-    DESTINATION ${BASELINER_SPEC_INCLUDE_DIR}/baseliner
-)
-
-
 add_library(baseliner SHARED)
 add_library(baseliner::baseliner ALIAS baseliner)
 
