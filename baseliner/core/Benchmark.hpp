@@ -409,6 +409,8 @@ namespace Baseliner {
         if (get_warm_cool()) {
           get_stats_engine()->template register_stat<Stats::DeviceTemperature<BackendT>>();
         }
+        get_stats_engine()->template register_stat<Stats::Median>();
+
         get_stats_engine()->template register_metric<Stats::SetupTime>();
         get_stats_engine()->template register_metric<Stats::BatchSize>();
         get_stats_engine()->template register_metric<Stats::FetchResultsTime>();

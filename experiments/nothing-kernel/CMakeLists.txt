@@ -35,11 +35,11 @@ set(sources)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/experiments)
 if(BASELINER_HAS_CUDA)
-  set(sources cuda/NothingKernel.cu)
+  set(sources cuda/NothingWorkload.cu)
 endif()
 
 if(BASELINER_HAS_HIP)
-  set(sources hip/NothingKernel.hip)
+  set(sources hip/NothingWorkload.hip)
 endif()
 
 add_executable(nothing-kernel-bin ${sources})

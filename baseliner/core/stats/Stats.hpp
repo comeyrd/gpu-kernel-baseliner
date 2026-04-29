@@ -317,7 +317,7 @@ namespace Baseliner::Stats {
     }
   };
 
-  class DataThroughput : public IStat<DataThroughput, float, Median, ByteNumbers> {
+  class DataThroughput : public IStat<DataThroughput, float, HarmonicMean, ByteNumbers> {
     [[nodiscard]] auto name() const -> std::string override {
       return "memory_bandwidth";
     }
