@@ -119,10 +119,10 @@ namespace Baseliner::Stats {
     }
   };
 
-  class TeardownTime : public Imetric<TeardownTime, float_milliseconds> {
+  class FetchResultsTime : public Imetric<FetchResultsTime, float_milliseconds> {
   public:
     [[nodiscard]] auto name() const -> std::string override {
-      return "teardown_time";
+      return "fetch_results_time";
     }
     [[nodiscard]] auto unit() const -> std::string override {
       return "ms";

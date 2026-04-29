@@ -9,7 +9,6 @@
 
 #include <baseliner/core/Options.hpp>
 
-#include <baseliner/core/Kernel.hpp>
 #include <baseliner/core/State.hpp>
 #include <baseliner/core/StoppingCriterion.hpp>
 #include <baseliner/core/Workload.hpp>
@@ -62,6 +61,9 @@ namespace Baseliner {
     };
     [[nodiscard]] auto get_block() const -> bool {
       return m_block;
+    };
+    [[nodiscard]] auto get_validate_workload() const -> bool {
+      return m_validate_workload;
     };
     void set_m_block_duration(float block_duration) {
       m_block_duration_ms = block_duration;
@@ -135,6 +137,8 @@ namespace Baseliner {
       add_option("Benchmark", "minimal_batch_duration",
                  "If dynamic batch size is set tu true, how long a batch should minimaly be", m_minimal_batch_duration);
       add_option("Benchmark", "dynamic_batch", "If the batch size is dynamic", m_dynamic_batch);
+      add_option("Benchmark", "validate_workload", "If you want the workload results to be validated",
+                 m_validate_workload);
     }
 
     auto get_stopping_no_except() -> std::optional<StoppingCriterion *> {
@@ -204,6 +208,7 @@ namespace Baseliner {
     float m_block_duration_ms = DEFAULT_BLOCK_DURATION;
     bool m_first = true;
     bool m_dynamic_batch = false;
+    bool m_validate_workload = false;
     float m_minimal_batch_duration = 10.0;
     size_t m_batch_size{15};
     OptionsMap stats_options;
@@ -289,11 +294,12 @@ namespace Baseliner {
       int base_batch_size = get_batch_size();
       setup_metrics();
       get_stats_engine()->reset_engine();
-      auto setup_time = m_workload->timed_sync_setup(m_stream);
+      m_workload->setup_host();
+      auto setup_time = m_workload->timed_sync_setup_device(m_stream);
       update_metrics();
       get_stats_engine()->template update_values<Stats::SetupTime>(setup_time);
       if (get_warmup()) {
-        auto warmup_time = m_workload->timed_sync_run_workload(m_stream);
+        auto warmup_time = m_workload->timed_sync_run(m_stream);
         get_stats_engine()->template update_values<Stats::WarmupTime>(warmup_time);
       }
       while (!get_stopping()->satisfied()) {
@@ -324,11 +330,11 @@ namespace Baseliner {
           if (batch % get_max_blocking_queue() == 0 && get_block()) {
             m_blocker->unblock();
           }
-          m_workload->reset_workload(m_stream);
+          m_workload->reset_device(m_stream);
           if (get_flush_l2()) {
             m_flusher->flush(m_stream);
           }
-          m_workload->timed_batch_run_workload(m_stream);
+          m_workload->timed_batch_run(m_stream);
         }
         BackendT::get_last_error();
         if (get_block()) {
@@ -354,14 +360,16 @@ namespace Baseliner {
         }
       }
       post_all();
-      auto teardown_time = m_workload->timed_sync_teardown(m_stream);
-      get_stats_engine()->template update_values<Stats::TeardownTime>(teardown_time);
-
-      bool valid_run = m_workload->validate_workload();
-      if (!valid_run) {
-        std::cout << "Warning, not able to validate Workload : " << m_workload->algo() + m_workload->specialization()
-                  << '\n';
+      auto fetch_time = m_workload->timed_sync_fetch_results(m_stream);
+      get_stats_engine()->template update_values<Stats::FetchResultsTime>(fetch_time);
+      if (get_validate_workload()) {
+        bool valid_run = m_workload->validate();
+        if (!valid_run) {
+          std::cout << "Warning, not able to validate Workload : " << m_workload->algo() + m_workload->specialization()
+                    << '\n';
+        }
       }
+      m_workload->free();
       std::vector<Metric> metrics = {get_stats_engine()->get_metrics()};
       m_stream.reset();
       set_batch_size(base_batch_size);
@@ -372,8 +380,6 @@ namespace Baseliner {
     }
 
   private:
-    // Kernel Types
-
     // Stats registry
     // Hardware specifics
     Hardware::L2Flusher<BackendT> *m_flusher = Hardware::L2Flusher<BackendT>::instance();
@@ -405,7 +411,7 @@ namespace Baseliner {
         }
         get_stats_engine()->template register_metric<Stats::SetupTime>();
         get_stats_engine()->template register_metric<Stats::BatchSize>();
-        get_stats_engine()->template register_metric<Stats::TeardownTime>();
+        get_stats_engine()->template register_metric<Stats::FetchResultsTime>();
         if (m_workload) {
           m_workload->setup_metrics(get_stats_engine_shared());
         }

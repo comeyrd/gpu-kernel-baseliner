@@ -14,7 +14,7 @@ namespace Baseliner {
   class ITimer {
   public:
     using Stream = std::shared_ptr<typename BackendT::stream_t>;
-    using Kernel = std::function<void(Stream &, typename BackendT::launch_result_t &)>;
+    using Workload = std::function<void(Stream &, typename BackendT::launch_result_t &)>;
     using Funct = std::function<void(Stream &)>;
 
     virtual ~ITimer() = default;
@@ -36,7 +36,7 @@ namespace Baseliner {
     using Clock = std::chrono::steady_clock;
     using TimePoint = std::chrono::time_point<Clock>;
     using Stream = typename ITimer<BackendT>::Stream;
-    using Kernel = typename ITimer<BackendT>::Kernel;
+    using Workload = typename ITimer<BackendT>::Workload;
     using Funct = std::function<void(Stream &)>;
 
   public:

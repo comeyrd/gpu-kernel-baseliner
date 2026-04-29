@@ -1,0 +1,1 @@
+target_sources(computation PRIVATE ComputationWorkload.hip)

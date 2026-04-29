@@ -2,7 +2,7 @@
 #define BASELINER_CORE_HARDWARE_HIP_HIPBACKEND_HPP
 #include "hip/hip_runtime.h"
 #include <baseliner/core/Benchmark.hpp>
-#include <baseliner/core/Kernel.hpp>
+
 #include <baseliner/core/hardware/Backend.hpp>
 
 void check_hip_error(hipError_t error_code, const char *file, int line);                // NOLINT
@@ -17,7 +17,7 @@ namespace Baseliner {
     class GpuTimer<HipBackend> : public ITimer<HipBackend> {
     public:
       using Stream = ITimer<HipBackend>::Stream;
-      using Kernel = ITimer<HipBackend>::Kernel;
+      using Workload = ITimer<HipBackend>::Workload;
       using Funct = ITimer<HipBackend>::Funct;
 
       ~GpuTimer() = default;
@@ -149,8 +149,6 @@ namespace Baseliner {
   using IHipWorkload = IWorkload<Hardware::HipBackend>;
   using HipBenchmark = Benchmark<Hardware::HipBackend>;
 
-  template <typename Input, typename Output>
-  using IHipKernel = IKernel<Hardware::HipBackend, Input, Output>;
 } // namespace Baseliner
 
 #ifdef BASELINER_HAS_AMDSMI

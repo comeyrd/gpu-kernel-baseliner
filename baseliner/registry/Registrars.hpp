@@ -71,18 +71,6 @@ namespace Baseliner {
     }
   };
 
-  template <class KernelT>
-  class KernelRegistrar {
-  public:
-    explicit KernelRegistrar(const std::string &name) {
-      auto factory = []() -> std::shared_ptr<IWorkload<typename KernelT::backend>> {
-        return std::make_shared<KernelWorkload<KernelT>>();
-      };
-      BackendStorage<typename KernelT::backend>::instance()->register_workload(name, factory);
-      StorageManager::instance()->register_component(name, ComponentType::WORKLOAD, factory()->get_options());
-    }
-  };
-
   template <class StatT>
   class BackendStatRegistrar {
   public:

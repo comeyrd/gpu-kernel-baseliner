@@ -2,7 +2,7 @@
 #define BASELINER_CORE_HARDWARE_CUDA_CUDABACKEND_HPP
 #include "cuda_runtime.h"
 #include <baseliner/core/Benchmark.hpp>
-#include <baseliner/core/Kernel.hpp>
+
 #include <baseliner/core/Timer.hpp>
 #include <baseliner/core/hardware/Backend.hpp>
 
@@ -18,7 +18,7 @@ namespace Baseliner {
     class GpuTimer<CudaBackend> : public ITimer<CudaBackend> {
     public:
       using Stream = ITimer<CudaBackend>::Stream;
-      using Kernel = ITimer<CudaBackend>::Kernel;
+      using Workload = ITimer<CudaBackend>::Workload;
       using Funct = ITimer<CudaBackend>::Funct;
 
       ~GpuTimer() = default;
@@ -149,8 +149,6 @@ namespace Baseliner {
   using ICudaWorkload = IWorkload<Hardware::CudaBackend>;
   using CudaBenchmark = Benchmark<Hardware::CudaBackend>;
 
-  template <typename Input, typename Output>
-  using ICudaKernel = IKernel<Hardware::CudaBackend, Input, Output>;
 } // namespace Baseliner
 
 #ifdef BASELINER_HAS_NVML

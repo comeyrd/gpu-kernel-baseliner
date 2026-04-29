@@ -37,9 +37,6 @@
 #define INNER_BASELINER_REGISTER_WORKLOAD_NAME(Workload, name)                                                         \
   ATTRIBUTE_USED const static Baseliner::WorkloadRegistrar<Workload> BASELINER_UNIQUE_NAME(_registrar_Workload_){name};
 
-#define INNER_BASELINER_REGISTER_KERNEL(Kernel)                                                                        \
-  ATTRIBUTE_USED const static Baseliner::KernelRegistrar<Kernel> BASELINER_UNIQUE_NAME(_registrar_Kernel_){#Kernel};
-
 #define INNER_BASELINER_REGISTER_BACKEND_STATS(Stat)                                                                   \
   ATTRIBUTE_USED const static Baseliner::BackendStatRegistrar<Stat> BASELINER_UNIQUE_NAME(_registrar_BackendStat_){    \
       #Stat};
