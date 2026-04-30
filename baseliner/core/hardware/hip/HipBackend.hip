@@ -47,7 +47,7 @@ namespace Baseliner {
       auto stream = new HipBackend::stream_t;
       CHECK_HIP(hipStreamCreate(stream));
 
-      return std::make_shared<hipStream_t>(stream, [](hipStream_t *s) {
+      return std::shared_ptr<hipStream_t>(stream, [](hipStream_t *s) {
         if (s) {
           CHECK_HIP_NO_EXCEPT(hipStreamDestroy(*s));
           delete s;
