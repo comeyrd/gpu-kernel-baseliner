@@ -48,7 +48,9 @@ namespace Baseliner {
     virtual auto run(std::shared_ptr<typename BackendT::stream_t> stream) -> typename backend::launch_result_t = 0;
     virtual void fetch_results(std::shared_ptr<typename BackendT::stream_t> stream) = 0;
     virtual void free() = 0;
-    virtual auto validate() -> bool = 0;
+    virtual auto validate() -> bool {
+      return false;
+    };
 
     // Timed Interface
     virtual auto timed_sync_setup_device(std::shared_ptr<typename BackendT::stream_t> stream) -> float_milliseconds;
@@ -68,11 +70,12 @@ namespace Baseliner {
     virtual void inner_setup_metrics(std::shared_ptr<Stats::StatsEngine> engine);
     virtual void inner_update_metrics(std::shared_ptr<Stats::StatsEngine> engine);
 
-    virtual void setup_host_from_file(std::string &path) = 0;
-    virtual void setup_host_random_generated() = 0;
+    // Validation & saving 2 file
+    virtual void setup_host_from_file(std::string & /*path*/) {};
+    virtual void setup_host_random_generated() {};
     virtual void save_setup();
-    virtual void inner_save_setup(std::string &path) = 0;
-    virtual void results_from_reference() = 0;
+    virtual void inner_save_setup(std::string &path) {};
+    virtual void results_from_reference() {};
 
   private:
     bool m_bytes = false;

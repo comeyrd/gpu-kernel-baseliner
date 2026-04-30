@@ -1,3 +1,4 @@
+#include "hip/hip_runtime.h"
 /* Copyright (c) 2022, NVIDIA CORPORATION. All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -29,14 +30,14 @@
 
 #include "../MatMulWorkload.hpp"
 #include <baseliner/Register.hpp>
-#include <baseliner/core/hardware/cuda/CudaBackend.hpp>
+#include <baseliner/core/hardware/hip/HipBackend.hpp>
 
 // ---------------------------------------------------------------------------
 // Kernel
 // ---------------------------------------------------------------------------
 
 template <int BLOCK_SIZE>
-__global__ void MatrixMulCUDA(float *C, float *A, float *B, int wA, int wB) {
+__global__ void MatrixMulHIP(float *C, float *A, float *B, int wA, int wB) {
   int bx = blockIdx.x;
   int by = blockIdx.y;
   int tx = threadIdx.x;
@@ -72,21 +73,21 @@ __global__ void MatrixMulCUDA(float *C, float *A, float *B, int wA, int wB) {
 }
 
 // ---------------------------------------------------------------------------
-// CUDA specializations
+// HIP specializations
 // ---------------------------------------------------------------------------
 
 template <>
-void MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::setup_device(std::shared_ptr<cudaStream_t> stream) {
+void MatrixMulWorkload<Baseliner::Hardware::HipBackend>::setup_device(std::shared_ptr<hipStream_t> stream) {
   size_t mem_size_A = m_size_A * sizeof(float);
   size_t mem_size_B = m_size_B * sizeof(float);
   size_t mem_size_C = m_hA * m_wB * sizeof(float);
 
-  CHECK_CUDA(cudaMalloc(&m_d_A, mem_size_A));
-  CHECK_CUDA(cudaMalloc(&m_d_B, mem_size_B));
-  CHECK_CUDA(cudaMalloc(&m_d_C, mem_size_C));
+  CHECK_HIP(hipMalloc(&m_d_A, mem_size_A));
+  CHECK_HIP(hipMalloc(&m_d_B, mem_size_B));
+  CHECK_HIP(hipMalloc(&m_d_C, mem_size_C));
 
-  CHECK_CUDA(cudaMemcpyAsync(m_d_A, m_h_A.data(), mem_size_A, cudaMemcpyHostToDevice, *stream));
-  CHECK_CUDA(cudaMemcpyAsync(m_d_B, m_h_B.data(), mem_size_B, cudaMemcpyHostToDevice, *stream));
+  CHECK_HIP(hipMemcpyAsync(m_d_A, m_h_A.data(), mem_size_A, hipMemcpyHostToDevice, *stream));
+  CHECK_HIP(hipMemcpyAsync(m_d_B, m_h_B.data(), mem_size_B, hipMemcpyHostToDevice, *stream));
   m_threads_x = m_block_size;
   m_threads_y = m_block_size;
   m_grid_x = (m_wB + m_threads_x - 1) / m_threads_x;
@@ -94,31 +95,31 @@ void MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::setup_device(std::shar
 }
 
 template <>
-void MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::reset(std::shared_ptr<cudaStream_t> stream) {
+void MatrixMulWorkload<Baseliner::Hardware::HipBackend>::reset_device(std::shared_ptr<hipStream_t> stream) {
   size_t mem_size_C = m_hA * m_wB * sizeof(float);
-  CHECK_CUDA(cudaMemsetAsync(m_d_C, 0, mem_size_C, *stream));
+  CHECK_HIP(hipMemsetAsync(m_d_C, 0, mem_size_C, *stream));
 }
 
 template <>
-auto MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::run(std::shared_ptr<cudaStream_t> stream) -> std::monostate {
+auto MatrixMulWorkload<Baseliner::Hardware::HipBackend>::run(std::shared_ptr<hipStream_t> stream) -> std::monostate {
   if (m_block_size == 16) { // NOLINT
-    MatrixMulCUDA<16><<<dim3(m_grid_x, m_grid_y), dim3(m_threads_x, m_threads_y), 0, *stream>>>(m_d_C, m_d_A, m_d_B,
-                                                                                                m_wA, m_wB); // NOLINT
+    MatrixMulHIP<16><<<dim3(m_grid_x, m_grid_y), dim3(m_threads_x, m_threads_y), 0, *stream>>>(m_d_C, m_d_A, m_d_B,
+                                                                                               m_wA, m_wB); // NOLINT
   } else {
-    MatrixMulCUDA<32><<<dim3(m_grid_x, m_grid_y), dim3(m_threads_x, m_threads_y), 0, *stream>>>(m_d_C, m_d_A, m_d_B,
-                                                                                                m_wA, m_wB); // NOLINT
+    MatrixMulHIP<32><<<dim3(m_grid_x, m_grid_y), dim3(m_threads_x, m_threads_y), 0, *stream>>>(m_d_C, m_d_A, m_d_B,
+                                                                                               m_wA, m_wB); // NOLINT
   }
   return {};
 }
 
 template <>
-void MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::fetch_results(std::shared_ptr<cudaStream_t> stream) {
+void MatrixMulWorkload<Baseliner::Hardware::HipBackend>::fetch_results(std::shared_ptr<hipStream_t> stream) {
   size_t mem_size_C = m_hA * m_wB * sizeof(float);
-  CHECK_CUDA(cudaMemcpyAsync(m_h_C.data(), m_d_C, mem_size_C, cudaMemcpyDeviceToHost, *stream));
-  CHECK_CUDA(cudaStreamSynchronize(*stream));
-  CHECK_CUDA(cudaFree(m_d_A));
-  CHECK_CUDA(cudaFree(m_d_B));
-  CHECK_CUDA(cudaFree(m_d_C));
+  CHECK_HIP(hipMemcpyAsync(m_h_C.data(), m_d_C, mem_size_C, hipMemcpyDeviceToHost, *stream));
+  CHECK_HIP(hipStreamSynchronize(*stream));
+  CHECK_HIP(hipFree(m_d_A));
+  CHECK_HIP(hipFree(m_d_B));
+  CHECK_HIP(hipFree(m_d_C));
   m_d_A = nullptr;
   m_d_B = nullptr;
   m_d_C = nullptr;
@@ -129,6 +130,6 @@ void MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::fetch_results(std::sha
 // ---------------------------------------------------------------------------
 
 namespace {
-  using MatrixMulWorkload = MatrixMulWorkload<Baseliner::Hardware::CudaBackend>;
+  using MatrixMulWorkload = MatrixMulWorkload<Baseliner::Hardware::HipBackend>;
   BASELINER_REGISTER_WORKLOAD(MatrixMulWorkload);
 } // namespace
