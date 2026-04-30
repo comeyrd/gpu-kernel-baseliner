@@ -34,7 +34,7 @@ __global__ void warmup_kernel(float *__restrict__ data, size_t n, int iterations
 namespace Baseliner::Hardware {
 
   template <>
-  void CudaBackend::warm_gpu(std::shared_ptr<stream_t> stream) {
+  void CudaBackend::warm_gpu(stream_t &stream) {
     constexpr int ITERATIONS = 5; // Tune to desired warm-up duration
     constexpr int BLOCK_SIZE = 256;
     size_t free_bytes = 0;
@@ -47,10 +47,10 @@ namespace Baseliner::Hardware {
     float *d_data = nullptr;
     CHECK_CUDA(cudaMalloc(&d_data, N * sizeof(float)));
     CHECK_CUDA(cudaMemset(d_data, 0, N * sizeof(float)));
-    warmup_kernel<<<GRID_SIZE, BLOCK_SIZE, 0, *stream>>>(d_data, N, ITERATIONS);
+    warmup_kernel<<<GRID_SIZE, BLOCK_SIZE, 0, stream>>>(d_data, N, ITERATIONS);
 
     CHECK_CUDA(cudaGetLastError());
-    CHECK_CUDA(cudaStreamSynchronize(*stream));
+    CHECK_CUDA(cudaStreamSynchronize(stream));
     CHECK_CUDA(cudaFree(d_data));
   }
 

@@ -33,7 +33,7 @@ __global__ void warm_kernel(float *__restrict__ data, size_t n, int iterations) 
 
 namespace Baseliner::Hardware {
   template <>
-  void HipBackend::warm_gpu(std::shared_ptr<stream_t> stream) {
+  void HipBackend::warm_gpu(stream_t &stream) {
     constexpr int ITERATIONS = 5;
     constexpr int BLOCK_SIZE = 256;
 
@@ -48,9 +48,9 @@ namespace Baseliner::Hardware {
     CHECK_HIP(hipMalloc(&d_data, N * sizeof(float)));
     CHECK_HIP(hipMemset(d_data, 0, N * sizeof(float)));
 
-    warm_kernel<<<GRID_SIZE, BLOCK_SIZE, 0, *stream>>>(d_data, N, ITERATIONS);
+    warm_kernel<<<GRID_SIZE, BLOCK_SIZE, 0, stream>>>(d_data, N, ITERATIONS);
     CHECK_HIP(hipGetLastError());
-    CHECK_HIP(hipStreamSynchronize(*stream));
+    CHECK_HIP(hipStreamSynchronize(stream));
 
     CHECK_HIP(hipFree(d_data));
   }

@@ -23,8 +23,8 @@ namespace Baseliner {
       CHECK_CUDA(cudaDeviceReset());
     }
     template <>
-    void CudaBackend::synchronize(std::shared_ptr<cudaStream_t> stream) {
-      CHECK_CUDA(cudaStreamSynchronize(*stream));
+    void CudaBackend::synchronize(cudaStream_t &stream) {
+      CHECK_CUDA(cudaStreamSynchronize(stream));
     }
     template <>
     auto CudaBackend::get_device_info() -> HardwareInfo {

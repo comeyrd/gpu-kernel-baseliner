@@ -77,7 +77,7 @@ __global__ void MatrixMulHIP(float *C, float *A, float *B, int wA, int wB) {
 // ---------------------------------------------------------------------------
 
 template <>
-void MatrixMulWorkload<Baseliner::Hardware::HipBackend>::setup_device(std::shared_ptr<hipStream_t> stream) {
+void MatrixMulWorkload<Baseliner::Hardware::HipBackend>::setup_device(hipStream_t &stream) {
   size_t mem_size_A = m_size_A * sizeof(float);
   size_t mem_size_B = m_size_B * sizeof(float);
   size_t mem_size_C = m_hA * m_wB * sizeof(float);
@@ -86,8 +86,8 @@ void MatrixMulWorkload<Baseliner::Hardware::HipBackend>::setup_device(std::share
   CHECK_HIP(hipMalloc(&m_d_B, mem_size_B));
   CHECK_HIP(hipMalloc(&m_d_C, mem_size_C));
 
-  CHECK_HIP(hipMemcpyAsync(m_d_A, m_h_A.data(), mem_size_A, hipMemcpyHostToDevice, *stream));
-  CHECK_HIP(hipMemcpyAsync(m_d_B, m_h_B.data(), mem_size_B, hipMemcpyHostToDevice, *stream));
+  CHECK_HIP(hipMemcpyAsync(m_d_A, m_h_A.data(), mem_size_A, hipMemcpyHostToDevice, stream));
+  CHECK_HIP(hipMemcpyAsync(m_d_B, m_h_B.data(), mem_size_B, hipMemcpyHostToDevice, stream));
   m_threads_x = m_block_size;
   m_threads_y = m_block_size;
   m_grid_x = (m_wB + m_threads_x - 1) / m_threads_x;
@@ -95,28 +95,28 @@ void MatrixMulWorkload<Baseliner::Hardware::HipBackend>::setup_device(std::share
 }
 
 template <>
-void MatrixMulWorkload<Baseliner::Hardware::HipBackend>::reset_device(std::shared_ptr<hipStream_t> stream) {
+void MatrixMulWorkload<Baseliner::Hardware::HipBackend>::reset_device(hipStream_t &stream) {
   size_t mem_size_C = m_hA * m_wB * sizeof(float);
-  CHECK_HIP(hipMemsetAsync(m_d_C, 0, mem_size_C, *stream));
+  CHECK_HIP(hipMemsetAsync(m_d_C, 0, mem_size_C, stream));
 }
 
 template <>
-auto MatrixMulWorkload<Baseliner::Hardware::HipBackend>::run(std::shared_ptr<hipStream_t> stream) -> std::monostate {
+auto MatrixMulWorkload<Baseliner::Hardware::HipBackend>::run(hipStream_t &stream) -> std::monostate {
   if (m_block_size == 16) { // NOLINT
-    MatrixMulHIP<16><<<dim3(m_grid_x, m_grid_y), dim3(m_threads_x, m_threads_y), 0, *stream>>>(m_d_C, m_d_A, m_d_B,
-                                                                                               m_wA, m_wB); // NOLINT
+    MatrixMulHIP<16><<<dim3(m_grid_x, m_grid_y), dim3(m_threads_x, m_threads_y), 0, stream>>>(m_d_C, m_d_A, m_d_B, m_wA,
+                                                                                              m_wB); // NOLINT
   } else {
-    MatrixMulHIP<32><<<dim3(m_grid_x, m_grid_y), dim3(m_threads_x, m_threads_y), 0, *stream>>>(m_d_C, m_d_A, m_d_B,
-                                                                                               m_wA, m_wB); // NOLINT
+    MatrixMulHIP<32><<<dim3(m_grid_x, m_grid_y), dim3(m_threads_x, m_threads_y), 0, stream>>>(m_d_C, m_d_A, m_d_B, m_wA,
+                                                                                              m_wB); // NOLINT
   }
   return {};
 }
 
 template <>
-void MatrixMulWorkload<Baseliner::Hardware::HipBackend>::fetch_results(std::shared_ptr<hipStream_t> stream) {
+void MatrixMulWorkload<Baseliner::Hardware::HipBackend>::fetch_results(hipStream_t &stream) {
   size_t mem_size_C = m_hA * m_wB * sizeof(float);
-  CHECK_HIP(hipMemcpyAsync(m_h_C.data(), m_d_C, mem_size_C, hipMemcpyDeviceToHost, *stream));
-  CHECK_HIP(hipStreamSynchronize(*stream));
+  CHECK_HIP(hipMemcpyAsync(m_h_C.data(), m_d_C, mem_size_C, hipMemcpyDeviceToHost, stream));
+  CHECK_HIP(hipStreamSynchronize(stream));
   CHECK_HIP(hipFree(m_d_A));
   CHECK_HIP(hipFree(m_d_B));
   CHECK_HIP(hipFree(m_d_C));

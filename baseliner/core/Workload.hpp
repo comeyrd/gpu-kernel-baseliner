@@ -43,25 +43,25 @@ namespace Baseliner {
         }
       }
     };
-    virtual void setup_device(std::shared_ptr<typename BackendT::stream_t> stream) = 0;
-    virtual void reset_device(std::shared_ptr<typename BackendT::stream_t> stream) = 0;
-    virtual auto run(std::shared_ptr<typename BackendT::stream_t> stream) -> typename backend::launch_result_t = 0;
-    virtual void fetch_results(std::shared_ptr<typename BackendT::stream_t> stream) = 0;
+    virtual void setup_device(typename BackendT::stream_t &stream) = 0;
+    virtual void reset_device(typename BackendT::stream_t &stream) = 0;
+    virtual auto run(typename BackendT::stream_t &stream) -> typename backend::launch_result_t = 0;
+    virtual void fetch_results(typename BackendT::stream_t &stream) = 0;
     virtual void free() = 0;
     virtual auto validate() -> bool {
       return false;
     };
 
     // Timed Interface
-    virtual auto timed_sync_setup_device(std::shared_ptr<typename BackendT::stream_t> stream) -> float_milliseconds;
-    virtual auto timed_sync_reset_device(std::shared_ptr<typename BackendT::stream_t> stream) -> float_milliseconds;
-    virtual auto timed_sync_run(std::shared_ptr<typename BackendT::stream_t> stream) -> float_milliseconds;
-    virtual auto timed_sync_fetch_results(std::shared_ptr<typename BackendT::stream_t> stream) -> float_milliseconds;
-    virtual auto timed_sync_free(std::shared_ptr<typename BackendT::stream_t> stream) -> float_milliseconds;
+    virtual auto timed_sync_setup_device(typename BackendT::stream_t &stream) -> float_milliseconds;
+    virtual auto timed_sync_reset_device(typename BackendT::stream_t &stream) -> float_milliseconds;
+    virtual auto timed_sync_run(typename BackendT::stream_t &stream) -> float_milliseconds;
+    virtual auto timed_sync_fetch_results(typename BackendT::stream_t &stream) -> float_milliseconds;
+    virtual auto timed_sync_free(typename BackendT::stream_t &stream) -> float_milliseconds;
 
     // Batch management
-    virtual void init_batch(std::shared_ptr<typename BackendT::stream_t> stream, size_t batch_size, bool is_blocking);
-    virtual void timed_batch_run(std::shared_ptr<typename BackendT::stream_t> stream);
+    virtual void init_batch(typename BackendT::stream_t &stream, size_t batch_size, bool is_blocking);
+    virtual void timed_batch_run(typename BackendT::stream_t &stream);
     virtual auto timed_run_elapsed_batch() -> std::vector<float_milliseconds>;
 
     // Metrics management
@@ -74,7 +74,7 @@ namespace Baseliner {
     virtual void setup_host_from_file(std::string & /*path*/) {};
     virtual void setup_host_random_generated() {};
     virtual void save_setup();
-    virtual void inner_save_setup(std::string &path) {};
+    virtual void inner_save_setup(std::string & /*path*/) {};
     virtual void results_from_reference() {};
 
   private:
@@ -148,8 +148,7 @@ namespace Baseliner {
   // Timed Interface
 
   template <typename BackendT>
-  auto IWorkload<BackendT>::timed_sync_setup_device(std::shared_ptr<typename BackendT::stream_t> stream)
-      -> float_milliseconds {
+  auto IWorkload<BackendT>::timed_sync_setup_device(typename BackendT::stream_t &stream) -> float_milliseconds {
     m_timer->init(stream);
     m_timer->measure_before(stream);
     this->setup_device(stream);
@@ -158,8 +157,7 @@ namespace Baseliner {
   }
 
   template <typename BackendT>
-  auto IWorkload<BackendT>::timed_sync_reset_device(std::shared_ptr<typename BackendT::stream_t> stream)
-      -> float_milliseconds {
+  auto IWorkload<BackendT>::timed_sync_reset_device(typename BackendT::stream_t &stream) -> float_milliseconds {
     m_timer->init(stream);
     m_timer->measure_before(stream);
     this->reset_device(stream);
@@ -168,7 +166,7 @@ namespace Baseliner {
   }
 
   template <typename BackendT>
-  auto IWorkload<BackendT>::timed_sync_run(std::shared_ptr<typename BackendT::stream_t> stream) -> float_milliseconds {
+  auto IWorkload<BackendT>::timed_sync_run(typename BackendT::stream_t &stream) -> float_milliseconds {
     m_timer->init(stream);
     m_timer->measure_before(stream);
     m_timer->measure_consume(this->run(stream));
@@ -177,13 +175,12 @@ namespace Baseliner {
   }
 
   template <typename BackendT>
-  void IWorkload<BackendT>::init_batch(std::shared_ptr<typename BackendT::stream_t> stream, size_t batch_size,
-                                       bool is_blocking) {
+  void IWorkload<BackendT>::init_batch(typename BackendT::stream_t &stream, size_t batch_size, bool is_blocking) {
     m_timer->init_batch(stream, batch_size, is_blocking);
   }
 
   template <typename BackendT>
-  void IWorkload<BackendT>::timed_batch_run(std::shared_ptr<typename BackendT::stream_t> stream) {
+  void IWorkload<BackendT>::timed_batch_run(typename BackendT::stream_t &stream) {
     m_timer->measure_batch_before(stream);
     m_timer->measure_batch_consume(this->run(stream));
     m_timer->measure_batch_after(stream);
@@ -195,8 +192,7 @@ namespace Baseliner {
   }
 
   template <typename BackendT>
-  auto IWorkload<BackendT>::timed_sync_fetch_results(std::shared_ptr<typename BackendT::stream_t> stream)
-      -> float_milliseconds {
+  auto IWorkload<BackendT>::timed_sync_fetch_results(typename BackendT::stream_t &stream) -> float_milliseconds {
     m_timer->init(stream);
     m_timer->measure_before(stream);
     this->fetch_results(stream);
@@ -205,7 +201,7 @@ namespace Baseliner {
   }
 
   template <typename BackendT>
-  auto IWorkload<BackendT>::timed_sync_free(std::shared_ptr<typename BackendT::stream_t> stream) -> float_milliseconds {
+  auto IWorkload<BackendT>::timed_sync_free(typename BackendT::stream_t &stream) -> float_milliseconds {
     m_timer->init(stream);
     m_timer->measure_before(stream);
     this->free();

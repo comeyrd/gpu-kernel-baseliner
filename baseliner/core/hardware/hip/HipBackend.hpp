@@ -38,7 +38,7 @@ namespace Baseliner {
         if (m_state != State::Single) {
           throw Errors::timer_not_single_state("measure_before()");
         }
-        CHECK_HIP(hipEventRecord(m_starts[0], *stream));
+        CHECK_HIP(hipEventRecord(m_starts[0], stream));
       }
 
       // No-op for HIP: timing is driven by hipEvent_t, not launch_result_t
@@ -49,7 +49,7 @@ namespace Baseliner {
         if (m_state != State::Single) {
           throw Errors::timer_not_single_state("measure_after()");
         }
-        CHECK_HIP(hipEventRecord(m_stops[0], *stream));
+        CHECK_HIP(hipEventRecord(m_stops[0], stream));
       }
 
       auto elapsed() -> float_milliseconds override {
@@ -86,7 +86,7 @@ namespace Baseliner {
         if (m_pos_batch >= m_batch_size) {
           throw Errors::timer_more_measure_than_batch(m_batch_size);
         }
-        CHECK_HIP(hipEventRecord(m_starts[m_pos_batch], *stream));
+        CHECK_HIP(hipEventRecord(m_starts[m_pos_batch], stream));
       }
 
       // No-op for HIP
@@ -97,7 +97,7 @@ namespace Baseliner {
         if (m_state != State::Batch) {
           throw Errors::timer_not_batch("measure_batch_after()");
         }
-        CHECK_HIP(hipEventRecord(m_stops[m_pos_batch], *stream));
+        CHECK_HIP(hipEventRecord(m_stops[m_pos_batch], stream));
         m_pos_batch++;
       }
 

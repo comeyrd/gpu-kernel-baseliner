@@ -13,7 +13,7 @@ namespace Baseliner {
   template <typename BackendT>
   class ITimer {
   public:
-    using Stream = std::shared_ptr<typename BackendT::stream_t>;
+    using Stream = typename BackendT::stream_t &;
     using Workload = std::function<void(Stream &, typename BackendT::launch_result_t &)>;
     using Funct = std::function<void(Stream &)>;
 
@@ -40,7 +40,7 @@ namespace Baseliner {
     using Funct = std::function<void(Stream &)>;
 
   public:
-    void init(Stream & /*stream*/) override {
+    void init(Stream & /* stream*/) override {
       if (m_state != State::Idle) {
         throw Errors::timer_init_on_not_idle();
       }
@@ -50,7 +50,7 @@ namespace Baseliner {
       m_stops.resize(1);
     }
 
-    void measure_before(Stream & /*stream*/) override {
+    void measure_before(Stream & /* stream*/) override {
       if (m_state != State::Single) {
         throw Errors::timer_not_single_state("measure_before()");
       }
@@ -76,7 +76,7 @@ namespace Baseliner {
       return float_milliseconds(m_stops[0] - m_starts[0]);
     }
 
-    void init_batch(Stream & /*stream*/, size_t batch_size, bool is_blocking) override {
+    void init_batch(Stream & /* stream*/, size_t batch_size, bool is_blocking) override {
       if (m_state != State::Idle) {
         throw Errors::timer_init_on_not_idle();
       }
@@ -92,7 +92,7 @@ namespace Baseliner {
       }
     }
 
-    void measure_batch_before(Stream & /*stream*/) override {
+    void measure_batch_before(Stream & /* stream*/) override {
       if (m_state != State::Batch) {
         throw Errors::timer_not_batch("measure_batch_before()");
       }

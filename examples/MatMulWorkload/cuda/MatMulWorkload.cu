@@ -76,8 +76,7 @@ __global__ void MatrixMulCUDA(float *C, float *A, float *B, int wA, int wB) {
 // ---------------------------------------------------------------------------
 
 template <>
-void MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::setup_device(
-    std::shared_ptr<typename backend::stream_t> stream) {
+void MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::setup_device(typename backend::stream_t &stream) {
   size_t mem_size_A = m_size_A * sizeof(float);
   size_t mem_size_B = m_size_B * sizeof(float);
   size_t mem_size_C = m_hA * m_wB * sizeof(float);
@@ -86,8 +85,8 @@ void MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::setup_device(
   CHECK_CUDA(cudaMalloc(&m_d_B, mem_size_B));
   CHECK_CUDA(cudaMalloc(&m_d_C, mem_size_C));
 
-  CHECK_CUDA(cudaMemcpyAsync(m_d_A, m_h_A.data(), mem_size_A, cudaMemcpyHostToDevice, *stream));
-  CHECK_CUDA(cudaMemcpyAsync(m_d_B, m_h_B.data(), mem_size_B, cudaMemcpyHostToDevice, *stream));
+  CHECK_CUDA(cudaMemcpyAsync(m_d_A, m_h_A.data(), mem_size_A, cudaMemcpyHostToDevice, stream));
+  CHECK_CUDA(cudaMemcpyAsync(m_d_B, m_h_B.data(), mem_size_B, cudaMemcpyHostToDevice, stream));
   m_threads_x = m_block_size;
   m_threads_y = m_block_size;
   m_grid_x = (m_wB + m_threads_x - 1) / m_threads_x;
@@ -95,31 +94,28 @@ void MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::setup_device(
 }
 
 template <>
-void MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::reset_device(
-    std::shared_ptr<typename backend::stream_t> stream) {
+void MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::reset_device(typename backend::stream_t &stream) {
   size_t mem_size_C = m_hA * m_wB * sizeof(float);
-  CHECK_CUDA(cudaMemsetAsync(m_d_C, 0, mem_size_C, *stream));
+  CHECK_CUDA(cudaMemsetAsync(m_d_C, 0, mem_size_C, stream));
 }
 
 template <>
-auto MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::run(std::shared_ptr<typename backend::stream_t> stream)
-    -> std::monostate {
+auto MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::run(typename backend::stream_t &stream) -> std::monostate {
   if (m_block_size == 16) { // NOLINT
-    MatrixMulCUDA<16><<<dim3(m_grid_x, m_grid_y), dim3(m_threads_x, m_threads_y), 0, *stream>>>(m_d_C, m_d_A, m_d_B,
-                                                                                                m_wA, m_wB); // NOLINT
+    MatrixMulCUDA<16><<<dim3(m_grid_x, m_grid_y), dim3(m_threads_x, m_threads_y), 0, stream>>>(m_d_C, m_d_A, m_d_B,
+                                                                                               m_wA, m_wB); // NOLINT
   } else {
-    MatrixMulCUDA<32><<<dim3(m_grid_x, m_grid_y), dim3(m_threads_x, m_threads_y), 0, *stream>>>(m_d_C, m_d_A, m_d_B,
-                                                                                                m_wA, m_wB); // NOLINT
+    MatrixMulCUDA<32><<<dim3(m_grid_x, m_grid_y), dim3(m_threads_x, m_threads_y), 0, stream>>>(m_d_C, m_d_A, m_d_B,
+                                                                                               m_wA, m_wB); // NOLINT
   }
   return {};
 }
 
 template <>
-void MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::fetch_results(
-    std::shared_ptr<typename backend::stream_t> stream) {
+void MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::fetch_results(typename backend::stream_t &stream) {
   size_t mem_size_C = m_hA * m_wB * sizeof(float);
-  CHECK_CUDA(cudaMemcpyAsync(m_h_C.data(), m_d_C, mem_size_C, cudaMemcpyDeviceToHost, *stream));
-  CHECK_CUDA(cudaStreamSynchronize(*stream));
+  CHECK_CUDA(cudaMemcpyAsync(m_h_C.data(), m_d_C, mem_size_C, cudaMemcpyDeviceToHost, stream));
+  CHECK_CUDA(cudaStreamSynchronize(stream));
   CHECK_CUDA(cudaFree(m_d_A));
   CHECK_CUDA(cudaFree(m_d_B));
   CHECK_CUDA(cudaFree(m_d_C));

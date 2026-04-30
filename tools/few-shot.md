@@ -60,7 +60,7 @@ using Output = O;
 virtual void cpu(Output &output) = 0;
 virtual void setup() = 0;
 virtual void reset() = 0;
-virtual void run(std::shared_ptr<stream_t> &stream) = 0;
+virtual void run(stream_t & &stream) = 0;
 virtual void teardown(Output &output) = 0;
 IKernel(const Input &input)
 : m_input(input) {};
@@ -215,7 +215,7 @@ size*t mem_size_C = m_input.m_hA * m*input.m_wB * sizeof(float);
 CHECK_CUDA(cudaMemset(m_d_C, 0, mem_size_C));
 };
 
-void run(std::shared_ptr<cudaStream_t> &stream) override;
+void run(cudaStream_t & &stream) override;
 
 void teardown(Output &output) override {
 size*t mem_size_C = m_input.m_hA * m*input.m_wB * sizeof(float);
@@ -349,13 +349,13 @@ output.m*h_C[i * wB + j] = (float)sum;
 }
 }
 
-void MatrixMulKernel::run(std::shared_ptr<cudaStream_t> &stream) {
+void MatrixMulKernel::run(cudaStream_t & &stream) {
 // Dispatch based on block size template parameter
 if (m_input.m_block_size == 16) {
-MatrixMulCUDA<16><<<m_grid, m_threads, 0, *stream>>>(
+MatrixMulCUDA<16><<<m_grid, m_threads, 0, stream>>>(
 m_d_C, m_d_A, m_d_B, m_input.m_wA, m_input.m_wB);
 } else {
-MatrixMulCUDA<32><<<m_grid, m_threads, 0, *stream>>>(
+MatrixMulCUDA<32><<<m_grid, m_threads, 0, stream>>>(
 m_d_C, m_d_A, m_d_B, m_input.m_wA, m_input.m_wB);
 }
 }

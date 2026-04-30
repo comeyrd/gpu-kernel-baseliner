@@ -15,10 +15,10 @@ namespace Baseliner {
     }
 
     template <>
-    void L2Flusher<CudaBackend>::flush(std::shared_ptr<typename CudaBackend::stream_t> stream) {
+    void L2Flusher<CudaBackend>::flush(typename CudaBackend::stream_t &stream) {
       int current_device = CudaBackend::instance()->get_current_device();
       CHECK_CUDA(cudaMemsetAsync(m_l2_buffer_v[current_device], 0,
-                                 static_cast<std::size_t>(m_buffer_size_v[current_device]), *stream));
+                                 static_cast<std::size_t>(m_buffer_size_v[current_device]), stream));
     }
   } // namespace Hardware
 

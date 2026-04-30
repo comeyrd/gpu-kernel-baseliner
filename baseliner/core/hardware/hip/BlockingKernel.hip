@@ -60,11 +60,11 @@ namespace Baseliner::Hardware {
     delete m_host_timeout_flag_v[device];
   }
   template <>
-  void BlockingKernel<HipBackend>::block(std::shared_ptr<hipStream_t> stream, double timeout) {
+  void BlockingKernel<HipBackend>::block(hipStream_t &stream, double timeout) {
     int current_device = HipBackend::instance()->get_current_device();
     *m_host_flag_v[current_device] = 0;
     *m_host_timeout_flag_v[current_device] = 0;
-    block_stream<<<1, 1, 0, *stream>>>(m_device_flag_v[current_device], m_device_timeout_flag_v[current_device],
-                                       timeout);
+    block_stream<<<1, 1, 0, stream>>>(m_device_flag_v[current_device], m_device_timeout_flag_v[current_device],
+                                      timeout);
   }
 } // namespace Baseliner::Hardware

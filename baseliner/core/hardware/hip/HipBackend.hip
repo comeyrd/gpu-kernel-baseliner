@@ -23,8 +23,8 @@ namespace Baseliner {
       CHECK_HIP(hipDeviceReset());
     }
     template <>
-    void HipBackend::synchronize(std::shared_ptr<hipStream_t> stream) {
-      CHECK_HIP(hipStreamSynchronize(*stream));
+    void HipBackend::synchronize(hipStream_t &stream) {
+      CHECK_HIP(hipStreamSynchronize(stream));
     }
     template <>
     auto HipBackend::get_device_count() -> int {
@@ -43,16 +43,16 @@ namespace Baseliner {
       CHECK_HIP(hipGetLastError());
     }
     template <>
-    auto HipBackend::inner_create_stream() -> std::shared_ptr<HipBackend::stream_t> {
-      auto *stream = new HipBackend::stream_t;
+    auto HipBackend::inner_create_stream() -> HipBackend::stream_t & {
+      auto stream = new HipBackend::stream_t;
       CHECK_HIP(hipStreamCreate(stream));
 
-      return std::shared_ptr<hipStream_t>(stream, [](hipStream_t *s) {
-        if (s) {
-          CHECK_HIP_NO_EXCEPT(hipStreamDestroy(*s));
-          delete s;
-        }
-      });
+      return hipStream_t & (stream, [](hipStream_t *s) {
+               if (s) {
+                 CHECK_HIP_NO_EXCEPT(hipStreamDestroy(*s));
+                 delete s;
+               }
+             });
     }
 
 #ifdef BASELINER_HAS_AMDSMI

@@ -295,11 +295,11 @@ namespace Baseliner {
       setup_metrics();
       get_stats_engine()->reset_engine();
       m_workload->setup_host();
-      auto setup_time = m_workload->timed_sync_setup_device(m_stream);
+      auto setup_time = m_workload->timed_sync_setup_device(*m_stream);
       update_metrics();
       get_stats_engine()->template update_values<Stats::SetupTime>(setup_time);
       if (get_warmup()) {
-        auto warmup_time = m_workload->timed_sync_run(m_stream);
+        auto warmup_time = m_workload->timed_sync_run(*m_stream);
         get_stats_engine()->template update_values<Stats::WarmupTime>(warmup_time);
       }
       while (!get_stopping()->satisfied()) {
@@ -314,27 +314,27 @@ namespace Baseliner {
               throw Errors::warm_cool_gpu_timeout(get_warm_cool_timeout());
             }
             if (temp < get_min_gpu_temp()) {
-              BackendT::instance()->warm_gpu(m_stream);
+              BackendT::instance()->warm_gpu(*m_stream);
             } else if (temp > get_max_gpu_temp()) {
-              BackendT::instance()->cool_gpu(m_stream);
+              BackendT::instance()->cool_gpu(*m_stream);
             } else {
               break;
             }
           }
         }
         if (get_block()) {
-          m_blocker->block(m_stream, get_block_duration());
+          m_blocker->block(*m_stream, get_block_duration());
         }
-        m_workload->init_batch(m_stream, get_batch_size(), get_block());
+        m_workload->init_batch(*m_stream, get_batch_size(), get_block());
         for (int batch = 0; batch < get_batch_size(); batch++) {
           if (batch % get_max_blocking_queue() == 0 && get_block()) {
             m_blocker->unblock();
           }
-          m_workload->reset_device(m_stream);
+          m_workload->reset_device(*m_stream);
           if (get_flush_l2()) {
-            m_flusher->flush(m_stream);
+            m_flusher->flush(*m_stream);
           }
-          m_workload->timed_batch_run(m_stream);
+          m_workload->timed_batch_run(*m_stream);
         }
         BackendT::get_last_error();
         if (get_block()) {
@@ -360,7 +360,7 @@ namespace Baseliner {
         }
       }
       post_all();
-      auto fetch_time = m_workload->timed_sync_fetch_results(m_stream);
+      auto fetch_time = m_workload->timed_sync_fetch_results(*m_stream);
       get_stats_engine()->template update_values<Stats::FetchResultsTime>(fetch_time);
       if (get_validate_workload()) {
         bool valid_run = m_workload->validate();
@@ -423,7 +423,7 @@ namespace Baseliner {
     }
     virtual void pre_all() {};
     virtual void post_all() {
-      BackendT::synchronize(m_stream);
+      BackendT::synchronize(*m_stream);
     };
     void check_components() {
       if (!m_workload) {
