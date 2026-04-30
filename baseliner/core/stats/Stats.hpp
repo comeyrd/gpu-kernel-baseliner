@@ -233,7 +233,7 @@ namespace Baseliner::Stats {
       for (const auto &input : inputs) {
         total += input.count();
       }
-      value_to_update = static_cast<float>(total / inputs.size());
+      value_to_update = static_cast<float>(total / static_cast<double>(inputs.size()));
     }
     [[nodiscard]] auto unit() const -> std::string override {
       return "ms";

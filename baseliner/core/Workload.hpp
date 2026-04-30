@@ -149,6 +149,9 @@ namespace Baseliner {
 
   template <typename BackendT>
   auto IWorkload<BackendT>::timed_sync_setup_device(typename BackendT::stream_t stream) -> float_milliseconds {
+    if (!m_timer) {
+      throw Errors::workload_timer_not_set();
+    }
     m_timer->init(stream);
     m_timer->measure_before(stream);
     this->setup_device(stream);
@@ -158,6 +161,9 @@ namespace Baseliner {
 
   template <typename BackendT>
   auto IWorkload<BackendT>::timed_sync_reset_device(typename BackendT::stream_t stream) -> float_milliseconds {
+    if (!m_timer) {
+      throw Errors::workload_timer_not_set();
+    }
     m_timer->init(stream);
     m_timer->measure_before(stream);
     this->reset_device(stream);
@@ -167,6 +173,9 @@ namespace Baseliner {
 
   template <typename BackendT>
   auto IWorkload<BackendT>::timed_sync_run(typename BackendT::stream_t stream) -> float_milliseconds {
+    if (!m_timer) {
+      throw Errors::workload_timer_not_set();
+    }
     m_timer->init(stream);
     m_timer->measure_before(stream);
     m_timer->measure_consume(this->run(stream));
@@ -176,11 +185,17 @@ namespace Baseliner {
 
   template <typename BackendT>
   void IWorkload<BackendT>::init_batch(typename BackendT::stream_t stream, size_t batch_size, bool is_blocking) {
+    if (!m_timer) {
+      throw Errors::workload_timer_not_set();
+    }
     m_timer->init_batch(stream, batch_size, is_blocking);
   }
 
   template <typename BackendT>
   void IWorkload<BackendT>::timed_batch_run(typename BackendT::stream_t stream) {
+    if (!m_timer) {
+      throw Errors::workload_timer_not_set();
+    }
     m_timer->measure_batch_before(stream);
     m_timer->measure_batch_consume(this->run(stream));
     m_timer->measure_batch_after(stream);
@@ -193,6 +208,9 @@ namespace Baseliner {
 
   template <typename BackendT>
   auto IWorkload<BackendT>::timed_sync_fetch_results(typename BackendT::stream_t stream) -> float_milliseconds {
+    if (!m_timer) {
+      throw Errors::workload_timer_not_set();
+    }
     m_timer->init(stream);
     m_timer->measure_before(stream);
     this->fetch_results(stream);
@@ -202,6 +220,9 @@ namespace Baseliner {
 
   template <typename BackendT>
   auto IWorkload<BackendT>::timed_sync_free(typename BackendT::stream_t stream) -> float_milliseconds {
+    if (!m_timer) {
+      throw Errors::workload_timer_not_set();
+    }
     m_timer->init(stream);
     m_timer->measure_before(stream);
     this->free();

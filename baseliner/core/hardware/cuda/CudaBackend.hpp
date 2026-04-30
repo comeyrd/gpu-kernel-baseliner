@@ -18,12 +18,10 @@ namespace Baseliner {
     class GpuTimer<CudaBackend> : public ITimer<CudaBackend> {
     public:
       using Stream = ITimer<CudaBackend>::Stream;
-      using Workload = ITimer<CudaBackend>::Workload;
-      using Funct = ITimer<CudaBackend>::Funct;
 
       ~GpuTimer() = default;
 
-      void init(Stream stream) override {
+      void init(Stream /*stream*/) override {
         if (m_state != State::Idle) {
           throw Errors::timer_init_on_not_idle();
         }
@@ -43,7 +41,7 @@ namespace Baseliner {
       }
 
       // No-op for CUDA: timing is driven by cudaEvent_t, not launch_result_t
-      void measure_consume(typename CudaBackend::launch_result_t event) override {
+      void measure_consume(typename CudaBackend::launch_result_t /*event*/) override {
       }
 
       void measure_after(Stream stream) override {
@@ -64,7 +62,7 @@ namespace Baseliner {
         return float_milliseconds(temp_f);
       }
 
-      void init_batch(Stream stream, size_t batch_size, bool is_blocking) override {
+      void init_batch(Stream /*stream*/, size_t batch_size, bool is_blocking) override {
         if (m_state != State::Idle) {
           throw Errors::timer_init_on_not_idle();
         }
@@ -91,7 +89,7 @@ namespace Baseliner {
       }
 
       // No-op for CUDA
-      void measure_batch_consume(typename CudaBackend::launch_result_t event) override {
+      void measure_batch_consume(typename CudaBackend::launch_result_t /*event*/) override {
       }
 
       void measure_batch_after(Stream stream) override {
@@ -120,10 +118,10 @@ namespace Baseliner {
 
     private:
       void reset() {
-        for (auto start : m_starts) {
+        for (cudaEvent_t &start : m_starts) {
           CHECK_CUDA(cudaEventDestroy(start));
         }
-        for (auto stop : m_stops) {
+        for (cudaEvent_t &stop : m_stops) {
           CHECK_CUDA(cudaEventDestroy(stop));
         }
         m_starts.clear();

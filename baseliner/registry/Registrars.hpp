@@ -61,10 +61,12 @@ namespace Baseliner {
   template <class WorkloadT>
   class WorkloadRegistrar {
   public:
-    explicit WorkloadRegistrar(const std::string &name) {
+    explicit WorkloadRegistrar() {
       auto factory = []() -> std::shared_ptr<IWorkload<typename WorkloadT::backend>> {
         return std::make_shared<WorkloadT>();
       };
+      auto work = factory();
+      std::string name = work->algo() + work->specialization();
       BackendStorage<typename WorkloadT::backend>::instance()->register_workload(name, factory);
       StorageManager::instance()->register_component(name, ComponentType::WORKLOAD,
                                                      factory()->get_depedencies_options());

@@ -15,7 +15,8 @@ namespace Baseliner::Utils {
     thread_local std::uniform_int_distribution<uint32_t> dist(0, 1679615);
 
     auto now = std::chrono::system_clock::now();
-    long ms_since_unix = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
+    uint64_t ms_since_unix =
+        static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count());
 
     uint64_t time_val = (ms_since_unix > EPOCH_2010) ? (ms_since_unix - EPOCH_2010) : 0;
     uint32_t rand_val = dist(rng);

@@ -31,11 +31,7 @@
   ATTRIBUTE_USED const static Baseliner::BackendRegistrar<Backend> BASELINER_UNIQUE_NAME(_registrar_Backend_){name};
 
 #define INNER_BASELINER_REGISTER_WORKLOAD(Workload)                                                                    \
-  ATTRIBUTE_USED const static Baseliner::WorkloadRegistrar<Workload> BASELINER_UNIQUE_NAME(_registrar_Workload_){      \
-      #Workload};
-
-#define INNER_BASELINER_REGISTER_WORKLOAD_NAME(Workload, name)                                                         \
-  ATTRIBUTE_USED const static Baseliner::WorkloadRegistrar<Workload> BASELINER_UNIQUE_NAME(_registrar_Workload_){name};
+  ATTRIBUTE_USED const static Baseliner::WorkloadRegistrar<Workload> BASELINER_UNIQUE_NAME(_registrar_Workload_){};
 
 #define INNER_BASELINER_REGISTER_BACKEND_STATS(Stat)                                                                   \
   ATTRIBUTE_USED const static Baseliner::BackendStatRegistrar<Stat> BASELINER_UNIQUE_NAME(_registrar_BackendStat_){    \

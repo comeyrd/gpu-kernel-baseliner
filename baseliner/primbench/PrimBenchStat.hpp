@@ -23,8 +23,9 @@ namespace Baseliner::Stats {
       size_t n = batch_times.size() - start;
 
       double sum = 0.0;
-      for (size_t i = start; i < batch_times.size(); ++i)
+      for (size_t i = start; i < batch_times.size(); ++i) {
         sum += batch_times[i].count();
+      }
       double mean = sum / n;
 
       double sq_sum = 0.0;

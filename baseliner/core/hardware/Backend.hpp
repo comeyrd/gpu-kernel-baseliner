@@ -47,7 +47,7 @@ namespace Baseliner::Hardware {
       return Backend<S, O>::inner_create_stream();
     };
     static void warm_gpu(stream_t stream);
-    static void cool_gpu(stream_t & /* stream*/) {
+    static void cool_gpu(stream_t /* stream*/) {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
     };
     static auto get_device_count() -> int;

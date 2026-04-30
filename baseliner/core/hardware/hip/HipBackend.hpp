@@ -17,12 +17,10 @@ namespace Baseliner {
     class GpuTimer<HipBackend> : public ITimer<HipBackend> {
     public:
       using Stream = ITimer<HipBackend>::Stream;
-      using Workload = ITimer<HipBackend>::Workload;
-      using Funct = ITimer<HipBackend>::Funct;
 
       ~GpuTimer() = default;
 
-      void init(Stream stream) override {
+      void init(Stream /*stream*/) override {
         if (m_state != State::Idle) {
           throw Errors::timer_init_on_not_idle();
         }
@@ -42,7 +40,7 @@ namespace Baseliner {
       }
 
       // No-op for HIP: timing is driven by hipEvent_t, not launch_result_t
-      void measure_consume(typename HipBackend::launch_result_t event) override {
+      void measure_consume(typename HipBackend::launch_result_t /*event*/) override {
       }
 
       void measure_after(Stream stream) override {
@@ -63,7 +61,7 @@ namespace Baseliner {
         return float_milliseconds(temp_f);
       }
 
-      void init_batch(Stream stream, size_t batch_size, bool is_blocking) override {
+      void init_batch(Stream /*stream*/, size_t batch_size, bool is_blocking) override {
         if (m_state != State::Idle) {
           throw Errors::timer_init_on_not_idle();
         }
@@ -90,7 +88,7 @@ namespace Baseliner {
       }
 
       // No-op for HIP
-      void measure_batch_consume(typename HipBackend::launch_result_t event) override {
+      void measure_batch_consume(typename HipBackend::launch_result_t /*event*/) override {
       }
 
       void measure_batch_after(Stream stream) override {
@@ -119,10 +117,10 @@ namespace Baseliner {
 
     private:
       void reset() {
-        for (auto start : m_starts) {
+        for (hipEvent_t &start : m_starts) {
           CHECK_HIP(hipEventDestroy(start));
         }
-        for (auto stop : m_stops) {
+        for (hipEvent_t &stop : m_stops) {
           CHECK_HIP(hipEventDestroy(stop));
         }
         m_starts.clear();

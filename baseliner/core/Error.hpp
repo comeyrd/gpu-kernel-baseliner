@@ -17,6 +17,7 @@ namespace Baseliner {
     BackendWorkloadBenchmarkNotFound,
     AlreadyExists,
     BenchmarkError,
+    WorkloadError,
     OptionsError,
     StoppingCriterionError,
     PresetError,
@@ -58,6 +59,8 @@ namespace Baseliner {
       return "WarmCoolGpu";
     case ErrorCode::StatEngineError:
       return "StatEngineError";
+    case ErrorCode::WorkloadError:
+      return "WorkloadError";
     }
     return "Unknown";
   }
@@ -205,6 +208,9 @@ namespace Baseliner {
     inline auto timer_more_measure_than_batch(size_t batchsize) -> Error {
       return {ErrorCode::TimerError, "measure_batch() was called more than batch_size() was defined : batch_size=" +
                                          std::to_string(batchsize)};
+    }
+    inline auto workload_timer_not_set() -> Error {
+      return {ErrorCode::WorkloadError, "A timer was not given to a workload"};
     }
     inline auto warm_cool_gpu_timeout(float seconds) -> Error {
       return {ErrorCode::WarmCoolGpu, "Device did not warm up or cool down in the " +
