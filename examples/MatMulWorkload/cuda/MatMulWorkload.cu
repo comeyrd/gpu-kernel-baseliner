@@ -76,7 +76,7 @@ __global__ void MatrixMulCUDA(float *C, float *A, float *B, int wA, int wB) {
 // ---------------------------------------------------------------------------
 
 template <>
-void MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::setup_device(typename backend::stream_t &stream) {
+void MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::setup_device(typename backend::stream_t stream) {
   size_t mem_size_A = m_size_A * sizeof(float);
   size_t mem_size_B = m_size_B * sizeof(float);
   size_t mem_size_C = m_hA * m_wB * sizeof(float);
@@ -94,13 +94,13 @@ void MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::setup_device(typename 
 }
 
 template <>
-void MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::reset_device(typename backend::stream_t &stream) {
+void MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::reset_device(typename backend::stream_t stream) {
   size_t mem_size_C = m_hA * m_wB * sizeof(float);
   CHECK_CUDA(cudaMemsetAsync(m_d_C, 0, mem_size_C, stream));
 }
 
 template <>
-auto MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::run(typename backend::stream_t &stream) -> std::monostate {
+auto MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::run(typename backend::stream_t stream) -> std::monostate {
   if (m_block_size == 16) { // NOLINT
     MatrixMulCUDA<16><<<dim3(m_grid_x, m_grid_y), dim3(m_threads_x, m_threads_y), 0, stream>>>(m_d_C, m_d_A, m_d_B,
                                                                                                m_wA, m_wB); // NOLINT
@@ -112,7 +112,7 @@ auto MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::run(typename backend::
 }
 
 template <>
-void MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::fetch_results(typename backend::stream_t &stream) {
+void MatrixMulWorkload<Baseliner::Hardware::CudaBackend>::fetch_results(typename backend::stream_t stream) {
   size_t mem_size_C = m_hA * m_wB * sizeof(float);
   CHECK_CUDA(cudaMemcpyAsync(m_h_C.data(), m_d_C, mem_size_C, cudaMemcpyDeviceToHost, stream));
   CHECK_CUDA(cudaStreamSynchronize(stream));

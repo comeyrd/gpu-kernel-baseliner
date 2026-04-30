@@ -19,16 +19,16 @@ namespace Baseliner {
 
     virtual ~ITimer() = default;
 
-    virtual void init(Stream &stream) = 0;
-    virtual void measure_before(Stream &stream) = 0;
+    virtual void init(Stream stream) = 0;
+    virtual void measure_before(Stream stream) = 0;
     virtual void measure_consume(typename BackendT::launch_result_t event) = 0;
-    virtual void measure_after(Stream &stream) = 0;
+    virtual void measure_after(Stream stream) = 0;
     virtual auto elapsed() -> float_milliseconds = 0;
 
-    virtual void init_batch(Stream &stream, size_t batch_size, bool is_blocking) = 0;
-    virtual void measure_batch_before(Stream &stream) = 0;
+    virtual void init_batch(Stream stream, size_t batch_size, bool is_blocking) = 0;
+    virtual void measure_batch_before(Stream stream) = 0;
     virtual void measure_batch_consume(typename BackendT::launch_result_t event) = 0;
-    virtual void measure_batch_after(Stream &stream) = 0;
+    virtual void measure_batch_after(Stream stream) = 0;
     virtual auto elapsed_batch() -> std::vector<float_milliseconds> = 0;
   };
   template <typename BackendT>
@@ -60,7 +60,7 @@ namespace Baseliner {
     void measure_consume(typename BackendT::launch_result_t /*event*/) override {
     }
 
-    void measure_after(Stream &stream) override {
+    void measure_after(Stream stream) override {
       if (m_state != State::Single) {
         throw Errors::timer_not_single_state("measure_after()");
       }
@@ -103,7 +103,7 @@ namespace Baseliner {
     void measure_batch_consume(typename BackendT::launch_result_t /*event*/) override {
     }
 
-    void measure_batch_after(Stream &stream) override {
+    void measure_batch_after(Stream stream) override {
       if (m_state != State::Batch) {
         throw Errors::timer_not_batch("measure_batch_after()");
       }

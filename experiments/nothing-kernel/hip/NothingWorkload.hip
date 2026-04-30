@@ -11,7 +11,7 @@ namespace Baseliner {
   }
 
   template <>
-  void NothingWorkload<Hardware::HipBackend>::setup_device(typename backend::stream_t &stream) {
+  void NothingWorkload<Hardware::HipBackend>::setup_device(typename backend::stream_t stream) {
     std::vector<char> host(m_bytes_copied);
     if (m_async_memcpy) {
       CHECK_HIP(hipMallocAsync(&m_d_buffer, m_bytes_copied * sizeof(char), stream));
@@ -23,7 +23,7 @@ namespace Baseliner {
   }
 
   template <>
-  void NothingWorkload<Hardware::HipBackend>::reset_device(typename backend::stream_t &stream) {
+  void NothingWorkload<Hardware::HipBackend>::reset_device(typename backend::stream_t stream) {
     if (m_async_memcpy) {
       CHECK_HIP(hipMemsetAsync(m_d_buffer, 0, m_bytes_copied * sizeof(char), stream));
     } else {
@@ -32,13 +32,13 @@ namespace Baseliner {
   }
 
   template <>
-  auto NothingWorkload<Hardware::HipBackend>::run(typename backend::stream_t &stream) -> std::monostate {
+  auto NothingWorkload<Hardware::HipBackend>::run(typename backend::stream_t stream) -> std::monostate {
     nothing_kernel<<<m_blocks, m_threads, 0, stream>>>(m_d_buffer);
     return {};
   }
 
   template <>
-  void NothingWorkload<Hardware::HipBackend>::fetch_results(typename backend::stream_t &stream) {
+  void NothingWorkload<Hardware::HipBackend>::fetch_results(typename backend::stream_t stream) {
     CHECK_HIP(hipFree(m_d_buffer));
     m_d_buffer = nullptr;
   }

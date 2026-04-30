@@ -59,7 +59,7 @@ namespace Baseliner::Hardware {
     delete m_host_timeout_flag_v[device];
   }
   template <>
-  void BlockingKernel<CudaBackend>::block(cudaStream_t &stream, double timeout) {
+  void BlockingKernel<CudaBackend>::block(cudaStream_t stream, double timeout) {
     int current_device = CudaBackend::instance()->get_current_device();
     *m_host_flag_v[current_device] = 0;
     *m_host_timeout_flag_v[current_device] = 0;

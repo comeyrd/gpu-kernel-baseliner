@@ -19,13 +19,13 @@ __global__ void computation_kernel(int *a, int *b, int *c, int N) {
   }
 }
 template <>
-auto ComputationWorkload<Baseliner::Hardware::CudaBackend>::run(cudaStream_t &stream) -> std::monostate {
+auto ComputationWorkload<Baseliner::Hardware::CudaBackend>::run(cudaStream_t stream) -> std::monostate {
   computation_kernel<<<m_blocksPerGrid, m_threadsPerBlock, 0, stream>>>(m_d_a, m_d_b, m_d_c, m_N);
   return {};
 }
 
 template <>
-void ComputationWorkload<Baseliner::Hardware::CudaBackend>::setup_device(typename backend::stream_t &stream) {
+void ComputationWorkload<Baseliner::Hardware::CudaBackend>::setup_device(typename backend::stream_t stream) {
   CHECK_CUDA(cudaMallocAsync(&m_d_a, m_N * sizeof(int), stream));
   CHECK_CUDA(cudaMallocAsync(&m_d_b, m_N * sizeof(int), stream));
   CHECK_CUDA(cudaMallocAsync(&m_d_c, m_N * sizeof(int), stream));
@@ -38,11 +38,11 @@ void ComputationWorkload<Baseliner::Hardware::CudaBackend>::setup_device(typenam
 }
 
 template <typename BackendT>
-void ComputationWorkload<BackendT>::reset_device(typename backend::stream_t &stream) {
+void ComputationWorkload<BackendT>::reset_device(typename backend::stream_t stream) {
 }
 
 template <typename BackendT>
-void ComputationWorkload<BackendT>::fetch_results(typename backend::stream_t &stream) {
+void ComputationWorkload<BackendT>::fetch_results(typename backend::stream_t stream) {
   CHECK_CUDA(cudaMemcpyAsync(m_c_host.data(), m_d_c, m_N * sizeof(int), cudaMemcpyDeviceToHost, stream));
   CHECK_CUDA(cudaStreamSynchronize(stream));
   CHECK_CUDA(cudaFree(m_d_a));

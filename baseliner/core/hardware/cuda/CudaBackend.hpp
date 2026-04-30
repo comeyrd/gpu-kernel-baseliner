@@ -23,7 +23,7 @@ namespace Baseliner {
 
       ~GpuTimer() = default;
 
-      void init(Stream &stream) override {
+      void init(Stream stream) override {
         if (m_state != State::Idle) {
           throw Errors::timer_init_on_not_idle();
         }
@@ -35,7 +35,7 @@ namespace Baseliner {
         CHECK_CUDA(cudaEventCreate(&m_stops[0]));
       }
 
-      void measure_before(Stream &stream) override {
+      void measure_before(Stream stream) override {
         if (m_state != State::Single) {
           throw Errors::timer_not_single_state("measure_before()");
         }
@@ -46,7 +46,7 @@ namespace Baseliner {
       void measure_consume(typename CudaBackend::launch_result_t event) override {
       }
 
-      void measure_after(Stream &stream) override {
+      void measure_after(Stream stream) override {
         if (m_state != State::Single) {
           throw Errors::timer_not_single_state("measure_after()");
         }
@@ -64,7 +64,7 @@ namespace Baseliner {
         return float_milliseconds(temp_f);
       }
 
-      void init_batch(Stream &stream, size_t batch_size, bool is_blocking) override {
+      void init_batch(Stream stream, size_t batch_size, bool is_blocking) override {
         if (m_state != State::Idle) {
           throw Errors::timer_init_on_not_idle();
         }
@@ -80,7 +80,7 @@ namespace Baseliner {
         }
       }
 
-      void measure_batch_before(Stream &stream) override {
+      void measure_batch_before(Stream stream) override {
         if (m_state != State::Batch) {
           throw Errors::timer_not_batch("measure_batch_before()");
         }
@@ -94,7 +94,7 @@ namespace Baseliner {
       void measure_batch_consume(typename CudaBackend::launch_result_t event) override {
       }
 
-      void measure_batch_after(Stream &stream) override {
+      void measure_batch_after(Stream stream) override {
         if (m_state != State::Batch) {
           throw Errors::timer_not_batch("measure_batch_after()");
         }

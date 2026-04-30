@@ -15,7 +15,7 @@ namespace Baseliner {
     }
 
     template <>
-    void L2Flusher<HipBackend>::flush(typename HipBackend::stream_t &stream) {
+    void L2Flusher<HipBackend>::flush(typename HipBackend::stream_t stream) {
       int current_device = HipBackend::instance()->get_current_device();
       CHECK_HIP(hipMemsetAsync(m_l2_buffer_v[current_device], 0,
                                static_cast<std::size_t>(m_buffer_size_v[current_device]), stream));

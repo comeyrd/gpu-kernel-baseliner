@@ -33,7 +33,7 @@ __global__ void warm_kernel(float *__restrict__ data, size_t n, int iterations) 
 
 namespace Baseliner::Hardware {
   template <>
-  void HipBackend::warm_gpu(stream_t &stream) {
+  void HipBackend::warm_gpu(stream_t stream) {
     constexpr int ITERATIONS = 5;
     constexpr int BLOCK_SIZE = 256;
 

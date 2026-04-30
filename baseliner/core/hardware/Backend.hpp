@@ -46,12 +46,12 @@ namespace Baseliner::Hardware {
       this->set_device();
       return Backend<S, O>::inner_create_stream();
     };
-    static void warm_gpu(stream_t &stream);
+    static void warm_gpu(stream_t stream);
     static void cool_gpu(stream_t & /* stream*/) {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
     };
     static auto get_device_count() -> int;
-    static void synchronize(stream_t &stream);
+    static void synchronize(stream_t stream);
     static void get_last_error();
     void set_device() {
       if (m_device >= Backend<S, O>::get_device_count()) {
@@ -105,7 +105,7 @@ namespace Baseliner::Hardware {
       static L2Flusher<BackendT> flusher;
       return &flusher;
     }
-    void flush(typename BackendT::stream_t &stream);
+    void flush(typename BackendT::stream_t stream);
     auto operator=(L2Flusher &&) -> L2Flusher & = delete;
     auto operator=(const L2Flusher &) -> L2Flusher & = delete;
     L2Flusher(const L2Flusher &) = delete;
@@ -145,7 +145,7 @@ namespace Baseliner::Hardware {
       static BlockingKernel<BackendT> blocking;
       return &blocking;
     }
-    void block(typename BackendT::stream_t &stream, double timeout);
+    void block(typename BackendT::stream_t stream, double timeout);
     void unblock() {
       int current_device = BackendT::instance()->get_current_device();
       if (m_host_flag_v[current_device] == nullptr || m_host_timeout_flag_v[current_device] == nullptr) {

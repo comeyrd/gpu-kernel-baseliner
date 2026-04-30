@@ -23,7 +23,7 @@ namespace Baseliner {
       CHECK_HIP(hipDeviceReset());
     }
     template <>
-    void HipBackend::synchronize(hipStream_t &stream) {
+    void HipBackend::synchronize(hipStream_t stream) {
       CHECK_HIP(hipStreamSynchronize(stream));
     }
     template <>

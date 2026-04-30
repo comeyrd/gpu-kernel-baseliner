@@ -53,10 +53,10 @@ public:
   void results_from_reference() override;
 
   // Device lifecycle
-  void setup_device(typename backend::stream_t &stream) override;
-  void reset_device(typename backend::stream_t &stream) override;
-  auto run(typename backend::stream_t &stream) -> typename backend::launch_result_t override;
-  void fetch_results(typename backend::stream_t &stream) override;
+  void setup_device(typename backend::stream_t stream) override;
+  void reset_device(typename backend::stream_t stream) override;
+  auto run(typename backend::stream_t stream) -> typename backend::launch_result_t override;
+  void fetch_results(typename backend::stream_t stream) override;
   void free() override {
     m_a_host.clear();
     m_b_host.clear();

@@ -20,13 +20,13 @@ __global__ void computation_kernel(int *a, int *b, int *c, int N) {
   }
 }
 template <>
-auto ComputationWorkload<Baseliner::Hardware::HipBackend>::run(hipStream_t &stream) -> std::monostate {
+auto ComputationWorkload<Baseliner::Hardware::HipBackend>::run(hipStream_t stream) -> std::monostate {
   computation_kernel<<<m_blocksPerGrid, m_threadsPerBlock, 0, stream>>>(m_d_a, m_d_b, m_d_c, m_N);
   return {};
 }
 
 template <>
-void ComputationWorkload<Baseliner::Hardware::HipBackend>::setup_device(typename backend::stream_t &stream) {
+void ComputationWorkload<Baseliner::Hardware::HipBackend>::setup_device(typename backend::stream_t stream) {
   CHECK_HIP(hipMallocAsync(&m_d_a, m_N * sizeof(int), stream));
   CHECK_HIP(hipMallocAsync(&m_d_b, m_N * sizeof(int), stream));
   CHECK_HIP(hipMallocAsync(&m_d_c, m_N * sizeof(int), stream));
@@ -39,11 +39,11 @@ void ComputationWorkload<Baseliner::Hardware::HipBackend>::setup_device(typename
 }
 
 template <typename BackendT>
-void ComputationWorkload<BackendT>::reset_device(typename backend::stream_t &stream) {
+void ComputationWorkload<BackendT>::reset_device(typename backend::stream_t stream) {
 }
 
 template <typename BackendT>
-void ComputationWorkload<BackendT>::fetch_results(typename backend::stream_t &stream) {
+void ComputationWorkload<BackendT>::fetch_results(typename backend::stream_t stream) {
   CHECK_HIP(hipMemcpyAsync(m_c_host.data(), m_d_c, m_N * sizeof(int), hipMemcpyDeviceToHost, stream));
   CHECK_HIP(hipStreamSynchronize(stream));
   CHECK_HIP(hipFree(m_d_a));
