@@ -210,7 +210,7 @@ namespace Baseliner {
     bool m_dynamic_batch = false;
     bool m_validate_workload = false;
     float m_minimal_batch_duration = 10.0;
-    size_t m_batch_size{15};
+    size_t m_batch_size{25};
     OptionsMap stats_options;
     std::string m_name{DEFAULT_BENCHMARK_NAME};
     std::unique_ptr<StoppingCriterion> m_stopping;
