@@ -135,9 +135,16 @@ namespace Baseliner {
       protocol.campaigns.push_back(default_campaign);
       return protocol;
     }
-    inline auto run_default(std::optional<std::string> stopping_criterion) -> Report {
+    inline auto run_default(std::optional<std::string> stopping_criterion, std::string device) -> Report {
       Protocol protocol;
+
       auto *storage_manager = StorageManager::instance();
+      auto backends = storage_manager->list_backends();
+      for (const auto &backend : backends) {
+        ComponentPreset preset = storage_manager->get_component_preset(backend, "default");
+        preset.options["Backend"]["device"].value = device;
+        protocol.presets[backend]["default"] = preset;
+      }
       protocol.baseliner_version = Version::string();
       Recipe def_recipe;
       def_recipe.stats = {};
@@ -152,10 +159,10 @@ namespace Baseliner {
       default_campaign.name = "default";
       default_campaign.recipe = "default";
       for (const auto &backend : storage_manager->list_backends()) {
-        default_campaign.backends.push_back({backend, {}});
+        default_campaign.backends.push_back({backend, "default"});
       }
       for (const auto &workloads : storage_manager->list_components(ComponentType::WORKLOAD)) {
-        default_campaign.workloads.push_back({workloads, {}});
+        default_campaign.workloads.push_back({workloads, "default"});
       }
       default_campaign.on_incompatible = OnIncompatible::Skip;
       protocol.campaigns.push_back(default_campaign);
