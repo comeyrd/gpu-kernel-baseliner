@@ -135,7 +135,7 @@ namespace Baseliner::Stats {
             auto dep_iter = tag_to_producers.find(dep);
             if (dep_iter != tag_to_producers.end()) {
               const auto dep_g = dep_iter->second->granularity();
-              if (granularity == MetricGranularity::EVERY_ELEMENT && dep_g != MetricGranularity::EVERY_ELEMENT) {
+              if (granularity == MetricGranularity::EVERY_ELEMENT && dep_g == MetricGranularity::EVERY_BATCH) {
                 throw Errors::invalid_granularity_dependency(ptr->name(), dep_iter->second->name());
               }
             }

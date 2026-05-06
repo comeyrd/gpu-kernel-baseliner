@@ -526,9 +526,26 @@ namespace Baseliner::Stats {
       value_to_update = static_cast<float>((stdev / mean) * 100.0);
     }
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
-      return MetricGranularity::ON_DEMAND;
+      return MetricGranularity::EVERY_ELEMENT;
     }
   };
+  class RelativeStandardDeviationVector
+      : public IStat<RelativeStandardDeviationVector, std::vector<float>, RelativeStandardDeviation> {
+  public:
+    [[nodiscard]] auto name() const -> std::string override {
+      return "relative_standard_deviation_vector";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "%";
+    }
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::EVERY_ELEMENT;
+    }
+    void calculate(std::vector<float> &value_to_update, const float &noise) override {
+      value_to_update.push_back(noise);
+    }
+  };
+
   class GpuAccumulatedTime : public IStat<GpuAccumulatedTime, float, ExecutionTime> {
   public:
     [[nodiscard]] auto name() const -> std::string override {
