@@ -41,7 +41,7 @@ __attribute__((weak)) int main(int argc, char **argv) { // NOLINT
   run_parser.add_argument("--nvbench")
       .help("To use nvbench default benchmarking style when no protocol file is selected")
       .flag();
-  run_parser.add_argument("--device").help("The device to use if the default mode is selected").flag();
+  run_parser.add_argument("--device").help("The device to use if the default mode is selected").nargs(1);
   program.add_subparser(run_parser);
 
   argparse::ArgumentParser generate_parser("gen");
