@@ -7,10 +7,7 @@ namespace Baseliner {
   class VariationStoppingCriterion : public StoppingCriterion {
   public:
     VariationStoppingCriterion()
-        : StoppingCriterion() {
-      // primbench defaults
-      set_max_repetitions(2000);
-      set_m_batch_size(1); // Evaluate every batch
+        : StoppingCriterion(2000) {
     }
 
     void register_stats() override {

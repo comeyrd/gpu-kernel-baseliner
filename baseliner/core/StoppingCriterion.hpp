@@ -26,15 +26,8 @@ namespace Baseliner {
     [[nodiscard]] auto get_max_repetitions() const -> size_t {
       return m_max_repetitions;
     }
-    void set_m_batch_size(const size_t &val) {
-      m_batch_size = val;
-    }
-    [[nodiscard]] auto get_batch_size() const -> size_t {
-      return m_batch_size;
-    }
-    StoppingCriterion(size_t max_repetition = DEFAULT_MAX_REPETITION, size_t batch_size = DEFAULT_BATCH_SIZE)
-        : m_max_repetitions(max_repetition),
-          m_batch_size(batch_size) {};
+    StoppingCriterion(size_t max_repetition = DEFAULT_MAX_REPETITION)
+        : m_max_repetitions(max_repetition) {};
 
   protected:
     virtual auto criterion_satisfied() -> bool;
@@ -46,7 +39,6 @@ namespace Baseliner {
   private:
     std::shared_ptr<Stats::StatsEngine> m_stats_engine;
     size_t m_max_repetitions;
-    size_t m_batch_size;
   };
 
   constexpr float MEASURE_PRECISION = 0.0005F;
@@ -56,10 +48,7 @@ namespace Baseliner {
   class ConfidenceIntervalMedianSC : public StoppingCriterion {
   public:
     ConfidenceIntervalMedianSC()
-        : StoppingCriterion() {
-      set_max_repetitions(MAX_REPETITION_CI);
-      set_m_batch_size(BATCH_SIZE_CI);
-    };
+        : StoppingCriterion(MAX_REPETITION_CI) {};
     void register_stats() override;
 
   protected:

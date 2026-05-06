@@ -1,6 +1,7 @@
 #include <baseliner/Register.hpp>
 #include <baseliner/core/StoppingCriterion.hpp>
 #include <baseliner/nvbench/NvBenchStopping.hpp>
+#include <baseliner/nvbench/StrDelStopping.hpp>
 #include <baseliner/primbench/PrimBenchStopping.hpp>
 namespace Baseliner {
   // STOPPING CRITERION
@@ -8,6 +9,7 @@ namespace Baseliner {
   BASELINER_REGISTER_STOPPING_CRITERION(ConfidenceIntervalMedianSC);
   BASELINER_REGISTER_STOPPING_CRITERION(VariationStoppingCriterion);
   BASELINER_REGISTER_STOPPING_CRITERION(EntropyStoppingCriterion);
+  BASELINER_REGISTER_STOPPING_CRITERION(StdRelStoppingCriterion);
 
   // STATS
   namespace Stats {

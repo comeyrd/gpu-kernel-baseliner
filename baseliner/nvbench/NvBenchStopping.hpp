@@ -7,9 +7,7 @@ namespace Baseliner {
   class EntropyStoppingCriterion : public StoppingCriterion {
   public:
     EntropyStoppingCriterion()
-        : StoppingCriterion() {
-      set_max_repetitions(2000);
-      set_m_batch_size(1);
+        : StoppingCriterion(2000) {
     }
 
     void register_stats() override {

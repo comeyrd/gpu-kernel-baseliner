@@ -23,17 +23,12 @@ namespace Baseliner {
     if (vec_size >= m_max_repetitions) {
       return true;
     }
-    if (((vec_size % m_batch_size) == 0) && vec_size > 1) {
-      return criterion_satisfied();
-    }
-    return false;
+    return criterion_satisfied();
   }
   auto StoppingCriterion::criterion_satisfied() -> bool {
     return false;
   }
   void StoppingCriterion::register_options() {
-    add_option("StoppingCriterion", "batch_size", "Numbers of rerun to wait before reevaluating stopping criterion",
-               m_batch_size);
     add_option("StoppingCriterion", "max_nb_repetition", "Maximum number of repetitions", m_max_repetitions);
   };
   //----------

@@ -86,7 +86,7 @@ namespace Baseliner::Stats {
       return SavingPolicy::DISCARD;
     }
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
-      return MetricGranularity::EVERY_ELEMENT;
+      return MetricGranularity::EVERY_BATCH;
     }
   };
 
@@ -502,6 +502,47 @@ namespace Baseliner::Stats {
         const auto middle = static_cast<size_t>(std::floor(sorted_vec.size() / 2));
         value_to_update = deviations[middle];
       }
+    }
+  };
+  class RelativeStandardDeviation : public IStat<RelativeStandardDeviation, float, ExecutionTimeVector, Mean> {
+  public:
+    [[nodiscard]] auto name() const -> std::string override {
+      return "relative_standard_deviation";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "%";
+    }
+    void calculate(float &value_to_update, const std::vector<float_milliseconds> &times, const float &mean) override {
+      if (times.size() < 2 || mean <= 0.0f) {
+        value_to_update = 100.0f;
+        return;
+      }
+      double sq_sum = 0.0;
+      for (const auto &t : times) {
+        double diff = t.count() - mean;
+        sq_sum += diff * diff;
+      }
+      double stdev = std::sqrt(sq_sum / (times.size() - 1));
+      value_to_update = static_cast<float>((stdev / mean) * 100.0);
+    }
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::ON_DEMAND;
+    }
+  };
+  class GpuAccumulatedTime : public IStat<GpuAccumulatedTime, float, ExecutionTime> {
+  public:
+    [[nodiscard]] auto name() const -> std::string override {
+      return "gpu_accumulated_time";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "ms";
+    }
+    void calculate(float &value_to_update, const float_milliseconds &exec_time) override {
+
+      value_to_update += exec_time.count();
+    }
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::EVERY_ELEMENT;
     }
   };
 
