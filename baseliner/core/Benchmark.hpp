@@ -130,9 +130,9 @@ namespace Baseliner {
       add_option("Benchmark", "warm_cool", "Does the Benchmark actively warm or cool the GPU", m_warm_cool);
       add_option("Benchmark", "warm_cool_timeout", "How long the benchmark warms or cool before throwing",
                  m_warm_cool_timeout);
-      add_option("Benchmark", "max_gpu_temp",
-                 "If warm_cool, the minimum accepted temperature before warming up the GPU", m_min_gpu_temp);
       add_option("Benchmark", "min_gpu_temp",
+                 "If warm_cool, the minimum accepted temperature before warming up the GPU", m_min_gpu_temp);
+      add_option("Benchmark", "max_gpu_temp",
                  "If warm_cool, the minimum accepted temperature before cooling down the GPU", m_max_gpu_temp);
       add_option("Benchmark", "minimal_batch_duration",
                  "If dynamic batch size is set tu true, how long a batch should minimaly be", m_minimal_batch_duration);
