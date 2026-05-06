@@ -135,7 +135,7 @@ namespace Baseliner {
       protocol.campaigns.push_back(default_campaign);
       return protocol;
     }
-    inline auto run_default() -> Report {
+    inline auto run_default(std::optional<std::string> stopping_criterion) -> Report {
       Protocol protocol;
       auto *storage_manager = StorageManager::instance();
       protocol.baseliner_version = Version::string();
@@ -143,6 +143,9 @@ namespace Baseliner {
       def_recipe.stats = {};
       def_recipe.benchmark = RecipeComponent{"Benchmark", {}};
       def_recipe.stopping = RecipeComponent{"StoppingCriterion", {}};
+      if (stopping_criterion.has_value()) {
+        def_recipe.stopping->impl = stopping_criterion.value();
+      }
       def_recipe.description = "Default Recipe";
       protocol.recipes["default"] = def_recipe;
       Campaign default_campaign;

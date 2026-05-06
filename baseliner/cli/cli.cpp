@@ -35,6 +35,9 @@ __attribute__((weak)) int main(int argc, char **argv) { // NOLINT
   run_parser.add_argument("--output-file")
       .help("Specify the full path to the file you want the report saved to")
       .nargs(1);
+  run_parser.add_argument("--stopping-criterion")
+      .help("The stopping criterion to use if the default mode is selected")
+      .nargs(1);
   program.add_subparser(run_parser);
 
   argparse::ArgumentParser generate_parser("gen");
@@ -121,7 +124,12 @@ __attribute__((weak)) int main(int argc, char **argv) { // NOLINT
       to_file(report, filename);
       std::cout << "Report saved to " << filename << "\n";
     } else {
-      Report report = Orchestrator::run_default();
+      std::optional<std::string> stopping_criterion = {};
+      if (run_parser.is_used("--stopping-criterion")) {
+        stopping_criterion = run_parser.get<std::string>("--stopping-criterion");
+      }
+
+      Report report = Orchestrator::run_default(stopping_criterion);
 
       to_file(report, filename);
       std::cout << "Report saved to " << filename << "\n";
