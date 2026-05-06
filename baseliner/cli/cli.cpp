@@ -35,10 +35,13 @@ __attribute__((weak)) int main(int argc, char **argv) { // NOLINT
   run_parser.add_argument("--output-file")
       .help("Specify the full path to the file you want the report saved to")
       .nargs(1);
-  run_parser.add_argument("--stopping-criterion")
-      .help("The stopping criterion to use if the default mode is selected")
-      .nargs(1);
-  run_parser.add_argument("--device").help("The device to use if the default mode is selected").nargs(1);
+  run_parser.add_argument("--primbench")
+      .help("To use the primbench default benchmarking style when no protocol file is selected")
+      .flag();
+  run_parser.add_argument("--nvbench")
+      .help("To use nvbench default benchmarking style when no protocol file is selected")
+      .flag();
+  run_parser.add_argument("--device").help("The device to use if the default mode is selected").flag();
   program.add_subparser(run_parser);
 
   argparse::ArgumentParser generate_parser("gen");
@@ -125,16 +128,18 @@ __attribute__((weak)) int main(int argc, char **argv) { // NOLINT
       to_file(report, filename);
       std::cout << "Report saved to " << filename << "\n";
     } else {
-      std::optional<std::string> stopping_criterion = {};
-      if (run_parser.is_used("--stopping-criterion")) {
-        stopping_criterion = run_parser.get<std::string>("--stopping-criterion");
-      }
       std::string device = "0";
       if (run_parser.is_used("--device")) {
         device = run_parser.get<std::string>("--device");
       }
-      Report report = Orchestrator::run_default(stopping_criterion, device);
-
+      Report report;
+      if (run_parser.is_used("--primbench")) {
+        report = Orchestrator::run_primbench_default(device);
+      } else if (run_parser.is_used("--nvbench")) {
+        report = Orchestrator::run_nvbench_default(device);
+      } else {
+        report = Orchestrator::run_default(device);
+      }
       to_file(report, filename);
       std::cout << "Report saved to " << filename << "\n";
     }

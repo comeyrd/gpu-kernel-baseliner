@@ -25,6 +25,10 @@ namespace Baseliner::Hardware {
 
   template <typename BackendT>
   class BlockingKernel;
+
+  template <typename BackendT>
+  class WarmingKernel;
+
   template <typename BackendT>
   class GpuTimer;
 
@@ -46,7 +50,6 @@ namespace Baseliner::Hardware {
       this->set_device();
       return Backend<S, O>::inner_create_stream();
     };
-    static void warm_gpu(stream_t stream);
     static void cool_gpu(stream_t /* stream*/) {
       std::this_thread::sleep_for(std::chrono::milliseconds(1));
     };
@@ -201,6 +204,19 @@ namespace Baseliner::Hardware {
   };
   template <typename BackendT>
   class GpuTimer : public ITimer<BackendT> {};
+
+  template <typename BackendT>
+  class WarmingKernel {
+  public:
+    void alloc(typename BackendT::stream_t stream);
+    void free();
+    void warm(typename BackendT::stream_t stream);
+
+  private:
+    int m_num_items = 0;
+    int m_threads_per_block = 0;
+    float *m_data;
+  };
 
 } // namespace Baseliner::Hardware
 

@@ -2,6 +2,7 @@
 #define BASELINER_ORCHESTRATOR_ORCHESTRATOR_HPP
 // #include <baseliner/RQ.hpp>
 #include <baseliner/cli/CliHelper.hpp>
+#include <baseliner/cli/Json.hpp>
 #include <baseliner/core/GIT_VERSION.hpp>
 #include <baseliner/core/Version.hpp>
 #include <baseliner/orchestrator/Builder.hpp>
@@ -135,9 +136,8 @@ namespace Baseliner {
       protocol.campaigns.push_back(default_campaign);
       return protocol;
     }
-    inline auto run_default(std::optional<std::string> stopping_criterion, std::string device) -> Report {
+    inline auto run_default(std::string device) -> Report {
       Protocol protocol;
-
       auto *storage_manager = StorageManager::instance();
       auto backends = storage_manager->list_backends();
       for (const auto &backend : backends) {
@@ -150,9 +150,106 @@ namespace Baseliner {
       def_recipe.stats = {};
       def_recipe.benchmark = RecipeComponent{"Benchmark", {}};
       def_recipe.stopping = RecipeComponent{"StoppingCriterion", {}};
-      if (stopping_criterion.has_value()) {
-        def_recipe.stopping->impl = stopping_criterion.value();
+      def_recipe.description = "Default Recipe";
+      protocol.recipes["default"] = def_recipe;
+      Campaign default_campaign;
+      default_campaign.name = "default";
+      default_campaign.recipe = "default";
+      for (const auto &backend : storage_manager->list_backends()) {
+        default_campaign.backends.push_back({backend, "default"});
       }
+      for (const auto &workloads : storage_manager->list_components(ComponentType::WORKLOAD)) {
+        default_campaign.workloads.push_back({workloads, "default"});
+      }
+      default_campaign.on_incompatible = OnIncompatible::Skip;
+      protocol.campaigns.push_back(default_campaign);
+      return run_protocol(protocol);
+    }
+    inline auto run_primbench_default(std::string device) -> Report {
+      Protocol protocol;
+      auto *storage_manager = StorageManager::instance();
+      auto backends = storage_manager->list_backends();
+      for (const auto &backend : backends) {
+        ComponentPreset preset = storage_manager->get_component_preset(backend, "default");
+        preset.options["Backend"]["device"].value = device;
+        protocol.presets[backend]["default"] = preset;
+      }
+      auto set_opt = [](ComponentPreset &p, const std::string &key, const std::string &val) {
+        p.options["Benchmark"][key] = {std::nullopt, val};
+      };
+
+      ComponentPreset primbench_preset;
+      primbench_preset.description = "primbench-style: dynamic batch size, blocking kernel, warm/cool cycle, L2 flush";
+      set_opt(primbench_preset, "validate_workload", "0");
+      set_opt(primbench_preset, "min_gpu_temp", "50.000000");
+      set_opt(primbench_preset, "max_gpu_temp", "60.000000");
+      set_opt(primbench_preset, "warm_cool_timeout", "60");
+      set_opt(primbench_preset, "warm_cool", "1");
+      set_opt(primbench_preset, "warmup", "1");
+      set_opt(primbench_preset, "flush", "1");
+      set_opt(primbench_preset, "dynamic_batch", "1");
+      set_opt(primbench_preset, "minimal_batch_duration", "10.000000");
+      set_opt(primbench_preset, "batch_size", "1");
+      set_opt(primbench_preset, "block", "1");
+      set_opt(primbench_preset, "block_duration", "10000.000000");
+      set_opt(primbench_preset, "block_queue_size", "64");
+      protocol.presets["Benchmark"]["default"] = primbench_preset;
+
+      protocol.baseliner_version = Version::string();
+      Recipe def_recipe;
+      def_recipe.stats = {};
+      def_recipe.benchmark = RecipeComponent{"Benchmark", "default"};
+      def_recipe.stopping = RecipeComponent{"VariationStoppingCriterion", "default"};
+      def_recipe.description = "Default Recipe";
+      protocol.recipes["default"] = def_recipe;
+      Campaign default_campaign;
+      default_campaign.name = "default";
+      default_campaign.recipe = "default";
+      for (const auto &backend : storage_manager->list_backends()) {
+        default_campaign.backends.push_back({backend, "default"});
+      }
+      for (const auto &workloads : storage_manager->list_components(ComponentType::WORKLOAD)) {
+        default_campaign.workloads.push_back({workloads, "default"});
+      }
+      default_campaign.on_incompatible = OnIncompatible::Skip;
+      protocol.campaigns.push_back(default_campaign);
+      return run_protocol(protocol);
+    }
+    inline auto run_nvbench_default(std::string device) -> Report {
+      Protocol protocol;
+      auto *storage_manager = StorageManager::instance();
+      auto backends = storage_manager->list_backends();
+      for (const auto &backend : backends) {
+        ComponentPreset preset = storage_manager->get_component_preset(backend, "default");
+        preset.options["Backend"]["device"].value = device;
+        protocol.presets[backend]["default"] = preset;
+      }
+      auto set_opt = [](ComponentPreset &p, const std::string &key, const std::string &val) {
+        p.options["Benchmark"][key] = {std::nullopt, val};
+      };
+
+      ComponentPreset nvbench_preset;
+      nvbench_preset.description = "nvbench-style: fixed batch size, no blocking kernel, no active warm/cool, L2 flush";
+      set_opt(nvbench_preset, "validate_workload", "0");
+      set_opt(nvbench_preset, "min_gpu_temp", "60.000000");
+      set_opt(nvbench_preset, "max_gpu_temp", "50.000000");
+      set_opt(nvbench_preset, "warm_cool_timeout", "3");
+      set_opt(nvbench_preset, "warm_cool", "0");
+      set_opt(nvbench_preset, "warmup", "1");
+      set_opt(nvbench_preset, "flush", "1");
+      set_opt(nvbench_preset, "dynamic_batch", "0");
+      set_opt(nvbench_preset, "minimal_batch_duration", "10.000000");
+      set_opt(nvbench_preset, "batch_size", "1");
+      set_opt(nvbench_preset, "block", "0");
+      set_opt(nvbench_preset, "block_duration", "1000.000000");
+      set_opt(nvbench_preset, "block_queue_size", "64");
+      protocol.presets["Benchmark"]["default"] = nvbench_preset;
+
+      protocol.baseliner_version = Version::string();
+      Recipe def_recipe;
+      def_recipe.stats = {};
+      def_recipe.benchmark = RecipeComponent{"Benchmark", "default"};
+      def_recipe.stopping = RecipeComponent{"StdRelStoppingCriterion", "default"};
       def_recipe.description = "Default Recipe";
       protocol.recipes["default"] = def_recipe;
       Campaign default_campaign;

@@ -1,57 +1,47 @@
+// WarmingKernel.cu
+
 #include <baseliner/core/hardware/cuda/CudaBackend.hpp>
 
-__global__ void warmup_kernel(float *__restrict__ data, size_t n, int iterations) {
-  size_t idx = blockIdx.x * (size_t)blockDim.x + threadIdx.x;
+__global__ void warm_kernel_cuda(float *data, int n) {
+  int idx = blockIdx.x * blockDim.x + threadIdx.x;
   if (idx >= n)
     return;
 
-  float x = data[idx];
-
-  for (int i = 0; i < iterations; ++i) {
-    // Heavy FMA chain - maximizes ALU heat
-    x = fmaf(x, 1.00001f, 0.00001f);
-    x = fmaf(x, x, 0.00001f);
-    x = fmaf(x, 1.00001f, x);
-    x = fmaf(x, x, 0.00001f);
-    x = fmaf(x, 1.00001f, 0.00001f);
-    x = fmaf(x, x, 0.00001f);
-    x = fmaf(x, 1.00001f, x);
-    x = fmaf(x, x, 0.00001f);
-
-    // Periodic write-back to force memory traffic
-    if (i % 64 == 0) {
-      data[idx] = x;
-      // Also hammer a neighbor to thrash cache lines
-      size_t neighbor = (idx + blockDim.x) % n;
-      data[neighbor] = x;
-      x = data[(idx + n / 2) % n]; // cross-read to stress DRAM BW
-    }
+  float x = 0.5f + idx * 0.0001f;
+  for (int i = 0; i < 10000; ++i) {
+    x += sinf(x) * cosf(x);
+    x *= 1.0000001f;
+    x = sqrtf(x + 1.0f);
+    x = logf(x + 1.0f);
   }
-
   data[idx] = x;
 }
-
 namespace Baseliner::Hardware {
 
   template <>
-  void CudaBackend::warm_gpu(stream_t stream) {
-    constexpr int ITERATIONS = 5; // Tune to desired warm-up duration
-    constexpr int BLOCK_SIZE = 256;
-    size_t free_bytes = 0;
-    size_t total_bytes = 0;
-    CHECK_CUDA(cudaMemGetInfo(&free_bytes, &total_bytes));
-    const size_t alloc_bytes = static_cast<size_t>(free_bytes * 0.50);
-    const size_t N = alloc_bytes / sizeof(float);
-    const size_t GRID_SIZE = (N + BLOCK_SIZE - 1) / BLOCK_SIZE;
+  void WarmingKernel<CudaBackend>::alloc(CudaBackend::stream_t stream) {
+    int grid_size = 0;
+    int threads_per_block = 0;
+    CHECK_CUDA(cudaOccupancyMaxPotentialBlockSize(&grid_size, &threads_per_block, warm_kernel_cuda, 0, 0));
+    m_num_items = grid_size * threads_per_block;
+    m_threads_per_block = threads_per_block;
+    CHECK_CUDA(cudaMallocAsync(&m_data, m_num_items * sizeof(float), stream));
+  }
 
-    float *d_data = nullptr;
-    CHECK_CUDA(cudaMalloc(&d_data, N * sizeof(float)));
-    CHECK_CUDA(cudaMemset(d_data, 0, N * sizeof(float)));
-    warmup_kernel<<<GRID_SIZE, BLOCK_SIZE, 0, stream>>>(d_data, N, ITERATIONS);
+  template <>
+  void WarmingKernel<CudaBackend>::free() {
+    if (m_data != nullptr) {
+      CHECK_CUDA(cudaFree(m_data));
+      m_data = nullptr;
+      m_num_items = 0;
+      m_threads_per_block = 0;
+    }
+  }
 
-    CHECK_CUDA(cudaGetLastError());
-    CHECK_CUDA(cudaStreamSynchronize(stream));
-    CHECK_CUDA(cudaFree(d_data));
+  template <>
+  void WarmingKernel<CudaBackend>::warm(CudaBackend::stream_t stream) {
+    int grid_size = m_num_items / m_threads_per_block;
+    warm_kernel_cuda<<<dim3(grid_size), dim3(m_threads_per_block), 0, stream>>>(m_data, m_num_items);
   }
 
 } // namespace Baseliner::Hardware
