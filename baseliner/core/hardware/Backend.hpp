@@ -87,6 +87,10 @@ namespace Baseliner::Hardware {
       }
       m_was_locked = m_lock_clock;
     };
+    void update_device(int device) {
+      m_device = device;
+      set_device();
+    }
 
   private:
     static void unlock_clock();
