@@ -313,8 +313,8 @@ namespace Baseliner {
           break;
         }
         if (get_warm_cool()) {
-          bool allocated = false;
           Hardware::WarmingKernel<BackendT> warming_k;
+          warming_k.alloc(*m_stream);
           auto timeout = std::chrono::steady_clock::now() + std::chrono::seconds(get_warm_cool_timeout());
           while (true) {
             if (ExecutionController::exit_requested()) {
@@ -322,25 +322,19 @@ namespace Baseliner {
             }
             int temp = get_stats_engine()->template get_result<Stats::DeviceTemperature<BackendT>>();
             if (std::chrono::steady_clock::now() > timeout) {
+              warming_k.free();
               throw Errors::warm_cool_gpu_timeout(get_warm_cool_timeout());
             }
             if (temp < get_min_gpu_temp()) {
-              if (!allocated) {
-                warming_k.alloc(*m_stream);
-                allocated = true;
-              }
               warming_k.warm(*m_stream);
               BackendT::synchronize(*m_stream);
             } else if (temp > get_max_gpu_temp()) {
               BackendT::instance()->cool_gpu(*m_stream);
             } else {
-              if (allocated) {
-                warming_k.free();
-                allocated = false;
-              }
               break;
             }
           }
+          warming_k.free();
         }
         if (get_block()) {
           m_blocker->block(*m_stream, get_block_duration());
