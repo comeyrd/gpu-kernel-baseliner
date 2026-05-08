@@ -297,7 +297,7 @@ namespace Baseliner {
       const auto tim0 = std::chrono::steady_clock::now();
       m_workload->setup_host();
       const auto tim1 = std::chrono::steady_clock::now();
-      get_stats_engine()->template update_values<Stats::DeviceSetupTime>(
+      get_stats_engine()->template update_values<Stats::HostSetupTime>(
           std::chrono::duration<float, std::milli>(tim1 - tim0));
 
       auto setup_time = m_workload->timed_sync_setup_device(*m_stream);
