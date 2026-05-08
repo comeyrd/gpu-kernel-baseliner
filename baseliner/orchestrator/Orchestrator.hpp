@@ -147,7 +147,7 @@ namespace Baseliner {
       }
       protocol.baseliner_version = Version::string();
       Recipe def_recipe;
-      def_recipe.stats = {};
+      def_recipe.stats = {"default"};
       def_recipe.benchmark = RecipeComponent{"Benchmark", {}};
       def_recipe.stopping = RecipeComponent{"StoppingCriterion", {}};
       def_recipe.description = "Default Recipe";
