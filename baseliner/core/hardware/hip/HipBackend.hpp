@@ -195,8 +195,7 @@ public:
     amdsmi_processor_handle proc;
     CHECK_AMDSMI(amdsmi_get_processor_handle_from_bdf(bdf, &proc));
 
-    return m_processors[0];
-    // return proc;
+    return proc;
   }
 
   static auto ensure_init() -> AmdSmiManager * {
