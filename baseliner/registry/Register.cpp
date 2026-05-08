@@ -24,7 +24,7 @@ namespace Baseliner {
     BASELINER_REGISTER_STAT(MedianAbsoluteDeviation);
     BASELINER_REGISTER_STAT(Mean);
     BASELINER_REGISTER_STAT(HarmonicMean);
-    const std::vector<std::string> default_stats = {"Median"};
+    const std::vector<std::string> default_stats = {"Median", "Mean", "CoefficientOfVariation"};
     BASELINER_REGISTER_DEFAULT_STATS(default_stats);
   } // namespace Stats
 
