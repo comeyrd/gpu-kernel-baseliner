@@ -137,7 +137,7 @@ namespace Baseliner {
       return protocol;
     }
     inline auto run_default(std::string device) -> Report {
-      Protocol protocol;
+      Protocol protocol = get_default_protocol();
       auto *storage_manager = StorageManager::instance();
       auto backends = storage_manager->list_backends();
       for (const auto &backend : backends) {
@@ -145,31 +145,10 @@ namespace Baseliner {
         preset.options["Backend"]["device"].value = device;
         protocol.presets[backend]["default"] = preset;
       }
-      StatsPreset stat_presets;
-      stat_presets.stat_names = {"Mean", "Median", "CoefficientOfVariation"};
-      protocol.stats_presets["default"] = stat_presets;
-      protocol.baseliner_version = Version::string();
-      Recipe def_recipe;
-      def_recipe.stats = {"default"};
-      def_recipe.benchmark = RecipeComponent{"Benchmark", {}};
-      def_recipe.stopping = RecipeComponent{"StoppingCriterion", {}};
-      def_recipe.description = "Default Recipe";
-      protocol.recipes["default"] = def_recipe;
-      Campaign default_campaign;
-      default_campaign.name = "default";
-      default_campaign.recipe = "default";
-      for (const auto &backend : storage_manager->list_backends()) {
-        default_campaign.backends.push_back({backend, "default"});
-      }
-      for (const auto &workloads : storage_manager->list_components(ComponentType::WORKLOAD)) {
-        default_campaign.workloads.push_back({workloads, "default"});
-      }
-      default_campaign.on_incompatible = OnIncompatible::Skip;
-      protocol.campaigns.push_back(default_campaign);
       return run_protocol(protocol);
     }
     inline auto run_primbench_default(std::string device) -> Report {
-      Protocol protocol;
+      Protocol protocol = get_default_protocol();
       auto *storage_manager = StorageManager::instance();
       auto backends = storage_manager->list_backends();
       for (const auto &backend : backends) {
@@ -197,29 +176,10 @@ namespace Baseliner {
       set_opt(primbench_preset, "block_duration", "10000.000000");
       set_opt(primbench_preset, "block_queue_size", "64");
       protocol.presets["Benchmark"]["default"] = primbench_preset;
-
-      protocol.baseliner_version = Version::string();
-      Recipe def_recipe;
-      def_recipe.stats = {};
-      def_recipe.benchmark = RecipeComponent{"Benchmark", "default"};
-      def_recipe.stopping = RecipeComponent{"VariationStoppingCriterion", "default"};
-      def_recipe.description = "Default Recipe";
-      protocol.recipes["default"] = def_recipe;
-      Campaign default_campaign;
-      default_campaign.name = "default";
-      default_campaign.recipe = "default";
-      for (const auto &backend : storage_manager->list_backends()) {
-        default_campaign.backends.push_back({backend, "default"});
-      }
-      for (const auto &workloads : storage_manager->list_components(ComponentType::WORKLOAD)) {
-        default_campaign.workloads.push_back({workloads, "default"});
-      }
-      default_campaign.on_incompatible = OnIncompatible::Skip;
-      protocol.campaigns.push_back(default_campaign);
       return run_protocol(protocol);
     }
     inline auto run_nvbench_default(std::string device) -> Report {
-      Protocol protocol;
+      Protocol protocol = get_default_protocol();
       auto *storage_manager = StorageManager::instance();
       auto backends = storage_manager->list_backends();
       for (const auto &backend : backends) {
@@ -247,25 +207,6 @@ namespace Baseliner {
       set_opt(nvbench_preset, "block_duration", "1000.000000");
       set_opt(nvbench_preset, "block_queue_size", "64");
       protocol.presets["Benchmark"]["default"] = nvbench_preset;
-
-      protocol.baseliner_version = Version::string();
-      Recipe def_recipe;
-      def_recipe.stats = {};
-      def_recipe.benchmark = RecipeComponent{"Benchmark", "default"};
-      def_recipe.stopping = RecipeComponent{"StdRelStoppingCriterion", "default"};
-      def_recipe.description = "Default Recipe";
-      protocol.recipes["default"] = def_recipe;
-      Campaign default_campaign;
-      default_campaign.name = "default";
-      default_campaign.recipe = "default";
-      for (const auto &backend : storage_manager->list_backends()) {
-        default_campaign.backends.push_back({backend, "default"});
-      }
-      for (const auto &workloads : storage_manager->list_components(ComponentType::WORKLOAD)) {
-        default_campaign.workloads.push_back({workloads, "default"});
-      }
-      default_campaign.on_incompatible = OnIncompatible::Skip;
-      protocol.campaigns.push_back(default_campaign);
       return run_protocol(protocol);
     }
     inline auto get_minimal_protocol() -> Protocol {
