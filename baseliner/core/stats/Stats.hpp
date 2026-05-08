@@ -117,6 +117,18 @@ namespace Baseliner::Stats {
       return MetricGranularity::ONCE;
     }
   };
+  class CpuTime : public Imetric<CpuTime, float_milliseconds> {
+  public:
+    [[nodiscard]] auto name() const -> std::string override {
+      return "cpu_time";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "ms";
+    }
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::ONCE;
+    }
+  };
   class DeviceSetupTime : public Imetric<DeviceSetupTime, float_milliseconds> {
   public:
     [[nodiscard]] auto name() const -> std::string override {

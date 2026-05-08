@@ -286,6 +286,7 @@ namespace Baseliner {
     }
 
     [[nodiscard]] auto single_run(const std::optional<OptionsMap> &sweep_point) -> RunReport override {
+      const auto start_trial = std::chrono::steady_clock::now();
       this->apply_sweep_point(sweep_point);
       m_stream = BackendT::instance()->create_stream();
       std::shared_ptr<ITimer<BackendT>> timer = std::make_shared<Hardware::GpuTimer<BackendT>>();
@@ -389,6 +390,9 @@ namespace Baseliner {
         }
       }
       m_workload->free();
+      const auto end_trial = std::chrono::steady_clock::now();
+      get_stats_engine()->template update_values<Stats::CpuTime>(
+          std::chrono::duration<float, std::milli>(end_trial - start_trial));
       std::vector<Metric> metrics = {get_stats_engine()->get_metrics()};
       m_stream.reset();
       set_batch_size(base_batch_size);
@@ -431,6 +435,7 @@ namespace Baseliner {
         get_stats_engine()->template register_stat<Stats::Median>();
 
         get_stats_engine()->template register_metric<Stats::HostSetupTime>();
+        get_stats_engine()->template register_metric<Stats::CpuTime>();
         get_stats_engine()->template register_metric<Stats::DeviceSetupTime>();
         get_stats_engine()->template register_metric<Stats::BatchSize>();
         get_stats_engine()->template register_metric<Stats::FetchResultsTime>();
