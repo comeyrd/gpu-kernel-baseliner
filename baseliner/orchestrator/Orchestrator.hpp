@@ -184,11 +184,12 @@ namespace Baseliner {
       set_opt(primbench_preset, "flush", "1");
       set_opt(primbench_preset, "dynamic_batch", "1");
       set_opt(primbench_preset, "minimal_batch_duration", "10.000000");
-      set_opt(primbench_preset, "batch_size", "1");
+      set_opt(primbench_preset, "batch_size", "25");
       set_opt(primbench_preset, "block", "1");
       set_opt(primbench_preset, "block_duration", "10000.000000");
       set_opt(primbench_preset, "block_queue_size", "64");
       protocol.presets["Benchmark"]["default"] = primbench_preset;
+      protocol.recipes["default"].stopping = RecipeComponent{"VariationStoppingCriterion", "default"};
       return run_protocol(protocol);
     }
     inline auto run_nvbench_default(std::string device) -> Report {
@@ -213,13 +214,14 @@ namespace Baseliner {
       set_opt(nvbench_preset, "warm_cool", "0");
       set_opt(nvbench_preset, "warmup", "1");
       set_opt(nvbench_preset, "flush", "1");
-      set_opt(nvbench_preset, "dynamic_batch", "0");
+      set_opt(nvbench_preset, "dynamic_batch", "1");
       set_opt(nvbench_preset, "minimal_batch_duration", "10.000000");
-      set_opt(nvbench_preset, "batch_size", "1");
+      set_opt(nvbench_preset, "batch_size", "25");
       set_opt(nvbench_preset, "block", "0");
       set_opt(nvbench_preset, "block_duration", "1000.000000");
       set_opt(nvbench_preset, "block_queue_size", "64");
       protocol.presets["Benchmark"]["default"] = nvbench_preset;
+      protocol.recipes["default"].stopping = RecipeComponent{"StdRelStoppingCriterion", "default"};
       return run_protocol(protocol);
     }
     inline auto get_minimal_protocol() -> Protocol {

@@ -40,14 +40,13 @@ namespace Baseliner {
 
       if (engine->get_result<Stats::GpuAccumulatedTime>() < m_min_time_ms)
         return false;
-
       if (engine->get_result<Stats::RelativeStandardDeviation>() <= m_max_noise)
         return true;
 
       const auto &noise_vec = engine->get_result<Stats::RelativeStandardDeviationVector>();
       const size_t reps = engine->get_result<Stats::Repetitions>();
 
-      if (noise_vec.size() > m_noise_stability_window && (reps % 16 == 0)) {
+      if (noise_vec.size() > m_noise_stability_window) {
         float current = noise_vec.back();
         if (current <= 0.0f) {
           return false;
@@ -63,7 +62,6 @@ namespace Baseliner {
         }
         double stdev = std::sqrt(sq_sum / (count - 1));
         double rel_stdev = stdev / current;
-
         if (rel_stdev < m_noise_stability_threshold) {
           return true;
         }
