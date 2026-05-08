@@ -41,6 +41,7 @@ __attribute__((weak)) int main(int argc, char **argv) { // NOLINT
   run_parser.add_argument("--nvbench")
       .help("To use nvbench default benchmarking style when no protocol file is selected")
       .flag();
+  run_parser.add_argument("--tiny").help("A tiny run for debug purposes").flag();
   run_parser.add_argument("--device").help("The device to use if the default mode is selected").nargs(1);
   program.add_subparser(run_parser);
 
@@ -137,6 +138,8 @@ __attribute__((weak)) int main(int argc, char **argv) { // NOLINT
         report = Orchestrator::run_primbench_default(device);
       } else if (run_parser.is_used("--nvbench")) {
         report = Orchestrator::run_nvbench_default(device);
+      } else if (run_parser.is_used("--tiny")) {
+        report = Orchestrator::run_tiny(device);
       } else {
         report = Orchestrator::run_default(device);
       }

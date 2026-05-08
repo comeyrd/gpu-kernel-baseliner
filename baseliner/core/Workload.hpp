@@ -11,7 +11,7 @@
 
 namespace Baseliner {
   constexpr int DEFAULT_SEED = 333;
-  constexpr size_t DEFAULT_WORK_SIZE = 50;
+  constexpr size_t DEFAULT_WORK_SIZE = 10;
 
   template <typename BackendT>
   class IWorkload : public IOption {

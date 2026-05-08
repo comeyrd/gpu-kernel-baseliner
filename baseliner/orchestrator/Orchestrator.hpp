@@ -147,6 +147,19 @@ namespace Baseliner {
       }
       return run_protocol(protocol);
     }
+    inline auto run_tiny(std::string device) -> Report {
+      Protocol protocol = get_default_protocol();
+      auto *storage_manager = StorageManager::instance();
+      auto backends = storage_manager->list_backends();
+      for (const auto &backend : backends) {
+        ComponentPreset preset = storage_manager->get_component_preset(backend, "default");
+        preset.options["Backend"]["device"].value = device;
+        protocol.presets[backend]["default"] = preset;
+      }
+      protocol.presets["StoppingCriterion"]["default"].options["StoppingCriterion"]["max_nb_repetition"].value = "50";
+      protocol.recipes["default"].sweep = {};
+      return run_protocol(protocol);
+    }
     inline auto run_primbench_default(std::string device) -> Report {
       Protocol protocol = get_default_protocol();
       auto *storage_manager = StorageManager::instance();
