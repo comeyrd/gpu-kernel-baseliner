@@ -145,9 +145,9 @@ namespace Baseliner {
         preset.options["Backend"]["device"].value = device;
         protocol.presets[backend]["default"] = preset;
       }
-      // StatsPreset stat_presets;
-      // stat_presets.stat_names = {"Mean", "Median", "CoefficientOfVariation"};
-      // protocol.stats_presets["default"] = stat_presets;
+      StatsPreset stat_presets;
+      stat_presets.stat_names = {"Mean", "Median", "CoefficientOfVariation"};
+      protocol.stats_presets["default"] = stat_presets;
       protocol.baseliner_version = Version::string();
       Recipe def_recipe;
       def_recipe.stats = {"default"};
