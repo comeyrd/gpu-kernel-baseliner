@@ -105,11 +105,22 @@ namespace Baseliner::Stats {
       return MetricGranularity::ON_DEMAND;
     }
   };
-
-  class SetupTime : public Imetric<SetupTime, float_milliseconds> {
+  class HostSetupTime : public Imetric<HostSetupTime, float_milliseconds> {
   public:
     [[nodiscard]] auto name() const -> std::string override {
-      return "setup_time";
+      return "host_setup_time";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "ms";
+    }
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::ONCE;
+    }
+  };
+  class DeviceSetupTime : public Imetric<DeviceSetupTime, float_milliseconds> {
+  public:
+    [[nodiscard]] auto name() const -> std::string override {
+      return "device_setup_time";
     }
     [[nodiscard]] auto unit() const -> std::string override {
       return "ms";

@@ -294,10 +294,15 @@ namespace Baseliner {
       int base_batch_size = get_batch_size();
       setup_metrics();
       get_stats_engine()->reset_engine();
+      const auto tim0 = std::chrono::steady_clock::now();
       m_workload->setup_host();
+      const auto tim1 = std::chrono::steady_clock::now();
+      get_stats_engine()->template update_values<Stats::DeviceSetupTime>(
+          std::chrono::duration<float, std::milli>(tim1 - tim0));
+
       auto setup_time = m_workload->timed_sync_setup_device(*m_stream);
       update_metrics();
-      get_stats_engine()->template update_values<Stats::SetupTime>(setup_time);
+      get_stats_engine()->template update_values<Stats::DeviceSetupTime>(setup_time);
       if (get_warmup()) {
         auto warmup_time = m_workload->timed_sync_run(*m_stream);
         get_stats_engine()->template update_values<Stats::WarmupTime>(warmup_time);
@@ -425,7 +430,8 @@ namespace Baseliner {
         }
         get_stats_engine()->template register_stat<Stats::Median>();
 
-        get_stats_engine()->template register_metric<Stats::SetupTime>();
+        get_stats_engine()->template register_metric<Stats::HostSetupTime>();
+        get_stats_engine()->template register_metric<Stats::DeviceSetupTime>();
         get_stats_engine()->template register_metric<Stats::BatchSize>();
         get_stats_engine()->template register_metric<Stats::FetchResultsTime>();
         if (m_workload) {

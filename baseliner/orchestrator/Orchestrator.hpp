@@ -120,7 +120,7 @@ namespace Baseliner {
       def_recipe.stopping = RecipeComponent{"StoppingCriterion", "default"};
       def_recipe.sweep =
           SweepSpec{SweepStrategy::FullGrid,
-                    {SweepAxis{"Workload", "work_size", SweepHint{SweepPolicy::PowersOfTwo, "1", "1024", "1", {}}}}};
+                    {SweepAxis{"Workload", "work_size", SweepHint{SweepPolicy::PowersOfTwo, "1", "256", "1", {}}}}};
       def_recipe.description = "Default Recipe";
       protocol.recipes["default"] = def_recipe;
       Campaign default_campaign;
@@ -219,7 +219,7 @@ namespace Baseliner {
       def_recipe.stopping = {};
       def_recipe.sweep =
           SweepSpec{SweepStrategy::FullGrid,
-                    {SweepAxis{"Workload", "work_size", SweepHint{SweepPolicy::PowersOfTwo, "1", "1024", "1", {}}}}};
+                    {SweepAxis{"Workload", "work_size", SweepHint{SweepPolicy::PowersOfTwo, "1", "256", "1", {}}}}};
       def_recipe.description = "Minimal recipe with everything kept to default";
       protocol.recipes["minimal"] = def_recipe;
       Campaign default_campaign;
