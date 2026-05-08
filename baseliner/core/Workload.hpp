@@ -22,6 +22,10 @@ namespace Baseliner {
 
     void register_options() override;
 
+    void set_worksize(int work_size) {
+      m_work_size = work_size;
+      on_update();
+    }
     virtual auto number_of_floating_point_operations() -> std::optional<size_t>;
     virtual auto number_of_bytes() -> std::optional<size_t>;
 
