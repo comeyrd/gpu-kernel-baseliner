@@ -20,7 +20,7 @@ namespace Baseliner {
       }
       auto workload_options = ptr->get_workload_options();
       if (Options::is_subset(workload_options, workload_preset)) {
-        ptr->apply_options(workload_preset);
+        ptr->apply_depedencies_options(workload_preset);
       } else {
         throw Errors::preset_not_subset_of(workload_preset, workload_options);
       }
