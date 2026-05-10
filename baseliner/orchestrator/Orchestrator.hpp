@@ -176,7 +176,7 @@ namespace Baseliner {
       ComponentPreset primbench_preset;
       primbench_preset.description = "primbench-style: dynamic batch size, blocking kernel, warm/cool cycle, L2 flush";
       set_opt(primbench_preset, "validate_workload", "0");
-      set_opt(primbench_preset, "min_gpu_temp", "50.000000");
+      set_opt(primbench_preset, "min_gpu_temp", "45.000000");
       set_opt(primbench_preset, "max_gpu_temp", "60.000000");
       set_opt(primbench_preset, "warm_cool_timeout", "60");
       set_opt(primbench_preset, "warm_cool", "1");
