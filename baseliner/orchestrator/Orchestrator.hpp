@@ -217,7 +217,7 @@ namespace Baseliner {
       set_opt(nvbench_preset, "dynamic_batch", "1");
       set_opt(nvbench_preset, "minimal_batch_duration", "10.000000");
       set_opt(nvbench_preset, "batch_size", "25");
-      set_opt(nvbench_preset, "block", "0");
+      set_opt(nvbench_preset, "block", "1");
       set_opt(nvbench_preset, "block_duration", "1000.000000");
       set_opt(nvbench_preset, "block_queue_size", "64");
       protocol.presets["Benchmark"]["default"] = nvbench_preset;

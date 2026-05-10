@@ -198,13 +198,13 @@ namespace Baseliner {
 
   private:
     bool m_warm_cool = false;
-    float m_min_gpu_temp = 50.0;
+    float m_min_gpu_temp = 45.0;
     float m_max_gpu_temp = 60.0;
     int m_warm_cool_timeout = 3;
     bool m_warmup = true;
     bool m_flush_l2 = true;
     int m_max_blocked_queue = 64;
-    bool m_block = false;
+    bool m_block = true;
     float m_block_duration_ms = DEFAULT_BLOCK_DURATION;
     bool m_first = true;
     bool m_dynamic_batch = false;
