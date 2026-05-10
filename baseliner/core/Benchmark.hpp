@@ -326,7 +326,9 @@ namespace Baseliner {
               throw Errors::warm_cool_gpu_timeout(get_warm_cool_timeout());
             }
             if (temp < get_min_gpu_temp()) {
-              warming_k.warm(*m_stream);
+              for (int i = 0; i < 16; ++i) {
+                warming_k.warm(*m_stream);
+              }
               BackendT::synchronize(*m_stream);
             } else if (temp > get_max_gpu_temp()) {
               BackendT::instance()->cool_gpu(*m_stream);
