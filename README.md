@@ -1,68 +1,148 @@
-# Gpu Kernel Baseliner
-[WIP]
-Gpu Kernel Baseliner is a C++ library to produce reliable and accurate execution time measurement for Cuda and Hip Kernels.
+# Baseliner
 
-**Baseliner** helps developers understand the performance of their kernels in a controlled and easy to use environnement.
+Baseliner is a GPU benchmarking library for C++ that provides statistically rigorous kernel timing with native support for CUDA and HIP.
 
-This library is still a Work In Progress, the user facing interfaces could be subject to change.
+The library separates measurement logic from kernel code through a plugin architecture where workloads, stopping criteria, and statistics are independently registered components. This design allows the same kernel to run under different measurement strategies without modification.
 
-## Use Cases
+> ⚠️ This is research software under active development. Interfaces may change.
 
-Baseliner is designed to answer specific performance questions:
+## Design
 
-- **Regression Testing** : Compare two versions of the same kernel on the same card.
-- **Hardware Comparison** : Compare the execution of the same kernel across cards.
+### Architecture
 
-## Features
+Baseliner uses a registry-based plugin system. Workloads, backends, stopping criteria, and statistics are registered at startup via macros and instantiated by the orchestrator at runtime.
 
-- **Dual Support** : Native support for both **CUDA** and **HIP** runtimes.
-- **Statistical Stability** : Handles reruns and numbers of execution to produce reliable measurements.
-- **Low Overhead** : Results are the closest possible to the real executions.
-- **Minimal Setup & Runtime Tuning:** Designed for easy integration into existing C++ projects. Benchmark parameters can be adjusted at runtime, allowing you to modify test conditions without the need to recompile.
+The measurement loop distinguishes six workload stages: host setup, device allocation, device reset, kernel execution, result fetch, and cleanup. Each stage can be individually timed.
 
-## Requirements
+### Backends
 
-- C++ 17 or higher
-- Cmake 3.15+
-- **Nvidia**: CUDA Toolkit (11.0+)
-- **AMD**: ROCm(5.2+)
+Backends abstract hardware operations (streams, events, memory, timing) behind a common interface. CUDA and HIP backends are included. Adding support for a new framework requires implementing the backend interface.
 
-_The recommended setup is the highest CUDA or HIP version your Backend supports._
-_Note_: You need at least one of the GPU architectures to compile and use this library.
+### Stopping Criteria
 
-### Depedencies
+Trials terminate when a stopping criterion is satisfied. Included implementations:
+- Fixed iteration count
+- Entropy convergence (after NVBench)
+- Coefficient of variation threshold (after PrimBench)
+- Confidence interval width
 
-- **nlohmann/json**, To simplify saving settings and outputs, we use this json library, it is embedded into the library.
+### Statistics Engine
 
-## Installation
+A dependency graph tracks relationships between measurements and derived metrics. Raw timing samples feed aggregates (median, mean, stddev) which in turn feed derived quantities (throughput, arithmetic intensity). The engine computes values as dependencies resolve.
 
-**In the futur, the library will be available in binary form**
+### Protocol Files
 
-### Cmake and FetchContent
+Benchmarks are defined via JSON protocol files specifying presets, recipes, and campaigns. This makes runs reproducible and configuration explicit.
 
-You can fetch and build the library with the Cmake FetchContent to automatically download the library as a depedency.
-Example :
+## Building
 
-```cmake
-FetchContent_Declare(
-  baseliner
-  GIT_REPOSITORY https://github.com/comeyrd/gpu-kernel-baseliner.git
-  GIT_TAG        v0.1
-)
-FetchContent_MakeAvailable(baseliner)
+Requires CMake 3.15+ and C++17. At least one backend compiler is required:
+- CUDA 11.0+ (12.0+ recommended)
+- HIP 5.2+ (7.0+ recommended)
 
-target_link_libraries(my_benchmark PRIVATE baseliner::baseliner)
+```bash
+cmake -S . -B build -DBASELINER_BUILD_EXAMPLES=ON
+cmake --build build
 ```
+
+The build system detects available compilers and enables corresponding backends. NVML and AMD SMI are optional dependencies used for temperature monitoring.
+
+## Running
+
+The CLI has two modes:
+
+**Generate metadata or protocol files:**
+```bash
+baseliner-example gen --metadata metadata.json
+baseliner-example gen --schema protocol.schema.json
+baseliner-example gen --default-pf protocol.json
+```
+
+**Run benchmarks:**
+```bash
+baseliner-example run --protocol-files protocol.json
+baseliner-example run --output-file results.json --protocol-files protocol.json
+```
+
+Results are written as JSON containing hardware info, measurements, and derived statistics.
+
+## Writing a Workload
+
+Define a workload by inheriting from `IWorkload<Backend>` and implementing the lifecycle methods:
+
+```cpp
+template <typename BackendT>
+class MyKernel : public Baseliner::IWorkload<BackendT> {
+  using backend = BackendT;
+
+  void setup_host_random_generated() override {
+    // Initialize host data
+  }
+
+  void setup_device(typename backend::stream_t stream) override {
+    // Allocate device memory, copy data
+  }
+
+  void reset_device(typename backend::stream_t stream) override {
+    // Reset state between runs
+  }
+
+  auto run(typename backend::stream_t stream)
+      -> typename backend::launch_result_t override {
+    // Launch kernel
+    return {};
+  }
+
+  void fetch_results(typename backend::stream_t stream) override {
+    // Copy results back, free device memory
+  }
+
+  void free() override {}
+};
+```
+
+Register backend-specific specializations:
+```cpp
+// In .cu file
+template <>
+auto MyKernel<CudaBackend>::run(cudaStream_t stream) -> std::monostate {
+  my_cuda_kernel<<<grid, block, 0, stream>>>(...);
+  return {};
+}
+
+namespace {
+  BASELINER_REGISTER_WORKLOAD(MyKernel<CudaBackend>);
+}
+```
+
+See `examples/` for complete implementations.
 
 ## Examples
 
-An example of the usage of Baseliner is in the [using-baseliner](https://github.com/comeyrd/using-baseliner) repository.
+Two workloads are included:
+- **MatMulWorkload** — tiled matrix multiply with 16x16 and 32x32 variants
+- **ComputationWorkload** — simple vector arithmetic kernel
 
-## Documentation
+Both have CUDA and HIP implementations demonstrating the registration pattern.
 
-**In Progress...**
+## Configuration Options
 
-## Contributions
+Protocol files support configuration of:
+- **Benchmark options** — batching, L2 flushing, thermal management, validation
+- **Stopping criteria** — iteration counts, thresholds, confidence levels
+- **Statistics** — which metrics to compute and report
+- **Sweeps** — parameter ranges to explore (cartesian or zip strategies)
 
-Contributions are welcomed !
-There should be some Issues tagged as "getting-started", start with that then we will chat to see what you can contribute on !
+The schema is available via `gen --schema`.
+
+## Requirements
+
+- C++17
+- CMake 3.15+
+- CUDA 11.0+ or HIP 5.2+
+- nlohmann/json (fetched automatically)
+- argparse (fetched automatically)
+
+## Performance
+
+Baseliner's GPU event timing matches the precision of vendor tools. Batching and configurable accuracy features (cache flushing, thermal control) allow trading measurement overhead for precision depending on workload requirements.
