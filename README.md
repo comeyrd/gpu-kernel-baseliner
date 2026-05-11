@@ -66,7 +66,7 @@ Protocol files define reproducible benchmark configurations in JSON format.
 
 ```json
 {
-  "baseliner_version": "0.9.0",
+  "baseliner_version": "1.0.0",
   "presets": { /* component configurations */ },
   "stats_presets": { /* statistics configurations */ },
   "recipes": { /* stopping criteria + stats combinations */ },
@@ -303,7 +303,7 @@ Results are written as JSON containing:
 **Example output structure:**
 ```json
 {
-  "baseliner_version": "0.9.0",
+  "baseliner_version": "1.0.0",
   "hardware": { "device_name": "...", "compute_capability": "..." },
   "results": [
     {
