@@ -11,7 +11,6 @@
 namespace Baseliner {
 
   constexpr size_t DEFAULT_MAX_REPETITION = 500;
-  constexpr size_t DEFAULT_BATCH_SIZE = 1;
   class StoppingCriterion : public IOption {
   public:
     auto satisfied() -> bool;

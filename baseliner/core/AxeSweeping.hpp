@@ -150,4 +150,4 @@ namespace Baseliner {
   } // namespace Sweep
 } // namespace Baseliner
 
-#endif
+#endif // BASELINER_CORE_AXESWEEPING_HPP
