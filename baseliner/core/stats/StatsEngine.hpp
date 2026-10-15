@@ -111,26 +111,44 @@ namespace Baseliner::Stats {
     void compute_batch_stats();
     void compute_element_stats();
 
+    void set_verbosity(MetricVerbosity val) {
+      m_verbosity = val;
+    }
+    void set_verbosity(int val) {
+      m_verbosity = static_cast<MetricVerbosity>(val);
+    }
+    [[nodiscard]] auto get_verbosity() const -> MetricVerbosity {
+      return m_verbosity;
+    }
+
     auto get_metrics() -> std::vector<Metric> {
       std::vector<Metric> metrics_vector{};
       compute_on_demand();
       for (auto &stat_ptr : m_stats) {
-        Metric metric;
         if (stat_ptr->saving_policy() == SavingPolicy::SAVE) {
+          if (static_cast<uint8_t>(stat_ptr->verbosity()) > static_cast<uint8_t>(m_verbosity)) {
+            continue;
+          }
+          Metric metric;
           metric.name = stat_ptr->name();
           metric.unit = stat_ptr->unit();
           metric.data = stat_ptr->get_value(m_registry);
           metric.granularity = stat_ptr->granularity();
+          metric.verbosity = stat_ptr->verbosity();
           metrics_vector.push_back(metric);
         }
       }
       for (auto &metric_ptr : m_metrics) {
         if (metric_ptr->saving_policy() == SavingPolicy::SAVE) {
+          if (static_cast<uint8_t>(metric_ptr->verbosity()) > static_cast<uint8_t>(m_verbosity)) {
+            continue;
+          }
           Metric metric;
           metric.name = metric_ptr->name();
           metric.unit = metric_ptr->unit();
           metric.data = metric_ptr->get_value(m_registry);
           metric.granularity = metric_ptr->granularity();
+          metric.verbosity = metric_ptr->verbosity();
           metrics_vector.push_back(metric);
         }
       }
@@ -211,6 +229,7 @@ namespace Baseliner::Stats {
     std::unordered_map<std::type_index, IStatBase *> m_on_demand_stats;
     std::unordered_map<IMetricBase *, std::vector<IStatBase *>> m_metric_to_stats;
     OptionsMap m_stat_options;
+    MetricVerbosity m_verbosity = MetricVerbosity::SCALARS;
     bool m_is_built = false;
     void ensure_build();
     void build_execution_plan();

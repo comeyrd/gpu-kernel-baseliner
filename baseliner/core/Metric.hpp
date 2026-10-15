@@ -19,13 +19,17 @@ namespace Baseliner {
   DESCRIBE_ENUM(MetricGranularity, ENUM_VALUE(EVERY_ELEMENT), ENUM_VALUE(EVERY_BATCH), ENUM_VALUE(ON_DEMAND),
                 ENUM_VALUE(ONCE))
 
+  DESCRIBE_ENUM(MetricVerbosity, ENUM_VALUE(CORE), ENUM_VALUE(SCALARS), ENUM_VALUE(BATCH_VECTORS),
+                ENUM_VALUE(ELEMENT_VECTORS))
+
   struct Metric {
     std::string name;
     std::string unit;
     MetricData data;
     MetricGranularity granularity;
+    MetricVerbosity verbosity = MetricVerbosity::SCALARS;
   };
-  DESCRIBE(Metric, FIELD(name), FIELD(unit), FIELD(data), FIELD(granularity))
+  DESCRIBE(Metric, FIELD(name), FIELD(unit), FIELD(data), FIELD(granularity), FIELD(verbosity))
 
 } // namespace Baseliner
 #endif // BASELINER_METRIC_HPP
