@@ -35,6 +35,10 @@ namespace Baseliner::Stats {
       return SavingPolicy::SAVE;
     };
 
+    [[nodiscard]] virtual auto verbosity() const -> MetricVerbosity {
+      return MetricVerbosity::SCALARS;
+    };
+
     virtual void compute(StatsRegistry &reg) = 0;
     [[nodiscard]] virtual auto get_value(const StatsRegistry &reg) const -> MetricData = 0;
     virtual void set_default(StatsRegistry &reg) = 0;
@@ -105,6 +109,9 @@ namespace Baseliner::Stats {
     virtual void set_default(StatsRegistry &reg) = 0;
     [[nodiscard]] virtual auto saving_policy() const -> SavingPolicy {
       return SavingPolicy::SAVE;
+    };
+    [[nodiscard]] virtual auto verbosity() const -> MetricVerbosity {
+      return MetricVerbosity::SCALARS;
     };
     [[nodiscard]] virtual auto granularity() const -> MetricGranularity = 0;
     virtual ~IMetricBase() = default;

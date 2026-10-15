@@ -3,7 +3,7 @@
 #include <baseliner/core/stats/IStats.hpp>
 #include <baseliner/core/stats/Stats.hpp>
 namespace Baseliner::Stats {
-  class CoefficientOfVariation : public IStat<CoefficientOfVariation, float, BatchTimeVector,BatchCount> {
+  class CoefficientOfVariation : public IStat<CoefficientOfVariation, float, BatchTimeVector, BatchCount> {
   public:
     [[nodiscard]] auto name() const -> std::string override {
       return "coefficient_of_variation";
@@ -12,7 +12,8 @@ namespace Baseliner::Stats {
       return "%";
     }
 
-    void calculate(float &value_to_update, const std::vector<float_milliseconds> &batch_times,const size_t &count) override {
+    void calculate(float &value_to_update, const std::vector<float_milliseconds> &batch_times,
+                   const size_t &count) override {
       // Use the configurable window size
       if (count < 2) {
         value_to_update = 100.0f;
@@ -40,6 +41,9 @@ namespace Baseliner::Stats {
 
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::EVERY_BATCH;
+    }
+    [[nodiscard]] auto verbosity() const -> MetricVerbosity override {
+      return MetricVerbosity::CORE;
     }
 
   protected:

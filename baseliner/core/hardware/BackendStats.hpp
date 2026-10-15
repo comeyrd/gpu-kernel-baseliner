@@ -45,6 +45,9 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::EVERY_BATCH;
     }
+    [[nodiscard]] auto verbosity() const -> MetricVerbosity override {
+      return MetricVerbosity::BATCH_VECTORS;
+    }
     [[nodiscard]] auto saving_policy() const -> SavingPolicy override {
       return SavingPolicy::SAVE;
     }
@@ -85,6 +88,9 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::EVERY_BATCH;
     }
+    [[nodiscard]] auto verbosity() const -> MetricVerbosity override {
+      return MetricVerbosity::BATCH_VECTORS;
+    }
     [[nodiscard]] auto saving_policy() const -> SavingPolicy override {
       return SavingPolicy::SAVE;
     }
@@ -124,6 +130,9 @@ namespace Baseliner::Stats {
     }
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::EVERY_BATCH;
+    }
+    [[nodiscard]] auto verbosity() const -> MetricVerbosity override {
+      return MetricVerbosity::BATCH_VECTORS;
     }
     [[nodiscard]] auto saving_policy() const -> SavingPolicy override {
       return SavingPolicy::SAVE;

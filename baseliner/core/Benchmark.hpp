@@ -139,6 +139,10 @@ namespace Baseliner {
       add_option("Benchmark", "dynamic_batch", "If the batch size is dynamic", m_dynamic_batch);
       add_option("Benchmark", "validate_workload", "If you want the workload results to be validated",
                  m_validate_workload);
+      add_option("Benchmark", "verbosity",
+                 "Metric verbosity level (0: Core scalars, 1: All scalars, 2: All scalars + batch vectors, 3: All + "
+                 "every-element vectors)",
+                 m_verbosity);
     }
 
     auto get_stopping_no_except() -> std::optional<StoppingCriterion *> {
@@ -193,10 +197,17 @@ namespace Baseliner {
     auto get_max_blocking_queue() const -> int {
       return m_max_blocked_queue;
     }
+    auto get_verbosity() const -> int {
+      return m_verbosity;
+    }
+    void set_verbosity(int val) {
+      m_verbosity = val;
+    }
 
     [[nodiscard]] virtual auto single_run(const std::optional<OptionsMap> &sweep_point) -> RunReport = 0;
 
   private:
+    int m_verbosity = 1;
     bool m_warm_cool = false;
     float m_min_gpu_temp = 45.0;
     float m_max_gpu_temp = 60.0;
@@ -389,6 +400,7 @@ namespace Baseliner {
       const auto end_trial = std::chrono::steady_clock::now();
       get_stats_engine()->template update_values<Stats::CpuTime>(
           std::chrono::duration<float, std::milli>(end_trial - start_trial));
+      get_stats_engine()->set_verbosity(get_verbosity());
       std::vector<Metric> metrics = {get_stats_engine()->get_metrics()};
       m_stream.reset();
       set_batch_size(base_batch_size);

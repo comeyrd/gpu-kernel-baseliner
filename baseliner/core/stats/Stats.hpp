@@ -182,6 +182,9 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::EVERY_ELEMENT;
     }
+    [[nodiscard]] auto verbosity() const -> MetricVerbosity override {
+      return MetricVerbosity::CORE;
+    }
   };
   class BatchCount : public IStat<BatchCount, size_t> {
   public:
@@ -196,6 +199,9 @@ namespace Baseliner::Stats {
     }
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::EVERY_BATCH;
+    }
+    [[nodiscard]] auto verbosity() const -> MetricVerbosity override {
+      return MetricVerbosity::CORE;
     }
   };
 
@@ -213,6 +219,9 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::EVERY_BATCH;
     }
+    [[nodiscard]] auto verbosity() const -> MetricVerbosity override {
+      return MetricVerbosity::BATCH_VECTORS;
+    }
   };
 
   class ExecutionTimeVector : public IStat<ExecutionTimeVector, std::vector<float_milliseconds>, ExecutionTime> {
@@ -229,6 +238,9 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::EVERY_ELEMENT;
     }
+    [[nodiscard]] auto verbosity() const -> MetricVerbosity override {
+      return MetricVerbosity::ELEMENT_VECTORS;
+    }
   };
   class BatchTimeVector : public IStat<BatchTimeVector, std::vector<float_milliseconds>, BatchTime> {
   public:
@@ -243,6 +255,9 @@ namespace Baseliner::Stats {
     }
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::EVERY_BATCH;
+    }
+    [[nodiscard]] auto verbosity() const -> MetricVerbosity override {
+      return MetricVerbosity::BATCH_VECTORS;
     }
   };
 
@@ -263,6 +278,9 @@ namespace Baseliner::Stats {
     }
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::ON_DEMAND;
+    }
+    [[nodiscard]] auto verbosity() const -> MetricVerbosity override {
+      return MetricVerbosity::CORE;
     }
   };
   class HarmonicMean : public IStat<HarmonicMean, float, ExecutionTimeVector> {
@@ -317,6 +335,9 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::EVERY_ELEMENT;
     }
+    [[nodiscard]] auto verbosity() const -> MetricVerbosity override {
+      return MetricVerbosity::ELEMENT_VECTORS;
+    }
   };
 
   class Median : public IStat<Median, float, SortedExecutionTimeVector> {
@@ -337,6 +358,9 @@ namespace Baseliner::Stats {
     }
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::ON_DEMAND;
+    }
+    [[nodiscard]] auto verbosity() const -> MetricVerbosity override {
+      return MetricVerbosity::CORE;
     }
   };
 
@@ -494,6 +518,9 @@ namespace Baseliner::Stats {
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::ON_DEMAND;
     }
+    [[nodiscard]] auto verbosity() const -> MetricVerbosity override {
+      return MetricVerbosity::ELEMENT_VECTORS;
+    }
 
   protected:
     void register_options() override;
@@ -527,17 +554,17 @@ namespace Baseliner::Stats {
       }
     }
   };
-  class RelativeStandardDeviation : public IStat<RelativeStandardDeviation, float, ExecutionTimeVector, Mean> {
+  class StandardDeviation : public IStat<StandardDeviation, float, ExecutionTimeVector, Mean> {
   public:
     [[nodiscard]] auto name() const -> std::string override {
-      return "relative_standard_deviation";
+      return "standard_deviation";
     }
     [[nodiscard]] auto unit() const -> std::string override {
-      return "%";
+      return "ms";
     }
     void calculate(float &value_to_update, const std::vector<float_milliseconds> &times, const float &mean) override {
-      if (times.size() < 2 || mean <= 0.0f) {
-        value_to_update = 100.0f;
+      if (times.size() < 2) {
+        value_to_update = 0.0f;
         return;
       }
       double sq_sum = 0.0;
@@ -545,11 +572,33 @@ namespace Baseliner::Stats {
         double diff = t.count() - mean;
         sq_sum += diff * diff;
       }
-      double stdev = std::sqrt(sq_sum / (times.size() - 1));
-      value_to_update = static_cast<float>((stdev / mean) * 100.0);
+      value_to_update = static_cast<float>(std::sqrt(sq_sum / (times.size() - 1)));
     }
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::EVERY_ELEMENT;
+    }
+  };
+
+  class RelativeStandardDeviation : public IStat<RelativeStandardDeviation, float, StandardDeviation, Mean> {
+  public:
+    [[nodiscard]] auto name() const -> std::string override {
+      return "relative_standard_deviation";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "%";
+    }
+    void calculate(float &value_to_update, const float &stdev, const float &mean) override {
+      if (mean <= 0.0f) {
+        value_to_update = 100.0f;
+        return;
+      }
+      value_to_update = static_cast<float>((stdev / mean) * 100.0f);
+    }
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::EVERY_ELEMENT;
+    }
+    [[nodiscard]] auto verbosity() const -> MetricVerbosity override {
+      return MetricVerbosity::CORE;
     }
   };
   class RelativeStandardDeviationVector
@@ -563,6 +612,9 @@ namespace Baseliner::Stats {
     }
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::EVERY_ELEMENT;
+    }
+    [[nodiscard]] auto verbosity() const -> MetricVerbosity override {
+      return MetricVerbosity::ELEMENT_VECTORS;
     }
     void calculate(std::vector<float> &value_to_update, const float &noise) override {
       value_to_update.push_back(noise);
