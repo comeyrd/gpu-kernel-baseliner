@@ -1,4 +1,5 @@
 #include <baseliner/Register.hpp>
+#include <baseliner/core/DetectabilityStopping.hpp>
 #include <baseliner/core/StoppingCriterion.hpp>
 #include <baseliner/nvbench/NvBenchStopping.hpp>
 #include <baseliner/nvbench/StrDelStopping.hpp>
@@ -10,6 +11,7 @@ namespace Baseliner {
   BASELINER_REGISTER_STOPPING_CRITERION(VariationStoppingCriterion);
   BASELINER_REGISTER_STOPPING_CRITERION(EntropyStoppingCriterion);
   BASELINER_REGISTER_STOPPING_CRITERION(StdRelStoppingCriterion);
+  BASELINER_REGISTER_STOPPING_CRITERION(DetectabilityStoppingCriterion);
 
   // STATS
   namespace Stats {

@@ -527,17 +527,17 @@ namespace Baseliner::Stats {
       }
     }
   };
-  class RelativeStandardDeviation : public IStat<RelativeStandardDeviation, float, ExecutionTimeVector, Mean> {
+  class StandardDeviation : public IStat<StandardDeviation, float, ExecutionTimeVector, Mean> {
   public:
     [[nodiscard]] auto name() const -> std::string override {
-      return "relative_standard_deviation";
+      return "standard_deviation";
     }
     [[nodiscard]] auto unit() const -> std::string override {
-      return "%";
+      return "ms";
     }
     void calculate(float &value_to_update, const std::vector<float_milliseconds> &times, const float &mean) override {
-      if (times.size() < 2 || mean <= 0.0f) {
-        value_to_update = 100.0f;
+      if (times.size() < 2) {
+        value_to_update = 0.0f;
         return;
       }
       double sq_sum = 0.0;
@@ -545,8 +545,27 @@ namespace Baseliner::Stats {
         double diff = t.count() - mean;
         sq_sum += diff * diff;
       }
-      double stdev = std::sqrt(sq_sum / (times.size() - 1));
-      value_to_update = static_cast<float>((stdev / mean) * 100.0);
+      value_to_update = static_cast<float>(std::sqrt(sq_sum / (times.size() - 1)));
+    }
+    [[nodiscard]] auto granularity() const -> MetricGranularity override {
+      return MetricGranularity::EVERY_ELEMENT;
+    }
+  };
+
+  class RelativeStandardDeviation : public IStat<RelativeStandardDeviation, float, StandardDeviation, Mean> {
+  public:
+    [[nodiscard]] auto name() const -> std::string override {
+      return "relative_standard_deviation";
+    }
+    [[nodiscard]] auto unit() const -> std::string override {
+      return "%";
+    }
+    void calculate(float &value_to_update, const float &stdev, const float &mean) override {
+      if (mean <= 0.0f) {
+        value_to_update = 100.0f;
+        return;
+      }
+      value_to_update = static_cast<float>((stdev / mean) * 100.0f);
     }
     [[nodiscard]] auto granularity() const -> MetricGranularity override {
       return MetricGranularity::EVERY_ELEMENT;
