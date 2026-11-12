@@ -127,9 +127,25 @@ namespace Baseliner {
     }
   }
 
+  template <typename Map>
+  void extract_map_with_context(const nlohmann::ordered_json &j, Map &map, const std::string &path);
+
   template <typename K, typename V, typename Hash, typename Eq, typename Alloc>
   void extract_with_context(const nlohmann::ordered_json &j, std::unordered_map<K, V, Hash, Eq, Alloc> &map,
                             const std::string &path) {
+    extract_map_with_context(j, map, path);
+  }
+
+  // Insertion-ordered map: entries keep the key order of the JSON object.
+  template <typename K, typename V, typename IgnoredLess, typename Alloc>
+  void extract_with_context(const nlohmann::ordered_json &j, nlohmann::ordered_map<K, V, IgnoredLess, Alloc> &map,
+                            const std::string &path) {
+    extract_map_with_context(j, map, path);
+  }
+
+  template <typename Map>
+  void extract_map_with_context(const nlohmann::ordered_json &j, Map &map, const std::string &path) {
+    using V = typename Map::mapped_type;
     if (!j.is_object())
       throw_enriched_error(path, j, std::runtime_error("Expected object {...}"));
     map.clear();

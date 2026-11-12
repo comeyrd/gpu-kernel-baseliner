@@ -4,6 +4,7 @@
 #include <baseliner/core/Version.hpp>
 #include <baseliner/orchestrator/Plan.hpp>
 #include <baseliner/utils/Utils.hpp>
+#include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
 namespace Baseliner {
@@ -18,8 +19,8 @@ namespace Baseliner {
     std::string recipe_name;
     std::string id = Utils::gen_uuid();
     Recipe recipe;
-    // Key1 Backend Key2 Workload
-    std::unordered_map<std::string, std::unordered_map<std::string, BenchmarkExecution>> benchmark_runs;
+    // Key1 Backend Key2 Workload. Insertion-ordered, so the JSON report keeps the execution order.
+    nlohmann::ordered_map<std::string, nlohmann::ordered_map<std::string, BenchmarkExecution>> benchmark_runs;
   };
 
   DESCRIBE(CampaignReport, FIELD(id), FIELD(name), FIELD(recipe_name), FIELD(recipe), FIELD(benchmark_runs))
