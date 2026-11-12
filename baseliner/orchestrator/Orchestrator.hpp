@@ -11,9 +11,22 @@
 #include <baseliner/orchestrator/Protocol.hpp>
 #include <baseliner/orchestrator/Report.hpp>
 #include <baseliner/utils/Utils.hpp>
+#include <algorithm>
+#include <chrono>
+#include <iostream>
+#include <random>
+#include <thread>
 #include <vector>
 namespace Baseliner {
   namespace Orchestrator {
+    // Pause between two campaigns, interruptible by Ctrl+C.
+    inline void pause_between_campaigns(std::chrono::seconds duration = std::chrono::seconds(30)) {
+      std::cout << "[Baseliner] Pausing " << duration.count() << " s before next campaign\n" << std::flush;
+      const auto end = std::chrono::steady_clock::now() + duration;
+      while (!ExecutionController::exit_requested() && std::chrono::steady_clock::now() < end) {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      }
+    }
     inline void load_presets(const Protocol &preset_protocol) {
       StorageManager::instance()->load_protocol_presets(preset_protocol);
     };
@@ -32,8 +45,12 @@ namespace Baseliner {
       benchmark_exec.plan = bench_plan;
       return benchmark_exec;
     };
-    inline auto run_campaign_plan(const CampaignPlan &campaign_plan,
+    inline auto run_campaign_plan(const CampaignPlan &ordered_campaign_plan,
                                   StorageManager *storage_manager = StorageManager::instance()) -> CampaignReport {
+      // Randomize the workload order within the campaign.
+      CampaignPlan campaign_plan = ordered_campaign_plan;
+      static std::mt19937 rng(std::random_device{}());
+      std::shuffle(campaign_plan.benchmarks.begin(), campaign_plan.benchmarks.end(), rng);
       CampaignReport c_report;
       c_report.name = campaign_plan.name;
       c_report.recipe = campaign_plan.recipe;
@@ -61,11 +78,14 @@ namespace Baseliner {
       Report report;
       auto *storage_manager = StorageManager::instance();
       std::vector<CampaignPlan> plans = Planner::plan(protocol, storage_manager);
-      for (const auto &plan : plans) {
+      for (std::size_t i = 0; i < plans.size(); ++i) {
+        if (i > 0) {
+          pause_between_campaigns();
+        }
         if (ExecutionController::exit_requested()) {
           break;
         }
-        report.campaign_runs.push_back(run_campaign_plan(plan));
+        report.campaign_runs.push_back(run_campaign_plan(plans[i]));
       }
       return report;
     };
